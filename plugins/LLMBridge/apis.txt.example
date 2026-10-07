@@ -1,0 +1,109 @@
+﻿; ============================================================================
+;  apis.txt —— LLM API key 注册表（可自由增删，改完保存即生效）
+; ============================================================================
+;  目标：**从服务商后台复制粘贴就能加一条**，不用记格式、不用数序号。
+;
+;  ── 怎么加一条 ──────────────────────────────────────────────────────────
+;  把下面模板整段复制，去掉行首的 ';' 取消注释，改成自己的值即可：
+;
+;      [我的接口]
+;      key    = sk-你的密钥
+;      model  = 模型名
+;      url    = https://api.服务商.com
+;
+;  ── 字段说明（只有三个是必须的）────────────────────────────────────────
+;    key      API 密钥。很多本地服务（Ollama 等）不需要，可留空或写 none
+;    model    模型名，如 deepseek-flash / qwen2.5:7b（以服务商当前文档为准）
+;    url      接口地址。**很宽松**，下面几种写法都可以：
+;                https://api.deepseek.com
+;                https://api.deepseek.com/v1
+;                https://api.deepseek.com/v1/chat/completions   ← 直接粘贴完整地址也行
+;                api.deepseek.com                               ← 不带 https:// 也能识别
+;                http://127.0.0.1:11434                         ← 本地 Ollama
+;             会自动补全成 .../v1/chat/completions
+;
+;  ── 可选字段 ────────────────────────────────────────────────────────────
+;    type       接口风格。默认全兼容 OpenAI 格式，一般不用写
+;                 openai      = OpenAI 兼容（绝大多数：DeepSeek/OpenAI/Kimi/通义/硅基流动/Ollama/vLLM/LM Studio）
+;                 ollama_native = Ollama 原生 /api/chat（非必需，用 openai 风格也行）
+;    temperature  0~2，默认 0.8。想更像角色本人可调到 0.6~0.9
+;    max_tokens   单次回复上限，默认 400
+;
+;  ── 切换当前用哪一条 ────────────────────────────────────────────────────
+;    加一行：  [*]                                 ← 星号表示"选这条"
+;    或者    active = 名字
+;    也可以游戏内用菜单切换（会写回本文件）。
+;    不标则默认用**第一条**。
+;
+;  ── 安全提醒 ────────────────────────────────────────────────────────────
+;    · 本文件含密钥，**不要**分享给他人、不要提交到公开仓库
+;    · 密钥只被插件读取用于发请求，不会写进存档，也不会出现在游戏画面里
+; ============================================================================
+
+
+; ────────────────────────────────────────────────────────────────────────────
+;  示例（取消注释即可用；把 key 换成自己的）
+;
+;  ⚠️ model 一栏请以服务商**当前文档**为准 —— 模型名会随版本更新而变化。
+;     下面的取值核对于 DeepSeek 官方文档（api-docs.deepseek.com）：
+;       deepseek-flash    ← 当前推荐
+;       deepseek-v4-pro   ← 可选（官方称该型号正在有序退役）
+;     若报 "Model Not Exist" 之类错误，去服务商文档确认最新模型名。
+; ────────────────────────────────────────────────────────────────────────────
+
+; [* DeepSeek]（原写法 * 需去掉分号；当前为散装模式，插件也能识别）
+key   = sk-在这里填你的密钥（本地服务可留空）
+model = deepseek-flash
+url   = https://api.deepseek.com
+
+; [* CommandCode]
+; key   = 在此粘贴 CommandCode Provider API key
+; model = deepseek/deepseek-v4-flash
+; url   = https://api.commandcode.ai/provider/v1
+; type  = openai
+; temperature = 0.8
+; max_tokens  = 400
+;
+; CommandCode 也可把 model 换成下列当前实测可用型号之一：
+;   gpt-5.6-sol
+;   gpt-5.6-luna
+;   moonshotai/Kimi-K3
+;   Qwen/Qwen3.8-Max
+;   z-ai/glm-5.3-flash
+;   MiniMaxAI/MiniMax-M3
+;   google/gemini-3.8-flash
+; 注意：claude-* 必须走 Anthropic /messages 协议，当前插件的三字段
+; OpenAI 兼容模式不支持；而且当前 CommandCode 套餐实测也不包含 Claude。
+;
+; [Kimi]
+; key   = sk-在此粘贴你的密钥
+; model = moonshot-v1-8k
+; url   = https://api.moonshot.cn/v1
+
+; [硅基流动]
+; key   = sk-在此粘贴你的密钥
+; model = Qwen/Qwen2.5-7B-Instruct
+; url   = https://api.siliconflow.cn/v1
+
+; [本地 Ollama]（无需密钥）
+; key   = none
+; model = qwen2.5:7b
+; url   = http://127.0.0.1:11434
+
+
+; ────────────────────────────────────────────────────────────────────────────
+;  你的配置写在这里（下面）
+; ────────────────────────────────────────────────────────────────────────────
+; [* CommandCode]
+key   = sk-在这里填你的密钥（本地服务可留空）
+model = deepseek/deepseek-v4.1-Flash
+url   = https://api.commandcode.ai/provider/v1
+type  = openai
+temperature = 0.65
+; ⚠️ max_tokens 要**同时**容纳"思考过程"和"正文" ——
+;    这个接口的 thinking:disabled 不生效，模型仍会先输出一段 reasoning，
+;    400 时 reasoning 会把额度吃光、正文（content）变空，
+;    表现为「接口返回了空内容」。
+;    实测最容易发生在**开场白**那一轮（prompt 最复杂、模型思考最多）。
+;    reasoning 本身可能有 500~1000 字，所以留到 2000 才稳。
+max_tokens  = 2000

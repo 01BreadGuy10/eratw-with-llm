@@ -1,0 +1,191 @@
+﻿@Counter呼び出し処理
+#DIM NUM_TARGET
+NUM_TARGET = GET_TARGETNUM()
+;--------------------------------------------------------------------
+;TCVAR:相手:20　指令番号　内容の大筋 
+;TCVAR:相手:21　派生　内容の詳細
+;--------------------------------------------------------------------
+IF ( TFLAG:102 == 3 || TFLAG:102 == 2 ) && !CFLAG:TARGET:陪睡中
+;IF !CFLAG:TARGET:陪睡中
+	;Counter履歴作成
+	ARRAYCOPY "SELECTCCOM", "PREVCCOM"
+	VARSET SELECTCCOM
+	;淫趴的根源；只要进入逆推COM界面，所有在场角色全部化身淫魔开始拿你先生当性处理指令的对象。加上了诶嘿嘿状态必须与COM页面匹配的判定
+	FOR LOCAL, 1, NUM_TARGET + 1
+		SIF TARGET:LOCAL <= 0 || CFLAG:(TARGET:LOCAL):诶嘿嘿 != TFLAG:102 - 1
+		CONTINUE
+		;给MASTER_COUNTER_RECORD:ARG:1和MASTER_COUNTER_RECORD:ARG:0赋值
+		CALL EVENT_COUNTER(TARGET:LOCAL,LOCAL)
+		;CALL EVENT_COUNTER_COMBINATION
+		SIF (TCVAR:(TARGET:LOCAL):20 || MASTER_COUNTER_RECORD:(TARGET:LOCAL):0) && SELECTCOM != 350
+			CALL KOJO_MESSAGE_SEND_COUNTER(1,TARGET:LOCAL,0,0)
+	NEXT
+	; FOR LOCAL, 1, NUM_TARGET + 1
+	; 	SIF TARGET:LOCAL <= 0
+	; 	CONTINUE
+	; 	IF TCVAR:(TARGET:LOCAL):20 || MASTER_COUNTER_RECORD:ARG:0
+	; 	;根据MASTER_COUNTER_RECORD:ARG:1和MASTER_COUNTER_RECORD:ARG:0的赋值选择相应文本
+	; 		CALL KOJO_MESSAGE_SEND_COUNTER(1,TARGET:LOCAL,0,0)
+	; 	ENDIF
+	; NEXT
+ENDIF
+
+@EVENT_COUNTER(ARG,ARG:1)
+#DIM 候補, CCOM_MAXNUM
+#DIM 基本値
+VARSET LOCAL
+VARSET 候補
+;----------------------------------------------------
+;中止
+;----------------------------------------------------
+;ARG 対象角色
+;ARG:1 行動順
+SIF CFLAG:ARG:うふふ != 2 && GROUPMATCH(SELECTCOM, 350, 355, 400, 402, 404, 405, 420, 604, 699)
+	RETURN 0
+SIF ARG <= 0
+	RETURN 0
+SIF !SHIRAHU(ARG)
+	RETURN 0
+SIF FLAG:70 == 1 && CFLAG:ARG:344 == 0
+	RETURN 0
+SIF CFLAG:ARG:行動 == 5
+	RETURN 0
+SIF TCVAR:ARG:亲热 < 1
+	RETURN 0
+;中止潜伏状态的非潜伏角色实施counter,阻止淫趴
+SIF GETBIT(FLAG:99,0) && !GETBIT(CFLAG:ARG:526,0)
+	RETURN 0
+SIF TEQUIP:ARG:六九式 == 1
+	CALL EVENT_COUNTER_POSE_69(ARG,0)
+TCVAR:ARG:30 ++
+SIF TCVAR:ARG:30 > 1
+	RETURN 0
+
+;----------------------------------------------------
+;特殊な処理
+;----------------------------------------------------
+;诶嘿嘿中
+
+IF CFLAG:ARG:诶嘿嘿 == 1
+	DEBUGPRINT Counterリアクション
+	CALL EVENT_COUNTER_REACTION(ARG,ARG:1)
+	CALL EVENT_COUNTER_SOURCE(ARG,ARG:1)
+	RETURN 0
+ENDIF
+;把柄
+;要調整 ENDUREとRANDで茶を濁す
+;2023/01/10 オプション選択制に移行,終了処理をENDUFUFU_ALLに一任
+IF ARG:1 == 1 && DECIDE_PUNISHMENT(ARG)
+	CALL EVENT_COUNTER_PUNISHMENT(ARG,ARG:1)
+	CALL ENDUFUFU_ALL
+	TFLAG:102 = 1
+	RETURN 0
+ENDIF
+
+;----------------------------------------------------
+;通常
+;----------------------------------------------------
+; 低いほど角色能力が顕著に反映される。高くすればするほどただの均等随机に近付く。デフォは10
+基本値 = 10
+
+;------------------------------------------
+;2019/08/09 新規判定実装
+;2023/01/10 簡易フィルタ実装
+;各番号帯に於ける処理を、現行の指令処理に沿うようにCounter指令として分離。
+;詳細については各指令(CCOM)ファイル内に集約。
+;------------------------------------------
+FOR LOCAL, 1, CCOM_MAXNUM
+[IF_DEBUG]
+	SIF CCOM_FILTER:LOCAL
+		CONTINUE
+[ENDIF]
+	;各指令の実行可否を確認
+	TRYCALLFORM CCOM_ABLE{LOCAL}(ARG)
+	;SIKOU为-99时该指令不作为候选
+	IF RESULT && COUNTER_SIKOU:ARG:LOCAL != -99
+		RESULT = 0
+		;新增剧本侧接口，调用剧本侧设定的反应指令的判定值
+		CALL KOJO_CHECK(ARG, "CCOM_ORDER", ,LOCAL, LOCAL:10)
+		IF RESULT == -1 
+			;剧本侧禁用该反应
+		ELSEIF RESULT
+			;采用剧本设定的值
+		ELSE
+			;剧本没有采用CHECK函数或者剧本需要是结果为0，从而采用原版数值
+			TRYCALLFORM CCOM_ORDER{LOCAL}(LOCAL, ARG, 基本値)
+		ENDIF 
+		LOCAL:10 = MAX(RESULT, 0)
+		IF LOCAL:10
+			候補:LOCAL = LOCAL:10
+			;DEBUGPRINTFORML Counter{LOCAL}候补中（判定值{LOCAL:10}）
+		ENDIF
+	ENDIF
+	RESULT = 0
+NEXT
+;------------------------------------------
+;実行判定・登録
+;------------------------------------------
+LOCAL:4 = ARRAY_HIT(候補, CCOM_MAXNUM)
+SIF TCVAR:ARG:次回Counter && 候補:(TCVAR:ARG:次回Counter) > 0
+	LOCAL:4 = TCVAR:ARG:次回Counter
+TCVAR:ARG:次回Counter = 0
+; 決定
+IF LOCAL:4 > 0
+	TCVAR:ARG:Counter行動 = LOCAL:4
+	;実行中指令として登録
+	FOR LOCAL:2, 0, 最大被逆推人数 - 1
+		IF SELECTCCOM:(LOCAL:2):0 == 0
+			SELECTCCOM:(LOCAL:2):0 = ARG
+			SELECTCCOM:(LOCAL:2):1 = (TCVAR:ARG:Counter行動)
+			BREAK
+		ENDIF
+	NEXT
+	;指令を実行
+	DEBUGPRINTFORML Counter：{ARG}-{TCVAR:ARG:Counter行動}
+	TRYCALLFORM CCOMF{TCVAR:ARG:Counter行動}(ARG)
+	SIF !RESULT
+		DEBUGPRINTFORML CCOMF{TCVAR:ARG:Counter行動}({ARG})の呼び出しに失敗しました。
+ENDIF
+
+IF CFLAG:ARG:诶嘿嘿 == 2
+	CALL EVENT_COUNTER_REACTION(ARG,ARG:1)
+	;诶嘿嘿=2，COUNTER_SOURCE在SOURCE内处理
+	;处理个der，还得有这个
+	CALL EVENT_COUNTER_SOURCE(ARG,ARG:1)
+ENDIF
+
+
+;----------------------------------------------------
+;COUNTER_SIKOU变动处理
+;C_ID = 角色编号
+;ARG = 变动方向（正=增加，负=减少）
+;----------------------------------------------------
+@SIKOU_CHANGE(C_ID, ARG)
+#DIM C_ID
+#DIM COUNTER_NUM
+
+;派生Counter时使用原始指令番号
+IF TCVAR:C_ID:Counter行動 < 150
+	COUNTER_NUM = TCVAR:C_ID:Counter行動
+ELSE
+	COUNTER_NUM = COUNTER_派生时记录:C_ID:0
+ENDIF
+;-99时无效（不变动）
+SIF COUNTER_SIKOU:C_ID:COUNTER_NUM == -99
+	RETURN
+
+LOCAL = ARG
+;逆方向变动时影响加倍
+IF ARG > 0 && COUNTER_SIKOU:C_ID:COUNTER_NUM < 0
+	LOCAL *= 3
+ELSEIF ARG < 0 && COUNTER_SIKOU:C_ID:COUNTER_NUM > 0
+	LOCAL *= 3
+ENDIF
+;施虐狂将减少方向反转为增加
+SIF ARG < 0 && (TALENT:C_ID:施虐狂 || ABL:C_ID:施虐属性 >= 10)
+	LOCAL *= -1
+;［素直］［習得早い］效果加倍
+SIF TALENT:C_ID:態度 < 0 || TALENT:C_ID:習得速度 > 0
+	LOCAL *= 2
+;最大影响度10
+COUNTER_SIKOU:C_ID:COUNTER_NUM = LIMIT(COUNTER_SIKOU:C_ID:COUNTER_NUM + LOCAL, -10, 10)

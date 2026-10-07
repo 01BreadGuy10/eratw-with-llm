@@ -1,0 +1,23 @@
+<Project>
+
+  <!-- ==========================================================================
+       共享构建属性：api/Emuera 与 src/LLMBridge 两个工程都用这一份，
+       避免重复，也保证两边 TFM / 平台 / 语言版本完全一致。
+       ========================================================================== -->
+
+  <PropertyGroup>
+    <!-- 必须 net8.0-windows：本出厂 exe 实测为 .NET 8 -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+</Project>

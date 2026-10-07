@@ -1,0 +1,57 @@
+﻿
+;CSV更新用
+@SET_MINIMUM_EXP_ALL(C_ID, ARG) ;custom code, arg to check current level instead of checking csv
+#DIM C_ID
+#DIM 更新能力番号
+#DIM 最低能力値
+
+FOR 更新能力番号,0,100
+	最低能力値 = CSVABL(C_ID, 更新能力番号)
+	SIF ARG ;custom code
+		最低能力値 = ABL:C_ID:更新能力番号
+	SIF 最低能力値 == 0
+		CONTINUE
+	;戦闘能力
+	IF ABLNAME:更新能力番号 == "戦闘能力"
+		;戦闘能力修正
+		SIF ABL:C_ID:更新能力番号 < 最低能力値 && EXP:C_ID:戦闘経験 == CSVEXP(C_ID, GETNUM(EXP, "戦闘経験"))
+			ABL:C_ID:更新能力番号 = 最低能力値
+		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "戦闘経験"), 最低能力値)
+		CONTINUE
+	ENDIF
+	ABL:C_ID:更新能力番号 = MAX(最低能力値, ABL:C_ID:更新能力番号)
+	SELECTCASE ABLNAME:更新能力番号
+	CASE "清掃技能"
+		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "清掃経験"), 最低能力値)
+	CASE "話術技能"
+		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "会話経験"), 最低能力値)
+	CASE "教養"
+		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "学習経験"), 最低能力値)
+	CASE "料理技能"
+		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "料理経験"), 最低能力値)
+	CASE "音楽技能"
+		SELECTCASE TALENT:C_ID:音楽知識
+		CASE 1
+			CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "演奏経験"), 最低能力値)
+		CASE 2
+			CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "歌唱経験"), 最低能力値)
+		CASE 3
+			CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "舞踏経験"), 最低能力値)
+		CASEELSE ;bug fix, set generic singing experience otherwise
+			CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "歌唱経験"), 最低能力値)
+		ENDSELECT
+	;移行完了
+;	CASE "釣魚技能"
+;		ABL:C_ID:更新能力番号 = MAX(ABL:C_ID:更新能力番号, CSVTALENT(C_ID, 47))
+;		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "釣り経験"), 最低能力値)
+;		TALENT:C_ID:釣りLv = MAX(TALENT:C_ID:釣りLv, ABL:C_ID:釣魚技能)
+;	CASE "採集技能"
+;		ABL:C_ID:更新能力番号 = MAX(ABL:C_ID:更新能力番号, CSVTALENT(C_ID, 48))
+;		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "採集経験"), 最低能力値)
+;		TALENT:C_ID:採集Lv = MAX(TALENT:C_ID:採集Lv, ABL:C_ID:採集技能)
+;	CASE "調合技能"
+;		ABL:C_ID:更新能力番号 = MAX(ABL:C_ID:更新能力番号, CSVTALENT(C_ID, 49))
+;		CALL SET_MINIMUM_EXP(C_ID, GETNUM(EXP, "調合経験"), 最低能力値)
+;		TALENT:C_ID:調合Lv = MAX(TALENT:C_ID:調合Lv, ABL:C_ID:調合技能)
+	ENDSELECT
+NEXT

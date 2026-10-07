@@ -1,0 +1,4110 @@
+﻿;====================================================================
+;高潮系指令（详细版）
+;====================================================================
+;-------------------------------------------------
+;总览
+;-------------------------------------------------
+;维护人：狂气刘俊海
+;维护日期：2026年1月24日
+
+;本模板涵盖高潮系指令的文本分支
+;包含以下函数系列：
+;   对象高潮文本：@M_KOJO_MOMO_MESSAGE_PALAMCNG_B_K10
+;   对象睡眠高潮文本：@M_KOJO_MOMO_MESSAGE_PALAMCNG_B2_K10
+;   玩家射精文本：@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_XX(ARG)
+;   睡眠中玩家射精文本：@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_XX(ARG)
+;   挑逗文本：@M_KOJO_MOMO_MESSAGE_PALAMCNG_F_K10(ARG)
+
+;本模板为详细版分支结构，按部位（C/V/A/B/M）和多重高潮组合（二重~五重）进行细分化分支
+
+;如果不知道指令的含义，或不知道如何设计差分，金标准是参照该指令的情景描写文本。
+;本系列的情景描写在以下位置：
+;   EVENT_MESSAGE_COM.ERB（指令情景描写）
+;   PALAM_MESSAGE_B（高潮情景描写，由@KOJO_MESSAGE_SEND统一调用）
+
+;-------------------------------------------------
+;剧本标识符说明
+;-------------------------------------------------
+;本模板中的_MOMO是剧本标识符的占位符
+;K10是萃香的编号
+
+;-------------------------------------------------
+;高潮系统变量说明
+;-------------------------------------------------
+;NOWEX:Ｃ絶頂, NOWEX:Ｖ絶頂, NOWEX:Ｂ絶頂, NOWEX:Ａ絶頂, NOWEX:Ｍ絶頂
+;   各部位的高潮强度。首先分配0~3，经多重高潮补正后最大可达16倍。
+;   NOWEX:Ｃ絶頂 == 3 超强 / 2 强 / 1 普通
+;NOWEX:五重絶頂 (==9) / 四重絶頂 (==8) / 三重絶頂 (==7) / 二重絶頂 (==6)
+;   多重高潮判定标志。五重=5部位全部高潮，四重=4部位高潮，依此类推。
+;NOWEX:喷乳 (==10) / 射精 (==11) / 放尿 (==12)
+;   特殊排泄型高潮的独立判定
+;====================================================================
+
+;==================================================
+;剧本文本控制函数（按需复制使用）
+;==================================================
+[SKIPSTART]
+;-------------------------------------------------
+;MESSAGECHECK函数
+;通过RESULTS返回控制标志
+;RESULTS:0 = 1时跳过情景文本
+;RESULTS:1 = 1时跳过口上文本
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_B_K10
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_B2_K10
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_00(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_0(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_1(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_2(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_3(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_4(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_5(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_6(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_7(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_8(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_9(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_20(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_21(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_22(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_23(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_24(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_MESSAGECHECK_A_K10_26(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+[SKIPEND]
+
+;==================================================
+;对象高潮时的口上
+;==================================================
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_B_K10
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;-------------------------------------------------
+;喷乳
+;-------------------------------------------------
+IF NOWEX:喷乳
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，萃香胸前的乳头突然开始渗出白色的乳汁——
+				PRINTFORMDL 一滴，两滴，然后变成了细细的两道白线
+				PRINTFORMDL 即使身体被时停了，哺乳的本能反应也无法被冻结。
+				PRINTFORMDL 奶水顺着她的肋骨流下来，在静止的空气中留下两条悬空的白色轨迹
+				PRINTFORMDL 乳珠在失重中凝成一串浑圆的球体，每一颗都反射着微弱的光。
+				PRINTFORMDL 它们在萃香的小腹上方悬停着，像一条被冻结的珍珠项链
+				PRINTFORMDW 你把手掌放到她乳头正下方，
+				PRINTFORMDW 让更多乳汁在静止的空气中一颗一颗落进你的掌心
+			CASE 1
+				PRINTFORMDL 时停里的乳汁不按重力规则走——
+				PRINTFORMDL 从乳头冒出来的第一滴白液没有往下坠，而是在空中悬住了
+				PRINTFORMDL 然后是第二滴、第三滴，全都浮在她胸前，
+				PRINTFORMDL 像一小团正在缓慢膨胀的白色星云
+				PRINTFORMDL 你凑近了看，每一颗奶珠的表面都映着房间里的微光。
+				PRINTFORMDL 最小的那颗只有针尖大，最大的已经在时停里凝成了黄豆大小——
+				PRINTFORMDL 它挂在她乳头正前方两厘米的位置，像一颗还没来得及出发的子弹
+				PRINTFORMDW 你张开嘴，把嘴唇凑到那颗最大的奶珠下方——然后解开了时停。
+				PRINTFORMDW 温热的乳汁笔直地落进你嘴里
+		ENDSELECT
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 「唔……嘿嘿……胸口……好涨哦……」
+				PRINTFORMDL 萃香抱着自己的胸口傻笑着，乳汁从她松垮的衣襟里不停地往外渗。
+				PRINTFORMDL 她低头看了看自己湿透的衣服，然后抬头朝你笑
+				PRINTFORMDL 她抓了一把奶水抹在自己脸上，又抓了一把往你身上蹭。
+				PRINTFORMDL 整个人醉得连羞耻感都泡进酒里了，
+				PRINTFORMDL 白色的乳汁和透明的酒液混在一起，把她的嘴角染得亮晶晶的
+				PRINTFORMDW 「你看你看……好白……可以喝的哦……嘿嘿……你也来一口……」
+			CASE 1
+				PRINTFORMDL 「嗝……你知道……酒和奶……混在一起……会变成什么吗？……嗝……」
+				PRINTFORMDL 萃香摇摇晃晃地拿起酒葫芦，
+				PRINTFORMDL 在自己正在流奶的胸口上倒了一小股酒。
+				PRINTFORMDL 透明的酒液顺着乳沟淌下来，
+				PRINTFORMDL 把白色的乳汁冲成了一道道半透明的纹路，
+				PRINTFORMDL 在她的小腹上汇成了一小洼混合的液体
+				PRINTFORMDL 她把手指伸进那摊混合液体里搅了搅，然后举到你面前——
+				PRINTFORMDL 指尖上挂着白中带透明的液珠，酒香和奶香混在一起
+				PRINTFORMDW 「尝尝……鬼族特调……嗝……喝了就能变大——骗你的。
+				PRINTFORMDW 喝了就会醉……嘿嘿……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「胸口……好涨，唔啊啊啊啊…………」
+				PRINTFORMDL 萃香的双手紧紧抱住自己胸前，但乳汁根本不听她的——
+				PRINTFORMDL 从指缝间、从虎口旁、从每一个能渗出去的缝隙里不断地冒出来。
+				PRINTFORMDL 白色的液体把她的手指染得湿滑，在灯光下反着细碎的光
+				PRINTFORMDL 她低头看着自己胸口那片狼藉，
+				PRINTFORMDL 奶水顺着她的小臂内侧一路淌到了手肘，又滴到了大腿上。
+				PRINTFORMDL 每滴一滴，她的肩膀就跟着抖一下
+				PRINTFORMDW 乳白色的奶水从乳头澎涌而出
+			CASE 1
+				PRINTFORML 「哈啊、胸部、要，要出来了……」
+				PRINTFORMDL 萃香双手抱住自己微微起伏的胸口，指缝间不断渗出温热的乳汁，
+				PRINTFORMDL 顺着小腹一路淌到了大腿上。
+				PRINTFORMDL 奶水不是缓缓流的——是随着她每次高潮的余韵，一股一股地往外喷
+				PRINTFORMDL 她低头看着自己还在往外溢的乳头。
+				PRINTFORMDL 乳白色的液体在那两颗小小的凸起尖端越聚越大，凝成圆珠，
+				PRINTFORMDL 然后承受不住重量——啪地砸在了她的小腹上
+				PRINTFORMDW 她把手掌摊开放在乳头下面。
+				PRINTFORMDW 乳汁一滴一滴落在掌心里，积成了一小洼温热的白色液体。
+				PRINTFORMDW 她低头看了一会，然后把手心递到你面前——
+				PRINTFORMDW 像是在给你看某种她自己也不太理解的礼物
+			CASE 2
+				PRINTFORML 「不行……停不下来……还在往外流……」
+				PRINTFORMDL 每喷一次，萃香的身体就痉挛一下。
+				PRINTFORMDL 高潮让她的乳腺不受控制地收缩——
+				PRINTFORMDL 奶水不是流出来的，是一股一股射出来的，
+				PRINTFORMDL 每一下都像一条细细的白色鞭子抽在空气里
+				PRINTFORMDL 白色的乳液打在床单上发出细微的啪嗒声。
+				PRINTFORMDL 她试图用手堵住，但乳汁从指缝间挤出来的时候反而更色情了——
+				PRINTFORMDL 被挤压的奶水从她虎口的缝隙里四散喷出来，
+				PRINTFORMDL 溅到了她自己的脸上、肩膀上、大腿上
+				PRINTFORMDL 她放弃了。把手从胸口拿开，任由那对小小的乳头继续往外冒奶。
+				PRINTFORMDL 地上已经积了一小摊白色的水洼。
+				PRINTFORMDL 她坐在那摊奶水里，浑身都沾着星星点点的白色斑点，
+				PRINTFORMDL 像是被一场只有她才看得见的雨淋透了
+				PRINTFORMDW 最后她抬起湿漉漉的眼睛看着你——
+				PRINTFORMDW 表情是认命、是羞耻、是连自己都觉得过分的舒服。
+				PRINTFORMDW 然后她伸出手，把沾满乳汁的手指送到你嘴边
+		ENDSELECT
+	ENDIF
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;放尿
+;-------------------------------------------------
+IF NOWEX:放尿
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，萃香的下体突然开始往外渗水——
+				PRINTFORMDL 先是阴唇间亮起了一道细细的水光，
+				PRINTFORMDL 然后透明的尿液无声地从穴口滴落
+				PRINTFORMDL 在时停中，每一滴尿都凝在半空，形成了一串静止的水珠，
+				PRINTFORMDL 挂在她的两腿之间，像是某种不道德的珠宝
+				PRINTFORMDL 你蹲下来平视着那串悬空的尿液。
+				PRINTFORMDL 最近的那滴离穴口只有一厘米——
+				PRINTFORMDL 在时停里它凝固成了一个完美的半透明球体，
+				PRINTFORMDL 表面张力把它撑成了一面微型的透镜。
+				PRINTFORMDL 你能透过它看到后面模糊的阴唇和已经湿透的床单
+				PRINTFORMDW 你用手指拨了一下最下面那滴——
+				PRINTFORMDW 它在静止的空气里晃了晃，然后继续往下坠，拉成了一条极细的丝
+			CASE 1
+				PRINTFORMDL 在时停中，尿液不会往下落——
+				PRINTFORMDL 从穴口涌出来的液体一离开身体就停住了，
+				PRINTFORMDL 在她两腿之间凝成了一道悬空的、微微弯曲的透明水柱
+				PRINTFORMDL 这道水柱的一端连着阴唇间的缝隙，
+				PRINTFORMDL 另一端保持着刚刚离开身体时的形状——
+				PRINTFORMDL 边缘微微颤抖，像被冻结的喷泉
+				PRINTFORMDL 你绕到水柱后面，从背面看——
+				PRINTFORMDL 尿液是半透明的，后面她的身体轮廓模糊地透过来
+				PRINTFORMDW 你轻轻吹了一口气。
+				PRINTFORMDW 时停里的气流扰动让水柱最细的那段出现了微小的波纹——
+				PRINTFORMDW 然后一切又凝固了。
+				PRINTFORMDW 这道悬空的尿柱已经永远定格在了她失禁到一半的那个瞬间
+		ENDSELECT
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 「呜……好暖和……腿那里……嘿嘿……」
+				PRINTFORMDL 萃香半闭着眼睛，整个人瘫在床上一动不动。
+				PRINTFORMDL 一股温热的液体在她身下迅速蔓延开来，浸透了裙摆和床单
+				PRINTFORMDL 她甚至没有意识到自己在失禁——
+				PRINTFORMDL 酒意把羞耻和尿意一起冲进了模糊的意识深处。
+				PRINTFORMDL 她只是舒服地叹了口气，然后把脸埋进了已经被尿浸湿的枕头里
+				PRINTFORMDL 她用脸颊蹭了蹭那片湿透的枕面。
+				PRINTFORMDL 温热的尿液把她半边脸都沾湿了，头发丝沾在脸上，
+				PRINTFORMDL 整个人看起来像刚从水里捞上来的醉鬼。
+				PRINTFORMDL 但她还在笑——可能连自己为什么笑都已经不知道了
+				PRINTFORMDW 「舒服……再来一点酒……没有酒的话……多尿一点也行……嘿嘿……」
+			CASE 1
+				PRINTFORMDL 「咦……地上怎么……湿了……是我打翻酒了吗……」
+				PRINTFORMDL 萃香撑起上半身，迷迷糊糊地低头看了看自己身下那一大片湿痕，
+				PRINTFORMDL 又看了看手里的酒葫芦——确认酒葫芦是满的
+				PRINTFORMDL 她用手指在那摊液体里蘸了一下，放到鼻子前闻了闻，皱起了眉头
+				PRINTFORMDL 然后又蘸了一下，舔了一口——
+				PRINTFORMDL 表情从困惑变成了呆滞，然后噗嗤笑出了声
+				PRINTFORMDW 「不是酒……嗝……是我自己弄的……嘿嘿……对不起嘛……等下帮你擦……」
+				PRINTFORMDW 说完又瘫回去了，脸枕在自己那摊尿水里继续睡
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「呀！啊啊啊啊啊！等一下啊！　尿、要出来了呜呜……噫～～～！！」
+				PRINTFORMDL 萃香拼命夹紧双腿，但高潮已经击溃了所有控制力。
+				PRINTFORMDL 一股透明的液体从她大腿内侧的缝隙里渗出来，先是细细的一条，
+				PRINTFORMDL 然后猛地变成了四散的水柱
+				PRINTFORMDL 她整个人弓着背蜷在床上，屁股下面迅速洇开一片深色的湿痕。
+				PRINTFORMDL 尿水顺着臀沟流到了床单褶皱里，发出细微但持续不断的水声
+				PRINTFORMDW 萃香一幅要哭出来的表情——但她的眼神分明在说：停不下来了
+			CASE 1
+				PRINTFORML 「唔、呜呜……啊！？尿……出来了，啊……」
+				PRINTFORMDL 萃香的脸因为羞耻而涨得通红。
+				PRINTFORMDL 她用手捂住下面，但尿液直接从她指缝间喷出来，
+				PRINTFORMDL 把整只手掌浇得湿透
+				PRINTFORMDL 透明的液体顺着她的手腕一路流到手肘，在灯光下反着光。
+				PRINTFORMDL 她低头看着自己湿淋淋的手指和大腿间的狼藉，
+				PRINTFORMDL 嘴唇抿成了一条细细的线
+				PRINTFORMDW 她连抬起头的勇气都没有了——耳朵尖红得像是被火烧过
+			CASE 2
+				PRINTFORML 「别看……求你了……别看……」
+				PRINTFORMDL 萃香的声音已经带上了哭腔。
+				PRINTFORMDL 她转过去背对着你，但就是这一个转身的动作——
+				PRINTFORMDL 尿液在她两腿之间甩出了一道弧线
+				PRINTFORMDL 失禁的水声在寂静的房间里格外清晰。
+				PRINTFORMDL 她蜷成一团，膝盖并得紧紧的，但液体还是从缝隙里流个不停，
+				PRINTFORMDL 顺着小腿一直淌到脚踝
+				PRINTFORMDW 她的小腿肚在发抖。
+				PRINTFORMDW 地板上那摊水洼的边缘还在缓慢地扩大——她的身体还没彻底排空
+		ENDSELECT
+	ENDIF
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;射精
+;-------------------------------------------------
+;LOCAL = 0
+;IF LOCAL && NOWEX:射精
+;	PRINTFORML 
+;ENDIF
+
+;-------------------------------------------------
+;五重绝顶（C+V+A+B+M全部同时高潮）
+;-------------------------------------------------
+IF NOWEX:五重絶頂
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在停止的时间里，萃香的全身五个敏感点同时被引爆。
+		PRINTFORMDL 阴蒂、阴道、后庭、胸口、嘴唇——每一处都在同一瞬间被快感淹没
+		PRINTFORMDL 她的身体在静止中像一尊被雷劈中的雕塑。
+		PRINTFORMDL 阴蒂充血到发紫，阴道壁在无声中剧烈收缩，
+		PRINTFORMDL 后庭的每一圈褶皱都被快感撑开到了极限，
+		PRINTFORMDL 乳头挺成两颗深红色的石子，嘴唇保持着叫不出声的微张姿态
+		PRINTFORMDL 爱液从三处同时涌出，乳汁从乳头渗出，唾液在嘴唇边拉成细丝——
+		PRINTFORMDL 全部被时停冻结成永恒的一帧。
+		PRINTFORMDL 如果有谁能看到这副画面，他会发现她在同时经历五次高潮
+		PRINTFORMDW 你伸出手指，在静止的空气中依次触碰了那五处。
+		PRINTFORMDW 阴蒂是硬的，阴道口是湿热的，后庭在收缩，乳头在跳，
+		PRINTFORMDW 嘴唇是软的。五个地方、五种触感、同一个她——全部属于你
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 「呜……啊啊……太多地方……一起……去了……嘿嘿……」
+		PRINTFORMDL 萃香已经完全分不清自己身体哪里在去了——
+		PRINTFORMDL 全都搅在了一起，像是被同时灌进了五壶烈酒。
+		PRINTFORMDL 阴蒂在高潮，阴道在高潮，后庭在高潮，连乳头都硬得发疼——
+		PRINTFORMDL 还有嘴，连嘴唇碰到空气都有感觉
+		PRINTFORMDL 她用手胡乱地在自己身上摸着——
+		PRINTFORMDL 摸到胸口就压着乳头往外挤奶，摸到腿间就伸进去按着阴蒂，
+		PRINTFORMDL 摸到屁股就把手指捅进了后庭。
+		PRINTFORMDL 她自己在给自己叠加高潮，整个人像一台被短路的机器一样不断自激
+		PRINTFORMDW 她笑着、哭着、喘着。
+		PRINTFORMDW 口水、泪水、爱液、乳汁、尿水混在一起淌到了床单上。
+		PRINTFORMDW 五重高潮把她身体的每一种液体都榨了出来——
+		PRINTFORMDW 她瘫在那片混合的液体里，还在嘿嘿地笑
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0	
+				PRINTFORML 这是前所未有的感觉，身体每一个敏感点都在感受高潮
+				PRINTFORML 萃香不知道%CALLNAME:MASTER%是如何做到的，我觉得她也不想知道
+				PRINTFORML 现在的萃香完完全全沉浸在快感之中，
+				PRINTFORML 大脑已经完全无法再进行任何思考
+				PRINTFORML 身体的每一个地方，都被快感所侵扰
+				PRINTFORML 萃香在%CALLNAME:MASTER%带来的快感下逐渐沦陷
+				PRINTFORML 现在，萃香已经彻底屈服于%CALLNAME:MASTER%，将身体完全交由%CALLNAME:MASTER%处理……
+			CASEELSE
+				PRINTFORML 身体，完全的快感……
+				PRINTFORML 萃香因为%CALLNAME:MASTER%所带来的快感短暂地失去了思考的能力
+				PRINTFORML 过往的记忆如同走马观花一般从脑海中飘过
+				PRINTFORML 但是那些都不重要了，现在脑海里只有%CALLNAME:MASTER%的肉棒
+				PRINTFORML 唇、胸、下体……都在%CALLNAME:MASTER%所带来的快感下沦陷
+				PRINTFORML 萃香露出被玩坏的表情，渴望着%CALLNAME:MASTER%的下一波进攻……
+				PRINTFORMDW 萃香觉醒了奇怪的东西
+				TALENT:TARGET:施虐狂 = 0
+	            TALENT:TARGET:受虐狂 = 1
+		ENDSELECT
+		PRINTFORML 身体，完全被快感所支配……
+		PRINTFORML 即使知道这样不行，但……已经完全没有意义了
+		PRINTFORML 萃香的意识已经被快感摧毁，此刻的她完全无法做出任何判断
+		PRINTFORML 萃香在%CALLNAME:MASTER%带来的快感中逐渐沦陷
+		PRINTFORML 萃香已经彻底屈服于%CALLNAME:MASTER%……
+	ENDIF
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;四重绝顶（4个部位同时高潮）
+;-------------------------------------------------
+IF NOWEX:四重絶頂
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在停止的时间里，萃香的身体同时被四面八方的快感淹没。
+		PRINTFORMDL 四个敏感点在同一瞬间同时失守——不是先后，是同时
+		PRINTFORMDL 她的肌肉在无意识中痉挛着。
+		PRINTFORMDL 大腿内侧的肉在跳，小腹在抽，乳头在静止的空气里微微颤动
+		PRINTFORMDL 腿间的缝隙里正在无声地渗出透明的液体。
+		PRINTFORMDL 四道快感在她体内交汇，每一道都推着前一道往更深的地方走
+		PRINTFORMDL 你蹲下来仔细看她的脸。
+		PRINTFORMDL 眉毛微蹙，嘴唇半张，牙关紧咬着最后一口气——
+		PRINTFORMDL 四重高潮把她的每一个表情肌肉都锁死在了爆发前的那千分之一秒
+		PRINTFORMDW 四个部位的高潮在沉默中同时爆发。
+		PRINTFORMDW 没有人看到，没有人听到，
+		PRINTFORMDW 只有你知道这副静止的身体正在经历怎样的灭顶之灾。
+		PRINTFORMDW 你伸手轻轻碰了一下她的阴蒂——
+		PRINTFORMDW 那颗小小的珍珠在你指腹下剧烈地弹了一下，
+		PRINTFORMDW 然后继续维持着高潮的姿态，一动也不动了
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 「呜……嗯……好多个地方……同时……去了……嘿嘿……」
+		PRINTFORMDL 萃香整个人瘫在床上，身体不受控制地抽搐着。
+		PRINTFORMDL 酒意让她的快感阈值降到了最低
+		PRINTFORMDL 每一个敏感点都在酒精的催化下同时炸开，
+		PRINTFORMDL 像是把四个烟花同时塞进了一个小小的酒葫芦里
+		PRINTFORMDL 她分不清哪里在去了——
+		PRINTFORMDL 阴蒂、小穴、后庭、乳头，
+		PRINTFORMDL 全都搅在一起变成了一个巨大的、模糊的、无处不在的高潮
+		PRINTFORMDL 她伸手想抓住什么，结果一把抓住了自己的胸——
+		PRINTFORMDL 乳尖被按到的一刹那，又一道快感从指尖传回了大脑
+		PRINTFORMDW 她的身体在她手里和自己手里同时达到了高潮。
+		PRINTFORMDW 她在醉意里闭上了眼睛，嘴角挂着口水，手里还捏着自己的乳头，
+		PRINTFORMDW 腿间流了一床单——就这么睡着了
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				SELECTCASE NOWEX:四重絶頂
+				;C＆V＆A＆B绝顶
+				CASE 1
+					PRINTFORML 「唔……讨厌………四个地方……同时……」
+					PRINTFORMDL 萃香的阴蒂、阴道、后庭和胸口在同一瞬间同时达到了高潮。
+					PRINTFORMDL 四处快感从四个方向涌入——不是先后，是同一秒。
+					PRINTFORMDL 她的身体不知道该怎么同时接住这四道电流，只能在床上蜷起来抽搐
+					PRINTFORMDW 「啊……呼……太刺激了……四个地方一起——呜呜呜………」
+				;C＆V＆A＆M绝顶
+				CASE 2
+					PRINTFORML 「唔……啾……嘴也被堵着……三个地方加嘴——」
+					PRINTFORMDL 阴蒂、阴道和后庭同时被推向绝顶，而嘴唇则被人牢牢封死。
+					PRINTFORMDL 下面的三股快感和嘴里的占有感同时灌入大脑——
+					PRINTFORMDL 她的身体在四重刺激下连呼吸都忘了
+					PRINTFORMDW 「呜呜……四个地方……太满了——」
+				;C＆V＆B＆M绝顶
+				CASE 3
+					PRINTFORML 「唔……嗯……啾……下面和胸和嘴——」
+					PRINTFORMDL 阴蒂和阴道被同时进攻，胸部被揉得发烫，嘴唇被牢牢吻住。
+					PRINTFORMDL 三处被占有的快感和一处被蹂躏的酥麻同时在身体各处炸开——
+					PRINTFORMDL 她分不清哪里更刺激，因为全都是
+					PRINTFORMDW 「胸部明明那么平……四个地方……都要坏了——」
+				;C＆A＆B＆M绝顶
+				CASE 4
+					PRINTFORML 「唔……嗯……啾……后面和胸和嘴——」
+					PRINTFORMDL 后庭被侵占的同时，阴蒂在跳，胸被揉捏着，
+					PRINTFORMDL 嘴唇也被堵得说不出话。
+					PRINTFORMDL 四处快感像四根不同粗细的针同时扎进不同的敏感点——
+					PRINTFORMDL 每根都在往神经末梢深处钻
+					PRINTFORMDW 「呼呼♥　啾、嗯呣……♥……四个地方……全部……♡」
+				;V＆A＆B＆M绝顶
+				CASE 5
+					PRINTFORML 「唔……嗯……啾……前面后面胸和嘴——」
+					PRINTFORMDL 阴道和后庭同时被填满，胸部被揉得胀痛，
+					PRINTFORMDL 嘴里被舌头搅得无法思考。
+					PRINTFORMDL 四重快感在她的躯干上画了一个十字——
+					PRINTFORMDL 上下左右，每一条线上的终点都在同时尖叫
+					PRINTFORMDW 「四个……四个地方都……太深了……全部——♡」
+				ENDSELECT
+			CASE 1
+				PRINTFORMDL 萃香的身体在同一个瞬间被四个方向的快感同时击穿
+				PRINTFORMDL 不是这里先去了那里后去了——
+				PRINTFORMDL 四个敏感点在完全同步的节奏里被推上了同一个绝顶
+				PRINTFORMDL 她的阴蒂在跳、阴道在绞、后庭在箍、乳头在硬——
+				PRINTFORMDL 四处，同一秒，无一幸免
+				PRINTFORMDL 她试图用嘴发出声音，但声带也被快感劫持了。
+				PRINTFORMDL 最后从喉咙里挤出来的不是话，
+				PRINTFORMDL 是一声像是被同时从四个方向捏碎了的气音
+				PRINTFORMDW 她的瞳孔涣散了。
+				PRINTFORMDW 四个部位的高潮一起退潮之后，她在床单上躺了很久——
+				PRINTFORMDW 久到你以为她昏过去了。
+				PRINTFORMDW 然后她动了动手指，说了一句：「……四个……都给你了……」
+		ENDSELECT
+	ENDIF
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;三重绝顶（3个部位同时高潮）
+;-------------------------------------------------
+IF NOWEX:三重絶頂
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在停止的时间里，萃香身体的三个敏感点同时被逼到了极限。
+		PRINTFORMDL 快感从三个不同的方向同时涌入，
+		PRINTFORMDL 在她的神经中枢汇成了一股无法承受的洪流
+		PRINTFORMDL 她的嘴唇在静止中微微张开，舌尖抵着牙齿——
+		PRINTFORMDL 那是一个叫不出声的姿势。
+		PRINTFORMDL 爱液从三处中的每一处渗出，在她腿间织成了一张透明的网，
+		PRINTFORMDL 一滴粘着一滴，在时停中拉成了不会断的丝
+		PRINTFORMDL 你伸手碰了一下她的腹部——
+		PRINTFORMDL 隔着皮肤能感觉到里面的阴道壁正在剧烈地收缩，一圈一圈地绞紧。
+		PRINTFORMDL 同时她的乳头在静止的空气里也微微颤了一下，
+		PRINTFORMDL 像是被同一道电流串联起来了
+		PRINTFORMDW 三个部位的高潮在沉默中叠在一起。
+		PRINTFORMDW 她的身体像一根被同时拨动了三根弦的琴——
+		PRINTFORMDW 在静止的空气里无声地共振。
+		PRINTFORMDW 你站在旁边看着这幅被冻结的崩溃画面，
+		PRINTFORMDW 手不自觉地放到了她的额头上。即使在时停里，她的皮肤还是烫的
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 「呀……又来了……好几个地方……一起……唔……」
+		PRINTFORMDL 萃香含混地嘟囔着，身体在酒意里失去了所有防线。
+		PRINTFORMDL 三重高潮同时砸下来——
+		PRINTFORMDL 她的腰弹了一下，腿踢了一下，手指抓住了手边最近的任何东西——
+		PRINTFORMDL 结果抓住的是自己的大腿
+		PRINTFORMDL 她的手指陷进了自己大腿内侧的软肉里，指甲掐出了几道红印。
+		PRINTFORMDL 但痛感在酒精和高潮的双重作用下变成了另一种快感——
+		PRINTFORMDL 她又掐了一下，然后在三重高潮和疼痛的混合物里全身痉挛着瘫了下去
+		PRINTFORMDW 她的眼睛半闭着，嘴半张着，口水顺着嘴角淌到了枕头上。
+		PRINTFORMDW 三重高潮和酒精混在一起，
+		PRINTFORMDW 把她变成了一个只知道喘气和流水的混乱容器
+	ELSE
+		SELECTCASE NOWEX:三重絶頂
+		;C＆V＆A绝顶
+		CASE 1
+			PRINTFORML 「太狡猾……三处……同时……」
+			PRINTFORMDL 萃香的阴蒂、阴道和后庭在同一瞬间被快感击穿
+			PRINTFORMDL 三股电流从下半身的三个方向同时涌上来，
+			PRINTFORMDL 在她的小腹里汇成一股滚烫的洪流。
+			PRINTFORMDL 她的腰不受控制地往上挺，又猛地砸回床上
+			PRINTFORMDW 「太深……最里面……舒服……别同时顶——」
+		;B＆V＆A绝顶
+		CASE 2
+			PRINTFORML 「不……不要停……三个地方……一起……」
+			PRINTFORMDL 萃香的胸部、阴道和后庭同时被推上绝顶
+			PRINTFORMDL 乳头硬得发疼，阴道壁一层一层往里绞，
+			PRINTFORMDL 后庭的括约肌不停地收缩——
+			PRINTFORMDL 三重高潮把她的下半身变成了一个同时在三处泄洪的堤坝
+			PRINTFORMDW 「好舒服……三个地方一起去了……啊啊……♥……」
+		;C＆B＆A绝顶
+		CASE 3
+			PRINTFORML 「唔……后面和前面还有胸……为什么同时——」
+			PRINTFORMDL 萃香的阴蒂、胸部和后庭三个敏感点被同时引爆
+			PRINTFORMDL 后庭的刺激让前面的阴蒂跟着跳，阴蒂的高潮又反哺到乳尖——
+			PRINTFORMDL 三处快感在她身体里形成了循环，越循环越猛
+			PRINTFORMDW 「后面……太激烈了……胸前明明什么都没有为什么也会——
+			PRINTFORMDW 呜呜………」
+		;C＆V＆B绝顶
+		CASE 4
+			PRINTFORML 「咕呜……胸部……明明什么都没有……为什么也——」
+			PRINTFORMDL 萃香的阴蒂、阴道和胸口同时达到了高潮
+			PRINTFORMDL 平坦的胸部明明没有被人碰过——
+			PRINTFORMDL 乳头却硬成了两颗深红色的小石子，
+			PRINTFORMDL 每一次脉搏都像有人用指尖在上面弹了一下
+			PRINTFORMDW 「不要……连没有的东西都被你弄去了……你到底在碰哪里……」
+		;C＆V＆M绝顶
+		CASE 5
+			PRINTFORML 「等……下面和上面……同时……」
+			PRINTFORMDL 萃香的阴蒂和阴道在被玩弄的同时，嘴唇也被人夺走
+			PRINTFORMDL 下身两个被侵入的通道和嘴里被搅动的舌头——
+			PRINTFORMDL 三股占有感同时灌进大脑，让她连呼吸都忘了
+			PRINTFORMDW 「唔唔……咕噜……嘴、下面全都……太满了……」
+		;B＆V＆M绝顶
+		CASE 6
+			PRINTFORML 「哈啊……同时被碰……太羞耻了……」
+			PRINTFORMDL 萃香的胸口和阴道被同时进攻，嘴唇则被人牢牢封死
+			PRINTFORMDL 三处被占有的羞耻在喉间汇成了一声出不去的声音——
+			PRINTFORMDL 她在吻里抽搐，乳尖和阴道壁同时绞紧，整个人在对方怀里软了下去
+			PRINTFORMDW 「啊啊……涌上来了……三个人、地方一起——」
+		;A＆V＆M绝顶
+		CASE 7
+			PRINTFORML 「咕……啾……后面和前面还有嘴……别同时——」
+			PRINTFORMDL 萃香的后庭、阴道和嘴唇同时被异物填满
+			PRINTFORMDL 三处通道都被堵死——
+			PRINTFORMDL 声音出不去，呼吸进不来，连身体里最深的痉挛都找不到一个出口
+			PRINTFORMDW 「咻咕……噫……满了……三处都——」
+		;C＆B＆M绝顶
+		CASE 8
+			PRINTFORML 「噫呜……咕……」
+			PRINTFORMDL 萃香的阴蒂、胸口和嘴唇同时被刺激
+			PRINTFORMDL 下面那颗小小的珍珠在舌头的挑弄下不停弹跳，胸口被揉得发烫，
+			PRINTFORMDL 嘴里塞得说不出话。
+			PRINTFORMDL 三重快感从三个不同高度同时灌入，让她的大脑彻底放弃了身体
+			PRINTFORMDW 「下面……和胸……和嘴……同时……好难——」
+		;A＆B＆M绝顶
+		CASE 9
+			PRINTFORML 「呀啊……后面和胸……还有嘴……」
+			PRINTFORMDL 萃香的胸口被揉捏着，后庭被异物占据着，嘴唇被牢牢封死
+			PRINTFORMDL 三处同时被人占有的感觉把羞耻和高潮搅在了一起。
+			PRINTFORMDL 她分不清自己是舒服还是屈辱，
+			PRINTFORMDL 只知道身体在不停地绞紧、流水、抽搐
+			PRINTFORMDW 「不要停……后面、胸、嘴、全部——哈啊啊啊————」
+		;C＆A＆M绝顶
+		CASE 10
+			PRINTFORML 「唔……屁股和豆豆……一起……好难受……」
+			PRINTFORMDL 萃香的阴蒂和后庭被同时玩弄，嘴唇也被堵得严严实实
+			PRINTFORMDL 前后的快感从两端往中间汇合——
+			PRINTFORMDL 阴蒂的高潮往下窜，后庭的高潮往上涌，
+			PRINTFORMDL 两道电流在小腹正中央撞在了一起
+			PRINTFORMDW 「等……撞到了……唔啾………撞到一起了——唔唔唔……」
+	ENDSELECT
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 萃香的身体在同一个瞬间被多个方向的快感同时击穿
+				PRINTFORMDL 多道高潮从不同的敏感点同时涌上来——
+				PRINTFORMDL 不是先后，是同一秒
+				PRINTFORMDL 它们在神经末梢上撞在了一起，
+				PRINTFORMDL 变成了一道比单独任何一道都更深的叠加快感
+				PRINTFORMDL 她的身体在这道电流扫过的瞬间弓了起来，
+				PRINTFORMDL 然后又砸回去
+				PRINTFORMDL 高潮过后的几秒里，那些余波还在交替着冲刷她的神经。
+				PRINTFORMDL 一处跳完另一处接着跳——
+				PRINTFORMDL 像是约好了一样不肯同时停
+				PRINTFORMDL 她趴在被汗浸湿的床单上，大口大口地喘着气
+				PRINTFORMDW 她翻过身看着你，眼神涣散，嘴唇翕张了好几次才说出话来：
+				PRINTFORMDW 「……多重的感觉——一起——差点死了。下次还来。」
+				PRINTFORMDW 然后她笑了一下——
+				PRINTFORMDW 是那种被操翻了之后才会有的、傻乎乎的、满足的笑
+			CASE 1
+				PRINTFORMDL 萃香的身体在同一个瞬间被三个方向的快感同时击穿
+				PRINTFORMDL 三道高潮从三个不同的敏感点同时涌上来——
+				PRINTFORMDL 不是分流，是三股洪水在三道河道里同时到达入海口
+				PRINTFORMDL 她的身体在三处同时达到极限，腰弓了起来，
+				PRINTFORMDL 大腿绷得像两根拉满的弓弦
+				PRINTFORMDL 她分不清这三道高潮的顺序——因为它们在同一秒内全来了。
+				PRINTFORMDL 阴蒂跳得发疼，另外两处也在同样的频率上痉挛。
+				PRINTFORMDL 三道电流在她的神经末梢上交替扫过，
+				PRINTFORMDL 每一次都把她往床单深处压得更深一寸
+				PRINTFORMDW 最后她摊开了四肢。
+				PRINTFORMDW 三个部位的高潮余波还在交替着传来——轮流来，谁也不肯先停。
+				PRINTFORMDW 她闭着眼睛喘了很久，才挤出一句：
+				PRINTFORMDW 「……三个……都给你了……下次两个就好……算了随便你……」
+		ENDSELECT
+	ENDIF
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;二重绝顶（2个部位同时高潮）
+;-------------------------------------------------
+IF NOWEX:二重絶頂
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在停止的时间里，萃香身体的两个部位同时达到了高潮。
+		PRINTFORMDL 快感从两处汇合，在她的神经末梢交叉成了一道双色的闪电
+		PRINTFORMDL 她的身体在静止中微微抽搐——
+		PRINTFORMDL 不是剧烈的，是那种被精准引爆之后余波未尽的、细碎的痉挛。
+		PRINTFORMDL 那是两道已经叠加了的电流，在神经末梢反复扫过，
+		PRINTFORMDL 每一轮都要比上一轮更短、更密、更难分辨
+		PRINTFORMDL 你看着她的脸——
+		PRINTFORMDL 在时停中，连高潮的表情都被冻结成了一个完美的瞬间。
+		PRINTFORMDL 眉毛微蹙，嘴唇微张，每一根睫毛都朝着同一个方向微微翘起
+		PRINTFORMDW 你不合时宜地想——这个表情如果放在画框里一定很美。
+		PRINTFORMDW 但下一秒你就把手指放到了她的嘴唇上，
+		PRINTFORMDW 轻轻按了一下那个微张的弧度。
+		PRINTFORMDW 被冻结的高潮表情在你指腹下依然是柔软的
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 「唔唔……两个地方……一起去……好厉害……嘿嘿……」
+		PRINTFORMDL 烂醉的萃香连害羞都省略了。
+		PRINTFORMDL 双重高潮从两处同时涌上来，她只是张开腿、弓起腰，
+		PRINTFORMDL 毫不掩饰地让身体去接住那些快感。
+		PRINTFORMDL 她的手指在两腿之间胡乱地蹭着，
+		PRINTFORMDL 也不知道是在帮高潮扩散还是在阻止它扩散
+		PRINTFORMDL 高潮过后她还在笑——
+		PRINTFORMDL 一边喘气一边笑，脸上挂着眼泪和口水，手从腿间抬起来，
+		PRINTFORMDL 在灯光下观察着手指上亮晶晶的分泌物。她看了半天，然后舔了一口
+		PRINTFORMDW 「嗯……不是酒……是别的……也蛮好吃的嘛……嘿嘿……」
+		PRINTFORMDW 她又舔了一口，然后把那根手指伸到了你面前
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+		SELECTCASE NOWEX:二重絶頂
+		;C＆V绝顶
+		CASE 1
+		PRINTFORML 「下面……两个地方……同时……哈呀……」
+		PRINTFORMDL 阴蒂和阴道在同一瞬间被快感击穿。
+		PRINTFORMDL 外面的那颗珍珠在跳，里面的腔壁在绞——
+		PRINTFORMDL 两股高潮从前后两个方向同时涌上来，在她小腹里撞在了一起
+		PRINTFORMDW 「像这样被同时玩弄的话……太狡猾了……」
+		;C＆A绝顶
+		CASE 2
+		PRINTFORML 「唔唔……后面和前面……明明不喜欢的……为什么同时——」
+		PRINTFORMDL 阴蒂和后庭同时被推向绝顶。
+		PRINTFORMDL 前面的快感往下窜，后面的快感往上涌，
+		PRINTFORMDL 两道电流在她的盆骨中央交汇
+		PRINTFORMDL 把那一小片地方变成了一个被快感反复冲刷的三角洲
+		PRINTFORMDW 「不喜欢的……但是停不下来……唔……」
+		;V＆A绝顶
+		CASE 3
+		PRINTFORML 「这个样子……两面同时……太过分了……」
+		PRINTFORMDL 阴道和后庭两个腔道同时被异物填满。
+		PRINTFORMDL 中间那层薄薄的肉壁被两边的压力同时挤压着——
+		PRINTFORMDL 每一次抽送，两边的快感就隔着那层肉壁互相撞击，越撞越猛
+		PRINTFORMDW 「要……要去了……两面一起——唔呀呀呀呀……♥♥♥」
+		;C＆B绝顶
+		CASE 4
+		PRINTFORML 「呼……明明胸部什么都没有……为什么也去了……」
+		PRINTFORMDL 阴蒂和乳尖两个最小的敏感点同时被推到极限。
+		PRINTFORMDL 下面那颗珍珠被舌尖压着碾，
+		PRINTFORMDL 上面那两颗本来平坦的乳尖硬成了石子——
+		PRINTFORMDL 它们隔着整段身体在同步地跳动，像是被同一根神经串在了一起
+		PRINTFORMDW 「唔呀……连没有的地方都被你弄去了……」
+		;V＆B绝顶
+		CASE 5
+		PRINTFORML 「唔唔……里面……填满了呢……」
+		PRINTFORMDL 阴道被填满的同时，乳头也被揉得发烫。
+		PRINTFORMDL 下面的充实感和上面的酥麻感在同一瞬间涌上来——
+		PRINTFORMDL 她低头看了看自己平坦的胸口，又感受着下面被塞得满满当当的快感
+		PRINTFORMDW 「嘿嘿……上和下……都给你了……」
+		;A＆B绝顶
+		CASE 6
+		PRINTFORML 「啊呜……后面……太讨厌了……」
+		PRINTFORMDL 后庭被异物撑开的同时，乳房也在被不停地揉捏。
+		PRINTFORMDL 后面的胀满感和前面的酥麻同时抵达——
+		PRINTFORMDL 两股感觉从身体的两端往中间挤，
+		PRINTFORMDL 在她胃部的位置汇成了一股又胀又麻的奇异快感
+		PRINTFORMDW 「胸……唔唔……后面和胸……为什么一起——呀哈……」
+		;A＆M绝顶
+		CASE 7
+		PRINTFORML 「啾唔……唔唔……咕噜……」
+		PRINTFORMDL 后庭被侵入的同时，嘴唇也被牢牢封死。
+		PRINTFORMDL 下面被撑开的充实感和嘴里被占有的窒息感同时灌入大脑——
+		PRINTFORMDL 两个入口都在被人使用，她连拒绝的声音都发不出来
+		PRINTFORMDW 「唔……嘴和后面……都……咕……」
+		;V＆M绝顶
+		CASE 8
+		PRINTFORML 「下面……好涨……唔唔」
+		PRINTFORMDL 阴道被填满的同时，嘴唇也被堵死了。
+		PRINTFORMDL 下面被抽送的节奏和嘴里被搅动的舌头同时进行——
+		PRINTFORMDL 两条通道在被不同的东西以不同的频率使用着，
+		PRINTFORMDL 她的身体不知道该优先回应哪一个
+		PRINTFORMDW 「等！？唔唔……里面和嘴里……同时……咕唔……」
+		;C＆M绝顶
+		CASE 9
+		PRINTFORML 「阴蒂什么的……真的……好害羞啊……」
+		PRINTFORMDL 阴蒂被舌尖压着跳动的同时，嘴唇也被牢牢吻住。
+		PRINTFORMDL 上面的人在用吻堵她的声音，
+		PRINTFORMDL 下面的人在用舌头撩她最敏感的那颗珍珠——
+		PRINTFORMDL 上下夹击，她只能靠鼻子里哼出来的气息表达一切
+		PRINTFORMDW 「唔唔……别同时……呀……咕噜…咕唔……」
+		;B＆M绝顶
+		CASE 10
+		PRINTFORML 「小小的胸部，你会喜欢么……」
+		PRINTFORMDL 乳尖被捏在指间的同时，嘴唇也被温柔地占有了。
+		PRINTFORMDL 上面的人在用吻说喜欢你——
+		PRINTFORMDL 下面的人在用指尖告诉你：胸部的大小从来都不是问题
+		PRINTFORMDW 「咕啾……哈啊……喜欢……喜欢……咕……」
+	ENDSELECT
+			CASE 1
+				PRINTFORMDL 萃香的身体在同一个瞬间被两个方向的快感同时击穿
+				PRINTFORMDL 两道高潮从两个不同的敏感点同时涌上来——不是先后，是同一秒
+				PRINTFORMDL 它们在神经末梢上撞在了一起，
+				PRINTFORMDL 变成了一道比单独任何一道都更深的叠加快感。
+				PRINTFORMDL 她的身体在这道电流扫过的瞬间弓了起来，然后又砸回去
+				PRINTFORMDL 高潮过后的几秒里，那两道余波还在交替着冲刷她的神经。
+				PRINTFORMDL 一处跳完另一处接着跳——像是约好了一样不肯同时停。
+				PRINTFORMDL 她趴在被汗浸湿的床单上，大口大口地喘着气
+				PRINTFORMDW 她翻过身看着你，眼神涣散，
+				PRINTFORMDW 嘴唇翕张了好几次才说出话来：「……两个……一起……差点死了。
+				PRINTFORMDW 下次还来。」然后她笑了一下——
+				PRINTFORMDW 是那种被操翻了之后才会有的、傻乎乎的、满足的笑
+		ENDSELECT
+	ENDIF
+	PRINTW
+ENDIF
+
+;-------------------------------------------------
+;C绝顶（阴蒂高潮）
+;-------------------------------------------------
+IF NOWEX:Ｃ絶頂
+	IF NOWEX:Ｃ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「咿——等、等等——下面那颗……不要一直——呀啊啊啊！！！」
+				PRINTFORMDL 阴蒂被反复碾压到了极限。
+				PRINTFORMDL 那颗原本藏在包皮里的小小珍珠已经充血到发紫，
+				PRINTFORMDL 从褶皱里完全凸了出来——每一次触碰都像直接打在裸露的神经上
+				PRINTFORMDL 她的腰不受控制地往上顶，然后又被下一波电流击得砸回去。
+				PRINTFORMDL 腿根在剧烈地痉挛，整条大腿内侧的肌肉都在跳，
+				PRINTFORMDL 连脚趾都蜷成了十颗白色的小疙瘩
+				PRINTFORMDW 最后一击——
+				PRINTFORMDW 舌尖精准地压在那颗已经敏感到了极限的珍珠上，用力一碾。
+				PRINTFORMDW 萃香整个人像被电击一样弓成了桥形，然后猛地塌了下去，
+				PRINTFORMDW 大口大口地喘着气，连话都说不出来了
+			CASE 1
+				PRINTFORML 「那里……已经不能再碰了……还在跳……呜——」
+				PRINTFORMDL 阴蒂在连续高潮中已经敏感到了一碰就全身弹跳的程度。
+				PRINTFORMDL 那颗肿胀的珍珠从包皮里完全顶了出来，表面亮晶晶的沾满了爱液，
+				PRINTFORMDL 在空气中微微颤抖着
+				PRINTFORMDL 她试图用手护住下身，但手指碰到自己阴蒂的一瞬间又触电般地弹开了
+				PRINTFORMDL ——连自己碰自己都受不了。
+				PRINTFORMDL 每一次心跳都从胸口传到了那颗小小的珍珠上，
+				PRINTFORMDL 阴蒂随着脉搏在一下一下地跳
+				PRINTFORMDW 你俯下身，对着那颗还在跳动的珍珠轻轻吹了一口气。
+				PRINTFORMDW 萃香的脊椎从尾骨到后脑勺同时过电，整个人弹了起来又摔回去——
+				PRINTFORMDW 然后趴在枕头上，肩胛骨还在微微发抖
+		ENDSELECT
+	ELSEIF NOWEX:Ｃ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊……那颗豆子……被你弄得……唔——」
+				PRINTFORMDL 阴蒂被夹在指腹和拇指之间来回揉搓。
+				PRINTFORMDL 那颗小小的敏感点从包皮里探了出来，充血成深粉色，
+				PRINTFORMDL 像一粒剥了壳的石榴籽——
+				PRINTFORMDL 每一道指纹的纹理都在它表面留下无法回避的触感
+				PRINTFORMDL 她的腰开始不自觉地前后蹭。
+				PRINTFORMDL 不是有意识地在迎合，是腰自己动了——
+				PRINTFORMDL 阴蒂被刺激的时候，骨盆会本能地追逐那个触感，
+				PRINTFORMDL 像一朵追着阳光转头的花
+				PRINTFORMDW 最后你用舌尖精准地挑了一下那颗珍珠正下方的凹陷。
+				PRINTFORMDW 萃香发出一声短促的尖叫，大腿猛地夹紧了你的头——
+				PRINTFORMDW 然后全身一松，瘫开了腿，胸口还在剧烈地起伏
+			CASE 1
+				PRINTFORML 「唔嗯……别光盯着那里……哈啊……要、要——」
+				PRINTFORMDL 舌尖绕着那颗小小的阴蒂画圈。
+				PRINTFORMDL 不是直接碾，是若有若无地撩——
+				PRINTFORMDL 每画完一圈舌尖就离开一下，然后从另一个方向再画下一圈
+				PRINTFORMDL 她被这种不连续但不停歇的刺激折磨得腰都快折断了。
+				PRINTFORMDL 每一次舌尖离开的时候她的身体追上去，
+				PRINTFORMDL 每一次舌尖回来的时候她又缩回去——
+				PRINTFORMDL 反复了几十次之后，她的骨盆已经不受大脑控制了
+				PRINTFORMDW 当快感冲过临界点的那一刻，萃香整个人僵住了——
+				PRINTFORMDW 腰悬在半空中，背弓成一座桥，脚趾死命地抠着床单。
+				PRINTFORMDW 几秒之后她才塌下来，手指还抓着自己的阴唇不肯松开，
+				PRINTFORMDW 仿佛还在确认那颗珍珠比刚才大了多少
+		ENDSELECT
+	ELSE
+		IF TCVAR:10:烂醉 == 1
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「咿呀、嘿嘿……那颗豆豆……在跳诶……」
+					PRINTFORMDL 萃香喝醉了之后羞耻心全被泡进了酒里。
+					PRINTFORMDL 她甚至自己伸手指去摸了摸那颗还在高潮余韵中跳动的阴蒂——
+					PRINTFORMDL 指尖碰到的一瞬间又把自己电了一下，整个人傻笑了两声
+					PRINTFORMDL 她张开腿低头看着自己的下身。
+					PRINTFORMDL 那颗小小的珍珠在醉酒后反而更敏感了，
+					PRINTFORMDL 阴唇喝醉之后微微充血分开，阴蒂就这么毫无防备地露在外面，
+					PRINTFORMDL 还在一下一下地跳
+					PRINTFORMDW 「你看你看……还在抖……嘿嘿……你是不是对它做了什么……」
+				CASE 1
+					PRINTFORML 「唔啊、我……喜欢……咕……」
+					PRINTFORMDL 酒醉让萃香的神经末梢变得格外敏感。
+					PRINTFORMDL 阴蒂高潮的时候，那阵电流从下身一路窜到了后脑勺——
+					PRINTFORMDL 她的脚趾蜷起来，大腿无意识地夹紧又松开，
+					PRINTFORMDL 酒气被快感蒸成了汗珠从额头上滚下来
+					PRINTFORMDL 高潮过后她整个人瘫在酒葫芦旁边，一只手还放在两腿之间。
+					PRINTFORMDL 阴蒂在指缝间微微跳动——
+					PRINTFORMDL 那颗小小的珍珠比刚才更红了一些，也更凸出了一些
+					PRINTFORMDW 她翻过身来看着你，眼睛还是醉意朦胧的。
+					PRINTFORMDW 然后她把那只沾着爱液的手指伸到你嘴边——
+					PRINTFORMDW 什么也没说，就嘿嘿地笑了一声
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「哈啊、去了、去了！！！」
+					PRINTFORMDL 阴蒂高潮是一道尖锐而集中的电流——
+					PRINTFORMDL 它的起点只有一个米粒大的点，但传到的范围贯穿了整条脊椎。
+					PRINTFORMDL 萃香的双腿猛地夹紧，夹得腿根都在发抖——
+					PRINTFORMDL 不是她想夹，是快感让她控制不住
+					PRINTFORMDL 那颗小小的珍珠在舌尖下痉挛着跳了三四下。
+					PRINTFORMDL 每跳一下，她的腰就往上顶一次——
+					PRINTFORMDL 频率快得像是被同一根看不见的线同时牵引着。
+					PRINTFORMDL 最后一下跳得最猛，她的骨盆在空中悬了一秒才砸回床单，
+					PRINTFORMDL 爱液也跟着涌了出来
+					PRINTFORMDW 高潮过后，那颗阴蒂还在微微跳动——像一场地震之后的余震。
+					PRINTFORMDW 她用大腿根轻轻夹住你的手不让你拿走，但又不希望你继续碰它。
+					PRINTFORMDW 她只是需要确认那颗珍珠还在跳，而你还在身边
+				CASE 1
+					PRINTFORML 「唔嗯，呜呀、不行了……」
+					PRINTFORMDL 阴蒂被舌尖撩到高潮的过程像一支不断加速的弦乐——
+					PRINTFORMDL 从慢到快，从若有若无到密不透风。
+					PRINTFORMDL 萃香的呼吸节奏完全被你的舌头的节奏带跑了——
+					PRINTFORMDL 你舔得快她就喘得快，你停她就窒息一下，你再舔她整个人就弹起来
+					PRINTFORMDL 最后那段舔舐的频率快到她根本来不及呼吸——
+					PRINTFORMDL 所有氧气都堵在了喉咙里，脸憋得通红，
+					PRINTFORMDL 手指把床单揪出了十个深坑。
+					PRINTFORMDL 然后那个点到了——
+					PRINTFORMDL 全身的肌肉同时失控，大腿弹开，
+					PRINTFORMDL 一股温热从阴蒂中央爆发出来沿着血管流遍了每一根神经末梢
+					PRINTFORMDW 她从高潮的余波里慢慢睁开眼。
+					PRINTFORMDW 双颊还是红的，眼神散了几秒才重新聚焦到你脸上。
+					PRINTFORMDW 她低头看了看自己还在跳的小腹，然后抬起一只还在发抖的手——
+					PRINTFORMDW 轻轻打了一下你的肩膀。打得很轻，因为手还在抖
+				CASE 2
+					PRINTFORML 「哈啊……那颗……一直在跳……停不下来……」
+					PRINTFORMDL 阴蒂的高潮不像阴道那么深，但比阴道更尖锐。
+					PRINTFORMDL 它的快感集中在一个直径不到一厘米的圆点上——
+					PRINTFORMDL 但这个点在人体里对应的神经末梢，
+					PRINTFORMDL 跟整条大腿内侧、整个盆底肌、甚至跟脊椎的骶神经都连着
+					PRINTFORMDL 舌尖在那颗珍珠上划过的每一秒，萃香的整片大腿内侧都在跳。
+					PRINTFORMDL 腹股沟那两条浅沟被汗水填满，在灯光下反着细碎的光。
+					PRINTFORMDL 她的阴蒂已经从包皮里完全翻了出来——
+					PRINTFORMDL 比平时大了将近一倍，颜色从嫩粉色变成了充血后的深玫瑰色
+					PRINTFORMDW 高潮结束之后，她用两根手指小心地碰了碰那颗还在跳的珍珠——
+					PRINTFORMDW 然后用指尖把包皮重新盖回去。
+					PRINTFORMDW 动作轻得像是在盖一颗刚从火里取出来的珠子。
+					PRINTFORMDW 然后她抬眼看了你一眼，什么都没说，
+					PRINTFORMDW 但眼神里写满了：你知道你做了什么
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;V绝顶（阴道高潮）
+;-------------------------------------------------
+IF NOWEX:Ｖ絶頂
+	IF NOWEX:Ｖ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「咿——太深了……到底了——唔啊啊啊啊！！！」
+				PRINTFORMDL 阴道被贯穿到了最深处。
+				PRINTFORMDL 那个小小的腔道被完全撑开来，每一条褶皱都被拉伸到了极限——
+				PRINTFORMDL 子宫口的边缘被反复地撞击着，
+				PRINTFORMDL 一阵一阵的酥麻从身体最深的地方往四肢蔓延
+				PRINTFORMDL 她的阴道壁开始剧烈地收缩——
+				PRINTFORMDL 不是自己能控制的，是身体在自动反应。
+				PRINTFORMDL 那一圈一圈的肌肉紧紧包裹着入侵者，一边痉挛一边往外挤，
+				PRINTFORMDL 同时又不由自主地往里吸
+				PRINTFORMDW 高潮到达顶峰的那一刻，萃香的阴道从入口到深处同时剧烈地绞紧了三
+				PRINTFORMDW 下。
+				PRINTFORMDW 每绞一下，她的腰就往上一挺——
+				PRINTFORMDW 然后一股温热的爱液从深处涌出来，顺着大腿内侧往下淌。她
+				PRINTFORMDW 瘫在床单上，小腹还在一下一下地抽动，
+				PRINTFORMDW 里面那道痉挛一时半会儿停不下来
+			CASE 1
+				PRINTFORM 「里……里面……被撑得好满——呜……要坏掉了……」
+				PRINTFORMDL 阴道的每一寸内壁都被摩擦到了。
+				PRINTFORMDL 从入口那圈紧窄的肌肉，到中间那片布满褶皱的区域，
+				PRINTFORMDL 再到最深处那个敏感的穹隆——整条通道没有一处被遗漏
+				PRINTFORMDL 她低头看着自己的小腹——
+				PRINTFORMDL 每次被顶到最深的时候，小肚子会微微鼓起一下，然后又缩回去。
+				PRINTFORMDL 那道鼓起的轮廓消失得很快，但留下了一阵让人发疯的酥麻，
+				PRINTFORMDL 从子宫口一路传到了胸口
+				PRINTFORMDW 最后一次深入的时候，萃香的身体从耻骨到肚脐都在发抖。
+				PRINTFORMDW 阴道内部的痉挛从深处的穹隆开始，一路收缩到入口——
+				PRINTFORMDW 像是挤牙膏一样，把每一滴爱液都从最里面挤了出来。然
+				PRINTFORMDW 后她整个人软了下去，只有那圈入口还在规律地、缓慢地收缩着，
+				PRINTFORMDW 像是梦里还在呼吸的嘴
+		ENDSELECT
+	ELSEIF NOWEX:Ｖ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「呜……里面……被填满了……哈啊……」
+				PRINTFORMDL 阴道被有节奏地抽送着。
+				PRINTFORMDL 每次进入都把她窄小的腔道撑开来，
+				PRINTFORMDL 每次退出都让阴道壁重新合拢——
+				PRINTFORMDL 反反复复，阴道内部的褶皱被一次又一次地推开又压回
+				PRINTFORMDL 她的腰不自觉地跟着节奏在动。
+				PRINTFORMDL 每次往前进的时候她的骨盆就迎上去，
+				PRINTFORMDL 每次往后退的时候她又追过去——
+				PRINTFORMDL 她的身体比她的嘴诚实得多，早已记住了每一次抽送的长度和频率
+				PRINTFORMDW 高潮来的时候不发一声。
+				PRINTFORMDW 她只是整个人僵住了几秒——
+				PRINTFORMDW 阴道从深处开始绞紧，一圈一圈地往里收，然后突然松开。
+				PRINTFORMDW 一股温热的液体从里面涌出来。
+				PRINTFORMDW 她松开咬紧的下唇，才发现嘴唇已经被自己咬破了
+			CASE 1
+				PRINTFORM 「哈啊……好棒、呀啊啊……哈啊、哈啊、好厉害啊…………」
+				PRINTFORMDL 阴道的内壁被反复地摩擦着。
+				PRINTFORMDL 那一圈一圈的褶皱包裹着入侵者，
+				PRINTFORMDL 在每次摩擦中都产生一种从深到浅、再从浅到深的波浪式的快感——
+				PRINTFORMDL 不是尖锐的，是钝的，是会让人慢慢陷进去的
+				PRINTFORMDL 她的呼吸变得越来越乱——
+				PRINTFORMDL 已经不只是在喘气，而是在用呼吸来抵抗阴道深处那股越来越强的胀满
+				PRINTFORMDL 感。大腿张到了最开，膝盖微微发抖，脚背绷成了一条直线
+				PRINTFORMDW 快感堆到了临界点的瞬间，她的阴道一下子绞紧了——
+				PRINTFORMDW 不是慢慢收紧，是从入口到深处同时一瞬间锁死。
+				PRINTFORMDW 然后她整个人弹了起来又摔回去，歪着头枕在你的手臂上，
+				PRINTFORMDW 张着嘴喘了好几秒才吸进第一口完整的空气
+		ENDSELECT
+	ELSE
+		IF TCVAR:10:烂醉 == 1
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORM 「……啊……里面……有东西在动……嘿嘿……在跳诶……」
+					PRINTFORMDL 酒醉让萃香的羞耻心全部蒸发了。
+					PRINTFORMDL 她甚至自己把手指伸进了还在高潮余韵中收缩的阴道里，
+					PRINTFORMDL 指尖碰到自己内壁上的褶皱时轻轻啊了一声——
+					PRINTFORMDL 然后手指又在里面搅了搅，搅出了几声细小的水声
+					PRINTFORMDL 她低头看着自己两腿之间。
+					PRINTFORMDL 阴道口还在一张一合——
+					PRINTFORMDL 是高潮过后的肌反射，停都停不下来的那种。
+					PRINTFORMDL 黏稠的透明液体从入口边缘淌下来，挂成了一条细细的丝
+					PRINTFORMDW 她把那根沾满爱液的手指从里面抽出来，放在眼前看了看——
+					PRINTFORMDW 然后塞进了嘴里。
+					PRINTFORMDW 砸了砸嘴之后朝你傻笑：「咸的……嘿嘿……和酒混在一起……更好喝了」
+				CASE 1
+					PRINTFORM 「……啊……啊、呜唔……嗯？已经……去了啊……」
+					PRINTFORMDL 萃香喝醉之后身体比平时迟钝，但快感反而更深。
+					PRINTFORMDL 阴道高潮来得不是一阵尖锐的电流，
+					PRINTFORMDL 而是一种缓慢的、让人整个骨盆都在发酸发胀的温热感——
+					PRINTFORMDL 像喝了一大口烫酒，热度从胃里散到四肢
+					PRINTFORMDL 她不知道自己是什么时候去的。
+					PRINTFORMDL 只记得阴道深处有一瞬间突然绞紧了，然后整个盆底都松了下来。
+					PRINTFORMDL 现在她感到了腿间的湿意——那摊液体已经洇透了床单
+					PRINTFORMDW 她从酒葫芦上抬起头，低头看了看自己腿间的那片湿痕，
+					PRINTFORMDW 又看了看你。
+					PRINTFORMDW 然后她又喝了一口酒，用袖子擦了擦嘴角，
+					PRINTFORMDW 含混不清地说：「再来一次……行不行……反正……都湿了……」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORM 「好棒、呀啊啊！！哈啊、哈啊、好厉害啊…………」
+					PRINTFORMDL 阴道高潮是一种深层的、从内到外蔓延开来的快感。
+					PRINTFORMDL 不是阴蒂那种尖锐的电流，而是一股从身体最深处涌上来的热浪——
+					PRINTFORMDL 它从子宫口的位置出发，沿着阴道壁一路扩散到盆骨，
+					PRINTFORMDL 然后顺着脊椎往上爬
+					PRINTFORMDL 萃香的身体在这股热浪里不受控制地痉挛着。
+					PRINTFORMDL 阴道的内壁先是剧烈地绞紧了三四下——
+					PRINTFORMDL 每一绞都从深处绞到了入口，像是要把入侵者往更里面吸。
+					PRINTFORMDL 然后突然松开，一股温热的爱液涌了出来
+					PRINTFORMDW 高潮过后她的腿还在抖——
+					PRINTFORMDW 不是大腿在抖，是最里面、骨盆内壁上那些她自己都不知道怎么控制的肌
+					PRINTFORMDW 肉在抖。她
+					PRINTFORMDW 低头看了看自己微微发红的小腹，伸手按了按——里面还有余震。
+					PRINTFORMDW 然后她用只有你听得到的声音说：「……还在跳。你摸摸」
+				CASE 1
+					PRINTFORM 「呜呜、去了、去了……呼呀！全部……都去了——」
+					PRINTFORMDL 她那个小小的阴道在容纳全部之后，
+					PRINTFORMDL 内壁上每一个褶皱都被撑开到了极限。
+					PRINTFORMDL 子宫口的边缘被反复地擦过——
+					PRINTFORMDL 每一次触碰都像在自己的身体最深处按下了一个开关，
+					PRINTFORMDL 让整个盆底同时过电
+					PRINTFORMDL 她低头看着自己小腹上那道隐约的微微隆起——
+					PRINTFORMDL 那是被顶到最深时留下的轮廓。
+					PRINTFORMDL 她用手掌覆上去，隔着肚皮感受到了里面还在痉挛的那道腔道。
+					PRINTFORMDL 她的身体在用自己的肌肉告诉你——这里面，每一寸，都是你的
+					PRINTFORMDW 然后高潮来了——
+					PRINTFORMDW 不是慢慢攒起来的，是突然之间，
+					PRINTFORMDW 整个小腹里像有一根绷紧的弦断了。
+					PRINTFORMDW 她从喉咙里发出一声短促的尖叫，
+					PRINTFORMDW 然后阴道里三处不同深度的肌壁同时绞紧了——
+					PRINTFORMDW 股间涌出大量温热的爱液。她
+					PRINTFORMDW 整个人软倒在你身上，下巴搁在你肩膀上，
+					PRINTFORMDW 在你耳边大口大口地喘了几秒
+				CASE 2
+					PRINTFORM 「哈啊……进来了……最深的地方……被你碰到了……呀……」
+					PRINTFORMDL 萃香的阴道虽然小，但在高潮前的几秒会自己放松到最深的位置——
+					PRINTFORMDL 子宫口那个小小的凹陷会自己垂下来，迎接每一次的进入。
+					PRINTFORMDL 这是身体的本能，她自己都不知道自己会这样
+					PRINTFORMDL 最后那一下撞到子宫口的时候，她的声音堵在了喉咙里——
+					PRINTFORMDL 不是不想叫，是快感大到呼吸都停止了。
+					PRINTFORMDL 然后阴道从最深处开始剧烈地收缩：一圈、两圈、三圈——
+					PRINTFORMDL 每一圈都比上一圈更猛，把入侵者紧紧地箍在了里面
+					PRINTFORMDW 她从高潮的余波里抬起头来，眼眶微微泛红，
+					PRINTFORMDW 下唇上有一道被她自己咬出的牙印。
+					PRINTFORMDW 然后她把手伸到你面前——
+					PRINTFORMDW 掌心里全是她自己在高潮中抓床单时蹭红的指印。
+					PRINTFORMDW 她看了看自己的手掌，又看了看你：「……赔我。这都怪你」
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;A绝顶（肛门高潮）
+;-------------------------------------------------
+IF NOWEX:Ａ絶頂
+	IF NOWEX:Ａ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「屁股……屁股里面——被顶穿了——唔啊啊啊！！！」
+				PRINTFORMDL 后庭被完全撑开到了极限。
+				PRINTFORMDL 那圈原本紧紧闭合的褶皱被拉伸成了一个平滑的环，
+				PRINTFORMDL 肛门的括约肌在反复的刺激下已经失去了平时紧锁的力量——
+				PRINTFORMDL 它还在收缩，但已经不是为了拒绝，而是为了把入侵者绞得更紧
+				PRINTFORMDL 她的整片臀肉都在痉挛。
+				PRINTFORMDL 从尾骨周围那圈敏感的皮肤，
+				PRINTFORMDL 到股沟最深处那一小片神经密集的区域——
+				PRINTFORMDL 快感从后庭开始，沿着尾椎往上窜，一直传到后脑勺。
+				PRINTFORMDL 她的腰塌了下去，屁股却不由自主地往上翘
+				PRINTFORMDW 最后一击顶到了直肠深处那处隆起——
+				PRINTFORMDW 那是隔着直肠壁能碰到阴道后壁的位置，是后庭高潮最重要的开关。
+				PRINTFORMDW 萃
+				PRINTFORMDW 香发出一声连她自己都不知道能发出的叫声，
+				PRINTFORMDW 肛门剧烈地收缩了五六下——
+				PRINTFORMDW 每一下都把入侵者往更深处吸，
+				PRINTFORMDW 然后整个人像一堵被拆了地基的墙一样塌在了床上
+			CASE 1
+				PRINTFORM 「后面……不行……那里不能——唔呀……去了去了去了！！」
+				PRINTFORMDL 后庭在连续的高潮中敏感到了一碰就痉挛的程度。
+				PRINTFORMDL 那圈褶皱已经充血到微微发肿，比平时更凸出了一圈——
+				PRINTFORMDL 每一次触碰都直接压在那一整片敏感的黏膜上，
+				PRINTFORMDL 快感从肛门内壁扩散到整个盆底
+				PRINTFORMDL 她试图收紧括约肌来抵抗——
+				PRINTFORMDL 但这个动作反而让内壁夹得更紧，摩擦力更大，快感更深。
+				PRINTFORMDL 她的身体背叛了她——
+				PRINTFORMDL 每一次想把入侵者挤出去，反而把它绞得更深了一些
+				PRINTFORMDW 最后一个深顶之后，萃香的肛门剧烈地痉挛了七八下——
+				PRINTFORMDW 比阴道的高潮更持久，也更不受控制。因
+				PRINTFORMDW 为括约肌是不随意肌和随意肌的混合体，它高潮时既不受意识控制，
+				PRINTFORMDW 又不能完全放松——只能在半痉挛半收缩的状态里反复地抽动。
+				PRINTFORMDW 她趴在床上，屁股还在一下一下地抖，整个股沟都亮晶晶的
+		ENDSELECT
+	ELSEIF NOWEX:Ａ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「这感觉……好难受……但是……但是——」
+				PRINTFORMDL 后庭被撑开的感觉和前面完全不同——
+				PRINTFORMDL 那不是被填满的充实感，而是一种被迫张开的、酸胀中带着酥麻的奇异快
+				PRINTFORMDL 感。
+				PRINTFORMDL 那一圈括约肌被推开的时候，里面有片刻的空虚和抗拒，
+				PRINTFORMDL 然后就被更深处的触感取代了
+				PRINTFORMDL 她的身体在本能地排斥这东西——
+				PRINTFORMDL 后庭在不停地收缩，肌肉在一圈一圈地蠕动着想把异物挤出去。
+				PRINTFORMDL 但每一次蠕动都让异物在内壁上产生了新的摩擦，
+				PRINTFORMDL 把抵抗变成了另一种形式的迎合
+				PRINTFORMDW 当那阵酸胀感突然转变成快感的瞬间，萃香整个人抖了一下——
+				PRINTFORMDW 从尾骨到后脑勺同时过电。
+				PRINTFORMDW 然后肛门开始不受控制地规律收缩——
+				PRINTFORMDW 不是要把东西挤出去，是在高潮中自己痉挛。
+				PRINTFORMDW 她咬住了枕头角，闷声叫了好几秒才松口
+			CASE 1
+				PRINTFORM 「明明是，屁股，却好奇怪啊……呼——唔——」
+				PRINTFORMDL 后庭的内壁被反复摩擦着。
+				PRINTFORMDL 那里的神经末梢虽然不如阴道密集，但分布得更深——
+				PRINTFORMDL 每一条神经都埋在肛门内壁的黏膜下层，一旦被触发，
+				PRINTFORMDL 快感不是浮在表面而是从内往外渗的，像是被泡出来的
+				PRINTFORMDL 她的股沟沟缝里全是汗——
+				PRINTFORMDL 不是普通出汗，是因为肛门被刺激时交感神经会同时激活，
+				PRINTFORMDL 汗腺不受控制地分泌。
+				PRINTFORMDL 臀缝间那一小片皮肤又湿又滑，在灯光下反着一层极细的水光
+				PRINTFORMDW 高潮来的时候她的肛门猛地收紧了——
+				PRINTFORMDW 那一圈肌肉锁死了一两秒，然后突然弹开。
+				PRINTFORMDW 接着是一连串无规律的小幅度痉挛，
+				PRINTFORMDW 频率快得你肉眼都能看清那一圈褶皱在一张一合。
+				PRINTFORMDW 她伸手摸了摸自己的臀缝，指尖沾满了黏滑的液体
+		ENDSELECT
+	ELSE
+		IF TCVAR:10:烂醉 == 1
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORM 「……啊……唔……屁股里……好热……嘿嘿……我的屁股……会跳诶……」
+					PRINTFORMDL 萃香喝醉了之后完全不在乎羞耻——
+					PRINTFORMDL 她甚至自己伸手去摸了摸那个还在痉挛的肛门。
+					PRINTFORMDL 指尖碰到那一圈还在收缩的褶皱时，她被自己吓了一跳——
+					PRINTFORMDL 那个小洞在主动吮她的指尖
+					PRINTFORMDL 她就那样把自己的一根手指留在后庭里，
+					PRINTFORMDL 歪着头感受着自己的肛门在高潮余韵中规律地收缩——
+					PRINTFORMDL 每隔三四秒就轻轻地吸一下她的指尖，
+					PRINTFORMDL 像是某种她自己都不知道的身体语言
+					PRINTFORMDW 她把手指从后庭里抽出来的时候，带出了一道细细的黏液丝。
+					PRINTFORMDW 她把手指举到你面前，让那道丝在灯光下慢慢拉长——
+					PRINTFORMDW 然后啪地断了。
+					PRINTFORMDW 「你看……我后面……会吐口水……嘿嘿……它是不是饿了」
+				CASE 1
+					PRINTFORM 「……啊……唔……嗯哼？这个感觉……和前面不一样诶……」
+					PRINTFORMDL 醉酒让萃香的括约肌完全放松了。
+					PRINTFORMDL 平时紧得连进一根手指都费力的小洞，
+					PRINTFORMDL 在酒精的作用下变得柔软而顺从。
+					PRINTFORMDL 后庭高潮时的痉挛不再是一种抵抗，
+					PRINTFORMDL 而变成了一种缓慢的、懒洋洋的吮吸——
+					PRINTFORMDL 像喝醉了之后舌头不太灵便时的吸吮动作
+					PRINTFORMDL 她趴在酒葫芦旁边，屁股微微翘着，后庭还在规律地收缩。
+					PRINTFORMDL 每缩一下她就发出一声闷在喉咙里的嗯声——
+					PRINTFORMDL 她已经不记得自己在干什么了，只是身体在忠实地反应
+					PRINTFORMDW 最后她翻了个身，后庭从深处挤出一小股透明的黏液——
+					PRINTFORMDW 那是直肠腺在刺激下分泌的液体。
+					PRINTFORMDW 她抓起酒葫芦又灌了一口，
+					PRINTFORMDW 然后含糊地说：「屁股……也能喝醉啊……嗯……学到了……」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORM 「这感觉……好难受……咕……」
+					PRINTFORMDL 后庭高潮对于萃香来说是一种需要重新适应的体验。
+					PRINTFORMDL 被撑开的第一秒是酸胀，第二秒是抗拒，
+					PRINTFORMDL 第三秒那酸胀里就开始慢慢渗出一种奇怪的快感——
+					PRINTFORMDL 不是从前面的那种，是从骨缝里渗出来的
+					PRINTFORMDL 她的括约肌在反复地收缩和放松。
+					PRINTFORMDL 每一次放松都让入侵者进得更深，每一次收缩都让刺激变得更强——
+					PRINTFORMDL 这不是抵抗，是一种她还没学会怎么命名的本能。
+					PRINTFORMDL 她的直肠内壁在忠实地分泌着黏液，比她自己更早地接受了这件事
+					PRINTFORMDW 高潮到达的瞬间，她的肛门剧烈地绞紧了——
+					PRINTFORMDW 然后她发出了一声介于哭和叫之间的声音。
+					PRINTFORMDW 那是羞耻和快感同时压倒她的声音——
+					PRINTFORMDW 她的身体在拒绝这种体验，但她的身体又在渴求这种体验。最
+					PRINTFORMDW 后她捂住了脸——不是因为疼，是因为她发现自己的腰还在往后拱
+				CASE 1
+					PRINTFORM 「明明是，屁股，却好奇怪啊……」
+					PRINTFORMDL 后庭是萃香自己都不太熟悉的地方。
+					PRINTFORMDL 平时它只是一个被遗忘的存在，但在高潮的时候，
+					PRINTFORMDL 它变成了一个比阴道更敏感的感官——
+					PRINTFORMDL 每一毫米黏膜上的触感都被放大了十倍，
+					PRINTFORMDL 连自己肛门的形状都能在颅内被清晰地描摹出来
+					PRINTFORMDL 她的肛门在高潮中规律地收缩着——
+					PRINTFORMDL 那个小小的褶皱环在一张一合，频率和心跳一致。
+					PRINTFORMDL 每次张开都露出一小圈深粉红色的黏膜，
+					PRINTFORMDL 每次合上都挤出一小滴透明的黏液。她
+					PRINTFORMDL 的臀肉在微微发颤——
+					PRINTFORMDL 不是大腿在颤，是屁股上那两片最柔软最贴近骨头的肉，
+					PRINTFORMDL 在肛门口每痉挛一下就跟着轻颤一次
+					PRINTFORMDW 高潮结束之后，她用一只手捂住了自己的臀缝——
+					PRINTFORMDW 不是挡，是确认那个地方还在不在。
+					PRINTFORMDW 然后她转过头看了你一眼，脸比番茄还红，但眼睛里不是厌恶——
+					PRINTFORMDW 是困惑。她张了张嘴又闭上。
+					PRINTFORMDW 最后只憋出了三个字：「……好奇怪。」
+					PRINTFORMDW 然后她沉默了几秒又补了一句：「……再来一次」
+				CASE 2
+					PRINTFORM 「那里……本来不是用来做这个的……但是——唔……」
+					PRINTFORMDL 萃香的后庭和她的身材一样——特别的小。
+					PRINTFORMDL 那圈褶皱平时紧得连一根小指都进不去，但被耐心地撑开之后，
+					PRINTFORMDL 它比阴道更敏感。因
+					PRINTFORMDL 为后庭的内壁上布满了内脏感觉神经，
+					PRINTFORMDL 它们对压力的感知不是"摩擦"而是"扩张"——
+					PRINTFORMDL 每扩散一毫米都在往大脑灌注意义不明的信号
+					PRINTFORMDL 她的肛门口在高潮来临前开始自己蠕动——
+					PRINTFORMDL 那一圈褶皱在一次又一次地张开再合拢，节奏越来越快，
+					PRINTFORMDL 像是在试图咽下什么看不见的东西。然
+					PRINTFORMDL 后突然——它锁死了。
+					PRINTFORMDL 那一圈肌肉箍紧了入侵者，
+					PRINTFORMDL 同时在深处有一股温热从直肠内壁涌了出来——
+					PRINTFORMDL 那是肛门高潮时特有的分泌
+					PRINTFORMDW 她从枕头里抬起头来，额前的头发全被汗粘在了脸上。
+					PRINTFORMDW 她伸手到臀后摸了一下自己的肛门——
+					PRINTFORMDW 指尖在那一圈还在痉挛的褶皱旁边画了个半圈，然后她把手抽回来，
+					PRINTFORMDW 低头看着自己指尖上那一点点透明的黏液。沉
+					PRINTFORMDW 默了很久。然后她把那根手指放进嘴里。吸了一下。又吸了一下。
+					PRINTFORMDW 然后抬起头来，表情是连她自己都解释不了的复杂：「比我想的……好喝」
+		ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;B绝顶（胸部高潮）
+;-------------------------------------------------
+IF NOWEX:Ｂ絶頂
+	IF NOWEX:Ｂ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「胸……明明什么都没有……为什么——为什么会这么舒服——
+				PRINTFORM 唔呀呀呀！！！」
+				PRINTFORMDL 萃香那对几乎没有起伏的胸口被反复揉捏着。
+				PRINTFORMDL 乳芽——那两颗小小的、平坦胸脯上唯一的隆起——
+				PRINTFORMDL 在指腹间被碾成了深红色，比平时大了整整一圈。乳
+				PRINTFORMDL 晕从原本不起眼的浅粉色变成了激动时才有的玫瑰色，
+				PRINTFORMDL 上面每一根细小的勃起颗粒都清清楚楚
+				PRINTFORMDL 她低头看着自己平坦的胸——
+				PRINTFORMDL 上面那两颗乳芽正在随着心跳一下一下地抽动。
+				PRINTFORMDL 乳尖的神经末梢密度在人体里仅次于阴蒂和嘴唇——
+				PRINTFORMDL 她虽然胸部本身很小，但乳尖的敏感度一点也不比任何人低
+				PRINTFORMDW 最后一次捏下去的时候，她的上身猛地弹了起来——
+				PRINTFORMDW 从尾骨到后脑勺同时过电。
+				PRINTFORMDW 两颗乳芽在指尖下剧烈地跳了七八下，
+				PRINTFORMDW 像是被同一根导线串联在一起。她
+				PRINTFORMDW 捂着胸口倒在床上，指缝间露出那两颗还在痉挛的红色小粒，
+				PRINTFORMDW 上面有被指甲掐出的浅浅月牙痕
+			CASE 1
+				PRINTFORM 「果然……小也是有小的好处的……你说对吧——呀——」
+				PRINTFORMDL 乳尖被舌头卷进嘴里反复地吮吸着。
+				PRINTFORMDL 因为她的胸部几乎没有隆起的弧度，
+				PRINTFORMDL 所以整颗乳芽可以完全被含进去——
+				PRINTFORMDL 从乳尖的尖端到乳晕的边缘，整个敏感区域都在口腔的包裹之内
+				PRINTFORMDL 这就是贫乳的好处——
+				PRINTFORMDL 不需要含住整个乳房，只需要含住那小小的一点，
+				PRINTFORMDL 就能覆盖全部的快感区域。舌
+				PRINTFORMDL 尖绕着乳芽打转的时候，能同时碰到乳尖、乳晕和周围那一小片敏感的皮
+				PRINTFORMDL 肤——
+				PRINTFORMDL 火力全部集中在那一个直径不到三厘米的圆圈里，密度是别人的三倍
+				PRINTFORMDW 高潮在吮吸的嘴巴里爆发了。
+				PRINTFORMDW 她的乳芽在口腔里剧烈跳动——
+				PRINTFORMDW 她能感觉到自己的乳头在舌面上弹了五六下，
+				PRINTFORMDW 然后整个胸前一阵酥麻，像是有什么东西从乳头倒灌进了胸腔。你
+				PRINTFORMDW 松开嘴的时候，那颗乳芽从嘴里滑出来——
+				PRINTFORMDW 又红又肿，表面亮晶晶的，还在轻轻地抖
+		ENDSELECT
+	ELSEIF NOWEX:Ｂ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「呼、好难受……呼啊！明明这么小……为什么感觉这么——」
+				PRINTFORMDL 萃香那平坦的胸口被反复地揉捏着。
+				PRINTFORMDL 她的手掌覆在自己胸前的时候，
+				PRINTFORMDL 手心能完全包住那几乎没有起伏的平面——
+				PRINTFORMDL 但指尖下那两颗乳芽硬得像两颗小石子，隔着皮肤清晰地硌着掌心
+				PRINTFORMDL 她的小小胸部在灯光下泛着热。
+				PRINTFORMDL 乳沟深只有不到一指宽，却因为出汗而反着一层薄光，
+				PRINTFORMDL 把那条浅沟照得更显眼了一些。
+				PRINTFORMDL 她不自觉地用肩膀往里夹了夹——
+				PRINTFORMDL 居然真的挤出了一道以前从来没有过的浅沟，
+				PRINTFORMDL 但也把乳芽挤得往前凸了一小截
+				PRINTFORMDW 高潮的时候她用手指捏住了自己的两颗乳芽——
+				PRINTFORMDW 指腹压着乳尖，指节夹着乳晕。
+				PRINTFORMDW 然后她用力一捏——
+				PRINTFORMDW 两股快感从胸口同时涌入，在锁骨窝的位置撞在了一起。
+				PRINTFORMDW 她的胸——那个她一直觉得不值得被注意的地方——
+				PRINTFORMDW 第一次让她叫出了声
+			CASE 1
+				PRINTFORM 「啊、不行了……呀啊啊——我平的、怎么也可以——」
+				PRINTFORMDL 胸部的快感对于萃香来说是陌生的——
+				PRINTFORMDL 在她的认知里，性感的人是那些有曲线的、胸口能颤出波纹的女性。
+				PRINTFORMDL 她
+				PRINTFORMDL 照镜子的时候从来不觉得自己的胸部属于"性感"这两个字，
+				PRINTFORMDL 但此刻镜子里那个被捏得发红的小胸口却在告诉她：平胸和敏感，
+				PRINTFORMDL 毫不矛盾
+				PRINTFORMDL 你在她的乳芽尖上轻轻咬了一下——
+				PRINTFORMDL 很小的力道，只够把牙印留在乳晕边缘。
+				PRINTFORMDL 她的整个上身都弹了起来——
+				PRINTFORMDL 不是被吓到了，是被快感从那颗小小的乳尖直接打穿了肋骨传到了心脏
+				PRINTFORMDL 。她
+				PRINTFORMDL 的心跳瞬间飙到了她能感觉到的最高频率——
+				PRINTFORMDL 她甚至能听见自己的血流声
+				PRINTFORMDW 高潮之后她低头看着自己被蹂躏过的胸口。
+				PRINTFORMDW 乳芽比平时大了不少，乳晕边缘有两排清晰的牙印。她
+				PRINTFORMDW 伸出指尖碰了碰那颗还在跳的乳尖——然后触电般地缩回了手。
+				PRINTFORMDW 她抬起眼睛看着你，表情里有一半是困惑，一半是控诉，
+				PRINTFORMDW 还有一小撮她不肯承认的得意：「……所以你喜欢平的，是吧。
+				PRINTFORMDW 你确实喜欢平的。你刚用牙证明了」
+		ENDSELECT
+	ELSE
+		IF TCVAR:10:烂醉 == 1
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORM 「……呀……胸部……好涨……嘿嘿……明明没有胸……却在涨诶……」
+					PRINTFORMDL 萃香喝醉之后自己拉开了衣襟低头看自己的胸口。
+					PRINTFORMDL 平坦的胸脯上那两颗小小的乳芽已经充血了——
+					PRINTFORMDL 在灯光下，两颗深粉色的小点特别明显，
+					PRINTFORMDL 因为周围再也没有别的东西能分散注意力
+					PRINTFORMDL 她用指尖戳了戳自己那颗乳芽——
+					PRINTFORMDL 然后整个人弹了一下，嘿嘿地笑了。她又戳了一下，又弹了一下。
+					PRINTFORMDL 她把这个当成了某种自己会反应的玩具，反复戳了好几次——
+					PRINTFORMDL 直到你握住了她那只手
+					PRINTFORMDW 她不戳了，但她把手拿开之后，凑近了你的脸。
+					PRINTFORMDW 两颗小小的乳芽几乎贴着你的嘴唇——
+					PRINTFORMDW 没有撞上来，因为她的胸确实平到连撞都撞不上。但
+					PRINTFORMDW 就是这个几乎贴到却没有碰到的距离，
+					PRINTFORMDW 让你能感觉到从她的乳尖上传来的细密热辐射。
+					PRINTFORMDW 「……不碰吗？我在等你碰诶……」
+				CASE 1
+					PRINTFORM 「……咦……胸口……自己动了……好可爱……」
+					PRINTFORMDL 醉酒把萃香的羞耻感溶进了酒精里，但把她的身体敏感度调高了。
+					PRINTFORMDL 那两颗乳芽在酒精的催化下比平时更敏感——
+					PRINTFORMDL 她用指腹轻轻按着自己乳尖根部那一圈，
+					PRINTFORMDL 然后看到自己平坦的胸脯上有两颗小点在自己指尖的按压下轻轻弹跳
+					PRINTFORMDL 她把两边乳芽同时按住又同时松开——
+					PRINTFORMDL 它们弹回来的时候撞在了掌心上，
+					PRINTFORMDL 撞出一阵比她预期中大得多的酥麻。
+					PRINTFORMDL 她整个人从脖子红到了肩膀，但手指停不下来
+					PRINTFORMDW 你低下头含住了其中一颗。
+					PRINTFORMDW 她的另一只手立刻抓住了你的头发——不是推，是揪着不放。
+					PRINTFORMDW 她的喉咙深处发出一声含混的酒嗝和呻吟的混合物，
+					PRINTFORMDW 然后她的手从你的头发滑到了你的脖子上。
+					PRINTFORMDW 「……两边……都要……不然不公平……」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORM 「呼、好难受……呼啊！明明什么也没有的——」
+					PRINTFORMDL 萃香对自己胸部的认知一直是"什么都没有"。
+					PRINTFORMDL 她照镜子的时候从不把目光停在胸口，
+					PRINTFORMDL 穿衣服的时候也不需要胸衣——
+					PRINTFORMDL 但那颗小小的乳芽在你的指尖下跳起来的时候，
+					PRINTFORMDL 她第一次知道了：小和不存在是两回事
+					PRINTFORMDL 她的乳芽在高潮前的几秒会自己凸起来——
+					PRINTFORMDL 不是羞耻的起反应，是血流量突然增大了好几倍导致的客观现象。乳
+					PRINTFORMDL 尖的皮肤被充血撑得发亮，连表面的微小褶皱都被拉平了。
+					PRINTFORMDL 她低头看着自己胸口上那两颗从未如此显眼过的小点，
+					PRINTFORMDL 像是第一次认识它们
+					PRINTFORMDW 高潮从那两颗乳芽的尖端同时爆发——
+					PRINTFORMDW 它们在不同的人的指尖下、以同样的频率、跳了同样多的次数。然
+					PRINTFORMDW 后一道余波从胸口往下扩散，沿着胸骨和腹直肌一直扩散到了小腹。
+					PRINTFORMDW 她把手按在胸骨上，感受着那道还在往深处蔓延的余震，
+					PRINTFORMDW 然后笑了——不是性感的笑，是一种"原来我也可以"的释然
+				CASE 1
+					PRINTFORM 「啊、不行了……呀啊啊——明明只是个小石子而已……」
+					PRINTFORMDL 萃香一直把自己胸口那两颗小点叫作"石子"——
+					PRINTFORMDL 因为它们太小了，小到在指尖下转一圈就没了。但
+					PRINTFORMDL 此刻这些"石子"变成了两颗小小的、敏感的、会自己跳动的生命。
+					PRINTFORMDL 它们在她平坦的胸口上一下一下地跳——
+					PRINTFORMDL 不是单方向的跳动，是三维的，是在往上顶的同时也在往外扩
+					PRINTFORMDL 两颗乳头之间隔着不到十厘米的平坦距离——
+					PRINTFORMDL 这道距离够窄，窄到你的两根手指可以同时按在两颗乳芽上，
+					PRINTFORMDL 把自己掌心的温度传递给它们。
+					PRINTFORMDL 也够宽，宽到两道从乳尖出发的快感会在中间的空隙里互相撞击
+					PRINTFORMDW 高潮之后她把你的手从胸口挪开了——
+					PRINTFORMDW 但挪开的动作很轻，轻到像是在把你从自己身体上小心地揭开。然
+					PRINTFORMDW 后她低下头，在自己的乳芽上各舔了一下——
+					PRINTFORMDW 像是在替你把没做够的事情做完。
+					PRINTFORMDW 她抬起头来的时候，两颗乳芽上沾着自己透明的口水，
+					PRINTFORMDW 样子不像是在做给你看——
+					PRINTFORMDW 更像是她想自己确认一下，那两颗石子，到底能带来多大的地震
+				CASE 2
+					PRINTFORM 「唔——小小的……也被你喜欢了……好开心……」
+					PRINTFORMDL 萃香从没觉得自己平坦的胸口能是什么值得被注视的东西。
+					PRINTFORMDL 但你的嘴唇落在乳房间那个几乎可以忽略的凹陷上时，
+					PRINTFORMDL 她感到的不只是物理的触感——
+					PRINTFORMDL 还有一种被人从头到尾扫描了一遍之后得到了"合格"印章般的确认。
+					PRINTFORMDL 然后你往上，含住了左边那颗
+					PRINTFORMDL 口腔的温暖包裹了整颗小小的乳芽。
+					PRINTFORMDL 舌面糙糙的纹理和乳尖光滑的皮肤之间产生了微弱的摩擦力——
+					PRINTFORMDL 每一次舌头的蠕动都在那一小片极薄的皮肤上印下难以忽略的触感。
+					PRINTFORMDL 她
+					PRINTFORMDL 的呼吸从鼻子换到了嘴唇——
+					PRINTFORMDL 因为含住左乳的同时她的牙关自己松开了，空气都从嘴里跑了出去
+					PRINTFORMDW 你松开嘴的时候，那颗乳芽上挂着你的一根口水丝——
+					PRINTFORMDW 它在空气中拉长到两三厘米才断开。
+					PRINTFORMDW 她用指尖接住了断开的那一端，点在自己的乳尖上，
+					PRINTFORMDW 和你留下的温度叠在了一起。然
+					PRINTFORMDW 后她低头看了自己那颗湿漉漉的小石子很久——
+					PRINTFORMDW 久到你觉得她可能是在认真计算这道"胸-但-超-敏-感"等式。
+					PRINTFORMDW 最后她抬起头：「那……下次两粒一起。你一颗，一颗给我的手。
+					PRINTFORMDW 我得让小石子们学会自己叫」
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;M绝顶（精神高潮）
+;-------------------------------------------------
+IF NOWEX:Ｍ絶頂
+	IF NOWEX:Ｍ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「脑子……脑子里面……被你灌进来了——唔呀呀呀呀！！！」
+				PRINTFORMDL 精神高潮不经过神经末梢——它直接在大脑里发生。
+				PRINTFORMDL 萃香的眼睛失焦了，瞳孔剧烈地放大又缩小——
+				PRINTFORMDL 这不是情绪反应，是脑内多巴胺突然飙升导致的生理现象。
+				PRINTFORMDL 她的脑子自己在给自己灌快感，不需要任何触碰
+				PRINTFORMDL 她的所有感官同时交叉了——
+				PRINTFORMDL 指尖有甜味，舌根有颜色，耳朵能闻到你的味道。
+				PRINTFORMDL 这就是联觉——只有在极端的精神高潮中才会触发的感官交叉。
+				PRINTFORMDL 她的整个意识世界在这一瞬间被快感重新接线了，
+				PRINTFORMDL 所有的信号都指向了同一个字：你
+				PRINTFORMDW 高潮退去之后她已经忘了刚才发生了什么。
+				PRINTFORMDW 只记得有一瞬间——只有一瞬间——她和你重合了。不
+				PRINTFORMDW 是身体的重合，是意识的。
+				PRINTFORMDW 她透过你的眼睛看到了自己瘫在床上的样子——
+				PRINTFORMDW 头发乱七八糟，嘴角挂着口水，胸口那两颗乳芽还在跳。
+				PRINTFORMDW 然后那个画面碎了，回到现实，发现自己正被抱在你怀里。
+				PRINTFORMDW 她花了整整十几秒才重新学会怎么眨眼睛
+			CASE 1
+				PRINTFORM 「碰都没碰……为什么……为什么脑子自己在叫——呜——」
+				PRINTFORMDL 精神高潮是一种悖论：身体没有被任何人触碰，但大脑在高潮。
+				PRINTFORMDL 萃香的所有身体感官都是安静的——
+				PRINTFORMDL 阴道没被进入，阴蒂没人碰，乳头也没被捏——
+				PRINTFORMDL 但她的脑内正在经历一场连她自己都觉得过分的风暴
+				PRINTFORMDL 她在你的注视下开始了。
+				PRINTFORMDL 只是被看着——只是被你这样认真地看着——
+				PRINTFORMDL 她的脑内就开始自己制造高潮。
+				PRINTFORMDL 枕叶在处理你的脸的图像，颞叶在处理你呼吸的声音，
+				PRINTFORMDL 边缘系统把这些信号全部解读成了：被爱、被拥有、被彻底地、没有保留地需
+				PRINTFORMDL 要
+				PRINTFORMDW 然后她的意识在一个看不见的高点上碎掉了。
+				PRINTFORMDW 她倒在你怀里的时候是无声的——
+				PRINTFORMDW 没有尖叫，没有呻吟，只是整个人突然软下来了，
+				PRINTFORMDW 像搭了太久的积木终于被抽掉最底下的那一块
+				PRINTFORMDW 你把她的脸从你胸口上扶起来——
+				PRINTFORMDW 她的眼睛里倒映着灯光，也倒映着你。
+				PRINTFORMDW 她张着嘴，呼吸很浅，意识还在半空中飘着
+				PRINTFORMDW 然后她说话了——
+				PRINTFORMDW 用尽了她那个小小的声音里最后一丁点力气：
+				PRINTFORMDW 「刚才……有个瞬间……我不知道自己是你的人还是你的人。」
+				PRINTFORMDW 「然后我想——好像……也没区别」
+		ENDSELECT
+	ELSEIF NOWEX:Ｍ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「哈啊、啾嗯……呃啊！脑子里……嗡嗡的……不要光看着我——」
+				PRINTFORMDL 精神高潮对萃香来说是一种陌生的体验。
+				PRINTFORMDL 她已经习惯了来自身体的那几种高潮——
+				PRINTFORMDL 来自阴蒂、阴道、乳尖的——
+				PRINTFORMDL 每一种都有具体的起点和清晰的传导路径。
+				PRINTFORMDL 但精神高潮没有起点，它从四面八方同时涌来，
+				PRINTFORMDL 像是被泡进了一池看不见的快感里
+				PRINTFORMDL 她试图找到快感的来源。
+				PRINTFORMDL 她低头看了看自己的胸前——两颗乳芽安安静静的。
+				PRINTFORMDL 她伸手摸了摸自己腿间——干的。
+				PRINTFORMDL 但脑子里的风暴停不下来——
+				PRINTFORMDL 每一个念头都被裹上了一层酥麻的外衣，
+				PRINTFORMDL 连想到西瓜这两个字都会产生一阵微弱的快感
+				PRINTFORMDW 她放弃了寻找来源。
+				PRINTFORMDW 放弃了之后快感反而更强烈了——
+				PRINTFORMDW 因为连分析这个念头本身也被快感吞掉了。她
+				PRINTFORMDW 瘫在你怀里，脑子里的风暴慢慢平息成了一片柔软的、温热的空白。
+				PRINTFORMDW 她在这种空白里飘了好几秒，
+				PRINTFORMDW 然后说了一句她清醒的时候绝对不会说的话：「你光看我就够了，
+				PRINTFORMDW 对吗。那我要一直让你看着」
+			CASE 1
+				PRINTFORM 「呃、呜啾……！不要……别看……但是……也别不看我——」
+				PRINTFORMDL 萃香的瞳孔在你注视下忽大忽小。
+				PRINTFORMDL 别过头去不看你——但别过头去之后又忍不住用眼角往回看。
+				PRINTFORMDL 你在看着她的眼睛。你在看着她的嘴唇。你在看着她的锁骨。
+				PRINTFORMDL 你在把她从头到脚扫描一遍——
+				PRINTFORMDL 每一次扫描都在她的意识里留下一道发烫的轨迹
+				PRINTFORMDL 然后你什么都不做了。
+				PRINTFORMDL 不碰她，不说话了，只是看着她的眼睛——
+				PRINTFORMDL 隔着不到一只手掌的距离。她
+				PRINTFORMDL 的呼吸越来越快——不是因为身体被刺激了，是因为意识在被填满。
+				PRINTFORMDL 你的视线是一道无形的、持续的、不会中断的触碰，
+				PRINTFORMDL 它覆盖了她身体的每一个表面，同时也填满了她意识的每一条缝隙
+				PRINTFORMDW 然后那个点到了——她的意识在高潮中短暂地断了一下。
+				PRINTFORMDW 没有声音，没有痉挛，只是她的眼神突然散了——
+				PRINTFORMDW 瞳孔完全散开，然后又缓缓聚焦回来。聚
+				PRINTFORMDW 焦回来的第一个图像是你。
+				PRINTFORMDW 她的下巴抖了一下，眼泪不是因为伤感，是因为快感太满了——
+				PRINTFORMDW 意识装不下那么多，从泪腺溢出来了。
+				PRINTFORMDW 然后她用手背擦着眼泪说的第一句话：「……别停。看着我。
+				PRINTFORMDW 别停……」
+		ENDSELECT
+	ELSE
+		IF TCVAR:10:烂醉 == 1
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORM 「……啊……啊、呜呃呃呃——脑子……脑子不转了——
+					PRINTFORM 呃……嗯？」
+					PRINTFORMDL 萃香在酒醉中达到了精神高潮——
+					PRINTFORMDL 酒精已经把她正常的思维框架溶掉了大半，
+					PRINTFORMDL 剩下的那些念头本来就摇摇欲坠，精神高潮一来，
+					PRINTFORMDL 连最后那一点支撑也塌了。
+					PRINTFORMDL 她的意识变成了一口正在溢出的酒缸——
+					PRINTFORMDL 快感是酒，她自己是被泡在酒里的果子
+					PRINTFORMDL 她对自己的精神高潮毫无觉察。
+					PRINTFORMDL 她只觉得脑子里突然变得很安静——安静到能听见自己的心跳。然
+					PRINTFORMDL 后安静变成了一阵阵嗡嗡声。
+					PRINTFORMDL 然后嗡嗡声变成了一种温热的、从脑子里往全身扩散的麻痹感——
+					PRINTFORMDL 不是身体上的麻痹，是意识层面的：她突然想不起来自己为什么要想事情
+					PRINTFORMDW 她在这种醉醺醺的精神高潮里咯咯地笑，伸手在空中抓了抓——
+					PRINTFORMDW 抓到了你的衣角。
+					PRINTFORMDW 她也不拽，只是用指尖捏着那一片布料，
+					PRINTFORMDW 像捏着一片不会飘走的风筝。
+					PRINTFORMDW 然后她在半梦半醒的精神高潮里说了一句醉话：
+					PRINTFORMDW 「你知道吗……我今天……跟你在一起，喝了三壶。
+					PRINTFORMDW 每一壶都……比你少一点好喝。
+					PRINTFORMDW 你是第一壶——酒葫芦是第二壶……嗝」
+				CASE 1
+					PRINTFORM 「……脑子……喝醉了……然后又被……什么灌满了……好奇怪……嘿嘿……」
+					PRINTFORMDL 酒精和快感在萃香的脑子里搅在了一起——
+					PRINTFORMDL 分不清是酒在麻痹神经，还是快感在激活神经。这
+					PRINTFORMDL 种矛盾的状态让她迷迷糊糊的，不断用手拍打脑袋想让自己清醒些。
+					PRINTFORMDL 但每一次拍打自己的额头都产生一阵新的嗡嗡声——
+					PRINTFORMDL 不是物理的嗡，是意识里那种酒意和快感共振的频率
+					PRINTFORMDL 她整个人靠在酒葫芦上，闭着眼睛。
+					PRINTFORMDL 眼珠在眼皮底下快速地转——
+					PRINTFORMDL 不是在做梦，是在经历一场没有身体触碰的高潮。
+					PRINTFORMDL 她的意识正在被快感冲刷，
+					PRINTFORMDL 一道道无形的波浪从大脑深处涌上来又退回去
+					PRINTFORMDW 她睁开眼的时候，眼睛在醉意里闪闪发亮——
+					PRINTFORMDW 不是泪水，是酒精把眼角膜的反射亮度调高了。
+					PRINTFORMDW 她看了你一眼，然后说了三句毫无逻辑但特别真诚的话——
+					PRINTFORMDW 说得非常轻，但每个字都顺着酒意流进了你的耳朵里。第
+					PRINTFORMDW 一句：你比酒好喝。第二句：所以我想喝你。
+					PRINTFORMDW 第三句：但我又舍不得喝——因为喝完了就没了。所以我把你存着。
+					PRINTFORMDW 存在脑子里。
+					PRINTFORMDW 说完她歪了歪头，又闭上了眼——
+					PRINTFORMDW 然后抓着你的衣角的手指又收紧了一点
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORM 「哈啊、啾嗯……呃啊！」
+					PRINTFORMDL 精神高潮对萃香来说，是从拥有身体到只拥有一团感官的过渡。
+					PRINTFORMDL 她的身体在物理上没有任何一个地方被触碰——
+					PRINTFORMDL 你是隔着空气看着她的。
+					PRINTFORMDL 但你的视线重量太大了，大到她的意识承受不住
+					PRINTFORMDL 她在你的注视下开始慢慢地放弃自己的边界。
+					PRINTFORMDL 从脚趾开始——不是她的脚趾了，只是两片正在发麻的皮肤。然
+					PRINTFORMDL 后是小腿——不是她的小腿了，只是两条正在变软的肉。
+					PRINTFORMDL 然后是大腿、骨盆、小腹、胸口、脖子——最后是她的脸。
+					PRINTFORMDL 她把脸留到了最后，因为脸是她的标识。
+					PRINTFORMDL 但当你的视线落在她嘴唇上的时候——连脸也不是她的了
+					PRINTFORMDW 然后她的意识在高潮中碎掉了。
+					PRINTFORMDW 不是身体的破碎，是自我的破碎——
+					PRINTFORMDW 那个叫萃香的人格暂时消失了，
+					PRINTFORMDW 取而代之的是一团纯粹的、没有名字的、正在经历快乐的存在。她
+					PRINTFORMDW 在那团存在里飘了不知道多久，然后慢慢聚回来——
+					PRINTFORMDW 先是嘴唇，然后是脸，然后是身体，最后是她自己。
+					PRINTFORMDW 重新聚拢成萃香的她睁开眼睛，发现自己正被你抱着。
+					PRINTFORMDW 她说：「我刚才不见了。然后我回来了。你还在。所以你没有偷跑。
+					PRINTFORMDW 好乖」
+				CASE 1
+					PRINTFORM 「呃、呜啾……！」
+					PRINTFORMDL 萃香的声音在高潮前从一种音色变成了另一种音色——
+					PRINTFORMDL 她自己可能都没注意到。
+					PRINTFORMDL 她的声音在一开始是属于她的——
+					PRINTFORMDL 那是一种带着酒气、朝气和微妙的挑衅的声线，有点粗，
+					PRINTFORMDL 但粗得很有辨识度。然
+					PRINTFORMDL 后响起了她下唇被自己咬住的微弱声响——
+					PRINTFORMDL 咬得很松，牙齿快碰到嘴唇的下表层时突然收住了。
+					PRINTFORMDL 因为牙齿不敢在那个时刻还定在自己身上。
+					PRINTFORMDL 她在脑子里已经把自己这两个字暂时注销了
+					PRINTFORMDL 然后快感来了。
+					PRINTFORMDL 在最集中的那一秒里，她张着嘴从喉咙最深处发出你能听到的最细微的
+					PRINTFORMDL 声音——
+					PRINTFORMDL 不是啜泣，不是尖叫，是一种连她都不能控制的气流，
+					PRINTFORMDL 从肺里挤出来穿过声带的时候撞出了零星的共振。那
+					PRINTFORMDL 声音不像在表达——
+					PRINTFORMDL 更像她的肺想告诉你：我正在把最后一丝氧气拿来供暖。给你。
+					PRINTFORMDL 只给你
+					PRINTFORMDW 声音退潮之后她没有立刻回神。
+					PRINTFORMDW 她半坐起身，把手探到面前——
+					PRINTFORMDW 手指张开再握紧，张开再握紧，像是确认自己是不是还拥有这只手。
+					PRINTFORMDW 然
+					PRINTFORMDW 后她把手放到了你的脸颊上。不是摸，是放。掌心贴着你。
+					PRINTFORMDW 整片贴在体温刚好能互相交换的距离。
+					PRINTFORMDW 放了三秒之后她慢慢把脸靠上了你的肩膀，
+					PRINTFORMDW 呼出一口热息：「我在里面找不到我。找了很久。
+					PRINTFORMDW 最后找到了——你。所以没关系了」
+				CASE 2
+					PRINTFORM 「哈啊……别用那种眼神看着我……脑子……脑子要化了——」
+					PRINTFORMDL 萃香被你看得无处可逃。
+					PRINTFORMDL 你是认真的——
+					PRINTFORMDL 不是那种接下来要做什么的认真，是你存在就够了的认真
+					PRINTFORMDL 这种凝视是她最难抵抗的——
+					PRINTFORMDL 不是因为它在攻击她，而是因为它什么都不要求。
+					PRINTFORMDL 不要求她漂亮、不要求她性感、不要求她表现——只要求她在这里
+					PRINTFORMDL 而这种无条件的注视，对萃香来说，
+					PRINTFORMDL 比任何物理刺激都更能摧毁她的防线
+					PRINTFORMDL 她的意识开始在高潮之前软化——不是被推倒的，是自己散的。
+					PRINTFORMDL 就像握紧的拳头慢慢松开——不是被掰开的，是她自己不想握了
+					PRINTFORMDL 平时在任何人面前，她需要维持萃香这个身份——
+					PRINTFORMDL 活泼、酒鬼、不太靠谱但可靠。
+					PRINTFORMDL 但被这样看着的时候，她不需要是任何一个具体的她。
+					PRINTFORMDL 她可以只是被看的对象
+					PRINTFORMDL 你可以继续把她看散，那是她的边界、防护罩和用于躲闪的所有谎言。而画
+					PRINTFORMDL 在枕上的灰不会比你放在她身上的轻重更值得计算
+					PRINTFORMDW 然后高潮来了——她在你的眼神里融化了。
+					PRINTFORMDW 她闭上眼睛——因为睁着眼时你的脸会把快感放大十倍。
+					PRINTFORMDW 眼前一片黑暗中，快感变成了不需要形状的存在——它只是存在着
+					PRINTFORMDW 她在这种存在里沉进去——
+					PRINTFORMDW 双手已经钻进对方的衣服下摆攫取体温——
+					PRINTFORMDW 她用指甲尖轻轻摩挲对方的脊椎
+					PRINTFORMDW 他的体温顺着掌心潜入她的血管流遍全身——
+					PRINTFORMDW 身体信号和意识里的快感此时已分不清了
+					PRINTFORMDW 她睁开眼时，正看见自己的手指正离开你的肩胛骨。
+					PRINTFORMDW 她低头看了看自己还贴在肋侧的十片指尖，
+					PRINTFORMDW 想不起来到底有没有摸过你的骨头
+					PRINTFORMDW 于是又重新摸了一次，顺便抬眼看着你说：「刚才……没在摸。
+					PRINTFORMDW 现在这个——才是。」然后她的手掌又紧了几分——
+					PRINTFORMDW 因为这次是清醒着的。这次她是她自己。
+					PRINTFORMDW 这次她要把心跳印在你的背上留作凭证
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+
+;未成功调用文本，需要返回0
+RETURN 0
+
+;==================================================
+;对象睡眠中的高潮口上（睡眠奸）
+;==================================================
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_B2_K10
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;-------------------------------------------------
+;喷乳
+;-------------------------------------------------
+IF NOWEX:喷乳
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORMDL 萃香在睡梦中皱了皱眉，然后胸口那两颗小小的突起开始自己往外渗奶
+			PRINTFORMDL 。
+			PRINTFORMDL 白色的乳汁浸透了睡衣，在浅色的布料上洇出了两圈越来越大的湿痕
+			PRINTFORMDL 她翻了个身，乳汁从敞开的领口淌出来，顺着锁骨流进了枕头堆里。
+			PRINTFORMDL 即使在梦里，她的身体也在忠实地回应着高潮
+			PRINTFORMDL 你轻轻掀开她被浸透的睡衣。
+			PRINTFORMDL 那两枚小小的乳头还在往外冒——
+			PRINTFORMDL 每隔几秒，就有一滴新的奶珠从乳尖上滚下来。
+			PRINTFORMDL 睡梦中的身体比醒着的时候更诚实
+			PRINTFORMDW 你轻轻按了一下她的乳头——又一股奶水喷了出来，打在了枕头上。
+			PRINTFORMDW 她只是嗯了一声，没醒
+		CASE 1
+			PRINTFORMDL 萃香在梦里翻了个身，正好面朝你。
+			PRINTFORMDL 睡衣的领口敞着，那两枚还在冒奶的乳头正对着你的方向
+			PRINTFORMDL 奶珠一滴一滴从乳尖上滚下来，打在她自己的锁骨窝里，
+			PRINTFORMDL 积成了一小洼乳白色的浅池
+			PRINTFORMDL 她无意识地舔了舔嘴唇。
+			PRINTFORMDL 你把手指伸进她锁骨窝里的那洼乳汁里蘸了一下，
+			PRINTFORMDL 然后轻轻点在她的下唇上
+			PRINTFORMDW 她在梦里含住了你的指尖——吸了一口，又松开。翻了个身继续睡。
+			PRINTFORMDW 锁骨里的奶水晃了一下，溢出边缘，流进了枕头缝里
+	ENDSELECT
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;射精
+;-------------------------------------------------
+;LOCAL = 0
+;IF LOCAL && NOWEX:射精
+;	PRINTFORMW 
+;ENDIF
+
+;-------------------------------------------------
+;放尿
+;-------------------------------------------------
+IF NOWEX:放尿
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORMDL 睡梦中的萃香眉头突然皱了一下，双腿不自觉地动了动。
+			PRINTFORMDL 然后你听到了细微的水声——
+			PRINTFORMDL 是尿液从她腿间渗出来打在床单上的声音
+			PRINTFORMDL 即使在睡梦中，高潮也会让她的身体失去控制。
+			PRINTFORMDL 淡黄色的液体从内裤边缘溢出来，
+			PRINTFORMDL 在白色的床单上画出了一张不规则的地图
+			PRINTFORMDL 尿水在床单上洇开的速度很慢——像一朵正在绽放的花。
+			PRINTFORMDL 边缘的颜色比中心淡，每一圈往外扩散的纹路都记录着她失禁的节奏：先
+			PRINTFORMDL 是急的一股，然后缓下来，然后又来一股
+			PRINTFORMDW 她翻了个身，尿水顺着新的重力方向流到了大腿后侧。
+			PRINTFORMDW 她嘟囔了一句听不清的梦话，然后继续睡了过去
+		CASE 1
+			PRINTFORMDL 萃香在梦里夹紧了大腿，但尿液还是从腿缝里流了出来——
+			PRINTFORMDL 不是失禁式的喷涌，是缓慢的、控制不住的渗漏
+			PRINTFORMDL 一滴接一滴，在她的内裤上织出了一张越来越大的湿渍地图。
+			PRINTFORMDL 她梦到了什么尴尬的场面——眉头皱得很紧，手指攥着被角不放
+			PRINTFORMDL 尿水还在往外渗，顺着大腿内侧一直淌到了膝盖窝，
+			PRINTFORMDL 在那里积成一小洼
+			PRINTFORMDW 她突然嘟囔了一句：「……厕所……在哪里……」
+			PRINTFORMDW 然后大腿又夹紧了一下。但尿水依然固执地从腿缝间渗出来，
+			PRINTFORMDW 把她膝盖窝里的那洼小水塘越扩越大
+	ENDSELECT
+	PRINTW
+	RETURN 1
+ENDIF
+
+;-------------------------------------------------
+;C绝顶（阴蒂高潮）
+;-------------------------------------------------
+IF NOWEX:Ｃ絶頂
+	IF NOWEX:Ｃ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔……嗯……」
+				PRINTFORMDL 萃香在沉睡中身体突然痉挛——
+				PRINTFORMDL 阴蒂的神经末梢在梦里被超强的高潮电流击中，
+				PRINTFORMDL 那颗小小的珍珠在睡梦中充血到发紫，从包皮里完全顶了出来
+				PRINTFORMDL 即使在最深层的睡眠中，这种程度的阴蒂高潮也太强烈了。
+				PRINTFORMDL 她的腿踢了两下被子，脚趾蜷成了十颗白色的小疙瘩，
+				PRINTFORMDL 牙齿咬住了下唇不放
+				PRINTFORMDW 然后她突然全身松了——手指从枕头上滑下来，腿也瘫开了。
+				PRINTFORMDW 大腿根那处还在微微跳动的小珍珠从包皮里露出了一点尖尖，
+				PRINTFORMDW 在月光下反着湿润的光泽
+			CASE 1
+				PRINTFORM 「哈啊……不要……碰那颗……唔……」
+				PRINTFORMDL 萃香在梦里伸手去挡自己的下身——但手在半途中就软下去了。
+				PRINTFORMDL 那颗被刺激过度的阴蒂在睡梦中自己开始跳——
+				PRINTFORMDL 不需要触碰，光是脑内的快感信号就足以让它痉挛
+				PRINTFORMDL 她的嘴唇在梦里无声地翕张。
+				PRINTFORMDL 阴蒂在规律的跳动中比平时大了一圈，
+				PRINTFORMDL 颜色从浅粉变成了深玫瑰色——即使在梦里，血流也不会停。
+				PRINTFORMDL 她翻了个身，大腿夹着一个枕头，无意识地用骨盆轻轻蹭着枕头边缘
+				PRINTFORMDW 蹭了大概十几下之后她的身体突然绷紧了——然后瘫开了。
+				PRINTFORMDW 枕头在她腿间的位置多了一小片深色的湿痕。
+				PRINTFORMDW 她把脸埋进枕头里，咂了咂嘴——睡得很安稳
+		ENDSELECT
+	ELSEIF NOWEX:Ｃ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「呼呼……嗯……别弄那颗……豆豆……」
+				PRINTFORMDL 萃香在睡梦中无意识地张开大腿。
+				PRINTFORMDL 那颗小小的阴蒂从包皮里探出了粉红色的尖——
+				PRINTFORMDL 睡着的身体没有任何设防，
+				PRINTFORMDL 把自己最脆弱也最敏感的器官毫无保留地暴露了出来
+				PRINTFORMDL 你用舌尖轻轻地在那颗珍珠的尖端点了一下。
+				PRINTFORMDL 她在梦里皱起了眉头，手指攥紧了枕头角——
+				PRINTFORMDL 然后阴蒂在你的注视下开始自己跳动。
+				PRINTFORMDL 频率很慢——大概每两秒才跳一下——
+				PRINTFORMDL 但每一跳都很完整，从根部的海绵体一直传到尖端的神经末梢
+				PRINTFORMDW 她翻了个身，把脸埋进枕头。
+				PRINTFORMDW 腿间那颗珍珠还没退回去——就那么顶着包皮的边缘露在外面。
+				PRINTFORMDW 她把被子蹬到了膝盖以下，大腿内侧在月光下泛着湿润的反光
+			CASE 1
+				PRINTFORM 「唔嗯……那颗……在梦里……怎么会……呀……」
+				PRINTFORMDL 萃香的眉头在睡梦中越皱越紧。
+				PRINTFORMDL 那颗阴蒂在没有人触碰的情况下自己充血膨胀——
+				PRINTFORMDL 睡眠中副交感神经占主导，血管扩张比醒着时更充分，
+				PRINTFORMDL 阴蒂的充血程度也比醒着时更彻底
+				PRINTFORMDL 她从鼻子里发出一声闷哼——
+				PRINTFORMDL 不是痛苦，是被快感推到临界点时身体自己发出的动静。
+				PRINTFORMDL 阴蒂在连续跳动了几次之后突然停住——
+				PRINTFORMDL 然后猛地跳了三下，跳得幅度比之前任何一次都大
+				PRINTFORMDW 跳完之后她的身体软了。
+				PRINTFORMDW 嘴角有一丝渗出来的口水，两条腿完全张开，
+				PRINTFORMDW 阴蒂慢慢地从深粉色退回了浅粉色——
+				PRINTFORMDW 而大腿根部，一小滩透明的爱液正在月光下闪闪发亮。
+				PRINTFORMDW 整个过程里她从头到尾没有睁开过一次眼
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼、唔嗯……」
+				PRINTFORMDL 萃香在睡梦中无意识地张开了大腿。
+				PRINTFORMDL 那颗小小的阴蒂从包皮里露了一点粉红色的尖尖出来——
+				PRINTFORMDL 睡着之后全身放松，连包皮都失去了平时保护它的张力
+				PRINTFORMDL 你用指甲尖在那颗珍珠的表面轻轻地刮了一下。
+				PRINTFORMDL 她的眉头立刻皱紧了，嘴唇抿成了一条线——然后腿根开始发抖。
+				PRINTFORMDL 即使在沉睡中，阴蒂上的神经也不会偷懒
+				PRINTFORMDW 「唔啊、嗯…………？」她的眼睛没睁开，但身体已经醒了。
+				PRINTFORMDW 阴蒂在高潮结束的瞬间还在跳，腿间湿了一大片。
+				PRINTFORMDW 然后她翻了个身，把那片湿地压在了身下，继续睡——
+				PRINTFORMDW 只有脚趾还维持在蜷缩的状态
+			CASE 1
+				PRINTFORML 「嗯……唔……别……别碰那颗……」
+				PRINTFORMDL 萃香在梦里皱着脸，手无意识地伸到了两腿之间——
+				PRINTFORMDL 不是在挡，是在摸。
+				PRINTFORMDL 睡梦中的手指笨拙地在阴唇间来回拨弄，像是在找什么东西，
+				PRINTFORMDL 又像是在安慰那颗被刺激过头的小珍珠
+				PRINTFORMDL 你把她的手指挪开，用舌腹压上那颗刚刚高潮过的阴蒂。
+				PRINTFORMDL 睡梦中的她发出一声闷在喉咙里的呜咽，整个骨盆往上顶了一下——
+				PRINTFORMDL 然后又砸回床上
+				PRINTFORMDW 梦话：「呜啊……好奇怪……那颗豆豆……在梦里面……自己动了……嗯……」
+				PRINTFORMDW 说完她咂了咂嘴，把被角抱进怀里——
+				PRINTFORMDW 腿间那摊还在缓慢扩大的湿痕已经完全暴露在月光下了
+		ENDSELECT
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;V绝顶（阴道高潮）
+;-------------------------------------------------
+IF NOWEX:Ｖ絶頂
+	IF NOWEX:Ｖ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔……里面……撑得好——嗯……」
+				PRINTFORMDL 萃香在沉睡中阴道突然剧烈痉挛。
+				PRINTFORMDL 阴道壁的每一圈褶皱都在深度睡眠中被高潮依次激活——
+				PRINTFORMDL 从深处的穹隆开始，一圈一圈地往入口绞，绞了整整七八圈才停下来
+				PRINTFORMDL 她的两条腿在梦里自己打开了——
+				PRINTFORMDL 大腿分到了最开的极限，膝盖微微弯曲，脚背绷成了一条直线。阴
+				PRINTFORMDL 道口在一张一合——
+				PRINTFORMDL 不是在做梦的动作，是括约肌和盆底肌在高潮后的自动放电。
+				PRINTFORMDL 透明的爱液从入口的缝隙里缓缓涌出来，
+				PRINTFORMDL 在床单上洇成一小片圆形的水渍
+				PRINTFORMDW 然后她翻了个身，把那片水渍压在了大腿下面——
+				PRINTFORMDW 自己用手掌盖住了还在抽搐的阴道口。
+				PRINTFORMDW 睡梦里的手比醒着的时候更笨拙，但更诚实——它知道该放在哪里
+			CASE 1
+				PRINTFORM 「哈啊……太深了……在梦里也——唔……」
+				PRINTFORMDL 萃香的子宫口在深度睡眠中被反复撞击——
+				PRINTFORMDL 不是真的撞击，是阴道高潮把最深处的神经末梢也点燃了。即
+				PRINTFORMDL 使在睡眠的麻痹中，子宫口那圈敏感的环形黏膜也能感受到颤动——
+				PRINTFORMDL 因为它在身体最里面，不受骨骼肌麻痹的影响，只受平滑肌的支配。
+				PRINTFORMDL 而平滑肌在REM期也会收缩——所以她真的在梦里被顶到了底
+				PRINTFORMDL 她的眼睛在眼皮底下快速地转——REM期。
+				PRINTFORMDL 她的阴道正在按照脑内的节奏在收缩——
+				PRINTFORMDL 每收缩一次，就挤出一小股透明的液体
+				PRINTFORMDW 最后她全身软了下来。
+				PRINTFORMDW 阴道的痉挛从深处缓缓退到了入口——然后停了。
+				PRINTFORMDW 一股温热的爱液从她腿间流出来，
+				PRINTFORMDW 在床单上画了一条细细的、弯弯曲曲的线。她
+				PRINTFORMDW 舔了舔嘴唇，吐了一串含混的梦话，又翻了个身，
+				PRINTFORMDW 把脸枕在你肩头——然后她抱着你的腰继续睡了
+		ENDSELECT
+	ELSEIF NOWEX:Ｖ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔哎……呜啊……」
+				PRINTFORMDL 萃香在睡梦中无意识地张开了大腿。
+				PRINTFORMDL 阴道在高潮中规律地收缩着——
+				PRINTFORMDL 即使在沉睡中，那道被填满的腔壁也会忠实地痉挛。
+				PRINTFORMDL 她的呼吸变得更重了，每次呼气都带着一声闷在喉咙里的细小声响
+				PRINTFORMDL 高潮过后的阴道还在规律地蠕动——
+				PRINTFORMDL 不是她自己能控制的，是睡眠中神经的自动放电。
+				PRINTFORMDL 那道小小的入口一张一合，每一次打开都挤出一点透明的液体，
+				PRINTFORMDL 每一次合上都发出轻微的黏着声
+				PRINTFORMDW 她翻了个身，把脸埋在枕头里。腿间的湿痕在月光下反着微光。
+				PRINTFORMDW 她含混不清地嘟囔了一句梦话：「……别……别灌得太满……明天还要……喝酒呢……」。然后她的
+				PRINTFORMDW 手指无意识地伸到了两腿之间，轻轻按住了那个还在收缩的入口
+			CASE 1
+				PRINTFORM 「唔……里面……好热……」
+				PRINTFORMDL 萃香在睡梦中微微皱眉，身体却在忠实地回应着阴道的高潮。
+				PRINTFORMDL 她的内壁在睡梦中也会痉挛——
+				PRINTFORMDL 一圈一圈地收紧又松弛，收紧又松弛，节奏比醒着的时候更慢，
+				PRINTFORMDL 但每一次收缩都比醒着的时候更完整
+				PRINTFORMDL 她的腿在梦里自己打开了——
+				PRINTFORMDL 不是刻意的，是肌肉在无意识中放弃了抵抗。
+				PRINTFORMDL 昏暗的光线里，能看到她的阴道口在一张一合，
+				PRINTFORMDL 每次打开都有透明的液体从里面缓缓地流出来
+				PRINTFORMDW 她发出一声悠长的叹息——
+				PRINTFORMDW 是那种只有在最深层次的睡眠和高潮同时发生时才会有的声音。然
+				PRINTFORMDW 后她伸手抱住了旁边的枕头，把脸埋了进去。
+				PRINTFORMDW 抱着枕头的姿势把她平坦的胸口压出了一条小小的沟——
+				PRINTFORMDW 而被单下她微微翘起的小屁股，刚好把你挤出床沿
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔哎……呜啊……」
+				PRINTFORMDL 萃香在睡梦中无意识地张开了大腿。
+				PRINTFORMDL 阴道在高潮中规律地收缩着——
+				PRINTFORMDL 即使在沉睡中，那道被填满的腔壁也会忠实地痉挛。
+				PRINTFORMDL 她的呼吸变得更重了，每次呼气都带着一声闷在喉咙里的细小声响
+				PRINTFORMDL 高潮过后的阴道还在规律地蠕动——
+				PRINTFORMDL 不是她自己能控制的，是睡眠中神经的自动放电。
+				PRINTFORMDL 那道小小的入口一张一合，每一次打开都挤出一点透明的液体，
+				PRINTFORMDL 每一次合上都发出轻微的黏着声
+				PRINTFORMDW 她翻了个身，把脸埋在枕头里。腿间的湿痕在月光下反着微光。
+				PRINTFORMDW 她含混不清地嘟囔了一句梦话：「……别……别灌得太满……明天还要……喝酒呢……」。然后她的
+				PRINTFORMDW 手指无意识地伸到了两腿之间，轻轻按住了那个还在收缩的入口
+			CASE 1
+				PRINTFORM 「唔……里面……好热……」
+				PRINTFORMDL 萃香在睡梦中微微皱眉，身体却在忠实地回应着阴道的高潮。
+				PRINTFORMDL 她的内壁在睡梦中也会痉挛——
+				PRINTFORMDL 一圈一圈地收紧又松弛，收紧又松弛，节奏比醒着的时候更慢，
+				PRINTFORMDL 但每一次收缩都比醒着的时候更完整
+				PRINTFORMDL 她的腿在梦里自己打开了——
+				PRINTFORMDL 不是刻意的，是肌肉在无意识中放弃了抵抗。
+				PRINTFORMDL 昏暗的光线里，能看到她的阴道口在一张一合，
+				PRINTFORMDL 每次打开都有透明的液体从里面缓缓地流出来
+				PRINTFORMDW 她发出一声悠长的叹息——
+				PRINTFORMDW 是那种只有在最深层次的睡眠和高潮同时发生时才会有的声音。然
+				PRINTFORMDW 后她伸手抱住了旁边的枕头，把脸埋了进去。
+				PRINTFORMDW 抱着枕头的姿势把她平坦的胸口压出了一条小小的沟——
+				PRINTFORMDW 而被单下她微微翘起的小屁股，刚好把你挤出床沿
+		ENDSELECT
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;A绝顶（肛门高潮）
+;-------------------------------------------------
+IF NOWEX:Ａ絶頂
+	IF NOWEX:Ａ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔……屁股……里面——唔嗯……」
+				PRINTFORMDL 萃香在沉睡中肛门突然剧烈痉挛。
+				PRINTFORMDL 那一圈紧紧闭合的括约肌在梦里被极限撑开——
+				PRINTFORMDL 深粉色的褶皱环完全展开，露出了里面一片湿润的深红色黏膜。即
+				PRINTFORMDL 使在睡眠的麻痹中，括约肌也会按照自己的节奏收缩——
+				PRINTFORMDL 不是她能控制的，是平滑肌在REM期的自动放电
+				PRINTFORMDL 她的身体在枕头上拱成了一个拱桥——
+				PRINTFORMDL 不是醒着，是纯粹的生理反射。
+				PRINTFORMDL 肛门在高潮中剧烈地一张一合了十几次——
+				PRINTFORMDL 每一次张开都露出深处一小圈深粉色的黏膜，
+				PRINTFORMDL 每一次合上都挤出一丝透明的黏液。枕
+				PRINTFORMDL 头被她的骨盆压出了一个小坑——
+				PRINTFORMDL 然后她一翻身，脸埋进了另一个枕头里
+				PRINTFORMDW 高潮过后她的后庭还在规律地蠕动。
+				PRINTFORMDW 频率很慢——大概每两秒才收缩一次——但每一次收缩都很完整。
+				PRINTFORMDW 那股黏液顺着臀缝流到了床单上。
+				PRINTFORMDW 她把脸枕在自己的手背上，微微张开的嘴在月光下泛着湿润的微光
+			CASE 1
+				PRINTFORM 「后面……别……别进去——唔嗯……」
+				PRINTFORMDL 萃香在噩梦的边缘皱紧了眉头。
+				PRINTFORMDL 后庭被极限撑开的感觉穿透了睡眠的屏障——
+				PRINTFORMDL 肛门内壁那些比阴道更深更密的神经末梢在极度扩张时会产生一种介
+				PRINTFORMDL 于酸胀和酥麻之间的奇异快感
+				PRINTFORMDL 她的臀肉在梦里微微抽搐。
+				PRINTFORMDL 肛门在连续高潮中痉挛了七八次——
+				PRINTFORMDL 每一次痉挛都伴随着一股黏液从深处涌出来。
+				PRINTFORMDL 她的手指在枕头下握成了拳头——
+				PRINTFORMDL 不是要打人，是身体在用最后一点能有意识地控制的力量对抗着那阵不
+				PRINTFORMDL 由分说的快感
+				PRINTFORMDW 然后她松开了——
+				PRINTFORMDW 她松开了手指，括约肌、咬紧的牙关、皱紧的眉头——都松开了。
+				PRINTFORMDW 全身只有后庭还在微微跳动，频率比心跳慢一点。
+				PRINTFORMDW 她翻了个身，把屁股朝向月光——
+				PRINTFORMDW 臀缝里那圈还在微微抽搐的褶皱在月光下反着一层薄湿
+		ENDSELECT
+	ELSEIF NOWEX:Ａ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔……呜啊……唔呀、唔嗯……别……别进那个地方……」
+				PRINTFORMDL 萃香在睡梦中皱起了脸——
+				PRINTFORMDL 即使在梦里，后庭被进入的感觉也太陌生了。
+				PRINTFORMDL 那股被撑开的酸胀感穿过了睡眠的屏障，让她的眉头越皱越紧。
+				PRINTFORMDL 她梦到了什么不好的东西——但身体在诚实地分泌着黏液
+				PRINTFORMDL 肛门在睡梦中也会高潮。
+				PRINTFORMDL 那一圈褶皱在无意识的情况下剧烈地收缩了三四下——
+				PRINTFORMDL 频率比醒着的时候更慢，但每一次收缩都更深更完整，
+				PRINTFORMDL 因为睡眠中所有的对抗性肌肉都松开了
+				PRINTFORMDW 她在睡梦中从喉咙里发出一声半梦半醒的悲鸣——
+				PRINTFORMDW 像是在梦里被人追着跑，又像是被什么东西吓到了。
+				PRINTFORMDW 然后她翻了个身，把脸埋进了枕头，屁股却往后拱了一下。
+				PRINTFORMDW 后庭在缓慢地蠕动，挤出最后几滴黏液，
+				PRINTFORMDW 在月光下亮成了一条反光的细线
+			CASE 1
+				PRINTFORM 「唔……后面……怎么……在梦里也……」
+				PRINTFORMDL 萃香在梦里把身体蜷成了一只虾。
+				PRINTFORMDL 膝盖缩到了胸口，后背弓成了C形——这个姿势把臀缝完全展开了。
+				PRINTFORMDL 后庭在睡梦中高潮之后的余韵还在，
+				PRINTFORMDL 那一圈刚刚痉挛过的褶皱微微张开着，
+				PRINTFORMDL 露出了里面一小片深粉色的黏膜
+				PRINTFORMDL 她发出一声含混的梦呓——
+				PRINTFORMDL 听不清内容，但尾音向上扬着，像是问句。
+				PRINTFORMDL 然后她的手指无意识地伸到了臀缝附近——
+				PRINTFORMDL 在梦里她大概在找什么东西，
+				PRINTFORMDL 指尖在后庭周围的皮肤上轻轻划拉了几下
+				PRINTFORMDW 她翻身抱住了枕头，把脸埋了进去。
+				PRINTFORMDW 只有股沟里那道属于肛门从深处分泌的黏液的细线暴露在外——
+				PRINTFORMDW 它已经从头到尾淌干净了。而
+				PRINTFORMDW 她还在睡，抱着枕头蜷得小小的。
+				PRINTFORMDW 但你一转身上床，她立刻把屁股往你这边挪了一点——
+				PRINTFORMDW 那是个连她本人都没意识到的小动作
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORM 「唔……呜啊……唔呀、唔嗯……别……别进那个地方……」
+				PRINTFORMDL 萃香在睡梦中皱起了脸——
+				PRINTFORMDL 即使在梦里，后庭被进入的感觉也太陌生了。
+				PRINTFORMDL 那股被撑开的酸胀感穿过了睡眠的屏障，让她的眉头越皱越紧。
+				PRINTFORMDL 她梦到了什么不好的东西——但身体在诚实地分泌着黏液
+				PRINTFORMDL 肛门在睡梦中也会高潮。
+				PRINTFORMDL 那一圈褶皱在无意识的情况下剧烈地收缩了三四下——
+				PRINTFORMDL 频率比醒着的时候更慢，但每一次收缩都更深更完整，
+				PRINTFORMDL 因为睡眠中所有的对抗性肌肉都松开了
+				PRINTFORMDW 她在睡梦中从喉咙里发出一声半梦半醒的悲鸣——
+				PRINTFORMDW 像是在梦里被人追着跑，又像是被什么东西吓到了。
+				PRINTFORMDW 然后她翻了个身，把脸埋进了枕头，屁股却往后拱了一下。
+				PRINTFORMDW 后庭在缓慢地蠕动，挤出最后几滴黏液，
+				PRINTFORMDW 在月光下亮成了一条反光的细线
+			CASE 1
+				PRINTFORM 「唔……后面……怎么……在梦里也……」
+				PRINTFORMDL 萃香在梦里把身体蜷成了一只虾。
+				PRINTFORMDL 膝盖缩到了胸口，后背弓成了C形——这个姿势把臀缝完全展开了。
+				PRINTFORMDL 后庭在睡梦中高潮之后的余韵还在，
+				PRINTFORMDL 那一圈刚刚痉挛过的褶皱微微张开着，
+				PRINTFORMDL 露出了里面一小片深粉色的黏膜
+				PRINTFORMDL 她发出一声含混的梦呓——
+				PRINTFORMDL 听不清内容，但尾音向上扬着，像是问句。
+				PRINTFORMDL 然后她的手指无意识地伸到了臀缝附近——
+				PRINTFORMDL 在梦里她大概在找什么东西，
+				PRINTFORMDL 指尖在后庭周围的皮肤上轻轻划拉了几下
+				PRINTFORMDW 她翻身抱住了枕头，把脸埋了进去。
+				PRINTFORMDW 只有股沟里那道属于肛门从深处分泌的黏液的细线暴露在外——
+				PRINTFORMDW 它已经从头到尾淌干净了。而
+				PRINTFORMDW 她还在睡，抱着枕头蜷得小小的。
+				PRINTFORMDW 但你一转身上床，她立刻把屁股往你这边挪了一点——
+				PRINTFORMDW 那是个连她本人都没意识到的小动作
+		ENDSELECT
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;B绝顶（胸部高潮）
+;-------------------------------------------------
+IF NOWEX:Ｂ絶頂
+	IF NOWEX:Ｂ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼……胸口……跳得好厉害……」
+				PRINTFORMDL 萃香在沉睡中，那两颗小小的乳芽突然同时挺立起来——
+				PRINTFORMDL 不是被触碰，是胸前的高潮在梦里击中了她的乳腺神经。
+				PRINTFORMDL 即使在睡眠里，乳尖的神经末梢密度也仅次于阴蒂和嘴唇——
+				PRINTFORMDL 她的平坦胸部在月光下泛着一层薄汗
+				PRINTFORMDL 乳芽在充血中变成了深玫瑰色，从浅粉变成深红只用了几秒。
+				PRINTFORMDL 它们自己开始跳动——
+				PRINTFORMDL 频率很快，像是被同一根神经串联在一起的两颗心脏。
+				PRINTFORMDL 她的睡衣在胸部的位置有两圈越来越大的湿痕——
+				PRINTFORMDL 不是汗，是乳头在高潮中自己渗出来的微量乳汁
+				PRINTFORMDW 然后她的身体软了。两颗乳芽停留在深粉色，还在微微跳动。
+				PRINTFORMDW 她翻过身，把胸口贴在枕头上——
+				PRINTFORMDW 睡梦中压着的乳尖又传来一阵微弱的电流。她
+				PRINTFORMDW 把枕头抱得更紧了一点，嘴角挂着一丝满足的浅笑——
+				PRINTFORMDW 不知是梦到了什么好事，还是身体给了她什么好事
+			CASE 1
+				PRINTFORML 「嗯……胸……明明是平的……为什么这么……」
+				PRINTFORMDL 萃香在睡梦中双手无意识地覆盖在自己平坦的胸口上。
+				PRINTFORMDL 掌心压着那两颗小小的乳芽——
+				PRINTFORMDL 它们即使在深度睡眠中也硬得像两颗被温热的小石子。她
+				PRINTFORMDL 的手指在梦里开始自己揉——
+				PRINTFORMDL 不是醒着的揉法，是睡梦里笨拙而执着的揉法，
+				PRINTFORMDL 指腹绕着自己乳芽的根部画圈，圈越画越小
+				PRINTFORMDL 乳芽在指尖的按压下剧烈跳动——
+				PRINTFORMDL 她能感知到自己的乳头在掌心里弹跳，感知到它们越跳越猛。
+				PRINTFORMDL 然后她整个人从脖子到胸口都红了——
+				PRINTFORMDL 即使昏暗中也能看清那层温热的颜色从锁骨蔓延到了乳沟
+				PRINTFORMDW 最后她的胸前一轻——她自己松开了。
+				PRINTFORMDW 然后她把两只手从胸口滑到小腹——
+				PRINTFORMDW 乳芽在乳晕中央的残余震动还在那里，隔着肋骨传给了心脏。她
+				PRINTFORMDW 的嘴角微扬，睫毛颤了两下，翻身又沉进了更深的一层睡眠。
+				PRINTFORMDW 只有被子下那层不规则的心跳还在轻轻振颤床铺
+		ENDSELECT
+	ELSEIF NOWEX:Ｂ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼哎、唔嗯……」
+				PRINTFORMDL 萃香在沉睡中翻了个身——
+				PRINTFORMDL 睡衣的领口滑到了肩膀下面，
+				PRINTFORMDL 那两枚小小的乳芽完全暴露在了月光下。
+				PRINTFORMDL 它们很小，但因为胸部本身是平的，
+				PRINTFORMDL 所以那两颗小点在平坦的胸膛上反而格外显眼——
+				PRINTFORMDL 像白色画布上的两粒红豆
+				PRINTFORMDL 你低下头，用舌尖轻轻地在那两颗乳芽上各撩了一下。
+				PRINTFORMDL 她在梦里皱了皱眉，手指无意识地攥紧了被角——
+				PRINTFORMDL 然后那两颗乳芽在你的注视下自己慢慢立了起来，
+				PRINTFORMDL 从浅粉色变成了深粉色，然后从深粉色变成了微微泛红的玫瑰色
+				PRINTFORMW 「嗯…………？」她在半梦半醒里发出一声含混的问句。
+				PRINTFORMW 眼睛没睁开，但嘴角动了一下——
+				PRINTFORMW 大概是在梦里被什么东西舔到了胸口。
+				PRINTFORMW 她又翻了个身，把被子蹬到了膝盖以下。
+				PRINTFORMW 而那两枚立着的乳芽——就这么毫无防备地为你竖立了整整一个夜晚
+			CASE 1
+				PRINTFORM 「呼呼……嗯……胸口……痒痒的……」
+				PRINTFORMDL 萃香在睡梦中双手交叉抱住了自己的胸口——
+				PRINTFORMDL 不是在挡，是在梦里给自己取暖。
+				PRINTFORMDL 这个动作把她的两条手臂夹在一起，
+				PRINTFORMDL 在平坦的胸前挤出了一道以前从来没有出现过的浅沟——
+				PRINTFORMDL 浅到你得凑近了才能看清那道凹陷的边缘
+				PRINTFORMDL 你把手指顺着那道新出现的浅沟滑了进去——
+				PRINTFORMDL 指腹贴着微微发热的皮肤从锁骨一路滑到胸腔下端。指
+				PRINTFORMDL 尖经过那片平面的时候，能清晰地感受到她的肋骨在皮肤下规律地起伏
+				PRINTFORMDL 。
+				PRINTFORMDL 然后你在某一个点上停住了——
+				PRINTFORMDL 因为你的指尖正好碰到了她的心跳，隔着胸骨和皮肤，
+				PRINTFORMDL 在轻轻地、稳定地敲着你的指腹
+				PRINTFORMDW 她发出一声含混的梦话：「……原来胸口……能听到心跳啊……」。
+				PRINTFORMDW 她还在睡——但这句话不是对你说的。是梦里的她对自己说的
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼哎、唔嗯……」
+				PRINTFORMDL 萃香在沉睡中翻了个身——
+				PRINTFORMDL 睡衣的领口滑到了肩膀下面，
+				PRINTFORMDL 那两枚小小的乳芽完全暴露在了月光下。
+				PRINTFORMDL 它们很小，但因为胸部本身是平的，
+				PRINTFORMDL 所以那两颗小点在平坦的胸膛上反而格外显眼——
+				PRINTFORMDL 像白色画布上的两粒红豆
+				PRINTFORMDL 你低下头，用舌尖轻轻地在那两颗乳芽上各撩了一下。
+				PRINTFORMDL 她在梦里皱了皱眉，手指无意识地攥紧了被角——
+				PRINTFORMDL 然后那两颗乳芽在你的注视下自己慢慢立了起来，
+				PRINTFORMDL 从浅粉色变成了深粉色，然后从深粉色变成了微微泛红的玫瑰色
+				PRINTFORMW 「嗯…………？」她在半梦半醒里发出一声含混的问句。
+				PRINTFORMW 眼睛没睁开，但嘴角动了一下——
+				PRINTFORMW 大概是在梦里被什么东西舔到了胸口。
+				PRINTFORMW 她又翻了个身，把被子蹬到了膝盖以下。
+				PRINTFORMW 而那两枚立着的乳芽——就这么毫无防备地为你竖立了整整一个夜晚
+			CASE 1
+				PRINTFORM 「呼呼……嗯……胸口……痒痒的……」
+				PRINTFORMDL 萃香在睡梦中双手交叉抱住了自己的胸口——
+				PRINTFORMDL 不是在挡，是在梦里给自己取暖。
+				PRINTFORMDL 这个动作把她的两条手臂夹在一起，
+				PRINTFORMDL 在平坦的胸前挤出了一道以前从来没有出现过的浅沟——
+				PRINTFORMDL 浅到你得凑近了才能看清那道凹陷的边缘
+				PRINTFORMDL 你把手指顺着那道新出现的浅沟滑了进去——
+				PRINTFORMDL 指腹贴着微微发热的皮肤从锁骨一路滑到胸腔下端。
+				PRINTFORMDL 指尖经过那片平面的时候，能清晰地感受到她的肋骨在皮肤下规律地起伏
+				PRINTFORMDL 然后你在某一个点上停住了——
+				PRINTFORMDL 因为你的指尖正好碰到了她的心跳，隔着胸骨和皮肤，
+				PRINTFORMDL 在轻轻地、稳定地敲着你的指腹
+				PRINTFORMDW 她发出一声含混的梦话：「……原来胸口……能听到心跳啊……」。
+				PRINTFORMDW 她还在睡——但这句话不是对你说的。是梦里的她对自己说的
+		ENDSELECT
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;M绝顶（精神高潮）
+;-------------------------------------------------
+IF NOWEX:Ｍ絶頂
+	IF NOWEX:Ｍ絶頂 == 3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「……嗯……脑子……白白的……」
+				PRINTFORMDL 萃香在沉睡中突然全身一震——
+				PRINTFORMDL 精神高潮直接击穿了REM期的屏障，在她最深层的意识里炸开了。
+				PRINTFORMDL 她的眼睛在眼皮底下剧烈地转动，嘴唇无声地张开又闭合——
+				PRINTFORMDL 不是在做梦，是脑内多巴胺突然飙升时眼球会不自主地快速移动
+				PRINTFORMDL 即使在完全失去意识的状态下，
+				PRINTFORMDL 精神高潮还是让她的身体做出了反应——
+				PRINTFORMDL 脚趾蜷起了，手指在枕头上痉挛式地收紧，然后整个人突然一松。她
+				PRINTFORMDL 的呼吸从急促变成了缓慢而深沉的节奏——
+				PRINTFORMDL 那是精神高潮过后的镇静反应，
+				PRINTFORMDL 副交感神经在收拾交感神经留下的烂摊子
+				PRINTFORMDW 她翻了个身，把脸埋在你的肩窝里——
+				PRINTFORMDW 不是有意识的，是身体在无意识中找到了热源。
+				PRINTFORMDW 她的呼吸在你锁骨上打出一片温热而规律的雾气。刚
+				PRINTFORMDW 才那阵精神风暴已经在她的意识深处消退得干干净净，
+				PRINTFORMDW 只剩下嘴角那一丝若有若无的弧度——大概是梦到了你吧
+			CASE 1
+				PRINTFORM 「唔……谁……在梦里……说了我名字……」
+				PRINTFORMDL 萃香的呼吸突然变得又浅又急——
+				PRINTFORMDL 精神高潮把她的意识提到了睡眠最浅的边界。
+				PRINTFORMDL 她的嘴唇在动——
+				PRINTFORMDL 不是在说话，是额叶在自动地把高潮带来的信号转换成语言，
+				PRINTFORMDL 但还来不及到达喉咙
+				PRINTFORMDL 她的手指在被子下面动了动——像是想抓住什么东西。
+				PRINTFORMDL 然后在梦的最深处、高潮最强烈的那一秒，她的手指停住了——
+				PRINTFORMDL 不是停下了，是终于抓到了。
+				PRINTFORMDL 她的五片指甲轻轻扣在你的手背上，力道很轻，
+				PRINTFORMDL 轻到你不低头看都注意不到
+				PRINTFORMDW 然后她沉回去了。
+				PRINTFORMDW 从浅层睡眠直坠入最深层的慢波睡眠——
+				PRINTFORMDW 精神高潮过后的脑电波切换，比任何安眠药都有效。她
+				PRINTFORMDW 的手指还搭在你的手背上——但已经没有力道了。睡得很沉。
+				PRINTFORMDW 你低下头，在月光里看到她的眼睫毛上挂着一颗极小的泪珠——
+				PRINTFORMDW 不是伤心的泪，是快感突破了意识的量，从泪腺溢了出来
+		ENDSELECT
+	ELSEIF NOWEX:Ｍ絶頂 == 2
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼……唔嗯……」
+				PRINTFORMDL 萃香在沉睡中经历了精神高潮。
+				PRINTFORMDL 她的眉头皱了一下——然后慢慢松开了。
+				PRINTFORMDL 接着是嘴唇——
+				PRINTFORMDL 上唇和下唇之间出现了一条极细的缝隙，
+				PRINTFORMDL 然后两片嘴唇慢慢地分开了一点点，
+				PRINTFORMDL 像是在梦里正准备说什么话但还没来得及说出来
+				PRINTFORMDL 精神高潮最奇妙的地方在于：它不需要身体参与。
+				PRINTFORMDL 所以即使在最深沉的睡眠里——
+				PRINTFORMDL 当她的身体完全瘫痪，她的意识被锁在REM期的深处——
+				PRINTFORMDL 高潮也能照常发生。她
+				PRINTFORMDL 自己不知道发生了什么，但在梦的最后那个画面里，
+				PRINTFORMDL 她大概和你在做着同样的事情
+				PRINTFORMW 「嗯…………？」她迷迷糊糊地把眼睛睁开了一线——
+				PRINTFORMW 没聚焦，大概还在梦里。然后她看到你了——睡着的你也正对着她。
+				PRINTFORMW 她
+				PRINTFORMW 没说话，眼睛又闭上了。
+				PRINTFORMW 把脸往你的方向挪了三厘米，然后又不动了。
+				PRINTFORMW 三厘米，刚好够她的呼吸打在你的锁骨上。
+				PRINTFORMW 她在接着睡，刚才的梦大概没断。
+				PRINTFORMW 从她嘴角那一丝若有若无的弧度来看——梦的结局应该是好的
+			CASE 1
+				PRINTFORM 「唔……嗯……今天梦里……你出来了……太多次了……不行……出梦费交一下……」
+				PRINTFORMDL 萃香在睡梦中说了一句完整的话——
+				PRINTFORMDL 这不是普通的梦话，这是精神高潮把她的意识暂时提到了一个清醒和睡
+				PRINTFORMDL 眠之间的薄层。
+				PRINTFORMDL 她在薄层里跟你讨价还价——
+				PRINTFORMDL 关于出梦费、关于你梦里出现了多少次、关于某种她自己也没算清的账
+				PRINTFORMDL 说完这句话之后她的表情从严肃变成了傻笑——
+				PRINTFORMDL 那个精神高潮的余波还在她的梦里翻腾着。
+				PRINTFORMDL 她的手指动了一下，在被子下面摸到了你的手——然后不动了。
+				PRINTFORMDL 没有握住，只是搭在上面，大概是梦里到了最好的那个桥段
+				PRINTFORMDW 第二天早上你问她做的是什么梦。
+				PRINTFORMDW 她皱着眉头想了很久：「记得一点点——不能说。」停顿。「
+				PRINTFORMDW 反正梦里有你。」更长的停顿和满脸飙升的红晕。
+				PRINTFORMDW 「而且……好像不止一个你。有好几个。
+				PRINTFORMDW 你在梦里组了一个军团来搞我。」她往你怀里撞了一下，
+				PRINTFORMDW 撞得很轻——
+				PRINTFORMDW 大概是觉得梦里已经被搞够了，醒来之后只想撞一下，不能再多了
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼……唔嗯……」
+				PRINTFORMDL 萃香在沉睡中经历了精神高潮。
+				PRINTFORMDL 她的眉头皱了一下——然后慢慢松开了。
+				PRINTFORMDL 接着是嘴唇——
+				PRINTFORMDL 上唇和下唇之间出现了一条极细的缝隙，
+				PRINTFORMDL 然后两片嘴唇慢慢地分开了一点点，
+				PRINTFORMDL 像是在梦里正准备说什么话但还没来得及说出来
+				PRINTFORMDL 精神高潮最奇妙的地方在于：它不需要身体参与。
+				PRINTFORMDL 所以即使在最深沉的睡眠里——
+				PRINTFORMDL 当她的身体完全瘫痪，她的意识被锁在REM期的深处——
+				PRINTFORMDL 高潮也能照常发生。她
+				PRINTFORMDL 自己不知道发生了什么，但在梦的最后那个画面里，
+				PRINTFORMDL 她大概和你在做着同样的事情
+				PRINTFORMW 「嗯…………？」她迷迷糊糊地把眼睛睁开了一线——
+				PRINTFORMW 没聚焦，大概还在梦里。然后她看到你了——睡着的你也正对着她。
+				PRINTFORMW 她
+				PRINTFORMW 没说话，眼睛又闭上了。
+				PRINTFORMW 把脸往你的方向挪了三厘米，然后又不动了。
+				PRINTFORMW 三厘米，刚好够她的呼吸打在你的锁骨上。
+				PRINTFORMW 她在接着睡，刚才的梦大概没断。
+				PRINTFORMW 从她嘴角那一丝若有若无的弧度来看——梦的结局应该是好的
+			CASE 1
+				PRINTFORM 「唔……嗯……今天梦里……你出来了……太多次了……不行……出梦费交一下……」
+				PRINTFORMDL 萃香在睡梦中说了一句完整的话——
+				PRINTFORMDL 这不是普通的梦话，这是精神高潮把她的意识暂时提到了一个清醒和睡
+				PRINTFORMDL 眠之间的薄层。
+				PRINTFORMDL 她在薄层里跟你讨价还价——
+				PRINTFORMDL 关于出梦费、关于你梦里出现了多少次、关于某种她自己也没算清的账
+				PRINTFORMDL 说完这句话之后她的表情从严肃变成了傻笑——
+				PRINTFORMDL 那个精神高潮的余波还在她的梦里翻腾着。
+				PRINTFORMDL 她的手指动了一下，在被子下面摸到了你的手——然后不动了。
+				PRINTFORMDL 没有握住，只是搭在上面，大概是梦里到了最好的那个桥段
+				PRINTFORMDW 第二天早上你问她做的是什么梦。
+				PRINTFORMDW 她皱着眉头想了很久：「记得一点点——不能说。」停顿。「
+				PRINTFORMDW 反正梦里有你。」更长的停顿和满脸飙升的红晕。
+				PRINTFORMDW 「而且……好像不止一个你。有好几个。
+				PRINTFORMDW 你在梦里组了一个军团来搞我。」她往你怀里撞了一下，
+				PRINTFORMDW 撞得很轻——
+				PRINTFORMDW 大概是觉得梦里已经被搞够了，醒来之后只想撞一下，不能再多了
+		ENDSELECT
+	ENDIF
+ENDIF
+
+;未成功调用文本，需要返回0
+;RETURN 0
+
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_00(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+
+;未成功调用文本，需要返回0
+;RETURN 0
+
+;-------------------------------------------------
+;射精部位：避孕套（TCVAR:50 Bit 0）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_0(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，你的精液冲进了那只薄薄的橡胶套子——
+		PRINTFORMDL 透明的套壁在精液的冲击下从顶端开始膨胀，
+		PRINTFORMDL 一点点鼓成了一个乳白色的囊泡
+		PRINTFORMDL 萃香静止在半空中，眼睛还维持着刚才的表情。
+		PRINTFORMDL 你凑近了看——那只避孕套在你射完的瞬间就定格了
+		PRINTFORMDL 精液在套子里保持着最后的冲击形态，
+		PRINTFORMDL 顶端那一小团浓稠的白浆像是被冻住了一样悬在套子前端
+		PRINTFORMDL 你伸出手指，隔着套子轻轻按了一下那一小团精液——
+		PRINTFORMDL 它在静止的橡胶层下面保持着可以被捏动的形状，
+		PRINTFORMDL 像一颗被包在透明薄膜里的温热果冻
+		PRINTFORMDW 你把那片被精液撑得鼓鼓囊囊的套子从她面前拿开。
+		PRINTFORMDW 时停里的萃香当然不知道发生了什么——
+		PRINTFORMDW 但她静止的眼瞳正对着那片装满你精液的容器，
+		PRINTFORMDW 像是在凝视某种契约的物证
+		RETURN 1
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香迷迷糊糊地低着头，看着你从那根已经从她腿间退出去的肉棒上慢
+		PRINTFORMDL 慢取下避孕套。
+		PRINTFORMDL 套子前端坠着一小包晃来晃去的白色液体——
+		PRINTFORMDL 在醉眼里看不太清轮廓，但她还是看懂了那是什么
+		PRINTFORMDL 她伸手戳了戳那只还在往外渗热气的套子——
+		PRINTFORMDL 指尖碰到的是橡胶的弹性和里面那团温热的重量。
+		PRINTFORMDL 然后她抬起头，对你露出了一个酒气熏天的傻笑
+		PRINTFORML 「这个……里面是你的……对吧……嘿嘿……鼓鼓的……」
+		PRINTFORMDL 她又戳了一下——这次戳在了套子最鼓的那个位置。
+		PRINTFORMDL 里面的精液被外力挤得往四周逃，套子在她指尖下变形了一瞬间，
+		PRINTFORMDL 然后又弹回来
+		PRINTFORMDL 她因为这个弹回来的触感而咯咯地笑，
+		PRINTFORMDL 然后往前一靠把脸埋进了你的怀里——
+		PRINTFORMDL 那根手指还留在套子上面没离开
+		PRINTFORMDW 「下次别用这个了……我想看看……它在我里面是……什么样子……嗝……」
+		RETURN 1
+	;正常
+	ELSEIF GETBIT(TCVAR:10:50, 0)
+		CALLFORM M_KOJO_MOMO_COLOR_K10
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			IF TALENT:恋人 && CFLAG:允许无套 == 2
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「你真讨厌，坏死了你……♥」
+						PRINTFORMDL 萃香看着你从肉棒上取下来的避孕套，
+						PRINTFORMDL 前端坠着一小包晃荡的白浊——
+						PRINTFORMDL 明明隔着橡胶，但那股温热的重量还是让人心跳加速
+						PRINTFORMDL 她伸手接过了那只套子，捧在掌心里掂了掂——
+						PRINTFORMDL 不重，但比空气重，比水重，
+						PRINTFORMDL 比她想象中的任何一种液体都更有存在感
+						PRINTFORMDL 她把套子举到眼前，指尖在灯光下把透明橡胶里的白色液团映出轮廓的
+						PRINTFORMDL 阴影。
+						PRINTFORMDL 她看了看套子里那团还在缓缓往下坠的精液，又看了看你的脸——
+						PRINTFORMDL 然后脸红了。从耳尖一直红到了领口下面
+						PRINTFORMDW 「下次……不用这个了好不好。我想让这些……直接在我里面。
+						PRINTFORMDW 不是隔着橡胶——是直接。你答不答应」
+						PRINTFORMDW 她把套子塞回你手里，然后踮起脚尖在你下巴上咬了一口——
+						PRINTFORMDW 咬得很轻，但留下了两排浅浅的牙印
+					CASE 1
+						PRINTFORML 「唔哎……明明都射了……但感觉不在这里……」
+						PRINTFORMDL 萃香把手掌按在自己小腹上——
+						PRINTFORMDL 隔着肚脐下方那一片平坦的皮肤，里面什么都没有。
+						PRINTFORMDL 没有温热扩散的感觉，没有需要夹紧大腿才能兜住的那种满足的重量
+						PRINTFORMDL 她的阴道入口在收缩了两下之后就停了——
+						PRINTFORMDL 因为那道入口没有接收到任何从深处涌来的信号
+						PRINTFORMDL 她从你手里拿过那只避孕套，翻过来看了一眼里面——
+						PRINTFORMDL 白色的精液在透明的橡胶内壁上缓缓滑落，
+						PRINTFORMDL 黏成了一道断断续续的白线。
+						PRINTFORMDL 她看着那条白线发了两秒的呆——
+						PRINTFORMDL 然后抬头看你，表情里三分委屈、三分质问、四分认命
+						PRINTFORMDW 「你看……它本来应该在里面的。现在在这里——在橡胶里。
+						PRINTFORMDW 浪费了。你欠我一份——记在账上了。
+						PRINTFORMDW 下次不戴，翻倍还——成交？」
+						PRINTFORMDW 她没等你回答就自己点了点头，
+						PRINTFORMDW 然后把套子塞进了自己浴衣的前襟里——
+						PRINTFORMDW 贴着胸口，隔着那对平坦的乳芽，
+						PRINTFORMDW 像是在替你保管一件还没送出去的礼物
+					CASE 2
+						PRINTFORML 「只有这一次哦……下次再戴的话——我会生气」
+						PRINTFORMDL 萃香盯着那只被你从肉棒上褪下来的避孕套——
+						PRINTFORMDL 套身在你的指间软塌塌地垂着，
+						PRINTFORMDL 前端那截透明的薄膜被精液撑成了一个不规整的囊，
+						PRINTFORMDL 抵着橡胶壁的那一小团白色在缓缓地往最低处沉
+						PRINTFORMDL 她伸手捏着套子的开口处往上提——
+						PRINTFORMDL 里面的精液被重力拽着往下坠，把前端撑得更薄更透，
+						PRINTFORMDL 连液面反的光都更亮了一度
+						PRINTFORMDL 她把套子拎高到和你眼睛平齐的位置，
+						PRINTFORMDL 让那一小包白浊在你的脸和她之间晃。
+						PRINTFORMDL 她的眼珠从套子上方露出来，直直地看着你——
+						PRINTFORMDL 眼眶被套子的边缘框了起来
+						PRINTFORMDW 「你看——这么多。但不在我里面。在你手的这一边。下次——」。
+						PRINTFORMDW 她把套子从你和她之间拿开，顺手打了个结，放到了你手心里——
+						PRINTFORMDW 然后把手合上，十指扣住了你的手背。「——不在这里。在那里。
+						PRINTFORMDW 在里面。知道了吗」
+				ENDSELECT
+			ELSEIF TALENT:恋慕 && CFLAG:允许无套 == 2
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「呜呜……不太喜欢你用套啊用套……」
+						PRINTFORMDL 萃香把那只已经装满的避孕套从你手里接过来，低头看了好久。
+						PRINTFORMDL 透明的橡胶在灯光下反着湿润的光，
+						PRINTFORMDL 里面那团白色的精液已经沉淀到了套子底部——
+						PRINTFORMDL 形状是她说不清，但看得懂的形状
+						PRINTFORMDL 她用指尖捏着套子口那一圈橡胶环，轻轻地转了一下——
+						PRINTFORMDL 里面的精液跟着转了一下，在套子内壁上留下了一圈模糊的白色痕迹
+						PRINTFORMDL 然后她把套子口对着灯光往里看——
+						PRINTFORMDL 橡胶薄膜把光线染成了暖黄色，
+						PRINTFORMDL 透过这层暖黄能看到精液在底部缓慢地聚拢又散开
+						PRINTFORMDW 「明明直接射进来不是更爽么……这个……硬邦邦的……还凉凉的。
+						PRINTFORMDW 我不喜欢。下次、下次不要再用了。你要在里面射的——说好了」
+					CASE 1
+						PRINTFORML 「果然无套和有套的感觉就是不一样啊……」
+						PRINTFORMDL 萃香把手放在小腹上，隔着皮肤按了按那片从肚脐往下延伸的平坦地带
+						PRINTFORMDL ——里面什么也没有。
+						PRINTFORMDL 阴道的内壁在高潮之后还在收缩，但收缩的对象是空气，不是精液。
+						PRINTFORMDL 她的身体在为一道没有到达深处的温热做准备——但这个准备落空了
+						PRINTFORMDL 她把那只装满精液的套子拿起来，在灯光下看了一会。
+						PRINTFORMDL 然后打开套子口，把里面的精液倒在了自己的手掌心里——
+						PRINTFORMDL 那一小摊白浊在她掌纹的沟壑里蜿蜒着，温度比体温低几度，
+						PRINTFORMDL 黏度比酸奶更稠
+						PRINTFORMDW 她把掌心举到眼前——精液从她大鱼际的弧线缓缓滑到了手腕内侧。
+						PRINTFORMDW 她看了几秒，然后抬眼看了你一眼。
+						PRINTFORMDW 没说话，但眼神里的意思很清楚：你看——
+						PRINTFORMDW 本来应该在里面的，现在在手上。这笔账怎么算
+					CASE 2
+						PRINTFORML 「坏蛋……」
+						PRINTFORMDL 萃香低下头，把那只用过的套子捧在双手掌心里——
+						PRINTFORMDL 像托着一只刚喝完茶的杯子。
+						PRINTFORMDL 套子里的精液在橡胶的囚禁下沉在最低处，
+						PRINTFORMDL 她转动掌心时那团白色从一个角落滑到另一个角落——
+						PRINTFORMDL 她的眼珠也跟着那团白色从左移到右
+						PRINTFORMDL 她用手指扶着套子，让它在手心微微倾斜。
+						PRINTFORMDL 白色的精液滑回套子底端，碰到她掌心温度的传递，
+						PRINTFORMDL 慢慢将热度从软套的薄膜渗进掌纹。
+						PRINTFORMDL 她的五根手指不自觉地往内收紧了半毫米——
+						PRINTFORMDL 不是害怕，是某种无意识的珍惜
+						PRINTFORMDW 「下次——下次就不在这里了。下次你要射的——要换个地方。
+						PRINTFORMDW 喏——
+						PRINTFORMDW 」她翻开你衣袖，用指腹在你手腕内侧的的皮肤上轻轻点了一下。
+						PRINTFORMDW 「——这里。这里，要记住。是内。再射去别的地方，我会咬你」
+				ENDSELECT
+			ELSE
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「是不喜欢射在我的里面么？」
+						PRINTFORMDL 萃香看着那只鼓鼓囊囊的避孕套，表情有点复杂。
+						PRINTFORMDL 不是生气——更像是一种介于困惑和失落之间的情绪。
+						PRINTFORMDL 她把套子拿过来，让它在掌心里滚了一圈——
+						PRINTFORMDL 精液在橡胶里发出细微的液体滑动声
+						PRINTFORMDL 她把套子举到你面前，透明的橡胶后面是她那双写满了困惑的眼睛。
+						PRINTFORMDL 她的瞳孔被套子模糊了一层，
+						PRINTFORMDL 但你依然能从她眼神的弧度里读出她没说出口的内容——
+						PRINTFORMDL 不是疑问，是在等你解释
+						PRINTFORMDL 她一定知道避孕这回事——
+						PRINTFORMDL 只是她觉得套子隔开的不是子宫，是某些更轻也更重的东西
+						PRINTFORMDW 「明明直接在里面射出来也可以的……我又不会怪你。下次——」。
+						PRINTFORMDW 她把套子在手里转了半圈，然后塞进了一旁的空酒葫芦里。
+						PRINTFORMDW 葫芦口太小，套子挤进去的时候发出了轻微的挤压声
+						PRINTFORMDW 她把葫芦盖子旋上，端起葫芦往耳侧晃了两下。
+						PRINTFORMDW 「——我把它们都存起来了。等你下次想给的时候——再来跟我换」
+					CASE 1
+						PRINTFORML 「下次一定要直接射在里面哦……」
+						PRINTFORMDL 萃香歪着头看你在处理那只避孕套——
+						PRINTFORMDL 橡胶在你指间发出轻微的弹性声。
+						PRINTFORMDL 她的视线跟着你每一个动作：打结、擦拭、丢弃。
+						PRINTFORMDL 每一个动作都让她嘴角往下拉了一点点——
+						PRINTFORMDL 不是生气，是一种她自己也说不清的不甘心
+						PRINTFORMDL 她在你准备扔掉它的时候抓住了你手腕。
+						PRINTFORMDL 不是抢，是把你的手拉到她自己小腹的位置。
+						PRINTFORMDL 你的指节隔着她的手背按在了她肚脐下方那片温热而平坦的皮肤上——什
+						PRINTFORMDL 么也没有，里面空空的，只有她自己的体温
+						PRINTFORMDW 她按着你的手在她小腹上停留了几秒。
+						PRINTFORMDW 然后松开——掌心里有你指节的凹印。
+						PRINTFORMDW 她低头看了看那几道还在慢慢平整的印子，然后把你的手翻过来，
+						PRINTFORMDW 在你掌心里用食指画了一个小小的同心圆——
+						PRINTFORMDW 从外往里画，画到最后那一点时停住了
+						PRINTFORMDW 「下一次——射在这里。圆心。最里面那一点。
+						PRINTFORMDW 迟到的话——罚酒三壶」
+					CASE 2
+						PRINTFORML 「坏蛋……讨厌你……」
+						PRINTFORMDL 萃香把那只避孕套拿起来在灯光下转了两圈——
+						PRINTFORMDL 套壁内侧那层薄薄的白色挂壁顺着她手指的转动在橡胶膜上映出不断
+						PRINTFORMDL 变形的影子，像一道被困在水晶里的雾气
+						PRINTFORMDL 她把套子放在枕头边上——那里是她平时放酒葫芦的位置。
+						PRINTFORMDL 现在酒葫芦没在旁边，那个位置就空出来了。
+						PRINTFORMDL 她把它放上去之后，看了看枕头上的酒葫芦位置和她新放的这个陌生物
+						PRINTFORMDL 件——一样大小，一样的稍微陷进枕面的样子
+						PRINTFORMDL 只是葫芦里是酒，袋子里是你
+						PRINTFORMDW 她翻过身，把背对着你。
+						PRINTFORMDW 但你听到了一声极轻的、闷在枕头里的嘟囔——
+						PRINTFORMDW 从枕巾的织物纤维间挤过来说给你听
+						PRINTFORMDW 「下一次……不戴的。不戴的话我会对你好一点。
+						PRINTFORMDW 会多忍一小会——
+						PRINTFORMDW 多忍一小会就分你半壶。」说完她把枕头压在脑袋上缩成一小团——
+						PRINTFORMDW 但那句嘟囔的尾音还在空气里没散干净
+				ENDSELECT
+			ENDIF
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「唔……戴了啊。嘛，也好……」
+					PRINTFORMDL 萃香瞥了一眼那只正在被你从肉棒上褪下来的避孕套——
+					PRINTFORMDL 套口那圈橡胶环在你指间微微收紧，里面的精液在薄膜下晃了一下。
+					PRINTFORMDL 她的表情说不上失望也说不上高兴——
+					PRINTFORMDL 只是眉毛动了动，然后恢复了平常那种懒洋洋的样子
+					PRINTFORMDL 她把腿合上了，手指在自己小腹上方漫不经心地画了半圈——
+					PRINTFORMDL 那是射精之后身体里会有感觉的地方，现在什么都没有。
+					PRINTFORMDL 她把那只手翻过来看了看掌心——干的。
+					PRINTFORMDL 然后把手背到身后，在床沿上敲了两下节拍
+					PRINTFORMDW 「嘛——你想戴就戴吧。反正又不是只有那一种方法。
+					PRINTFORMDW 下次你要是忘了带这个——我也不会怪你。
+					PRINTFORMDW ——前提是你今晚请我喝酒。一瓶——不够，两瓶」
+				CASE 1
+					PRINTFORML 「呼……有套也好，省心……」
+					PRINTFORMDL 萃香的从你手里接过那只装满了精液的套子。
+					PRINTFORMDL 她把它举到和自己的酒葫芦同一个高度——
+					PRINTFORMDL 左边葫芦里是还没喝完的半壶清酒，
+					PRINTFORMDL 右边掌心里是刚被你填满的、还在散着余热的橡胶小袋
+					PRINTFORMDL 她用一模一样的手势晃了晃左手——酒在响。
+					PRINTFORMDL 又晃了晃右手——精液在橡胶里撞了两下，声音更闷、更黏
+					PRINTFORMDL 她把两样东西同时放回床单上——
+					PRINTFORMDL 酒葫芦往左边滚了半圈，套子往右边陷进了被单的褶皱里。
+					PRINTFORMDL 她低头看了它们半晌——
+					PRINTFORMDL 然后伸手把两样东西又捡起来，一个塞进被窝左边，
+					PRINTFORMDL 一个塞进被窝右边
+					PRINTFORMDL 中间隔着她。
+					PRINTFORMDL 隔着她那个还没装过任何东西的肚脐，
+					PRINTFORMDL 隔着她那副你们都比较陌生的内脏和肋骨
+					PRINTFORMDW 「我决定了——以后葫芦装酒，套子装你。
+					PRINTFORMDW 左右各一个，公平。」——
+					PRINTFORMDW 她伸手在被子上左右各拍了一下，像是在给这道新立的规矩盖章
+					PRINTFORMDW 拍完她就缩进被子里，只露出半张脸和一只眼睛。
+					PRINTFORMDW 那只眼睛在昏暗中亮了一瞬——然后灭了——
+					PRINTFORMDW 她闭上眼，往你这边挤了半寸
+				CASE 2
+					PRINTFORML 「这就是……你的量啊。那好吧——我记住了」
+					PRINTFORMDL 萃香从你手里拿走那只套子，认真地把开口处打了一个结，
+					PRINTFORMDL 然后把它举到眼前对着灯光。
+					PRINTFORMDL 透明的橡胶薄膜把精液染成了琥珀色般的半透明——
+					PRINTFORMDL 她能看清里面那团白色沉淀的每一层分层
+					PRINTFORMDL 最下面的已经凝成了膏状，中间是浑浊的悬浮体，
+					PRINTFORMDL 最上面那层是接近透明的稀薄液体
+					PRINTFORMDL 她盯着那只套子看的时间长得有点过分——
+					PRINTFORMDL 像是在清点什么重要的库存，
+					PRINTFORMDL 又像只是好奇这东西隔着一层膜到底是什么触感。
+					PRINTFORMDL 然后她伸出手指把套子放在了自己的半边酒碗底下——
+					PRINTFORMDL 她平时放酒的地方
+					PRINTFORMDW 「这份我留下了。下次来的时候不用带酒了——带一样的就行。
+					PRINTFORMDW 要么带上面那壶——要么带下面这个。
+					PRINTFORMDW 两个都带的话——」她顿了一下，把那只套子往前推了一厘米。
+					PRINTFORMDW 「——我会……考虑一下。只考虑一下。你不要太得意」
+			ENDSELECT
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：膣内（TCVAR:50 Bit 1）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_1(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，你的精液正从阴道最深处的穹隆开始往里涌——
+				PRINTFORMDL 一滴都没有来得及往下流，
+				PRINTFORMDL 全都被时停凝固在了她体内深处的那个位置上
+				PRINTFORMDL 每一股精液在离开你身体的那一瞬间就停住了——
+				PRINTFORMDL 精液在她子宫口周围悬成了一个半透明的白色漩涡，
+				PRINTFORMDL 你能看清里面每一丝蛋白质的纹路
+				PRINTFORMDL 萃香静止在半空中，阴道内壁被精液撑开的瞬间也被冻结了。
+				PRINTFORMDL 那圈小小的子宫口被白色的浪潮包围着——
+				PRINTFORMDL 没有收缩，没有排斥，只是维持着正在被填满的姿态
+				PRINTFORMDW 你把手指伸进她的阴道里——
+				PRINTFORMDW 在静止的空气中碰到的是一层层凝固在空中的精液，
+				PRINTFORMDW 每一层的触感都比上一层的更热。
+				PRINTFORMDW 你的指尖越往深处走，精液的温度就越高——
+				PRINTFORMDW 最里面那一层，还带着刚从你身体里出发的温度
+			CASE 1
+				PRINTFORMDL 时停里的射精是一场凝固在空气中的入侵。
+				PRINTFORMDL 你的精液在离开你身体的一瞬间停住了——不是一秒，是一帧。
+				PRINTFORMDL 它在她的阴道入口处形成了一道乳白色的悬空弧线
+				PRINTFORMDL 然后是第二股、第三股——每一股都在前一股的末端又加了一层。
+				PRINTFORMDL 精液在静止的空气里叠成了一座小小的白色斜塔，
+				PRINTFORMDL 一端还连在你身上，另一端已经探进了她的身体最深处
+				PRINTFORMDL 你绕着这座凝固的精液塔走了一圈——
+				PRINTFORMDL 从侧面看能看清每一层精液的厚度和弧度，
+				PRINTFORMDL 从正面看能看到它在她阴道里的深度。
+				PRINTFORMDL 萃香静止的表情在这道白色弧线的映衬下，显得像是画中人物——
+				PRINTFORMDL 不知自己正在被填充
+				PRINTFORMDW 你解开时停。
+				PRINTFORMDW 然后整个世界只剩下了那道温热的、从她身体深处往回流的水声。
+				PRINTFORMDW 她没醒——
+				PRINTFORMDW 但她的小腹在时停解除之后的第一个反应就是微微起伏了一下。
+				PRINTFORMDW 子宫在接纳
+		ENDSELECT
+		;时奸されたフラグをここに記述
+		;TCVAR:10:352 = 5
+		;膣内射精フラグ
+		TCVAR:10:358 = 1
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 萃香在酒意中完全没有察觉你已经射了——
+				PRINTFORMDL 她的阴道在你射完之后还在按照之前的节奏收缩，
+				PRINTFORMDL 一圈一圈地绞紧着你，像是要把最后那几滴从深处榨到入口
+				PRINTFORMDL 你从她身体里退出来的时候，
+				PRINTFORMDL 精液跟着你的动作一起从阴道口涌了出来——不是流，是涌。
+				PRINTFORMDL 白色的精液从她张开的穴口往外冒了一小股，然后又缩回去——
+				PRINTFORMDL 因为她的盆底肌还在醉意中迷迷糊糊地收缩
+				PRINTFORML 「唔……里面……好暖和……是酒吗……不对……比酒浓……」
+				PRINTFORMDL 她把手伸到腿间摸了一下，手指上沾满了温热的白色黏液。
+				PRINTFORMDL 她在醉眼里看了半天——然后把手伸到嘴边舔了一口。
+				PRINTFORMDL 然后她的表情从困惑变成了傻笑——
+				PRINTFORMDL 不是因为明白了，是因为没明白也没关系
+				PRINTFORMDW 「嘿嘿……你留给我的……我收到了……再来一壶……这次不是酒——是你。你比酒多——多好多。嗝
+				PRINTFORMDW 」
+			CASE 1
+				PRINTFORMDL 醉眼朦胧的萃香在你射精的时候整个人抖了一下——
+				PRINTFORMDL 不是被吓到了，是身体在酒精和快感的双重作用下做出了一种介于痉挛
+				PRINTFORMDL 和战栗之间的反应。
+				PRINTFORMDL 她的阴道在你射完之后的几秒里还在醉醺醺地收缩
+				PRINTFORMDL 她低头看了看自己微微鼓起的小腹——
+				PRINTFORMDL 在酒精面前那层皮肤比平时更放松，
+				PRINTFORMDL 肚脐下方有一道不太明显的弧度，那是精液和子宫共同形成的轮廓。
+				PRINTFORMDL 她伸手按了按那片微微发胀的皮肤——
+				PRINTFORMDL 然后抬起头，对你露出了一个醉得意乱情迷的笑容
+				PRINTFORML 「唔……呼呼……里面……装不下了……嗝……你灌了这么多……明天走路的时候怎么办……」
+				PRINTFORMDW 「怎么办……就怎么办呗。大不了——摇出来给你看。
+				PRINTFORMDW 反正你也不嫌弃——对吧。
+				PRINTFORMDW 对的对的——酒葫芦都给你了，这些也给你——都是你的。我也是。
+				PRINTFORMDW 嗝」
+		ENDSELECT
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			IF TALENT:恋人 && CFLAG:允许无套 == 2
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「唔额……哈……呼……啊……舒……舒服……♥」
+						PRINTFORMDL 精液从最深处开始扩散的时候，萃香整个人僵住了——
+						PRINTFORMDL 不是痛苦的僵，是被填满的感觉把她的五感同时短路了一瞬间。
+						PRINTFORMDL 那股温热从子宫口的位置出发，
+						PRINTFORMDL 沿着她的阴道内壁一层一层地往入口蔓延，
+						PRINTFORMDL 每一层温度都比上一层低一度，
+						PRINTFORMDL 但加起来的总和让她的整个盆底都在发烫
+						PRINTFORMDL 她的手指死死抓着你的后背——
+						PRINTFORMDL 指甲在你脊椎旁边留下了几道浅浅的红痕，不是因为疼，
+						PRINTFORMDL 是因为抓不住别的东西。
+						PRINTFORMDL 她的眼睛闭得很紧，睫毛在抖，下唇被牙齿咬出了一道细线——
+						PRINTFORMDL 然后突然松开了，整个人从僵硬变成了瘫软
+						PRINTFORMDW 她趴在你的怀里喘了几秒，然后把手伸到自己小腹上按了按——
+						PRINTFORMDW 隔着肚脐下方那片微微发胀的皮肤，里面有你刚留下的全部。
+						PRINTFORMDW 她把手拿开，看着自己掌心上那道被自己按出来的红印。
+						PRINTFORMDW 然后她把你的手拉过来放在同一个位置——
+						PRINTFORMDW 让你也感受一下自己制造的那道微隆
+					CASE 1
+						PRINTFORML 「哈啊……在里面……变大了……好烫——呀……」
+						PRINTFORMDL 你在萃香身体最深处射精的那几秒，
+						PRINTFORMDL 她感受到的不是一股一股的冲击——
+						PRINTFORMDL 而是一片正在她体内缓慢扩张的温热。
+						PRINTFORMDL 精液从子宫口的位置往外蔓延，从穹隆扩散到阴道中段，
+						PRINTFORMDL 再从中段漫到入口
+						PRINTFORMDL 她的小腹在你的注视下微微鼓起来了一点点——
+						PRINTFORMDL 那是精液和子宫共同形成的弧线，在灯光下几乎看不出来，
+						PRINTFORMDL 但用手掌覆上去能感受到那道弧线下面还有一层更深的、还在微微跳动
+						PRINTFORMDL 的热源
+						PRINTFORMDW 她低头看了看自己的小腹，然后抬起头看着你。
+						PRINTFORMDW 眼眶有点红——不是哭，是快感过头把泪腺也激活了。
+						PRINTFORMDW 她把手掌移到你脸颊上——掌心里还有从自己小腹上传来的温度。
+						PRINTFORMDW 然后她把你拉近，在你鼻尖上亲了一下：「留在这里了。所有的。
+						PRINTFORMDW 我帮你存着。想取的时候——你知道密码」
+					CASE 2
+						PRINTFORML 「全部……都进来了……好满……肚子会坏的——唔……」
+						PRINTFORMDL 萃香在你射精的过程中一直在发抖——
+						PRINTFORMDL 不是冷，是阴道深处在被一股一股地冲击时，
+						PRINTFORMDL 盆底肌会不由自主地跟着收缩。
+						PRINTFORMDL 你的每一下脉动都让她的大腿根颤一次：从里到外、从深到浅、从她体内最
+						PRINTFORMDL 隐秘的那个角落到你能用肉眼看见的入口边缘
+						PRINTFORMDL 你从她体内退出来的时候，精液没有跟着一起出来——
+						PRINTFORMDL 因为她的阴道在高潮过后的收缩中还紧锁着。
+						PRINTFORMDL 她等了片刻才把身体放松，
+						PRINTFORMDL 然后那一道白色的细线才从入口处缓缓滑落下来，
+						PRINTFORMDL 顺着她的会阴一路画到大腿内侧
+						PRINTFORMDW 她低头看了那道白线很久——
+						PRINTFORMDW 不是在看它，是在确认它确实是从自己里面出来的。
+						PRINTFORMDW 然后她抬头，表情在半羞半笑之间：「你看——
+						PRINTFORMDW 全部在里面，一滴都没浪费——
+						PRINTFORMDW 我说到做到。」她把你的手指拉到她腿间那道精液痕迹上：「不过这里还有一
+						PRINTFORMDW 点——帮我擦掉。你弄的，你负责」
+				ENDSELECT
+			ELSEIF TALENT:恋慕 && CFLAG:允许无套 == 2
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「哈啊……在里面……越来越多了——呀……」
+						PRINTFORMDL 精液注入子宫的那一刻，萃香发出了一个短暂的、急促的吸气声——
+						PRINTFORMDL 身体感知到了这股温热的扩散，
+						PRINTFORMDL 随即阴道从深处到入口依次收紧锁住了它。
+						PRINTFORMDL 她那张平时懒洋洋的脸上此刻被不容抗拒的快感染红
+						PRINTFORMDL 她从你身体下面翻过身来，仰面朝上，
+						PRINTFORMDL 肚脐下方那片小腹因为精液和子宫的叠合显得微微鼓起来了——
+						PRINTFORMDL 弧度只有指甲盖那么大，但她的手掌压在上面能感觉出来的时候，
+						PRINTFORMDL 眼眶一下就湿了——是被感动哭的，不是疼。
+						PRINTFORMDL 她咬住下唇压下哭声，只留下了湿湿的睫毛
+						PRINTFORMDW 过了很久她才开口：「以后——」。
+						PRINTFORMDW 她闭上眼睛，把手掌从自己小腹上挪到你的手掌上和你十指交错。
+						PRINTFORMDW 「——每次都射在里面。不许少。少了我能算出来。
+						PRINTFORMDW 我是鬼——鬼算账不用纸。刻在心里。能刻很久很久。你赔不起。
+						PRINTFORMDW 所以你每次都必须在里面。——知道了吗」
+					CASE 1
+						PRINTFORML 「我……我是不会认输的……所以你也……不许停——」
+						PRINTFORMDL 萃香在你的抽送中咬着牙说了这句话——
+						PRINTFORMDL 但最后一个字还没说完，你就在她身体最深处射了。
+						PRINTFORMDL 精液冲击子宫口的瞬间她的背弓了起来，
+						PRINTFORMDL 整个人像一张被拉到极限的弓——
+						PRINTFORMDL 不是疼，是那道温热冲进身体最深处的感觉让她一切能挺直的东西都挺
+						PRINTFORMDL 直了
+						PRINTFORMDL 她的十根脚趾缩成了小小的疙瘩；她的双手在你背上留下了指甲印；
+						PRINTFORMDL 她憋红了脸安静片刻，才吐出一口被快感压住的气。
+						PRINTFORMDL 然后她整个人从极限抽空落回床单上，塌进你的胸口中间。
+						PRINTFORMDL 乳尖隔着两层皮肤贴着你的肋骨，频率和你刚射完的心跳同步
+						PRINTFORMDW 她翻过身来看你——眼眶是红的，睫尖还挂着没滴落的湿润。
+						PRINTFORMDW 她伸手抖抖地戳你锁骨：「太突然了……我说不认输，
+						PRINTFORMDW 没说让你这种时候证明给我看你能赢，你这样犯规——
+						PRINTFORMDW 」然后她低下头，把脑门搁在你的肩窝里，闷闷地补了一句：「——
+						PRINTFORMDW 但还是赢了。都射在里面——进来那么多。赢了的在我里面存着。
+						PRINTFORMDW 跑不掉。不是吹牛。是真的。摸得出来。你摸」
+					CASE 2
+						PRINTFORML 「唔……等等……我还没——咿呀……已经……全进来了……」
+						PRINTFORMDL 萃香在你射精的瞬间把脸埋进了枕头里——
+						PRINTFORMDL 不是因为害羞，是因为她觉得自己的表情失控了。
+						PRINTFORMDL 她的眉毛在不受控制地往中间挤，嘴巴在不受控制地张开，
+						PRINTFORMDL 眼眶里有不受控制的湿热正在凝聚。
+						PRINTFORMDL 她把脸埋在枕头里不让脸部肌肉乱动，但身体的反应根本藏不住
+						PRINTFORMDL 她趴在你下面弓着腰，阴道在你射完之后还在深度收缩——
+						PRINTFORMDL 频率比心跳慢一点，但每一圈都绞得很深。
+						PRINTFORMDL 精液被她自己的痉挛从子宫口一波一波地匀到阴道各个位置，
+						PRINTFORMDL 然后停在那里被体温加热至均衡。
+						PRINTFORMDL 她的整条阴道此刻是一个密封的、温热的、正在自己消化你的容器
+						PRINTFORMDW 她把脸从枕头里抬起来——
+						PRINTFORMDW 脸颊上有枕套的纹路，眼角有没擦干净的湿润。
+						PRINTFORMDW 她翻过手掌看着自己指尖上还挂着的一丝乳白色的残液。
+						PRINTFORMDW 然后她把手指伸到你嘴边，
+						PRINTFORMDW 用指纹上的水痕在你下唇盖上了一个几乎看不见的淡印。
+						PRINTFORMDW 然后她说了她没说过的三个字——
+						PRINTFORMDW 说完就把脸又埋回枕头里，耳朵红得像喝了三壶
+				ENDSELECT
+			ELSE
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORML 「唔——太突然了……你这个人……怎么也不提醒一声……」
+						PRINTFORMDL 你在她身体最深处射精的那一刻，萃香的阴道剧烈地绞紧了几圈——
+						PRINTFORMDL 那是身体在面对从深处突然扩散开的温热的冲击时做出的本能反应。
+						PRINTFORMDL 她的腰不受控制地往上顶了一下，
+						PRINTFORMDL 然后又因为你的重量压着而塌了回去。
+						PRINTFORMDL 来回这一顶一塌之间，精液从子宫口扩散到了她阴道的中段
+						PRINTFORMDL 她低下头看着自己的小腹——
+						PRINTFORMDL 那层平坦的皮肤上有一道她说不清是子宫还是精液形成的弧线，
+						PRINTFORMDL 微微凸起了一条极浅的弧状。
+						PRINTFORMDL 她把指尖轻轻按在那道弧线上，指尖停留的力道，
+						PRINTFORMDL 和按疼自己时的力度是一样的。
+						PRINTFORMDL 她在用这种方式提醒自己里面确实有东西——是你的。活着的东西。
+						PRINTFORMDL 在她体内缓慢沉淀
+						PRINTFORMDW 你退出来之后她依然保持着原来的姿势没动——
+						PRINTFORMDW 腿没合，是怕精液提前流出来。
+						PRINTFORMDW 她把旁边软垫塞到自己腰下抬高了自己——
+						PRINTFORMDW 然后她别过脸去看窗外月亮。
+						PRINTFORMDW 沉默了几秒之后，她自言自语似的说了一句：「……好吧。
+						PRINTFORMDW 以后你要是想射在里面——提前说一声。
+						PRINTFORMDW 不是拒绝——我是怕我没做好准备……浪费了。
+						PRINTFORMDW 要装很久才能装回来。
+						PRINTFORMDW 可——
+						PRINTFORMDW 可也不是不能装回来」月亮还没落，她耳廓的红却先替自己招供了
+					CASE 1
+						PRINTFORML 「等……等一下　你这家伙……！就这样直接射了进来？」
+						PRINTFORMDL 萃取香瞪圆了眼睛看着你——但她的身体比她的嘴诚实得多。
+						PRINTFORMDL 阴道在你射精的同时就开始规律地痉挛，
+						PRINTFORMDL 内壁的那一圈圈肉筋在主动地把精液从子宫口往自己的深处抽。
+						PRINTFORMDL 嘴上在说"等下"，身体在说"再往里一点"——
+						PRINTFORMDL 两者的矛盾同时写在她脸上，把耳根和脖子都染红了
+						PRINTFORMDL 你的精液正在从她阴道的最深处往外蔓延——
+						PRINTFORMDL 但她夹紧了的腿让精液的多余流出量局限在入口附近的那一小圈潮润
+						PRINTFORMDL 里。
+						PRINTFORMDL 她把膝盖并得死紧，眼睛却不敢看你——
+						PRINTFORMDL 身体在收紧，眼睛在回避，脸上那层烧热从锁骨一路升到了额头。
+						PRINTFORMDL 然后她把两人之间湿透的床单揪起来盖在自己脸上：「——
+						PRINTFORMDL 我说等一下是让你慢一点，不是让你全射在里面这么不讲道理……」
+						PRINTFORMDW 床单下面传出她闷闷的嘟囔：「但……算了。反正已经进去了。
+						PRINTFORMDW 你灌都灌了——那就存着吧。我帮你存。存多久——看心情。
+						PRINTFORMDW 反正这些都在里面……领回去的时候要付利息。
+						PRINTFORMDW 不是钱——是再来一次。一模一样的。在里面。不能少。
+						PRINTFORMDW ——我说完了。你可以偷笑了。只准笑三秒」
+					CASE 2
+						PRINTFORML 「万一怀孕的话，你要负责哦………」
+						PRINTFORMDL 萃香说这句话的时候没有嗔怪，
+						PRINTFORMDL 而是先闭上眼让那阵扩散在子宫口周围的温热与自己身体的内压融合
+						PRINTFORMDL 成环形——那道环形在盆底缓缓地流动，每秒沉下去一小圈。
+						PRINTFORMDL 然后她睁开眼，把刚才闭眼时的感受转化成了一句冷静而实际的声明。这
+						PRINTFORMDL 不是玩笑——
+						PRINTFORMDL 是她在感觉自己子宫口的形状正在被你的精液重新定义的这一刻，
+						PRINTFORMDL 说出的唯一一句她认为在这种时刻该说出来的话
+						PRINTFORMDL 她的手按在小腹上，隔着皮肤能摸到下面那一层正在慢慢被体温加热的
+						PRINTFORMDL 精液。
+						PRINTFORMDL 她的表情不是羞涩，是一种介于心算和盘货之间的认真——
+						PRINTFORMDL 她在用触觉估算精液的量、深度和扩散速度。
+						PRINTFORMDL 不是因恐慌——是想了解。向你。
+						PRINTFORMDL 但她偏要用盘算的方式索要你的下一个决定
+						PRINTFORMDW 她把你的手从自己小腹上挪开，
+						PRINTFORMDW 然后用指尖在你手腕上画了一个圆——
+						PRINTFORMDW 把手腕上的脉搏和自己的心跳比对齐。
+						PRINTFORMDW 「你说怀孕的话，你要负责——那就负责到这里。
+						PRINTFORMDW 以后我、还有这里、还有这里的任何一个衍生物——
+						PRINTFORMDW 都是你的。」她把你的手心翻过来，自己把脸贴上去。
+						PRINTFORMDW 「——契约成立。反悔的人罚酒一辈子。
+						PRINTFORMDW 不能再喝第二杯——你不敢反悔对吧。好，生效。从现在开始。
+						PRINTFORMDW 你被合约锁了——是我想喝多少你都想养的锁。
+						PRINTFORMDW 敢跑我就让你脚底长苔」
+				ENDSELECT
+			ENDIF
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「呼啊……里面……突然变得好热……」
+					PRINTFORMDL 精液注入子宫的那一瞬间，萃香的表情变换了好几层——
+					PRINTFORMDL 先是惊讶，然后是困惑，然后是某种她自己也说不清的、介于充实和不知所
+					PRINTFORMDL 措之间的复杂。
+					PRINTFORMDL 她的阴道在接纳这波精液之后开始规律地收缩——
+					PRINTFORMDL 那是身体的自动反应，和她要不要没关系
+					PRINTFORMDL 她低头看了看自己腿间那一片被精液混着爱液浸湿的皮肤。
+					PRINTFORMDL 白色的液体正从她阴道口缓缓往外渗——
+					PRINTFORMDL 不是流，是阴道收缩之后挤出来的那一点点溢出。
+					PRINTFORMDL 她用手指在入口处接了一下——
+					PRINTFORMDL 指尖上的精液是温的，比体温高，比她以为的要黏
+					PRINTFORMDW 她对着自己指尖上的精液看了半天——然后擦在了你的被子上。
+					PRINTFORMDW 不是嫌弃，是一种"这个东西是你弄的你就该自己洗"的霸道。
+					PRINTFORMDW 「下次不打招呼就射在里面的话——会咬你。不是开玩笑。咬。
+					PRINTFORMDW 在你手上。留牙印的那种」
+				CASE 1
+					PRINTFORML 「唔唔……好烫……里面装满了……你灌了我好多——」
+					PRINTFORMDL 你射完退出之后，萃香依然维持着原来的姿势——
+					PRINTFORMDL 膝关仍跪在床上，只是把头转了一个角度。
+					PRINTFORMDL 她把屁股东方向转了半圈——
+					PRINTFORMDL 精液随着姿势的改变，在阴道内缓缓下流，
+					PRINTFORMDL 沿着她的大腿内侧画了一条向下蜿蜒的细线
+					PRINTFORMDL 她把腿打开了一点——
+					PRINTFORMDL 精液流得更顺畅了一些，从阴道口滴到床单上，发出细小的啪嗒声。
+					PRINTFORMDL 她低头看着床单上那几颗正在往外洇的白点——然后她突然笑了。
+					PRINTFORMDL 不是害羞的笑——是一种"这东西不归我控制"的认命式的笑。
+					PRINTFORMDL 她把枕头抱在胸前挡住了脸——只露出亮晶晶的眼睛
+					PRINTFORMDW 她小声说了句：「……算了——反正也洗干净。反正你下次还会。
+					PRINTFORMDW 反正你从我这里拿走的比灌进来的多。嗯——这笔账算不清楚了。
+					PRINTFORMDW 不折本。合算。
+					PRINTFORMDW 就这样——不改了。」枕头还是挡在胸前没拿开——
+					PRINTFORMDW 枕套上已经印上了两颗微微凸起的乳尖痕。
+					PRINTFORMDW 她在枕后小声又说了一句——比刚才更轻：「记得带点酒来。下次。
+					PRINTFORMDW 配着你灌在我里面的——恰好能调一杯。不给别人喝。自己喝。
+					PRINTFORMDW 你闻一下就算你的——不能喝。你还要开车」
+				CASE 2
+					PRINTFORML 「这就是……你留在里面的……数量啊。记住了——下次不能加倍。
+					PRINTFORML 按原量执行」
+					PRINTFORMDL 萃香在你射精之后没有立刻动——
+					PRINTFORMDL 她先闭上眼感受了一下体内的精液正在子宫口周围扩散的速度和温度
+					PRINTFORMDL 。
+					PRINTFORMDL 然后她睁开眼，把手放在小腹上，
+					PRINTFORMDL 隔着皮肤确认了那层微微发胀的轮廓确实还在——不是幻觉。
+					PRINTFORMDL 她用手指沿着那道弧线画了一圈——
+					PRINTFORMDL 不是在划皮肤，是在把这道轮廓刻进自己的触觉里
+					PRINTFORMDL 她从床上慢慢挪下来。
+					PRINTFORMDL 每走一步都并紧膝盖——不是因为疼，是为了不让精液提前流出来。
+					PRINTFORMDL 她这样一步一步挪到她平常放酒葫芦的桌边，
+					PRINTFORMDL 站在那比平时慢了好几倍的步子里。
+					PRINTFORMDL 然后她扶着桌沿站稳，回头看着你：「你把我的身体当酒壶用了一次。壶口没
+					PRINTFORMDL 堵——反正你记得回来盖上就好」
+					PRINTFORMDW 她低头看了看自己腿间那一条还没有滴完的白痕——
+					PRINTFORMDW 然后从桌上拿起酒葫芦喝了一口。
+					PRINTFORMDW 酒把嘴里和心里的燥热同时压了下去——但脸还是红的。
+					PRINTFORMDW 「酒葫芦归我。但酒壶归你。你灌多少——我就酿多少。
+					PRINTFORMDW 下次来之前先发个信——我准备好酒。你准备好壶。——不是比喻。
+					PRINTFORMDW 是安排。听到了吗。要回信。不然下次我灌你」
+			ENDSELECT
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：肛内（TCVAR:50 Bit 2）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_2(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，你的精液在萃香的后庭深处炸开——
+				PRINTFORMDL 不是流进去的，是在时停的空气里凝成了一团正在扩张的白色星云。
+				PRINTFORMDL 每一丝精液都保持着最后的流速，但悬在半途上纹丝不动，
+				PRINTFORMDL 像是被冻在琥珀里
+				PRINTFORMDL 她的肛门在时停中维持着被撑开的形状——
+				PRINTFORMDL 那一圈褶皱被拉伸成了平滑的弧线，
+				PRINTFORMDL 深处那团精液悬在直肠内壁的最里面，
+				PRINTFORMDL 表面张力把它拉成了完美的球面。
+				PRINTFORMDL 在静止的空气里它是沉默的雕塑——
+				PRINTFORMDL 但你知道，只要解开时停，它就会变成温热的潮水
+				PRINTFORMDL 你伸出手指，在静止的空气里慢慢探进她后庭——
+				PRINTFORMDL 指尖穿过一层又一层凝固的精液层，
+				PRINTFORMDL 每一层都比前一层更接近当时射出的温度。
+				PRINTFORMDL 最深处精液的触感，还和刚从你身体里出来时一模一样
+				PRINTFORMDW 你解开时停。萃香没有醒——但她肛门突然剧烈地收缩了一下。
+				PRINTFORMDW 那团悬在深处的精液在恢复重力后顺着直肠内壁往下滑了一段——
+				PRINTFORMDW 然后被她的括约肌重新锁在了里面。
+				PRINTFORMDW 睡梦中的身体比醒着时更懂得如何挽留
+			CASE 1
+				PRINTFORMDL 时停里的后庭射精是一种无声的占领。
+				PRINTFORMDL 你的精液从入口处开始堆积——不是流出，是停住。
+				PRINTFORMDL 第一股卡在她肛门入口处那一圈褶皱上，第二股叠在第一股后面，
+				PRINTFORMDL 第三股把前面两股一起推进了更深处
+				PRINTFORMDL 精液在时停的直肠内壁里形成了层次分明的沉积——
+				PRINTFORMDL 每一层都有不同的黏稠度和温度，
+				PRINTFORMDL 像考古地质层一样按照射精的先后顺序排列。
+				PRINTFORMDL 萃香的直肠内壁在静止中依然保持着黏膜表面的微光，
+				PRINTFORMDL 那是你在她肛门里唯一能看到的最深处的反光
+				PRINTFORMDW 你伸手按住她肛门口那一圈褶皱——
+				PRINTFORMDW 在时停里它软得像蜡，你指尖按下去的凹痕不会弹回来。
+				PRINTFORMDW 然后你解开时停。
+				PRINTFORMDW 温度恢复了——
+				PRINTFORMDW 那道凹痕先是慢慢弹回原本的弧线，然后缩了一小圈，
+				PRINTFORMDW 把一部分精液锁在了更深处，
+				PRINTFORMDW 另一部分则沿着你自己的手指缓缓挤了出来
+		ENDSELECT
+		;TCVAR:10:352 = 4
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 萃香在酒意中夹紧了后庭——
+				PRINTFORMDL 不是因为疼，是因为直肠内壁在酒精作用下变得比平时更迟钝，
+				PRINTFORMDL 但也因此更诚实：它不抗拒，只是慢悠悠地把精液从深处往入口处挤
+				PRINTFORMDL 她从喉咙里发出一声含混的、介乎酒嗝和呻吟之间的声音。
+				PRINTFORMDL 然后她把屁股往后拱了一下——
+				PRINTFORMDL 不是迎合，是觉得后面太重了，想调整平衡。
+				PRINTFORMDL 精液在这个动作的作用下从左半圈滑到了右半圈——
+				PRINTFORMDL 她打了一个嗝，然后笑了
+				PRINTFORML 「嗝……屁股里面……还在动……是你的东西在动吗——
+				PRINTFORML 不是、是我在挤……嘿嘿……好奇怪……会自己动……」
+				PRINTFORMDW 她把酒葫芦抱在胸前，后庭在醉醺醺的收缩中把最后几句精液滴了出来
+				PRINTFORMDW 。
+				PRINTFORMDW 她低头看了，眨了眨眼，然后把手伸到腿间——
+				PRINTFORMDW 把指尖上残留的那几滴乳白擦在了自己被酒液浸透的浴衣下摆。
+				PRINTFORMDW 「这件归你洗——不是我洗。你造成的，你负责。好困。明天再洗。
+				PRINTFORMDW 那你别走。明天。我醒了以后——第一眼看你。
+				PRINTFORMDW 看见了就让你洗衣服。没第一眼看见——罚你洗衣服加擦地板。
+				PRINTFORMDW 好，睡了——嗝」
+			CASE 1
+				PRINTFORML 「唔呃……后面……有东西……往里面……去了……热……」
+				PRINTFORMDL 醉酒的萃香在你射精之后趴着没动——
+				PRINTFORMDL 不是不想动，是酒精让她的肌肉不听使唤。
+				PRINTFORMDL 精液在她的直肠里缓慢扩散，温度比她的体温高了几度，
+				PRINTFORMDL 在她体内蔓延的时候，她感到一种从尾骨一路扩散到腰际的温热。
+				PRINTFORMDL 她抓着酒葫芦当成浮木——
+				PRINTFORMDL 葫芦里的酒晃出了声，和精液在她体内滑动的节奏恰好对在了一起
+				PRINTFORMDL 你从她后庭里退出来的时候，精液跟着一起涌了出来——
+				PRINTFORMDL 不是喷涌，是醉酒肌肉松弛导致的缓慢渗流。
+				PRINTFORMDL 白色的液体从她肛门口沿着臀缝画了一道弯曲的线，
+				PRINTFORMDL 在下腰的位置停住了。
+				PRINTFORMDL 她伸手往后摸了一把，手指碰到精液的时候轻轻啊了一声
+				PRINTFORMDW 她把沾着精液的手指举到眼前——
+				PRINTFORMDW 在醉意中看了半天，像是在辨认某种稀有矿物的标本。
+				PRINTFORMDW 然后她把手指放在酒葫芦口上——
+				PRINTFORMDW 精液顺着葫芦的漆面滑下去，和里面还在晃荡的酒只隔了一层薄漆。
+				PRINTFORMDW 「你在我后面放的——和我在前面喝的——就差这么一层皮的距离。
+				PRINTFORMDW 下次——直接走前面。后面也行。
+				PRINTFORMDW 但前面是你终身的VIP通道——不是比喻。是邀请。嗝」
+		ENDSELECT
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「唔、滚烫的精液……出来了呢……所以说你……真是个变态……♥」
+					PRINTFORMDL 萃香嘴上骂着你变态，但她的后庭在你射精的这一刻却绞得比什么都紧
+					PRINTFORMDL ——
+					PRINTFORMDL 那一圈括约肌在你射完之后的几秒里还在规律地收缩，不是排斥，
+					PRINTFORMDL 是在把精液从直肠口往更深处吸。
+					PRINTFORMDL 嘴上说着变态，身体却在用肛门口主动数着你的脉搏：
+					PRINTFORMDL 一下、两下、三下——
+					PRINTFORMDL 直到每一股精液都抵达了她直肠的最深处为止
+					PRINTFORMDL 你把肉棒从她后庭里缓缓抽出来。
+					PRINTFORMDL 精液在你退出的过程中一层一层地挂在她肛门内壁上——
+					PRINTFORMDL 入口处那圈褶皱最先闭合，把里面的精液锁在了更深的位置上。
+					PRINTFORMDL 然后最外面那一点溢出的精液顺着臀缝流了下来，
+					PRINTFORMDL 在灯光下亮成了一道细细的白弧
+					PRINTFORMDW 她伸手捂住了自己的肛门口——
+					PRINTFORMDW 不是在挡，是在确认那圈褶皱是不是还在自己收缩。
+					PRINTFORMDW 然后她转过头来看你，脸比平时更烫。
+					PRINTFORMDW 她沉默了片刻，然后把自己的下巴枕在你的肩窝里，
+					PRINTFORMDW 小声说了一句不需要对方回答的话：「后面——以后你想用就用。
+					PRINTFORMDW 但是你要提前说……不然我会忘了用润滑。
+					PRINTFORMDW 上次忘了一次——第二天走路的时候每一圈肌肉都写着你名字。
+					PRINTFORMDW 酸了三天——但也不是不乐意。
+					PRINTFORMDW 以后提前说——我们一人分一半润滑。不给别人。一人一半」
+				CASE 1
+					PRINTFORML 「咿，呼、呜啊啊——
+					PRINTFORML 在屁股里射出来了……唔……呜啊……好烫……」
+					PRINTFORMDL 萃香在被后庭内射的那一刻整个人绷紧了——
+					PRINTFORMDL 从肩胛骨到尾骨，从咬紧的牙关到蜷缩的脚趾，
+					PRINTFORMDL 她的身体用每一个能收紧的部位在告诉你：这个感觉太满了。
+					PRINTFORMDL 直肠内壁被精液撑开的膨胀感比阴道更深更钝——
+					PRINTFORMDL 前者像是从底层往上浸，后者像是从开口往下冲。
+					PRINTFORMDL 而肛门刚好夹在两者之间——
+					PRINTFORMDL 它在同时被上面的满溢感和下面的空荡感夹击
+					PRINTFORMDL 你在她后庭射完之后把肉棒留在里面没动——
+					PRINTFORMDL 精液在她直肠内壁和你的表皮之间形成了一层薄薄的润滑层。
+					PRINTFORMDL 她趴在你下面喘着气，背上的汗把皮肤镀上了一层湿润的光泽。
+					PRINTFORMDL 然后她把屁股微微往上拱了一下——
+					PRINTFORMDL 主动把直肠里的精液往自己更深处匀。
+					PRINTFORMDL 她做这个动作时没看你——倒好像在问自己的身体还能接多少
+					PRINTFORMDW 你退出来之后她趴在枕头上指了指自己尾骨附近那一片还在泛红的皮
+					PRINTFORMDW 肤：「你知道后庭高潮完了以后，最难受的是什么——
+					PRINTFORMDW 不是里面，是这附近。」她用指甲背在尾骨皮肤上轻轻划了一圈。
+					PRINTFORMDW 「这里的皮肤变得特别薄——
+					PRINTFORMDW 不是真的薄，是后庭的所有神经都想跑来这里开分店。
+					PRINTFORMDW 所以这附近现在会自己闻到你的体温。你自己看——是不是有点红。
+					PRINTFORMDW 是你弄红的。
+					PRINTFORMDW 你下次还弄——
+					PRINTFORMDW 那你负责等这圈皮肤消肿外加等我的神经从分店搬回总店。
+					PRINTFORMDW 成交——敲章。
+					PRINTFORMDW 盖章的地方就用你刚才放精液的那处褶——喏，在这儿」
+				CASE 2
+					PRINTFORML 「唔……后面……被你全灌满了……好胀——」
+					PRINTFORMDL 精液注入直肠深处的那一刻，
+					PRINTFORMDL 萃香发出了一声和平时完全不同的音色——
+					PRINTFORMDL 尾骨到后脑勺过了一条笔直的电。
+					PRINTFORMDL 她在这一刻意识到自己的身体里面原来还能储存这么多不属于自己的
+					PRINTFORMDL 东西：精液沉在她直肠的底部，和肠道菌群暂时做了邻居，
+					PRINTFORMDL 沉得越深越重，越重体温就调得越准——直到精液学会了她的温度
+					PRINTFORMDL 你没有立刻退出来——
+					PRINTFORMDL 而是借着精液的润滑在原地小幅度地转了几圈。
+					PRINTFORMDL 每一圈都把直肠内壁上那层精液抹得更均匀，
+					PRINTFORMDL 每一圈都让她的肛门褶皱在你的根部绽开了又缩回去。
+					PRINTFORMDL 她趴在你下面的枕头已经被自己的口水打湿了一小片——
+					PRINTFORMDL 那是她在咬着被角无法说话时从嘴边渗出来的痕迹
+					PRINTFORMDW 你退出来之后她趴了几秒没动。
+					PRINTFORMDW 然后她把一只手伸到自己的后庭前，用手指比拇指和食指撑开，
+					PRINTFORMDW 对着微弱的灯光看了看——
+					PRINTFORMDW 指尖之间还能瞧见乳白色的精液沿着肛口边缘的褶慢慢滑到指缝。
+					PRINTFORMDW 然后她用这根手指在床单上慢慢写了四个字：「库，
+					PRINTFORMDW 已满。」字迹歪歪扭扭，但每一笔都渗进了布料的经纬里——
+					PRINTFORMDW 就像刚才的精液渗进了她的肠道里。
+					PRINTFORMDW 写完之后她把那根手指塞进嘴里吸干净，
+					PRINTFORMDW 然后转过头看你：「下一批——请提前三天预约。
+					PRINTFORMDW 本库空间有限——不怪容积，怪你太能灌。
+					PRINTFORMDW 但灌都灌了，只好清点、入库、封存——
+					PRINTFORMDW 和你跟酒葫芦存的规矩一样。入库登记完毕。退堂」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「噫……屁股……屁股被灌得满满当当的……呜呜……好挤……好难受……」
+					PRINTFORMDL 萃香在你肛内射精的瞬间把脸埋进了枕头——
+					PRINTFORMDL 肛门被精液灌满的感觉对她来说还是太陌生了。
+					PRINTFORMDL 那股温热从直肠深处倒灌回入口处，
+					PRINTFORMDL 被括约肌拦了一道才没直接流出来。
+					PRINTFORMDL 但拦得住液体拦不住温度——
+					PRINTFORMDL 那道热在她肠道里扩散得很慢，
+					PRINTFORMDL 但每一毫米都在提醒她里面确实有什么东西正在缓慢地、黏稠地往下坠
+					PRINTFORMDL 她趴在床上把屁股微微抬高——
+					PRINTFORMDL 这个姿势能让精液停留在直肠深处而不是直接往下流。
+					PRINTFORMDL 她是在用自己的肌肉控制精液的流向。
+					PRINTFORMDL 动作很笨拙——膝盖分得太开了，手肘撑得有点抖——
+					PRINTFORMDL 但她就是这样一点一点地调整着角度，
+					PRINTFORMDL 直到直肠里的精液停在了她满意的那个位置。
+					PRINTFORMDL 然后她把脸从枕头里转出来，大半张脸还埋在枕巾里，
+					PRINTFORMDL 只露出一只红透的耳廓
+					PRINTFORMDW 她从枕头缝里闷闷地挤出几个字：「以后能不能提前说——
+					PRINTFORMDW 你提前说的话，我可以提前做心理准备。
+					PRINTFORMDW 心理准备好就不会那么惊讶——不会那么惊讶就能收得更好——
+					PRINTFORMDW 收得更好你就不用担心滴出来——不是我在乎滴不滴。是你在乎。
+					PRINTFORMDW 是。你在乎。我在镜子里看到了。
+					PRINTFORMDW 你每次看我后面流出精液时，你的手指会收紧一点点——
+					PRINTFORMDW 你是怕它浪费。——所以以后提前说，我帮你存好。不浪费。
+					PRINTFORMDW 好啦不许笑——不许笑——你再笑我会咬枕巾。枕巾不是你的。
+					PRINTFORMDW 不能咬第二次了。已经咬了」
+				CASE 1
+					PRINTFORML 「等！好烫……咿呀！什么东西——后面……后面在往下流——」
+					PRINTFORMDL 你在萃香后庭射精之后她没有立刻动——
+					PRINTFORMDL 她觉得只要自己不动，那些精液就不会往下流。
+					PRINTFORMDL 她甚至屏住了呼吸——
+					PRINTFORMDL 然后发现屏住呼吸的时候肛门会自动收紧，
+					PRINTFORMDL 精液反而被挤得更深了一些。
+					PRINTFORMDL 她因为这个意外发现愣了一下——然后又开始慢慢呼气。
+					PRINTFORMDL 她在用呼气和吸气的节奏控制自己肛门褶皱的开合——
+					PRINTFORMDL 发明了一套让你吃惊的专属于自己的括约肌呼吸
+					PRINTFORMDL 你退出来的时候精液跟着你的动作溢出来了一小截——
+					PRINTFORMDL 白色的弧线从她的肛门口滑到了床上。
+					PRINTFORMDL 她低头看了那条白线很长时间——
+					PRINTFORMDL 然后她抓起枕头盖住那条白线和你射在她体内的位置——
+					PRINTFORMDL 同时盖住了湿痕和脸红。
+					PRINTFORMDL 枕头下面传出她闷闷的、被棉花过滤过的声音
+					PRINTFORMDW 「我刚刚发明了一种用呼吸控制后面不让精液流出来的方法——
+					PRINTFORMDW 我还没想好叫什么。但是这个方法是好的。你帮我想名字。
+					PRINTFORMDW 但我不保证每次都能成功。
+					PRINTFORMDW 因为每次你用后面的时候——我呼吸会乱。一乱就控制不住。
+					PRINTFORMDW 控制不住就流到床上。流到床上就跟现在这张床单一样——要洗。
+					PRINTFORMDW 所以每次你射完了以后——第一件事是帮我想分心。
+					PRINTFORMDW 第二件事是——帮我把枕头从床上拿起来晾。枕头不能洗。
+					PRINTFORMDW 枕头是另一位合伙人——它不说话。但它看了全程。
+					PRINTFORMDW 你和它之间——它比较困。所以我先留着它。
+					PRINTFORMDW 你现在先看看我到底有没有把它弄湿太多。」
+				CASE 2
+					PRINTFORML 「唔……屁股里面……还在动……你的东西它自己会动——」
+					PRINTFORMDL 你在她后庭射精之后没有立刻退出来——而是在里面停了几秒。
+					PRINTFORMDL 精液在你和她的直肠内壁之间形成了一道会自己缓慢下滑的温润滑层
+					PRINTFORMDL 。
+					PRINTFORMDL 萃香能感知到那道滑层的每一次位移——
+					PRINTFORMDL 从左到右、从深到浅、从肠壁的顶端滑到了尾骨内侧的那片区域。
+					PRINTFORMDL 她闭上眼睛，用触觉描摹着那道精液在她肠道里画出的下行的曲线——像是
+					PRINTFORMDL 在辨认某种不需要眼睛就能读懂的暗号
+					PRINTFORMDL 你退出来之后她翻身仰面躺了几秒——
+					PRINTFORMDL 然后把手放在小腹上，不是确认有什么东西，是一种惯性动作。
+					PRINTFORMDL 然后她把腿并好，把膝盖收向胸口——
+					PRINTFORMDL 腿心间的热度就锁在了她尾骨最内侧的那道弧线里。
+					PRINTFORMDL 她对着空中喃喃自语，语气比刚才轻了很多
+					PRINTFORMDW 「我以前不知道后面被灌完是这个感觉——不是疼，也不是讨厌——
+					PRINTFORMDW 就是重。重得刚刚好——不会自己流出来，也不会干在肠壁上。
+					PRINTFORMDW 就卡在中间——
+					PRINTFORMDW 比你在我里面的时候轻一点，但比没有你重很多很多。
+					PRINTFORMDW 这个重量归我管理——我会算好温度和流动速率的乘积。
+					PRINTFORMDW 下次你带着一样的温度来验收。
+					PRINTFORMDW 多了少了都罚你——少了罚做，多了罚爱——好吧两样一样的。
+					PRINTFORMDW 我也学坏了。是被你惯的——你完了。我被你惯坏了。
+					PRINTFORMDW 毕业证自己记得来拿」
+			ENDSELECT
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：手淫（TCVAR:50 Bit 3）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_3(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，萃香那双小小的手掌正合围在你的肉棒两侧——
+				PRINTFORMDL 时停把她的手指凝固在了精液即将射出的那一瞬间。
+				PRINTFORMDL 她的十指停在半空中，每一根指节的屈度、每一片指甲的角度，
+				PRINTFORMDL 都被冻在为你服务的姿势里
+				PRINTFORMDL 精液在离开你身体的一瞬间停住了——
+				PRINTFORMDL 那道白色的弧线从你身体出发，
+				PRINTFORMDL 在空气中延伸了不到半寸就凝固成了固体。
+				PRINTFORMDL 最远的那一滴悬在她的食指指腹正前方一毫米的位置——
+				PRINTFORMDL 在静止的世界里它永远不会碰到她的皮肤，
+				PRINTFORMDL 但在你的眼里它已经贴上了她指纹的纹路
+				PRINTFORMDL 你伸出手指，在静止的空气里把那颗凝固的精液珠从她指尖前面轻轻拨
+				PRINTFORMDL 开——它在静止中滚到了她虎口的位置。
+				PRINTFORMDL 然后你沿着她的手背，把从你体内出发却永远到达不了她皮肤的每一颗
+				PRINTFORMDL 精液珠子，逐一拨到了她的掌心里
+				PRINTFORMDW 精液在她静止的掌心里聚成了一小洼白色的凝视。
+				PRINTFORMDW 然后你解开时停——
+				PRINTFORMDW 那洼精液突然从零加速度跳到了重力加速度的正常值，
+				PRINTFORMDW 在她掌心里拍出了一朵极小的白色浪花。
+				PRINTFORMDW 萃香没醒——
+				PRINTFORMDW 但她的手指在时停结束后的第一个反应是微微收拢了一下。
+				PRINTFORMDW 像是梦里接住了一朵雪花
+			CASE 1
+				PRINTFORMDL 时停中的手淫是一场单向的奉献——
+				PRINTFORMDL 萃香的手指在静止的空气中维持着为你握持的姿势，
+				PRINTFORMDL 但你射出的每一条精液弧线都在她掌心前方几毫米的位置凝固了。
+				PRINTFORMDL 它们悬在那里，像一条条被冻在空中的白色丝线
+				PRINTFORMDL 你在静止的空气中绕到她正前方，
+				PRINTFORMDL 平视着她那双还维持着握持姿态的手——
+				PRINTFORMDL 精液的弧线从你身体出发，指向她的指缝、虎口、腕关节，
+				PRINTFORMDL 在空中形成了一个半透明的白色放射型星图。
+				PRINTFORMDL 她是星图的中心——虽然她什么都不知道
+				PRINTFORMDL 你伸出手，在静止的世界里把她的两只手掌合拢——
+				PRINTFORMDL 她的十指在静止中依然保持着刚才为你服务的角度，
+				PRINTFORMDL 你把那些悬空的精液珠全部放进了她合拢的掌心里
+				PRINTFORMDW 然后你解开时停。精液活了——它们在她掌心里自身重力滚作一团。
+				PRINTFORMDW 她的手在三秒之后开始往下沉——
+				PRINTFORMDW 不是醒了，是做梦时手臂的自然垂落。
+				PRINTFORMDW 把那团白色的重量带向她自己膝头又被自己睡裙接住。
+				PRINTFORMDW 她只是嗯了一声——额头更靠向枕头。呼吸平而远
+		ENDSELECT
+		;TCVAR:10:352 = 3
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「……唔！呼呼，哎嘿……出来了好多——」
+				PRINTFORMDL 萃香在醉意中握着你的肉棒上下套弄——
+				PRINTFORMDL 手指的力度一会儿重一会儿轻，
+				PRINTFORMDL 因为酒精让她丧失了对握力的精细调节。
+				PRINTFORMDL 但正是这种不定形的力度让你比清醒时更快地到了顶点——
+				PRINTFORMDL 每次用力太猛之后她会歉意般地轻握一下，
+				PRINTFORMDL 而这种轻重交替的节奏反而成了一种自己调制不出的手交节拍
+				PRINTFORMDL 你的精液在她掌心里射开的时候她愣住了——
+				PRINTFORMDL 然后她把两只手摊在你面前，
+				PRINTFORMDL 低头看着掌心里那一层还在冒着热气的白色液体。
+				PRINTFORMDL 她打了一个酒嗝，然后傻笑了一下——
+				PRINTFORMDL 用两只掌心朝上的手比出了一个"端着碗"的姿势
+				PRINTFORMDW 「你看——我的手指像不像……像一口能接住你的小碗——
+				PRINTFORMDW 只有两只——但刚才装满了——现在还有剩——
+				PRINTFORMDW 你要不要再给我一点——我不倒掉。永远不倒。倒了就是我输了。
+				PRINTFORMDW 鬼从来不输——你知道的——嗝」
+			CASE 1
+				PRINTFORM 「嘿嘿……黏黏的……但是温温的——和酒不一样……」
+				PRINTFORMDL 醉酒的萃香在你射完之后的几分钟里一直在玩自己手指间的精液。
+				PRINTFORMDL 她把掌心里那摊白浊从左手倒到右手，又从右手倒回左手——
+				PRINTFORMDL 精液在她两只手之间的每一次转移都拉出了一条越来越细、越来越长的
+				PRINTFORMDL 丝线，在灯光下反着微光。
+				PRINTFORMDL 她看着那条丝线断裂之后发出的呀的一声——
+				PRINTFORMDL 不是因为失望，是因为她觉得这个断开的声音有某种她自己说不清的趣
+				PRINTFORMDL 味
+				PRINTFORMDL 她把最后一根沾满精液的食指举到自己眼前——
+				PRINTFORMDL 指尖上的精液正在缓慢地往下滑，即将滴落。
+				PRINTFORMDL 她在它滴落之前把它接进了自己嘴里。然后她砸了砸嘴
+				PRINTFORMDW 她转过身来把手背递到你面前——
+				PRINTFORMDW 手背上的精液已经被她舔干净了，
+				PRINTFORMDW 只剩指甲缝里还嵌着一两线没清掉的白色残痕。
+				PRINTFORMDW 她像在验收订单一样竖起五指让你看——
+				PRINTFORMDW 然后掰着指头一个一个地对你盘点：「食指的——
+				PRINTFORMDW 是你的第一下射的。中指——第二下。无名指——第三下也射这里。
+				PRINTFORMDW 小指——也有但比较少。大拇指——最多。都洗了。
+				PRINTFORMDW 我用舌头洗的——你的份额已经清点了。
+				PRINTFORMDW ——下次射之前告诉我，我能记住哪根手指对应哪一下。
+				PRINTFORMDW 记住之后排列的规律我就找到了——
+				PRINTFORMDW 就能让每次的力度和顺序更合你的拍……别嫌我算账细。
+				PRINTFORMDW 我是鬼——算账是特长。你说下次还是这次。我都能接」
+		ENDSELECT
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「哈啊……出来了呢——你看，全在我手上。
+					PRINTFORML 你的全部——都在我手里了……♥」
+					PRINTFORMDL 萃香在你射精的过程中全程没有移开视线——
+					PRINTFORMDL 她看着你的精液从她指缝间涌出来，
+					PRINTFORMDL 温热地淌过她的虎口、手掌、腕关节，然后顺着小臂内侧往下流。
+					PRINTFORMDL 她没有擦——而是等它自己在她手背上画完了一整条蜿蜒的白线。
+					PRINTFORMDL 直到最后滴才用手指点了一下那个断点
+					PRINTFORMDL 她把两只手翻过来覆过去地看了几遍——每一面都沾满了你。
+					PRINTFORMDL 然后她把手伸到你面前，让你也用同样的方式看她的手——
+					PRINTFORMDL 手掌、手背、指缝、指甲缝。这种展示不是炫耀——是交割。
+					PRINTFORMDL 她认为你的精液在她手上这件事，
+					PRINTFORMDL 比你直接射在她体内更需要清点和交接
+					PRINTFORMDW 「你看——你的东西。总量没错吧。
+					PRINTFORMDW 手心这里最多——因为你射的时候我特意把手掌正对着前面。
+					PRINTFORMDW 虎口这边少一点——因为握的时候有缝隙漏了，下次我会握得更紧。
+					PRINTFORMDW 大拇指根部这边——是我的指纹有沟挡住了，不是你的量少了——
+					PRINTFORMDW 是我的沟。——下次射之前可以先让我把手套校准好。
+					PRINTFORMDW 校准一次比你射一次不碍事——对不对。好——成交。
+					PRINTFORMDW 你给精液，我校准手套。
+					PRINTFORMDW 互相保证精度，误差放在第三份附录里——附录分上半份和下半份。
+					PRINTFORMDW 上半份你写，下半份我写。过两天对稿——别迟到」
+				CASE 1
+					PRINTFORML 「……真是讨厌——嘴上这么说——但其实我记性很好。
+					PRINTFORML 每次射了多少我都记得」
+					PRINTFORMDL 萃香在你射完之后依然握着你的肉棒没松开——
+					PRINTFORMDL 不是继续刺激，是用掌心替你保温。
+					PRINTFORMDL 她的手很小，但刚好能包住你射完之后的顶端——
+					PRINTFORMDL 掌纹的凹凸在你的表皮上形成了一圈圈微弱的按摩，
+					PRINTFORMDL 力度轻到几乎感觉不到，但温度刚好。
+					PRINTFORMDL 她就这样握着你——
+					PRINTFORMDL 直到你的心跳从高频率慢慢回到了她掌心里正常的节拍
+					PRINTFORMDL 然后她松开了手。
+					PRINTFORMDL 手掌张开的时候精液在她掌心里发出了一声极细微的啪嗒声——
+					PRINTFORMDL 那是掌心和你的表皮分离时精液黏连拉丝的声响。
+					PRINTFORMDL 她低头看过被精液涂得找不到掌纹的里侧——
+					PRINTFORMDL 然后把掌心转过来让你也看
+					PRINTFORMDW 「精液把指纹盖住了——现在我的指纹在你身上。
+					PRINTFORMDW 你自己的指纹也在。两份档案叠在一起——分不清谁是谁。
+					PRINTFORMDW 我去把鬼族的指纹水印升级一下——
+					PRINTFORMDW 以后谁碰我的手都能验出来最近一次是和哪个笨蛋的同种样品混在一
+					PRINTFORMDW 起。验出来的结果都是你。唯一。
+					PRINTFORMDW 好吧——这项科技还在审批，但会通过的。我们是种子用户。
+					PRINTFORMDW 专享内测。——然后这份档案刻在我指纹的脊线深度里。
+					PRINTFORMDW 烧不坏、搓不掉、陪你喝酒到指甲盖发麻的程度都不丢。
+					PRINTFORMDW 是这样——我宣布：从今天起你的指纹也归我这里备案。
+					PRINTFORMDW 随身携带，随叫随盖，支持离线验证。永不过期」
+				CASE 2
+					PRINTFORML 「啧……又射了这么多——我手小，每次都接不住。
+					PRINTFORML 你得负责给我换个更大的」
+					PRINTFORMDL 萃香说着你射的太多了，但她捧着精液的那双手一点都没有张开的打算
+					PRINTFORMDL 。
+					PRINTFORMDL 她把十指并拢，掌心里精液因为她合并的角度从外溢变成了内聚——
+					PRINTFORMDL 掌缘周围一滴都没有漏。
+					PRINTFORMDL 然后她把两只手合拢成一只更深的碗，抬头看你，眼睛特别亮
+					PRINTFORMDL 她低下头用舌尖在你的精液表面画了一个小小的弧线——
+					PRINTFORMDL 不是舔，是画。
+					PRINTFORMDL 精液在她舌头的移动中留下了一道浅浅的波纹，
+					PRINTFORMDL 从她的生命线一直延伸到婚姻线。
+					PRINTFORMDL 她画完了以后抬起脸——
+					PRINTFORMDL 嘴唇上沾着一层极薄的白色，舌尖还藏在牙齿后面没完全收进嘴里
+					PRINTFORMDW 「刚才——我用手收到了全部，而且一滴都没漏。
+					PRINTFORMDW 你检查——手心、手腕、手背、指甲缝。都没有。
+					PRINTFORMDW 全部在我手掌中间——分门别类：第一股靠左——
+					PRINTFORMDW 你自己看这高起来的线。
+					PRINTFORMDW 第二股偏右——
+					PRINTFORMDW 落在无名指最深的凹纹里，刚才大概撞了你十二下脉搏才定形。
+					PRINTFORMDW 第三股在最中间——被第一和二夹成了一个圆弧。
+					PRINTFORMDW 排列整齐吗——够资格给你做收据了吧。嗯——我知道你在笑。
+					PRINTFORMDW 收据先放我这边保管。兑现有效期——永久。
+					PRINTFORMDW ——好了，你可以笑了。
+					PRINTFORMDW 只许笑到我把手洗干净之前——开始倒计时，你还剩五秒。五——」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「呀，等下，这也太多了吧……！？你攒了多久——」
+					PRINTFORMDL 萃香在你射精的那一刻手忙脚乱地换了几个手势——
+					PRINTFORMDL 一开始是用掌心接，发现装不下以后换成了用双手捧，
+					PRINTFORMDL 然后发现还是不够，她干脆把你射偏的那几股用手背接住了。
+					PRINTFORMDL 精液从她指间溢出来的时候她咂了一下舌头——
+					PRINTFORMDL 不是嫌弃，是被你的量打败了的无奈
+					PRINTFORMDL 精液从她的掌心边缘挂下来，顺着小指一侧滴到了床单上。
+					PRINTFORMDL 她低头看着床单上那几颗正在往外洇的白点——
+					PRINTFORMDL 然后把手指伸到床单的湿痕附近敲了两下，像是在敲你的额头。
+					PRINTFORMDL 然后她把手举到你面前
+					PRINTFORMDW 「手小不是我的问题——是你的量超了我手掌的容量。
+					PRINTFORMDW 这是客观事实。所以你需要——补一双更大的手——或者分批入库。
+					PRINTFORMDW 建议分批——这样我可以统计每次的均值、方差和峰度。
+					PRINTFORMDW 我对峰度的解释——峰度大表示你中间那几波特别集中。
+					PRINTFORMDW 集中对准了生命线上最近的交叉点。
+					PRINTFORMDW ——以后每次用手之前我会先报一次手掌空余空间的峰值容量。
+					PRINTFORMDW 你根据报告决定分批——分完之后我会签字。
+					PRINTFORMDW 签字在场以指代章——看到刚刚印的那道指纹了吗。
+					PRINTFORMDW 那个章，就是刚才说完这句话后盖下去的。从此生效。你可以留底」
+				CASE 1
+					PRINTFORML 「嗯……好恶心——但洗起来也快。我去洗一下，你等一下——」
+					PRINTFORMDL 萃香在你射完之后把双手伸到面前，
+					PRINTFORMDL 在灯光下看着自己掌心那一片还在缓慢淌动的白色液体——
+					PRINTFORMDL 她的指纹被精液填平了，整片手掌变成了一面光滑的白色反光面。
+					PRINTFORMDL 她在灯光下转了转手掌，精液在她的手心和手背的切换中拉出了几道交
+					PRINTFORMDL 叉的细丝
+					PRINTFORMDL 她站起身走到水盆边，把双手浸到水里——
+					PRINTFORMDL 精液在她的指尖周围散成了一片白色的薄雾，然后被水冲洗干净。
+					PRINTFORMDL 但是她没有立刻把手从水里拿出来——
+					PRINTFORMDL 而是在水下低着头，看着自己手掌上的精液被水冲走的全过程。
+					PRINTFORMDL 冲洗干净后她的手指依然搭在水盆边缘——
+					PRINTFORMDL 指腹上已经没有了精液，但还留着刚才被浸润过的触感
+					PRINTFORMDW 她把刚洗过的手伸到你面前——
+					PRINTFORMDW 手上还带着冲水后的凉意，但很快被你的体温烘回正常。
+					PRINTFORMDW 然后她用手指在你手腕上慢慢画了一圈——不是画图，是签到。
+					PRINTFORMDW 她的手指在签完的那一点上停了一小会儿——
+					PRINTFORMDW 然后抽出另一只手把酒葫芦递到你面前：「用酒消毒——
+					PRINTFORMDW 然后用我的份额抵消你的量。好吧——这个公式不对。
+					PRINTFORMDW 但我懒得改了。——下次——建议射完之后先别洗。
+					PRINTFORMDW 让我多看一会儿。不是为了检查——是想补完一个对数据表的兴趣。
+					PRINTFORMDW ——好。我说完了。你可以觉得我奇怪。我习惯了。
+					PRINTFORMDW 但是葫芦是真的——不信你闻一下。酒没有问题。公式——你待定」
+				CASE 2
+					PRINTFORML 「哈啊……这种东西黏在手上——回去要洗好多遍……」
+					PRINTFORMDL 萃香一边抱怨一边把手掌摊在灯光下仔细看——
+					PRINTFORMDL 指纹的每一道沟壑都被你的精液填平了，
+					PRINTFORMDL 在灯光下整片手掌泛着一层湿润的白。
+					PRINTFORMDL 她用指尖在掌心里划了几道——
+					PRINTFORMDL 精液在她划过的位置分开了一瞬间然后又合拢，
+					PRINTFORMDL 像是某种会自动愈合的白色黏膜。
+					PRINTFORMDL 她皱了一下眉，然后又划了几道——
+					PRINTFORMDL 这一次划得更用力，精液分开的口子更大，但合拢的速度也更快——
+					PRINTFORMDL 它有一种缓慢的弹性和记忆结构，你越划越有意思，手指停不下来
+					PRINTFORMDL 她从衣服口袋里掏出一条手帕——很旧，上面印着模糊的鬼族纹样。
+					PRINTFORMDL 她把精液从手指到手腕仔细擦拭了两遍，
+					PRINTFORMDL 然后把沾满精液的手帕叠成一个整齐的小方块，
+					PRINTFORMDL 放进自己浴衣前襟的内袋里——贴着那两颗小小的乳芽
+					PRINTFORMDW 她看你盯着她胸口看，立刻把浴衣领口拢紧了——
+					PRINTFORMDW 但拢了拢之后又松开了，让那一小角沾满精液的手帕露出一个角。
+					PRINTFORMDW 「不是收藏——是拿去洗。下次还你——还你一条干净的。
+					PRINTFORMDW 干净的上面会有我的味道——用酒熏过。你自己闻。
+					PRINTFORMDW 闻得出来是什么酒——我就免你一次。闻不出——你赔我两次。
+					PRINTFORMDW 不是两次酒——是两次这个。在你手上。在我的手心。
+					PRINTFORMDW 我在你指根留下了一点淡香——是薰衣草味的——你别笑——
+					PRINTFORMDW 这是配套的。上一次你不是说这个味道好认难仿嘛——所以我信了。
+					PRINTFORMDW 我把合同条款缩印在了手帕一角——你得自己看——字很小——
+					PRINTFORMDW 要求是不要洗不要揉。不要忘。好了——你的合同在你手里。
+					PRINTFORMDW 我的那份——在我内袋里。各自保存。互相备份。
+					PRINTFORMDW 合同双方的信息都在你胸膛的位置——我盖过章。
+					PRINTFORMDW 章在心脏偏左一点。不要擦掉。下次我会验。验过了。
+					PRINTFORMDW 才依合同办事。不许撕——撕了我就换章。新的章更难磨。
+					PRINTFORMDW 你自己考虑。酒给你——自己倒。
+				PRINTFORMDW 我去蒸毛巾」她一边说着一边往浴室方向退，耳朵红得很新，
+				PRINTFORMDW 像刚画上去的护符
+			ENDSELECT
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：口淫（TCVAR:50 Bit 4）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_4(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，你的肉棒停在萃香口腔的最深处。
+				PRINTFORMDL 她的嘴唇在时停中维持着被撑开的圆环——上唇贴着你冠状沟的下缘，
+				PRINTFORMDL 下唇抵着系带的位置，舌头被你压在下面，保持着被挤扁的形状
+				PRINTFORMDL 精液在离开你身体的一瞬间凝固了。
+				PRINTFORMDL 第一股卡在她的喉头前方——悬在半空中的白色团块刚好挡住她的咽门；
+				PRINTFORMDL 第二股停在她的舌根表面，在静止中保持着撞击舌苔时的冲击形状；
+				PRINTFORMDL 第三股刚好抵住她的上颚，精液表面那层微微凸起的纹路被冻成了浮雕
+				PRINTFORMDL 你伸出手，在静止的空气里把那些凝固的精液珠一颗一颗拨进她合拢的舌面中央，
+				PRINTFORMDL 然后在静止中轻轻托起她的下巴——合上了她的嘴
+				PRINTFORMDW 你解开时停。她的喉咙在恢复重力的一瞬间自动吞咽了一次——咕噜。
+				PRINTFORMDW 整口精液顺着食道滑进胃里。她没醒，但嘴角有一条极细的白线正缓缓滑下来
+			CASE 1
+				PRINTFORMDL 时停中，萃香的嘴唇正好停在你的龟头后方一厘米的位置。
+				PRINTFORMDL 她的双唇微微张开成O形——时停把嘴唇的每一道竖纹都封存成了特写。
+				PRINTFORMDL 你能看清她上唇正中那颗小小的唇珠，和下唇内侧那层湿润的黏膜反光
+				PRINTFORMDL 你在静止的空气里把肉棒重新放回她双唇之间——不是插入，是放置。
+				PRINTFORMDL 你的顶端刚好碰到她的舌尖——舌面的味蕾在静止中是一颗颗细小的粉色颗粒，
+				PRINTFORMDL 每一颗的边缘都清清楚楚。然后你射了——精液在空气里凝成了一条弯曲的白线，
+				PRINTFORMDL 从你身体出发，穿过她上下唇之间的缝隙，停在舌面的中后方
+				PRINTFORMDW 你解开时停。那条精液的白线从空中消失了——它变成了她嘴里的一口温热。
+				PRINTFORMDW 她的喉结滚了一下。然后是第二下。她把这口温热吞干净了——依然没醒
+		ENDSELECT
+		;TCVAR:10:352 = 3
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 醉酒的萃香含着你的肉棒，嘴里的温度比平时更高，舌头却比平时更迟钝。
+				PRINTFORMDL 她的舌面瘫在你系带下方的凹槽里一动不动——酒意把她的口交技术从主动变成了被动，
+				PRINTFORMDL 口腔成了一个恒温的容器。你的肉棒在她嘴里能感受到的只有她呼吸时
+				PRINTFORMDL 软颚一上一下的规律起伏——每一次起伏都把她嘴里的热气灌进你的表皮
+				PRINTFORMDL 你在她嘴里射的时候她打了一个酒嗝——精液被这个嗝从喉咙里反推回来，
+				PRINTFORMDL 混着唾液从她嘴角溢出了一小股乳白色的泡沫。她闭着眼睛把嘴角的泡沫舔回去了一半——
+				PRINTFORMDL 另一半顺下巴滴到了浴衣领口上
+				PRINTFORMDW 「唔……这个比酒浓……嗝……下次……混在一起喝……就叫——萃香特调二号」
+			CASE 1
+				PRINTFORMDL 你握着萃香的角把肉棒往她喉咙深处送——她在醉意中没有任何抵抗，
+				PRINTFORMDL 喉部的肌肉完全松弛。你的顶端碰到了她咽后壁的那一刻，她的喉管在你顶端周围
+				PRINTFORMDL 不自觉地收缩了一圈——那是吞咽反射，不是呕吐反射。
+				PRINTFORMDL 她的身体把含住的东西当成需要咽下去的饮品来对待
+				PRINTFORMDL 你在她喉咙深处射精。精液直接越过舌根——没有经过味觉区——直接滑入了食道。
+				PRINTFORMDL 她的喉结在你射精的过程中连续滚动了四五下——不是在喝，是在咽。
+				PRINTFORMDL 每一次滚动都让她的喉管肌肉从你的顶端周围依次收紧——从根部到尖端，
+				PRINTFORMDL 像是被一条温热的活物从里到外舔了一遍
+				PRINTFORMDW 你退出来的时候她张着嘴喘了几秒——嘴角到下巴之间挂着一道透明的混合液体。
+				PRINTFORMDW 她用醉意浓浓的舌头把嘴角那道混着精液和唾液的丝线舔进了嘴里。
+				PRINTFORMDW 「你的和我的口水……混在一起……可以酿酒了。就叫——合酿。——咕噜——嗝」
+		ENDSELECT
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「咕……咳咳……唔嗯……♥」
+					PRINTFORMDL 你在萃香嘴里射精的那一刻她的舌头还在你系带下方的凹槽里画圈——
+					PRINTFORMDL 精液冲进她口腔的瞬间，她的舌头停了一瞬，然后继续画完了剩下的半个圈。
+					PRINTFORMDL 精液从她舌根两侧溢出来，沿着臼齿和颊黏膜之间的缝隙往喉咙流
+					PRINTFORMDL 她含着你没松开。射完之后她把嘴唇往前收紧，上下唇从冠状沟两侧
+					PRINTFORMDL 一直滑到龟头最前端——她用嘴唇把最后那几滴从尿道口直接吸进了自己的嘴里。
+					PRINTFORMDL 然后她松开嘴——舌头在合拢的牙齿后面翻了一下。喉结滚了两次
+					PRINTFORMDW 她用手背擦了嘴角——然后又用舌头舔了一下手背上被擦下来的那滴。
+					PRINTFORMDW 舔完之后发现你在看她，她的脸从耳朵红到了领口——但舌头没缩回去
+				CASE 1
+					PRINTFORML 「呼……全部喝掉了。你的味道——我记住了」
+					PRINTFORMDL 萃香在含入之前先用鼻尖沿着你肉棒的侧面从根部滑到了顶端——
+					PRINTFORMDL 不是挑逗，是在闻。然后她张开嘴，用上唇先盖住你的龟头，
+					PRINTFORMDL 下唇缓缓包住系带下方那圈最敏感的皮肤。舌头紧接着从口腔深处迎上来，
+					PRINTFORMDL 铺在你整个龟头表面——舌面的温度比口腔更高几度
+					PRINTFORMDL 你射的时候她的舌头正在你尿道口附近逆时针摩擦——精液冲破了她的舌苔，
+					PRINTFORMDL 在她舌面上铺开了一层温热。她闭着眼把整口精液含在舌面上感受了几秒——
+					PRINTFORMDL 然后才慢慢咽下去。喉结每滚一下，舌根就往上抬一次，把最后残余的精液从喉咙挤回舌面
+					PRINTFORMDW 全部咽完之后她张开嘴让你检查——舌面是干净的，上颚没有残留，
+					PRINTFORMDW 只有臼齿和颊黏膜之间的缝隙里还嵌着一丝白色的痕迹。
+					PRINTFORMDW 她用舌尖把那丝白痕勾出来给你看——然后吞下去了
+				CASE 2
+					PRINTFORML 「唔——这次射了好多……喉咙里还有——咕……」
+					PRINTFORMDL 你的肉棒插在萃香口腔最深处，龟头抵着她的软颚边缘。
+					PRINTFORMDL 她的嘴唇被你的肉棒撑成了一个箍紧的圆环——嘴角的皮肤被拉得有点发白，
+					PRINTFORMDL 但她的舌头还在你冠状沟下方那一圈凹槽里有节奏地蠕动着
+					PRINTFORMDL 你射的时候精液直接冲进了她的咽部——没有经过舌面。
+					PRINTFORMDL 她的喉咙在你射精的同时自动开始了吞咽——喉结每滚一次，咽壁就在你的龟头周围收紧一圈。
+					PRINTFORMDL 精液和唾液在她咽喉深处混成了一口温热的、会自己起泡的流体，
+					PRINTFORMDL 咽到一半停了一下——因为她需要换气。这个时候精液从她鼻腔里冒出了一小股白烟——不是烟，
+					PRINTFORMDL 是精液的热气碰到了鼻腔黏膜冷凝形成的一层极细的水雾
+					PRINTFORMDW 你退出来之后她捂着鼻子咳了两声——然后张开手掌看有没有精液喷出来。
+					PRINTFORMDW 手掌是干净的。她抬起眼看了你一下——眼眶有点红，鼻翼两侧有一点亮亮的湿润。
+					PRINTFORMDW 然后她用袖口把那点湿润擦干净了，小声说了两个字：「……过量」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「噗……咳咳——你……射太深了——」
+					PRINTFORMDL 你在萃香嘴里射的时候她正在用舌尖挑你马眼——精液越过舌尖，
+					PRINTFORMDL 直接冲进了她的喉咙深处。她呛了一下——不是抗拒，是气管被精液的味道
+					PRINTFORMDL 突然激活了咳嗽反射。她捂着嘴把头偏到一边——精液从她指缝间喷出来两三滴，
+					PRINTFORMDL 洒在了床单上。剩下的被她在咳嗽的间歇里吞掉了大半
+					PRINTFORMDL 她低头看着床单上那几滴还在往外洇的白色痕迹——然后用床单角擦了擦嘴角。
+					PRINTFORMDL 嘴里的精液已经咽干净了，但喉咙里还残存着一层精液的黏液感——
+					PRINTFORMDL 她咽了几次口水都没把那种黏着感清干净
+					PRINTFORMDW 她把手从嘴上拿开，用舌尖舔了舔上颚——上面还有精液的碱味。
+					PRINTFORMDW 然后又舔了一下。然后把舌尖收进嘴里——在牙齿后面抿了一下。
+					PRINTFORMDW 「下次提醒我多含一下再咽——不然会呛到。我不是在教你——是写使用者手册」
+				CASE 1
+					PRINTFORML 「嗯——咕噜……咽完了。还有吗——没有的话我去漱口」
+					PRINTFORMDL 萃香在你射精之前就已经把你的肉棒含到了嘴唇根部——
+					PRINTFORMDL 嘴角被撑得往外翻了半毫米，那是她口角皮肤的拉伸极限。
+					PRINTFORMDL 她的下巴有点抖——不是害怕，是维持张口到最大角度太久导致的咬肌疲劳
+					PRINTFORMDL 你射的时候精液直接灌进了她喉咙。她没有用舌头尝——直接咽了。
+					PRINTFORMDL 喉结上下滚动了三次：第一次是最急的一股，一下子就滑进食道了；
+					PRINTFORMDL 第二次是射精后期比较稀的那部分，在喉咙里停了一瞬才下去；
+					PRINTFORMDL 第三次是她在清喉咙——把残留在咽壁上那层薄薄的精液也咽下去了
+					PRINTFORMDW 你退出来之后她用手背擦了嘴角——手背上有两道精液和唾液混合的白色痕迹。
+					PRINTFORMDW 她站起身走到水盆边漱了口。漱口水吐出来的时候里面还飘着几丝白色的细线，
+					PRINTFORMDW 在水面上散了半分钟才不见。她回头看你一眼，下巴上还挂着漱口的水珠
+			ENDSELECT
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：乳交（TCVAR:50 Bit 5）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_5(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，你正把肉棒夹在萃香那道浅浅的乳沟中间。
+				PRINTFORMDL 她的胸脯太平了，两边乳房用力挤压才能合成一道勉强能容下你的缝隙。
+				PRINTFORMDL 你在那道缝隙里抽送——摩擦力来自她的肋骨，不是乳肉。
+				PRINTFORMDL 但这恰恰让你更兴奋：每一次推进都在对抗骨头的硬度而非脂肪的柔软
+				PRINTFORMDL 精液在离开你身体的瞬间凝在了她锁骨之间的凹陷处——
+				PRINTFORMDL 白色的液珠悬在那里，被锁骨窝的形状托着，像一颗嵌在骨头里的珍珠。
+				PRINTFORMDL 她静止的脸上没有任何反应——眉头没皱，嘴唇没抿，眼睛还是闭着的
+				PRINTFORMDW 你解开时停。那颗锁骨窝里的精液珠在恢复重力后缓缓滑进了她胸口正中的浅沟里，
+				PRINTFORMDW 然后顺着肋骨的弧度一路淌到了肚脐。她没醒——但她的身体替你画了一条笔直的轨迹
+			CASE 1
+				PRINTFORMDL 时停中你把肉棒贴在萃香那对几乎平坦的乳房表面——
+				PRINTFORMDL 不需要夹，只需要贴着。龟头刚好能碰到她左边那颗乳芽的尖端。
+				PRINTFORMDL 你在静止的空气里射了——精液从她左边乳尖出发，沿着肋骨之间那道浅浅的凹槽，
+				PRINTFORMDL 画了一道弯曲的白线，停在右边乳尖的正前方两毫米的位置
+				PRINTFORMDL 两颗乳芽之间隔着她平坦的胸骨表面——现在那道表面上有你用精液画出来的弧线。
+				PRINTFORMDW 你解开时停。精液自身的重力让它从右边的乳尖尖端缓缓往下滑，
+				PRINTFORMDW 在乳晕边缘停了片刻——然后继续下行，像是在替她丈量胸前的每一个刻度
+		ENDSELECT
+		;TCVAR:10:352 = 3
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香用两只手把胸前那点连乳沟都挤不出来的平坦软肉往中间推——
+				PRINTFORMDL 她的手指陷在那层极薄的皮下脂肪里，指节因为用力而发白。你贴了上去——
+				PRINTFORMDL 龟头插入她锁骨坠形成的凹陷——随即顶端擦过一颗被挤红的乳尖外缘，
+				PRINTFORMDL 灼热的力度让她的胸骨微震。她在下一秒把膝盖往回收拢——
+				PRINTFORMDL 精液应声从你身体里迸出来，打穿了锁骨之间那个凹陷下的骨表，
+				PRINTFORMDL 逆着重力滑过平胸口、滑过肋骨——最后一滴停在肚脐的边缘
+		PRINTFORMDL 她低头看了看自己胸前的白色轨迹——从锁骨到肚脐，精液画了胸口上最长的一道弧线。
+		PRINTFORMDL 然后用手指在精液线上方悬空比划了一下——大概是在测量这条线的长度。
+		PRINTFORMDW 「嗯——量完了——从颈窝到肚脐刚好是九个手指宽。你的量超过了九个——溢出来的都在旁边。」
+		PRINTFORMDW 「记住了——下次来的时候——还是这条线。线标不变。你自己对轴。——不许对歪。嗝」
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「唔——太用力了……这边——只磨到骨头了——」
+					PRINTFORMDL 萃香把两只手的拇指和食指围成一个环形箍在你肉棒根部——
+					PRINTFORMDL 手指箍紧的力道刚好能让你感觉到她指甲盖的形状。
+					PRINTFORMDL 然后她把自己的胸往前送——两颗乳芽的尖端在你的冠状沟两侧各抵了一下。
+					PRINTFORMDL 她用乳尖绕着你冠沟画了两个方向相反的半圆——左边顺时针，右边逆时针。
+					PRINTFORMDL 同一时刻两颗乳芽用相反的方向在冠状沟两侧各画了一圈。
+					PRINTFORMDL 你射精的瞬间精液从两颗乳芽之间的极小空隙里喷了出去，
+					PRINTFORMDL 在她锁骨的凹陷处开了一朵白色的花——花心有她的锁骨窝的形状，花瓣是你射精的弧度
+					PRINTFORMDW 她低头看了锁骨窝里的精液很久——然后抬头看你，表情是把这道螺旋路径
+					PRINTFORMDW 存在了心里某个叫做"几何账本"的地方。「以后每次射之前——记得提前报角度。报对了有奖。」
+				CASE 1
+					PRINTFORML 「哈啊——射到脸上来了……明明在夹胸的——射偏了——」
+					PRINTFORMDL 萃香用她平坦的胸口夹着你的肉棒——乳沟太浅，你的龟头有一大半从她胸前冒了出来，
+					PRINTFORMDL 直接对着她的下巴方向。她的手在胸前使劲往中间挤——掌缘都陷进了肋骨缝里。
+					PRINTFORMDL 精液从她下巴喷上去——第一股打在她下唇正中，第二股在她鼻梁上，
+					PRINTFORMDL 第三股刚好越过额头——越过了头顶。剩下的精液沿她的嘴角慢慢画了个不对称的括号
+					PRINTFORMDL 她闭着眼等了几秒——然后睁开左眼看了一眼你，再睁开右眼。
+					PRINTFORMDW 「只有三发打歪了——落在唇上的第一滴没错，在我下牙偏左。
+					PRINTFORMDW 在镜子里看得见——现在你右手指尖也在这下牙正下方——指腹的纹路和落在下牙位置的是同一条。」
+			ENDSELECT
+		ELSE
+			PRINTFORML 「哎——平的也能用上啊。真是隔了好久才发现的功能——乳胶专用凹槽」
+			PRINTFORMDL 萃香用双手把前胸那点微乎其微的隆起往中间挤，挤出一条刚好够你塞进去的缝。
+			PRINTFORMDL 你的龟头在她锁骨和胸骨之间那道骨缝里磨——她下巴往回收了一点，
+			PRINTFORMDL 正好用下颌骨的边缘抵住你的精索根部，增加了接触面积
+			PRINTFORMDL 你射的时候精液从她胸骨上方那道缝隙里呲出去——第一股打在锁骨上方，
+			PRINTFORMDL 第二股越过下巴掉到了她脖子上，第三股沿着胸骨正中那道一直划到了肋弓边缘
+			PRINTFORMDW 「笔记：乳交公式需要的变量已经够数了——你的长度，两骨之间撑开后的宽度，
+			PRINTFORMDW 射程、偏角和扩散半径。——下一轮实验需要一盏补光灯。你来带还是我来牵头？」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：素股（TCVAR:50 Bit 6）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_6(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在静止的时间里，你从后面环住萃香的腰，
+				PRINTFORMDL 肉棒贴在她大腿内侧那道最柔软的缝隙之间。
+				PRINTFORMDL 她的腿被时停固定在一个微张的角度——大腿内侧的皮肤在静止中泛着微弱的光泽。
+				PRINTFORMDL 你的龟头刚好抵在她阴唇的外侧边缘——没有进入，只是在入口旁边贴着
+				PRINTFORMDL 精液在时停中从你身体出发——白色的弧线沿着她的大腿内侧往下延伸，
+				PRINTFORMDL 在膝盖窝的位置停住了。最后一滴精液悬在半空中——刚好落在她小阴唇上方的位置
+				PRINTFORMDW 你解开时停。精液恢复了重力——那道白色的弧线顺着她大腿内侧滑到了膝窝，
+				PRINTFORMDW 然后又从膝窝反向流回了会阴。她在梦里夹了一下大腿——精液被两条大腿夹在了中间
+			CASE 1
+				PRINTFORMDL 时停中你让萃香侧躺着，自己从背后贴上去。
+				PRINTFORMDL 你的肉棒夹在她两条大腿之间——大腿根部那一条狭长的缝隙刚好能容纳你。
+				PRINTFORMDL 你在她腿缝间抽送了最后几下——精液在她阴道口外侧凝成了一小团白色的悬浊液。
+				PRINTFORMDL 那一小团精液在时停里保持着从尿道口出发时的喷射形态——
+				PRINTFORMDL 精液的顶端刚好碰到阴唇内侧的黏膜边缘，隔着两毫米没完全触到
+				PRINTFORMDW 你解开时停。精液从悬空状态跌落到她的阴唇表面——然后顺着会阴滑到床单上。
+				PRINTFORMDW 她的阴道口在睡梦中收缩了一下——正好把挂在边缘的那半滴精液吸进去了一点点
+		ENDSELECT
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「哈——好烫……在腿缝里——」
+					PRINTFORMDL 萃香夹紧了你的肉棒——她的大腿内侧肌肉在你两侧同时收紧。
+					PRINTFORMDL 腿根的皮肤在你冠状沟两侧形成了一道温热而湿润的夹层——汗液和爱液在腿缝里
+					PRINTFORMDL 混合成一层极薄的天然润滑。你在她腿缝间抽送的每一次都把她的阴唇外缘轻轻推开一小截
+					PRINTFORMDL 你射精的时候精液从她大腿前方喷了出去——第一股打在她阴阜上方的耻骨区域，
+					PRINTFORMDL 第二股顺着阴唇外侧淌下去，第三股越过腹股沟落到了小腹上。
+					PRINTFORMDW 她低头看了看自己阴阜上方那片正在缓缓往下淌的精液——
+					PRINTFORMDW 然后用手掌把那道精液从耻骨一直抹到肚脐。「——留印。下次来的时候校准用。」
+				CASE 1
+					PRINTFORML 「唔……在腿根外面……差点就进去了——」
+					PRINTFORMDL 你在萃香大腿根部那道凹槽里射精——精液从她大腿前侧一直喷到了膝盖。
+					PRINTFORMDL 她的阴道口离精液落地处只有几厘米——每一次喷射的精液弧线都刚好越过
+					PRINTFORMDL 阴唇入口的边缘，落在几厘米外的床单上。她在每道弧线越过时屏住呼吸——然后又松开
+					PRINTFORMDW 射完之后她把腿打开让你看——大腿内侧从根部到膝盖画满了精液的轨迹，
+					PRINTFORMDW 但阴道入口周围一圈干干净净。「精确度——及格。入口完好。下次——可以推进一点。」
+			ENDSELECT
+		ELSE
+			PRINTFORML 「呜啊——射在腿上了……黏糊糊的——」
+			PRINTFORMDL 你从背后贴着萃香的大腿内侧射了——精液从她大腿根一直延伸到膝弯。
+			PRINTFORMDL 她低头看了半天那条发亮的长线——然后把手掌按在上面量了几个来回。
+			PRINTFORMDL 最后找到离阴道口最近的那一截喷迹——用中指比了比入口到喷迹的距离
+			PRINTFORMDW 「长度——合格。圈数——也够。下次你可以再推进半个指宽。」她边记边合上腿。
+			PRINTFORMDW 「不是催——是我要测你下次射的落点落在这条虚线里准不准。这是标靶——不许射偏。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：足交（TCVAR:50 Bit 7）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_7(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，萃香那双小小的赤足正合围在你肉棒两侧。
+		PRINTFORMDL 她的脚掌很小——足弓的弧度刚好能贴合你冠状沟下方的凹陷处，
+		PRINTFORMDL 脚趾在时停中微张着，每根趾尖的角度都冻在了为你服务的位置上
+		PRINTFORMDL 精液在离开你身体的瞬间凝在了空中——第一股停在左脚拇趾和第二趾之间的缝隙里，
+		PRINTFORMDL 第二股卡在右脚足弓的最高点，第三股悬在她脚踝正上方，被踝骨的突起托着
+		PRINTFORMDL 你在静止中伸出手，把她两只脚掌的距离调近了一些——
+		PRINTFORMDL 她脚趾间的精液珠被挤压变形了一瞬间然后又弹回球形的极限
+		PRINTFORMDW 你解开时停。精液活了——她脚趾间的精液顺着趾缝滑到了脚背，
+		PRINTFORMDW 足弓上的精液沿着弧度淌到了脚跟。她没醒——但脚趾在梦里微微蜷了一下
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香在酒意中伸出光裸的双足——脚掌贴在肉棒两侧，
+		PRINTFORMDL 足弓的弧度刚好套住了你冠状沟下方的凹陷。她脚趾在醉意中微蜷、
+		PRINTFORMDL 趾腹隔着薄薄的皮肤传递着酒气熏热的体温。你贴着那道凹陷射的时候——
+		PRINTFORMDL 精液溅进了她趾缝，又从趾缝流到了脚背。她低头看了半天脚背上那几道白色的纹路。
+		PRINTFORMDW 「嘿嘿——脚上开花了——白色的花。你种的花——记在我的脚背上。
+		PRINTFORMDW 下次带着一样的花来——不然我会认错。——认错会生气。嗝」
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「变态……在脚上射精什么的——弄脏了哦」
+			PRINTFORMDL 萃香用足弓内侧夹着你的肉棒上下滑动——她的脚心皮肤很薄，
+			PRINTFORMDL 足弓的骨性弧度在你系带下方形成了一道天然的凹槽。
+			PRINTFORMDL 她在你射精的瞬间把两只脚掌合成一个合拢的容器——
+			PRINTFORMDL 精液从她的足弓滑到脚踝，又从脚踝淌到小腿前侧
+			PRINTFORMDW 她把沾满精液的脚掌伸到你面前——脚趾在你的注视下张开了，
+			PRINTFORMDW 趾缝之间挂着几道还在往下滴的白色丝线。「你会处理干净的吧——」
+			PRINTFORMDW 她笑了一下——脚背上的精液沿着静脉的走向画出了几条细线
+		ELSE
+			PRINTFORML 「嘛——也是体验过一次了呢。下次要是指定脚的话，记得提前打好水——」
+			PRINTFORMDL 萃香在你射完之后把脚掌翻过来看了看——足底沾满了精液，
+			PRINTFORMDL 脚心和前掌之间的凹陷里积了一小洼白色。她把脚伸到床沿——
+			PRINTFORMDL 任凭那里还挂着仍在往下滑的精液——然后从床底下捞出一盆早已准备好的洗脚水
+			PRINTFORMDW 她踩进水里之前用脚趾夹着脚踝上方剩的最后一道白色纹路，
+			PRINTFORMDW 对着灯光看了片刻——才让双脚浸进温水。水面上浮起了几串正在散开的白色薄雾
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：泡泡浴（TCVAR:50 Bit 8）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_8(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF NOWEX:射精 && NOWEX:MASTER:射精
+		PRINTFORMDL 浴池的水面被两个人的身体挤得不断溢出边缘。
+		PRINTFORMDL 萃香的背贴在池壁上——热水漫过她的锁骨，蒸汽把她的睫毛打成了细簇。
+		PRINTFORMDL 你在热水里射精的瞬间，精液和池水混成了一小团白雾——
+		PRINTFORMDL 从她腿间浮上来，在水面散开之前保留了自己的形状
+		PRINTFORMDW 她把脸埋进你湿透的肩窝里——水和精液混在一起的温度比体温低几度，
+		PRINTFORMDW 但她的脸比什么都烫。她在水下用脚趾碰了碰你的脚背——然后缩回去了
+		RETURN 1
+	ELSEIF NOWEX:射精
+		IF GETBIT(TALENT:PLAYER:性別,1)
+			PRINTFORMDL 热水将两人的身体泡得发红。萃香在你怀里抽搐了几次之后
+			PRINTFORMDL 把下巴搁在池沿上，颈后的发梢全湿了。
+			PRINTFORMDL 高潮的余波把她整个人揉软了——她的手从你背上滑到了水里，浮在那里
+			PRINTFORMDW 水面下，她的膝盖还贴着你的大腿——像是两根浮木在热水中互相靠着
+			RETURN 1
+		ELSE
+			RETURN 1
+		ENDIF
+	ELSE
+;		IF GETBIT(TALENT:性別,1)
+;			PRINTFORMW 
+;			RETURN 1
+;		ELSE
+			RETURN 1
+;		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：肛门侍奉（TCVAR:50 Bit 9）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_9(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，萃香正用舌尖替你清洁后庭周围。
+		PRINTFORMDL 她的舌尖停在肛门边缘——时停把她舌面的味蕾凝固成了
+		PRINTFORMDL 一颗颗细小的粉色颗粒，每一颗的边缘都压在你肛周的褶皱上
+		PRINTFORMDL 你在时停中射了——精液在空气中凝成一道弧线，
+		PRINTFORMDL 从你身体出发落进她半张的嘴里。
+		PRINTFORMDW 你解开时停。她嘴里突然多了一口温热——她愣了一下，然后咽了。
+		PRINTFORMDW 吞咽声在静止过后的空气里格外清晰。「——刚才是不是有东西进来了……？」
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香在酒醉中用舌头帮你清理下身——她的舌面温度比平时更高，
+		PRINTFORMDL 但动作完全是本能式的操作。舌头从会阴一路舔到臀缝——
+		PRINTFORMDL 她用舌尖在肛门边缘那圈褶皱上画圈。你射了——精液从她额前擦过，
+		PRINTFORMDL 落在她鼻尖上。她伸出舌头舔掉了自己鼻尖上的精液——然后又低下头继续舔刚才的位置
+		PRINTFORMDW 「——嗯。刚才那下——继续。刚才到第几圈了？忘了——重来。第一圈——嗝」
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「嗯——后面——洗干净了哦。这里——还有这里——」
+			PRINTFORMDL 萃香跪在你身后，用舌尖沿着你的股沟从下往上慢慢舔。
+			PRINTFORMDL 她的舌头在肛门周围的每一道褶皱上都停了一瞬——然后舌尖摁进褶皱中央，
+			PRINTFORMDL 在那里画了一个小而完整的圈。你射在了床单上——她没有中断——舌头继续往前推进
+			PRINTFORMDW 全部舔完之后她用袖口擦了嘴角，然后低头看了看床单上那几道白色的弧线。
+			PRINTFORMDW 「——清洁服务结束。额外的部分不收费——但你得负责换床单。一人一半」
+		ELSE
+			PRINTFORM 「弄完了——后面干净了。床单——自己换。下次提前说——我好准备毛巾。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：手淫口交（TCVAR:50 Bit 20）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_20(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，萃香一只手握着你的肉棒根部，
+		PRINTFORMDL 嘴唇停在龟头正前方两毫米的位置。时停把她的嘴唇冻在了微张的O形——
+		PRINTFORMDL 上唇内侧的唾液反光在静止中不会流动也不会蒸发。你射了——
+		PRINTFORMDL 精液在空气中凝成一道白色弧线，穿过她上下唇之间那条静止的缝隙，
+		PRINTFORMDL 落在她舌面中央。你的手在静止中按在她的手背上——她的手还维持着握姿
+		PRINTFORMDW 你解开时停。她的嘴唇收拢——舌头把精液卷进嘴里。喉结滚了一下。
+		PRINTFORMDW 她的手还握着你——握力从时停结束后的松弛中慢慢恢复到了正常的力度
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香在酒醉中一只手松松地握着你肉棒的根部——握力一会儿重一会儿轻。
+		PRINTFORMDL 你的龟头抵着她半张的嘴唇，她在醉意中用舌尖在你的马眼周围
+		PRINTFORMDL 若有若无地画着圈。你射了——精液冲进了她嘴里。她含着一口精液抬起头——
+		PRINTFORMDL 手里的握力在你射完之后变成了掌心托举着你射完的龟头——然后咽了下去
+		PRINTFORMDW 「——嗯。是手和嘴一起接住的——这次效率比上次高。嗝——记下来了。」
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「哎……全都弄在手上了——你出来了好多——」
+			PRINTFORMDL 萃香左手握着你肉棒根部上下套弄，右手的拇指和食指圈在龟头下方的冠状沟边缘。
+			PRINTFORMDL 她低下头——嘴唇在你即将射精的瞬间含住了龟头前半段。你的精液在口腔和手指的空隙之间
+			PRINTFORMDL 同时溢出来——一部分从嘴角滑到下巴，另一部分顺着她的手背流到了手腕
+			PRINTFORMDW 全部咽下去之后她把你射完的龟头从嘴里退出来——然后用舌头舔干净了
+			PRINTFORMDW 自己虎口上残存的几滴精液。舔完之后把手指伸到你面前——只有指甲缝隙里还剩一点
+		ELSE
+			PRINTFORML 「唔——噗——精液和口水混在一起了——黏黏的——」
+			PRINTFORMDL 萃香用手和嘴同时接住了你的精液——左手握着根部，右手指腹压着系带，
+			PRINTFORMDL 嘴唇包着龟头前半段。混合了精液和唾液的白色泡沫在她指间拉出了几条细丝
+			PRINTFORMDW 她把泡沫吐在手心里——然后从旁边卷了张纸巾，把手擦干净了。
+			PRINTFORMDW 「下次——建议分批次。手和嘴同时接的话——口径不够——得加一张嘴。不是建议——是数据。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：乳夹口交（TCVAR:50 Bit 21）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_21(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，你正把肉棒夹在萃香那道浅浅的乳沟间，
+		PRINTFORMDL 龟头抵在她微张的下唇边缘。她用双手从两侧把胸前那点微弱的隆起往中间挤——
+		PRINTFORMDL 指节陷进了肋骨之间的软肉里。你在时停中射了——
+		PRINTFORMDL 精液凝成的弧线从她乳沟出发，穿过锁骨上方，正好落在她舌面上
+		PRINTFORMDW 你解开时停。她的舌头收拢——精液被咽下去了。她的嘴唇在咽完之后轻轻合拢，
+		PRINTFORMDW 尝到了龟头残留的最后一滴——然后咂了一下嘴
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香用酒醉后的双手把你按在她近乎平坦的胸脯上——指缝间挤出了那点微弱的隆起，
+		PRINTFORMDL 同时低头含住了你从乳沟上方露出来的龟头。你的阴茎和锁骨形成了一组醉酒状态下
+		PRINTFORMDL 她还在勉强对准的配位关系。你的精液从她唇和乳沟之间溢出来，
+		PRINTFORMDL 一部分从下巴淌到乳沟，另一部分被她自己用舌头卷了回去
+		PRINTFORMDW 「乳沟封口——不够紧——漏了——但因为漏出去的也接住了——算通过。嗝。」
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「唔——快要出来了么？总感觉有点——」
+			PRINTFORMDL 萃香一边用双手把胸前那点微乎其微的隆起往中间挤，一边低头含住了
+			PRINTFORMDL 从乳沟上方探出来的龟头。她的舌面铺在你马眼下方——每次吞咽都让舌苔在你尿道口
+			PRINTFORMDL 周围产生微弱的吸力。你射了——精液从乳沟和嘴唇之间溢出来，挂在她的锁骨上
+			PRINTFORMDW 她把锁骨上那滴精液用手指蘸起来——放在舌面上。「——贫乳的好处：锁骨能接。记录在案。」
+		ELSE
+			PRINTFORML 「嗯——干嘛！？不要突然拿出来啊——」
+			PRINTFORMDL 萃香被你把肉棒从乳沟和嘴唇之间突然抽出来的时候愣了一下——
+			PRINTFORMDL 精液从她胸前划了一道弧线落在床单上。她低头看着床单上那几道白色的痕迹——
+			PRINTFORMDL 又看看自己胸前那道被挤得发红的皮肤——然后把手里刚才用来垫乳沟的毛巾收了起来
+			PRINTFORMDW 「下次——提前说什么时候抽。这个东西不是吓人用的——是精密器械。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：六九式（TCVAR:50 Bit 22）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_22(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，你和萃香是倒置的——你的嘴唇正对着她的阴唇外缘，
+		PRINTFORMDL 她半张的嘴唇悬在你龟头正上方。时停把她的舌尖冻在了你冠状沟的位置，
+		PRINTFORMDL 你的舌尖停在阴蒂包皮的边缘——两个人的舌头在静止中隔着自己口腔的湿度互相围观
+		PRINTFORMDL 你射了——精液在空气中凝成一道向上升的白线，穿过她上下唇之间的缝隙，
+		PRINTFORMDL 部分浮在她舌面中央，部分挂在她下唇内侧的那层黏膜上。她的舌尖在你射完之后
+		PRINTFORMDL 依然停在冠状沟处——表面已经被精液的前沿轻轻贴上了一层极薄的白色薄膜
+		PRINTFORMDW 你解开时停。她嘴里那口浮在舌面的精液被她咽了下去——喉结滚了三下。
+		PRINTFORMDW 你的舌尖从她阴蒂上滑开了几毫米——她在你头顶喘了一口热气，震得你头皮微微发麻
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「嘿嘿……是我赢了哦……你的精液——我全都接住了」
+			PRINTFORMDL 萃香趴在你身上，嘴唇包着你龟头的最前端——她的阴蒂刚好隔着两厘米正在你舌尖前方。
+			PRINTFORMDL 你的舌头在舔她的时候她的嘴唇会不自觉地收紧一下——每一次收束都让你冠沟下方
+			PRINTFORMDL 凹槽里的牙尖刚好抵在系带的正下方。这个正反馈循环持续到了你射精的一瞬间——
+			PRINTFORMDL 精液灌进她嘴里的时候她含着它发出了一个含混的叫声——因为你的舌头也同时按进了她的阴道口
+			PRINTFORMDW 她把嘴里的精液咽下去了——喉结从你看不见的角度滚了三下。
+			PRINTFORMDW 然后她从你身上翻下来，用手背擦了嘴角那条白色的弧线，把它在你自己手背上又盖了一遍
+		ELSE
+			PRINTFORML 「嗯——嗯啊！？唔～～呜呜——好突然——」
+			PRINTFORMDL 萃香正趴在你脸上替你口交——你的舌头同时在她的阴唇外侧舔着。
+			PRINTFORMDL 你射精的时候没有提前给她信号——精液直接冲进了她的喉咙。
+			PRINTFORMDL 她含着你的龟头咳了两声——精液从她嘴角和鼻腔同时溢出来一小股。她捂着鼻子从你身上退下来
+			PRINTFORMDW 她低头看了看自己掌心那层白色的薄雾——然后又看看你鼻尖上沾着的那滴来自自己的透明的爱液。
+			PRINTFORMDW 「——一份从嘴里喷出来了，一份从鼻子里。你弄了一份，我还沾在你脸上——我们扯平了。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：深喉插入（TCVAR:50 Bit 23）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_23(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，你的肉棒整根没入萃香的喉咙。
+		PRINTFORMDL 她的咽后壁在时停中维持着被龟头撑开的形态——黏膜表面的毛细血管在静止中
+		PRINTFORMDL 都是一条条淡红色的细线。你射了——精液在离开你身体的瞬间
+		PRINTFORMDL 越过了她的舌根和会厌软骨，停在食道入口正上方。精液在时停的喉咙里凝成了一颗椭球形的白色团块
+		PRINTFORMDW 你解开时停。那颗精液团被她的食道蠕动自动吞进去了——喉管从上到下依次收缩，
+		PRINTFORMDW 从咽部一直推到食道中段。她的喉结在时停结束后的第一反应就是咽——咽了两次才全部吞完
+	;烂醉
+	ELSEIF TCVAR:10:烂醉 == 1
+		PRINTFORMDL 萃香在酒醉中你的肉棒插到她喉咙最深处——咽反射在酒意下被抑制了，
+		PRINTFORMDL 她喉咙深处的肌肉完全松弛。你的龟头顶在她会厌软骨下方，
+		PRINTFORMDL 她的食道入口在没有反抗的情况下自己张开了一道小口。
+		PRINTFORMDL 你射了——精液直接滑进她食道——没有经过舌头，没有经过味觉。
+		PRINTFORMDL 精液在进入食道之前先撞到了她气管入口——她把精液和空气同时吃进去了一小口——然后咳了一声
+		PRINTFORMDW 她从喉咙深处反刍了一口精液混着空气的白色泡沫——含在舌面上感受了片刻。
+		PRINTFORMDW 「——这次的直接从喉咙进的——没尝到味道——亏了——下次射一半在喉咙、一半在舌头。嗝」
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			PRINTFORML 「嗯——呜——咕噜……咳咳——太深了——」
+			PRINTFORMDL 萃香的喉咙被你的整根肉棒完全撑开——她的会厌在你龟头周围形成了一圈
+			PRINTFORMDL 柔软的环形密封。你射精的时候她的食道入口正好对准了你尿道口——
+			PRINTFORMDL 精液以最短路径直接滑入食道。她在你射完之后从喉咙深处吸了一口气——
+			PRINTFORMDL 然后咽了一下——喉管把从食道反流回喉部的最后半滴精液也咽下去了
+			PRINTFORMDW 你从她喉咙里退出来——她的喉结还在规律地上下滚动，喉咙里还有精液残留在咽壁上。
+			PRINTFORMDW 「——你觉得爽了么？我这边——喉咙到食道全是你的——量了八次吞咽——全部进去了。下次——建议准头再偏左两个毫米——因为会厌的倾斜角度——不解释。下次拿量角器——」
+		ELSE
+			PRINTFORML 「嗯、呜——噫！？咳咳——喜欢么——」
+			PRINTFORMDL 萃香把鼻尖贴在你的耻骨上——整根肉棒完全没入了她的喉咙。她在你射精的同时
+			PRINTFORMDL 用力吸了一口气——精液和空气同时进入食道时发出了一声微弱的咕噜声。
+			PRINTFORMDL 精液灌满了她的食道之后——她自己的唾液从嘴角缝隙里往外渗出了一道透明的细线
+			PRINTFORMDW 你退出来的时候她捂着喉咙咳了两次——咳嗽的时候食道里残存的精液被气压推出来，
+			PRINTFORMDW 从嘴角飞出了几滴——有一滴落在了她自己手背上。她看着手背上那滴精液——然后用袖口擦掉了
+		ENDIF
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：子宫口（TCVAR:50 Bit 24）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_24(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	;时奸中
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，你的龟头正抵在萃香的子宫口上。
+		PRINTFORMDL 那圈环形的宫颈外口在时停中维持着微微张开的姿态——平时紧锁的入口被压力推开了一道缝隙。
+		PRINTFORMDL 精液在时停中直接从你的身体出发——越过了阴道穹隆的最后一道防线，直接抵在了宫颈口前
+		PRINTFORMDL 精液凝成的小团在静止中刚好填住了宫颈外口的凹陷——它在那里形成了一颗完美的、不会流动的白色塞子
+		PRINTFORMDW 你解开时停。那颗精液塞子被宫颈的蠕动一下子吸了进去——消失了。她的子宫在无人知晓的深层睡眠里
+		PRINTFORMDW 完成了第一次被侵入。她的呼吸变了一下——只有一下——然后又回到了REM期的稳定节奏
+	;正常
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「哈啊——子宫里面——一颤一颤的——」
+				PRINTFORMDL 你的龟头在萃香的子宫口上磨蹭——那圈环形的宫颈外口在你每次推进时
+				PRINTFORMDL 都会微微张开一点。你在最深处抵着宫颈口射精——精液冲击宫颈的压力让她的子宫底
+				PRINTFORMDL 不自觉地往上抬了半厘米。子宫在纳精的那一刻——宫颈口的括约肌先紧锁了两秒，然后又松开了
+				PRINTFORMDW 她低下头把手按在小腹上——手指的位置正好在子宫底的上方。她的子宫底部隔着腹壁在你掌心下面
+				PRINTFORMDW 可以摸到一个小小的圆钝的突起——那是子宫刚被精液撑起来时颈口还没锁紧前的轮廓
+			CASE 1
+				PRINTFORML 「请……请在里面射——拜托了——」
+				PRINTFORMDL 萃香用两条腿锁住了你的腰——小腿在你腰后交叉，脚后跟抵在你骶骨上方的凹陷里。
+				PRINTFORMDL 你的龟头抵在她的子宫口上——宫颈在你龟头最前端的压力下开了一道勉强能滑进精液的缝隙。
+				PRINTFORMDL 你射了——精液穿过宫颈口的瞬间她的子宫底往上收缩了一下——这是子宫在受孕反射中的正常反应：
+				PRINTFORMDL 精液覆盖了宫颈口周围的黏膜层，子宫底会往上抬，以延长精液和宫颈的接触时间
+				PRINTFORMDW 射精之后她的手依然按在小腹上——隔着那片微微隆起的皮肤，
+				PRINTFORMDW 子宫底部那道柔嫩的曲线正慢慢收平——她手掌的压力随之下移，像在按摩一颗正在缓静的容器。
+				PRINTFORMDW 「进去了——宫颈口锁住了——现在它是你的了。你想怎么用——随你。我会数日子。」
+			CASE 2
+				PRINTFORML 「让我怀上你的孩子吧——嘿嘿——」
+				PRINTFORMDL 你的肉棒抵进了萃香阴道的最深处——龟头的冠状沟刚好卡在宫颈口的环形凹槽里。
+				PRINTFORMDL 你射精的时候宫颈口的括约肌在你尿道口周围自主地收缩了几下——不是她有意识在控制，
+				PRINTFORMDL 是副交感神经在受孕反射中自动让宫颈外口有节奏地收缩以帮助精液向上输送。
+				PRINTFORMDL 精液从宫颈口经由宫颈管被这批缓慢收缩推进到了子宫内——整个过程大约十几秒
+				PRINTFORMDW 她把手从小腹上慢慢滑到你刚才抵住的位置——然后低头看了看她自己那个仍然相连的部位。
+				PRINTFORMDW 「——精液已经进子宫了。前面——也进去了。你可以在外面等。也可以在里面等。——随便你。」
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;射精部位：授乳PLAY（TCVAR:50 Bit 26）
+;-------------------------------------------------
+@M_KOJO_MOMO_MESSAGE_PALAMCNG_A_K10_26(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF FLAG:70
+		PRINTFORMDL 在静止的时间里，萃香的乳头正贴在你的嘴唇上——时停把乳汁凝在了乳尖最前端，
+		PRINTFORMDL 一颗乳白色的液珠悬在乳孔正前方一毫米的位置。你的嘴停在半空中，嘴唇张开的角度
+		PRINTFORMDL 刚好能容纳她的乳尖。你在静止中吮住了那颗悬空的乳汁珠——它在你舌尖上保持着球形，
+		PRINTFORMDL 然后你射了——精液在她的锁骨窝里凝成了一颗新的珍珠
+		PRINTFORMDW 你解开时停。乳汁涌进了你嘴里——你的精液从她的锁骨窝滑到了乳沟正中央，
+		PRINTFORMDW 两颗白色的液体在同一个平面上向彼此缓慢靠近——还没碰到，但方向是对的
+	;正常
+	ELSE
+		IF TALENT:恋人 || TALENT:恋慕 || TALENT:愛欲
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORMDL 萃香坐在浴池边，一边抱着你一边把你的头按在自己小小的胸口——
+					PRINTFORMDL 乳芽顶端渗出的乳汁在你唇间化成了一股微甜的热流。
+					PRINTFORMDL 你一边吮着乳汁一边射了——精液射在她腿侧的浴巾上。她低头看了浴巾上的精液很久——
+					PRINTFORMDL 然后把正在泌乳的乳尖从你嘴里抽出来，用乳尖在你龟头上轻轻画了一圈。
+					PRINTFORMDL 乳汁从乳孔滴到了还没退去硬度的龟头表面——和精液混成了一道半透明的白色弧线
+					PRINTFORMDW 「牛奶——和你的。混在一起——给浴巾喝了第一口。不公平——换成我嘴。」
+					PRINTFORMDW 她低头把那道混着乳汁和精液的弧线舔干净了——然后在你还硬着的龟头尖上留了一个吻
+				CASE 1
+					PRINTFORMDL 萃香躺下让你吮她的左边乳尖——乳汁从乳孔里被你的舌苔一点一点接走了。
+					PRINTFORMDL 她的手指在你脑后轻轻压着。你在同一刻射了——精液从她右边乳尖往下淌。
+					PRINTFORMDL 乳汁顺你下巴流回她锁骨，精液沿她肋骨滑向肚脐——两列液体在小腹前交汇，
+					PRINTFORMDL 在肚脐周围晕成很小一圈不规则的同心圆。她按着你的头看了那圈很久。
+					PRINTFORMDW 精液和乳汁在她肚脐边各自沉淀成自己的那一道白色——精液的那道圆比乳汁的稍大，
+					PRINTFORMDW 但乳汁的那道圆比精液的更久不回渗进皮肤。「左边是你的，右边是我的——汇合点在肚脐。
+					PRINTFORMDW 以后每次交换一半——你喝我、我喝你。——这是配方。需要长期保存。」
+			ENDSELECT
+		ELSE
+			PRINTFORMDL 萃香把你按在胸前让你喝了几口乳汁——乳尖在你舌面上越胀越红。
+			PRINTFORMDL 你喝了几口乳就射了——精液喷在浴巾上。
+			PRINTFORMDW 「——喝了我的，你又射了自己的。这毛巾归你洗。下次请自带容器。」
+		ENDIF
+	ENDIF
+RETURN 1
+
+;==================================================
+;睡眠中玩家射精时的口上（睡眠奸 + Player系） - 待补充
+;==================================================
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_0(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;LOCAL = 0
+;IF LOCAL
+;	PRINTFORMW 
+;	RETURN 1
+;ENDIF
+;RETURN 1
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_1(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_2(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_3(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_4(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_5(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_7(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_A2_K10_23(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0
+;
+;==================================================
+;挑逗时的口上 - 待补充
+;==================================================
+;@M_KOJO_MOMO_MESSAGE_PALAMCNG_F_K10(ARG)
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;PRINTFORML 
+;RETURN 0

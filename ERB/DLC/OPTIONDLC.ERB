@@ -1,0 +1,79 @@
+﻿;修改开始
+@OPTION_DLC
+#LOCALSIZE 1
+#DIM MAXPAGE = 3
+#DIM DYNAMIC PAGE
+CALL RELINE(5,1)
+WHILE 1
+	CALL DLCOPTIONPRINT(PAGE)
+	DRAWLINEFORM －
+	PRINTL
+	HTML_PRINT "<button value = '1001' title = '上一页'>　［＜］　</button><button value = '1002' title = '下一页'>　［＞］　</button>"
+	PRINTFORML [0] 返回
+	INPUT
+	SELECTCASE RESULT
+		CASE 0
+			CALL RELINE(5)
+			RETURN
+		CASE 1001
+			PAGE = MAX(0,PAGE-1)
+		CASE 1002
+			PAGE = MIN(MAXPAGE-1,PAGE+1)
+		CASEELSE
+			LOCAL=RESULT
+			CALL RELINE(6,1)
+			CALL GETINFO_DLC(LOCAL)
+	ENDSELECT
+	CALL RELINE(5)
+WEND
+
+
+;料理重制
+;修改结束
+
+;	PRINTFORML 更多的农业介绍
+;	PRINTFORML 重制了原版的家庭菜园，增加了更多的可种植植物，增加了季节性植物，增加了稀有植物
+;	PRINTFORML 推荐配合更多的料理一起使用
+;	IF FARMDLC == 0
+;		PRINTFORML 要启动吗？
+;	ELSE
+;		PRINTFORML 要关闭吗？
+;	ENDIF
+;	PRINTFORML 
+;	PRINTFORML 
+;	PRINTFORML [1]是
+;	PRINTFORML [2]否
+;	INPUT
+;	IF RESULT == 1
+;		FARM = 1 + FLAG:畑拡張
+;		IF FLAG:農民難易度
+;			PRINTFORML 检测到是农民
+;			PRINTFORML 重置农田面积
+;			SELECTCASE FLAG:農民難易度
+;				CASE 1
+;					FLAG:畑拡張 = 1
+;				CASE 2
+;					FLAG:畑拡張 = 3
+;				CASE 3
+;					FLAG:畑拡張 = 5
+;			ENDSELECT
+;		ENDIF
+;		FOR TMP, 0, FARM
+;			DLC_PLANT_TYPE:TMP = PLANT_TYPE:TMP
+;			DLC_PLANT_DAYS:TMP = PLANT_DAYS:TMP
+;			DLC_PLANT_GROW:TMP = PLANT_GROW:TMP
+;			DLC_PLANT_DRY:TMP = PLANT_DRY:TMP
+;			DLC_HATAKE_NAME:TMP = HATAKE_NAME:TMP
+;			DLC_PLANT_FOOD:TMP = PLANT_FOOD:TMP
+;		NEXT
+;			PRINTFORML 更多的农业已启动
+;			FARMDLC = 1
+;		ELSE
+;			FARMDLC = 0
+;			PRINTFORML 更多的农业已关闭
+;		ENDIF
+;	ELSEIF RESULT == 2
+;		PRINTFORML 	未做任何改动
+;	ELSE
+;		PRINTFORMW 无效输入
+;	ENDIF

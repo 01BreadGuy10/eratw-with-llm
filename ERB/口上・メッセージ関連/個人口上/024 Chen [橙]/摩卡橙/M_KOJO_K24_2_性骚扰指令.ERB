@@ -1,0 +1,2953 @@
+﻿;※※※※※※※※※※※※※※※※※※※※※※※※※
+;性骚扰系指令
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+;310,摸屁股
+;TFLAG:193(1=不快(TALENT:胆怯，会哭) 2&&3=感到害羞(TALENT:讨厌男人，且MASTER是男性，会发出悲鸣) 4=任由施为)
+;CFLAG:317==2&&TCVAR:20(无胖次颜面骑乘(70=クンニ強制 71=強制舐陰 72=强制舐肛) 35=自己掀起裙子 52=素股)
+;CFLAG:317==2&&TEQUIP:六九式(有胖次的时候TCVAR:20(70～72)在这里依然可触发)
+;PREVCOM(305=膝枕
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_310
+;成否判定
+;TFLAG:192(-2=强制中止指令、-1＝強制失敗、0=根据COM文件决定、1=強制成功or大成功
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_310
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_310
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_310_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_310_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW 在时停之中俯下身去、伸手轻轻抚摸起橙的臀部
+			PRINTFORMDW 一边张开手指轻轻揉捏着富有弹性的可爱臀部、一边伸手握住了那对毛茸茸的尾巴来回撸动、细细感受着美妙的奇特触感
+			PRINTFORMDW 即使在时停解除之后继续保持这样的姿势抚摸、小猫妖也会发出呼噜声好好享受吧...
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW 在时间停止中抱住橙的腰、顺势把手掌按在了那对可爱的小屁屁上
+			PRINTFORMDW 张开手掌就能完全包裹住的娇小臀部、让%CALLNAME:MASTER%爱不释手地不停揉捏着 
+		ELSE 
+			PRINTFORMDW 在时间停止中把手伸向了橙的身后、肆意抚摸着那只有微微曲线的娇小臀部
+			PRINTFORMDW 即便格外用力地揉捏、时停中的小猫妖也一动不动
+		ENDIF
+	ELSEIF CFLAG:313	;睡眠
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMDW %CALLNAME:MASTER%凑近了橙熟睡着的脸庞、一边欣赏着她可爱的睡颜、一边把手伸向被窝里面、轻轻抚摸起富有弹性的可爱臀部 
+					IF TALENT:24:3 ;恋慕
+						PRINTFORMW 「嗯...嗯～呜呼呼～嘿嘿...」
+						PRINTFORMDW 被摸着屁股的小猫妖露出了愉悦的表情、无意识地微微翘起了屁股、似乎在享受着%CALLNAME:MASTER%的抚摸... 
+					ELSE 
+						PRINTFORMW 「嗯？呜呜呜～～哼嗯....」
+						PRINTFORMDW 皱着眉头的小猫妖一边发出不舒服的呼噜声、一边翻过身子把%CALLNAME:MASTER%的手牢牢压在了身下...
+						PRINTFORMDW %CALLNAME:MASTER%赶紧收回了手
+					ENDIF
+			CASE 1
+				PRINTFORMW 「呼...呼...zzz...」
+				PRINTFORMDW 在床上蜷成一团的橙、只有尾巴尖稍稍露出被子外面...
+				PRINTFORMDW 顺着尾巴把手伸进被窝之中、%CALLNAME:MASTER%轻轻碰触着尾巴根的周围 
+					IF TALENT:24:3 ;恋慕
+						PRINTFORMW 「呜...呜喵...嗯唔...」
+						PRINTFORMDW 被%CALLNAME:MASTER%搔弄着尾巴根、小猫妖却只发出了模模糊糊的轻吟、没有一点反抗的样子...
+					ELSE 
+						PRINTFORMW 「嗯嗯嗯...！」
+						PRINTFORMDW 小猫妖突然伸腿踹了%CALLNAME:MASTER%一脚！好痛...
+					ENDIF
+			CASE 2
+				PRINTFORMW 「嗯唔...」
+				PRINTFORMDW 尽可能轻地把手掌贴在了橙可爱的娇小臀部上、如愿以偿地没有太大反应
+				PRINTFORMDW 确认不会弄醒熟睡中的小猫妖、%CALLNAME:MASTER%慢慢地动起了手腕、抚摸起橙的屁股 
+					IF TALENT:24:3 ;恋慕
+						PRINTFORMW 「嗯...唔喵嗯...%CALLNAME:MASTER%...呼嗯...」
+						PRINTFORMDW 随着%CALLNAME:MASTER%的抚摸、小猫妖的睡颜上渐渐染上了红霞、连尾巴都似乎因为抚摸而微微抬起、拍打着被褥
+					ELSE 
+						PRINTFORMW 「嗯嗯嗯～！不准...恶作剧啦...！」
+						PRINTFORMDW 小猫妖突然用尾巴牢牢缠住%CALLNAME:MASTER%的手腕、甩到了一边
+					ENDIF
+		ENDSELECT
+	ELSEIF CFLAG:317 == 2 	;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20 
+			;强制舔阴
+			CASE 70 
+				PRINTFORMW 	
+			;肛门奉仕
+			CASE 72
+				PRINTFORMW 	
+			;掀起裙子
+			CASE 35
+				PRINTFORMW 	
+			;素股
+			CASE 52 
+				PRINTFORMW 	
+			CASEELSE
+				;六九式
+				IF TEQUIP:54
+					PRINTFORMW 	
+				;其它
+				ELSE 
+					PRINTFORMW 	
+				ENDIF 
+		ENDSELECT 
+	ELSEIF CFLAG:24:1002 >= 1 ;恋慕不高兴状态已触发
+		TFLAG:193 = -1
+		TFLAG:192 = -2
+		PRINTFORMDW 现在去摸橙的屁股、绝对会被咬一口的吧...
+		RETURN 1 		
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「喵呀！唔...」
+			PRINTFORMDW %CALLNAME:MASTER%的手刚刚摸到橙的身体、那对黑色的猫尾就立马缠上了手腕
+			PRINTFORML 「突然就摸那种地方...%CALLNAME:MASTER%是想做什么啊...？」
+			PRINTFORMW 「虽然不讨厌这种事情...不过橙现在不太高兴...先哄哄人家再说嘛～！求求了嘛～！」
+			PRINTFORMDW 转身过来抱住了%CALLNAME:MASTER%、生着闷气的小猫妖便趴在了怀里、摇着脑袋撒起了娇
+			PRINTFORMDW 只好回抱住粘人的小猫、一边摸着那对毛茸茸的耳朵一边轻声安抚起来...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了抱着%CALLNAME:MASTER%的手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「那个...之前想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「喵呀嗯～！」
+			PRINTFORMDW 轻轻碰触到橙的尾巴根、她就像是弹簧一样蹦开了
+			PRINTFORMW 「唔～～～！！就算是%CALLNAME:MASTER%、这样子做橙也是会生气的！哼！」
+			PRINTFORMDW 因生气而鼓起脸颊的小猫妖、像是惩罚似的用尾巴重重地抽了一下手板心  
+		ELSE
+			PRINTFORMDW %CALLNAME:MASTER%的手刚触碰到橙的臀部、她就立马转身按住了手腕
+			PRINTFORMW 「不老实的家伙、就该好好地教训一下！！！」
+			PRINTFORMDW 小猫妖朝着%CALLNAME:MASTER%的手背上张嘴咬了下去！
+			BASE:MASTER:0 -= 300 
+		ENDIF	
+	ELSEIF GET_TARGETNUM() >= 2 ;周围有人
+		IF TALENT:24:3 ;恋慕 
+			IF ABL:14 > 5 ;露出癖>5
+				PRINTFORMW 「唔喵...%CALLNAME:MASTER%真是的...周围还有人呢...」
+				PRINTFORMW 「就已经这么想...摸那种地方了嘛...喵嗯❤...」
+				PRINTFORMDW 尽管小猫妖的脸已经变为了浓郁的绯红、她也没有阻止%CALLNAME:MASTER%下流行为的意思
+				PRINTFORMW 「唔嗯...%CALLNAME:MASTER%的手、感觉好热喵❤...」
+				PRINTFORMW 「喜欢的话❤...就这样多摸摸也可以哦❤...呜嗯❤...」
+				PRINTFORMDW 带着水润的棕色眼眸凝视着%CALLNAME:MASTER%的橙、仿佛已经完全不在意周围的样子发出着娇吟...  
+			ELSE
+				PRINTFORMW 「喵嗯...！」
+				PRINTFORMDW 在接触到的瞬间、橙的身体仿佛被突然的触感吓到了一样猛地颤抖起来
+				PRINTFORMW 「姆～周围还有人喵...%CALLNAME:MASTER%快住手啦！」
+				PRINTFORMW 「想、想摸的话、至少也得去只有%CALLNAME:MASTER%的地方嘛...」
+				PRINTFORMDW 被小猫妖用尾巴牢牢缠住了手腕、没法进一步恶作剧了呢...
+			ENDIF
+		ELSEIF TALENT:24:8 ;思慕
+			PRINTFORMDW 趁着橙望着一旁走神的时候、突然把手按在了尾巴根上
+			PRINTFORMW 「喵呀！呜嗯...」
+			PRINTFORMDW 下意识喊出声来的小猫妖立马捂住了自己的嘴巴、抑制着声音
+			PRINTFORMDW 还在思考着橙打算做什么的%CALLNAME:MASTER%、突然被那对黑色的尾巴不停抽打起手臂、吃痛地挪开了不老实的手
+			PRINTFORMW 「哼...下回再敢做这样的事情...橙可就不是用尾巴抽这么简单了哦！」
+			PRINTFORMDW 顶着气鼓鼓的小脸瞪着%CALLNAME:MASTER%的小猫妖、似乎真的生气了呢... 
+		ELSE
+			PRINTFORMW 「呜喵～——？！！」
+			PRINTFORMDW 突然拍了一下橙的屁股、她就发出惊叫一下子跳开了
+			PRINTFORMW 「呜呜～...！在别人面前做这种恶作剧...橙绝对饶不了%CALLNAME:MASTER%哦！！！」
+			PRINTFORMDW 露出明显愤怒的扭曲表情的小猫妖、迅速绕到%CALLNAME:MASTER%的身后、朝着%CALLNAME:MASTER%的屁股重重地踢了一脚！
+			BASE:MASTER:0 -= 300  	
+		ENDIF	
+	ELSEIF PREVCOM == 305 ;膝枕
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			SELECTCASE RAND:3
+				CASE 0 
+					PRINTFORMDW 顺着尾巴探进了橙的裙下、挠痒一般在尾巴根部用手指画起了圈
+					PRINTFORMW 「喵哈哈～呜嗯～不要从那里伸进去喵...好痒喵...呀呜～」
+					PRINTFORMW 「身体、身体要软掉了喵～呜哇呀～！」
+					PRINTFORMDW 浑身发颤的小猫妖、发出了夹杂着娇喘的奇妙笑声、朝着身后倒了下去...
+					IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+						PRINTFORMDW 正想停手的%CALLNAME:MASTER%、却突然被橙抓住了手腕...
+						PRINTFORMW 「呜、呜喵嗯嗯～❤喵呀嗯～❤%CALLNAME:MASTER%...❤」
+						PRINTFORMW 「再多摸一摸...❤呜嗯～❤」 
+					ENDIF 
+				CASE 1
+					PRINTFORMDW 把脸埋进橙柔软腹部的同时、伸出双手轻轻贴上了身后的小巧臀部
+					PRINTFORMW 「嗯唔～%CALLNAME:MASTER%真是的...」
+					PRINTFORMDW 稍稍扭动了一下身子、小猫妖就挂着通红的小脸、任由%CALLNAME:MASTER%继续摸着自己的屁股
+					PRINTFORMDW 一边大口呼吸着眼前娇小身躯上愈加浓郁的奶油香气、一边揉面般肆意揉捏那软弹的小屁股、直到自己满足地抬起脑袋才停下   
+					IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+						PRINTFORMW 「喵呼唔...%CALLNAME:MASTER%就摸够了嘛...？」
+						PRINTFORMW 「但是...橙还想再被%CALLNAME:MASTER%多摸一摸嘛...呐...再多摸摸嘛❤...」
+						PRINTFORMDW 小猫妖一边用已经发烫的大腿轻轻夹着上面躺着的脑袋、一边用颤抖的声音撒娇似的不停要求着%CALLNAME:MASTER%继续抚摸...
+					ENDIF 
+				CASE 2
+					PRINTFORMW 「喵嗯～就知道%CALLNAME:MASTER%肯定不会老老实实地躺在这里的呢...」
+					PRINTFORMDW 刚刚摸到橙的尾巴根、她就仿佛预料到了一样扭动了几下身子、然后微微抬起了大腿、迎合起%CALLNAME:MASTER%的触摸
+					PRINTFORMW 「喵呜呀～...屁股要翘起来了喵...脑袋也晕乎乎的了喵...」
+					PRINTFORMDW 带着羞红脸颊的小猫妖、仿佛要晕倒一样随着%CALLNAME:MASTER%的抚摸而不时摇晃着脑袋... 
+					IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+						PRINTFORMW 「都、都怪%CALLNAME:MASTER%...❤摸得这么起劲...❤呼喵嗯...❤」
+						PRINTFORMW 「橙都快要...❤喵嗯...❤呜～❤」  
+						PRINTFORMDW 渐渐抑制不住娇声、夹紧了双腿的小猫妖、仿佛期待什么似的凝视起%CALLNAME:MASTER%...
+					ENDIF  
+			ENDSELECT
+		ELSEIF TALENT:24:3 ;恋慕 
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「姆～就这么喜欢摸橙的尾巴吗...嗯唔～」
+					PRINTFORMDW 轻轻地来回抚摸玩弄着橙放在自己身上的尾巴、慢慢地顺着尾巴尖一步步摸向根部...
+					PRINTFORMW 「呜喵呀啊～？！」
+					PRINTFORMDW 接触到尾巴根的一瞬间、小猫妖仿佛触电一般猛地抖了一下身子、发出了娇声惊呼
+					PRINTFORMW 「姆呜呜～！居然偷偷做这种事情！%CALLNAME:MASTER%太过分了喵！」
+					PRINTFORMDW 反应过来的橙、一下子涨红了脸、撒气似的伸手捏起了%CALLNAME:MASTER%的脸 
+				CASE 1
+					PRINTFORMDW 侧着身子抱住橙的纤细腰身、顺势把手掌故意按在了那对软弹的小屁屁上、闭上眼睛装作睡着的样子一动不动...
+					PRINTFORMW 「喵嗯...%CALLNAME:MASTER%？睡着了吗？唔...」
+					PRINTFORMDW 小猫妖轻轻地戳了戳%CALLNAME:MASTER%的脸、有些疑惑地问了几句、随后便没了动静
+					PRINTFORMDW 就这样默默享受了一会儿小巧的臀部和柔软的大腿、才睁开眼睛、看着橙发红的脸颊自然地抬起身子 
+				CASE 2
+					PRINTFORMW 「嗯...要摸的话、先跟橙说一声嘛...突然摸会被吓到的啦...」
+					PRINTFORMW 「又不是不给%CALLNAME:MASTER%摸啦...哼...」
+					PRINTFORMDW 要是提前告诉了橙的话、可就算不上恶作剧了呢
+					PRINTFORMW 「原来是恶作剧嘛...呜嗯...%CALLNAME:MASTER%真是太坏了喵...」  
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMDW 趁着躺在橙大腿上的机会、%CALLNAME:MASTER%悄悄地伸手摸向了她身后的尾巴根...
+					PRINTFORMW 「喵哇呀！%CALLNAME:MASTER%在摸哪里啊！不要到处乱摸啦！哼！」
+					PRINTFORMDW 发现%CALLNAME:MASTER%不老实的动作、小猫妖用手掌警告般地拍了拍膝上的脑袋 				
+				CASE 1
+					PRINTFORMW 「呜～躺在这里就乖一点嘛...」
+					PRINTFORMW 「再乱摸的话、橙之后都不给%CALLNAME:MASTER%躺在腿上的机会了哦！」
+					PRINTFORMDW 识相的%CALLNAME:MASTER%赶紧收回了手、继续默默享受着膝枕   
+				CASE 2
+					PRINTFORMW 「喵呀！呜...得让%CALLNAME:MASTER%长点记性才行！」
+					PRINTFORMDW 生气的橙不停抬腿抖着腿上自己的脑袋、感觉快要晕掉了...
+					PRINTFORMDW 赶紧抬起了身子、逃离了小猫妖的魔爪  
+			ENDSELECT
+		ENDIF	
+	ELSE ;周围无人
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人		
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「唔嗯～%CALLNAME:MASTER%为什么特别喜欢摸橙的屁股啊...」
+						PRINTFORMW 「难道说、是因为橙身上唯一有肉肉的地方嘛...比起胸来说...」
+						PRINTFORMDW 看着%CALLNAME:MASTER%明明捏着自己屁股的手、橙没有一点反抗、却不知为何抬起小手掂量起自己胸前只有微微隆起的曲线、露出了微妙的表情
+						PRINTFORMDW 干脆把眼前的小猫妖搂进怀里、连带着那柔软的小巧胸部一起玩弄揉捏起来、爱抚着她的全身...
+						PRINTFORMW 「呜喵呀～呜嗯～原来不是只喜欢屁股、而是到处都喜欢摸的变态喵～嗯唔❤...」
+						PRINTFORMDW 被%CALLNAME:MASTER%用更加大胆的下流手法玩弄着全身、小猫妖发出了止不住的娇声...
+						IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+							PRINTFORMW 「喵嗯❤...呜呀❤...%CALLNAME:MASTER%❤...」   
+							PRINTFORMW 「都怪%CALLNAME:MASTER%到处乱摸❤...呜喵嗯❤...喵呀❤...」
+							PRINTFORMDW 把脑袋埋进%CALLNAME:MASTER%胸口的橙、身体上传递着阵阵不自然的炙热...    
+						ENDIF
+					CASE 1
+						PRINTFORMW 「喵呀～呜...%CALLNAME:MASTER%真是的...」
+						PRINTFORMDW 虽然嘴上这么说、但脸红的橙却没有做出任何反抗、任由%CALLNAME:MASTER%继续摸着自己的屁股
+						PRINTFORMDW 意识到眼前小猫妖正在纵容着自己的出格行为、%CALLNAME:MASTER%便撩起了揉皱的裙摆、直接触碰起白净的小巧臀部
+						PRINTFORMW 「姆～%CALLNAME:MASTER%...伸进去也太过分啦...」
+						PRINTFORMDW 被尾巴牢牢地缠住了手掌、似乎只好停手了呢...
+						IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+							PRINTFORMW 「...呜嗯～❤不过啦...这回就稍微满足一下%CALLNAME:MASTER%变态的想法吧...啊❤...」  
+							PRINTFORMDW 出乎意料地、橙的尾巴不仅没有阻止那不老实的手、反而操纵着它主动摩擦起了自己的屁股 
+							PRINTFORMDW 抬起头来看向小猫妖的脸、看见了一副与平时截然不同的荡漾神色...
+							PRINTFORMW 「嗯～❤怎么啦？不是很喜欢橙的屁股嘛...喵嗯❤...」
+						ENDIF
+					CASE 2
+						PRINTFORMDW 将手按在了橙的尾巴根上、故意地用手指夹住上下挑弄起来
+						PRINTFORMW 「呜喵呀呀啊啊～...尾巴、弄得太用力了啦...屁股要...呜呜...」
+						PRINTFORMDW 随着几声羞耻的呜咽、小猫妖的可爱臀部就在%CALLNAME:MASTER%眼前高高地翘了起来
+						PRINTFORMW 「%CALLNAME:MASTER%...不要盯着看喵...呜喵...呜...」
+						PRINTFORMDW 即使紧紧捂住小脸的橙哀求似的小声说着这样的话、那小巧的屁股还是在%CALLNAME:MASTER%的注视之下不自觉地微微摇晃起来...
+						IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了 
+							PRINTFORMW 「呜～❤都是因为%CALLNAME:MASTER%...橙才会这样子的...呼嗯❤...」
+							PRINTFORMW 「能不能帮一帮橙啦...好难受...唔唔～❤」
+							PRINTFORMDW 带着与平时完全不同的迷离神色、小猫妖的身体不停地磨蹭着%CALLNAME:MASTER%的手指、似乎在渴求着什么...
+						ENDIF
+					CASE 3
+						PRINTFORMW 「呜～橙的身子...都感觉要软掉了喵～姆呼呼～」 
+						PRINTFORMDW 只是稍微摸了一会儿小猫妖的屁股、她就仿佛浑身发软地倒进了%CALLNAME:MASTER%的怀里、把红得发烫的小脸塞进了%CALLNAME:MASTER%的胸口 
+						PRINTFORMW 「就这样抱着橙嘛...呜嗯～只要抱着的话...随%CALLNAME:MASTER%怎么摸都行喵～❤」  
+						PRINTFORMDW 得到许可的%CALLNAME:MASTER%、动作便愈发地大胆起来、张大双手、如同鹰爪一般肆意揉捏起怀中小猫那对软弹的小巧臀瓣 
+						PRINTFORMW 「唔喵嗯～❤%CALLNAME:MASTER%...别太用力了喵～屁股要变形了喵～呜嗯～❤」
+						PRINTFORMDW 埋在怀中的小猫妖任由%CALLNAME:MASTER%玩弄着屁股、不时发出夹着喵声的闷哼...
+						IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+							PRINTFORMW 「呜呜呜❤...喵嗯...唔喵❤...呀...」  
+							PRINTFORMDW 不知何时、原本随着%CALLNAME:MASTER%动作而发出的闷声、渐渐变成了抑制不住的娇喘 
+							PRINTFORMDW 而怀中的小猫妖、也不知何时抬起了脑袋、用充满水雾的棕色双眸直勾勾地凝视着自己...
+							PRINTFORMW 「被这样子用力地欺负...橙感觉都快忍不住了喵...呜嗯❤...」
+							PRINTFORMW 「%CALLNAME:MASTER%❤...想做什么的话都可以的哦❤...呼嗯❤...」
+						ENDIF   
+					CASE 4
+						PRINTFORMDW 从橙的身后悄悄掀起裙摆、将手掌探入布料遮盖之下的空间、摸索着接触到了那软弹的小巧臀部
+						PRINTFORMW 「呀嗯～真是的、只是隔着裙子摸还不够嘛？%CALLNAME:MASTER%真是变态...」
+						PRINTFORMW 「...既然要直接摸的话、那就干脆再近一点嘛～嘿嘿～」
+						PRINTFORMDW 红着脸的小猫妖背对着%CALLNAME:MASTER%凑了过来、把%CALLNAME:MASTER%的手夹在了二人的身体之间
+						PRINTFORMW 「这样的话、%CALLNAME:MASTER%就可以“好好”地摸了哦～嘿嘿～」
+						PRINTFORMDW 虽然话是这么说、但是实际上由于紧紧贴在一起、手指根本没法好好地活动...
+						PRINTFORMDW 只好默默地享受着压住手掌的屁股传来的软糯触感、想象着揉着这对可爱臀部的场景
+						IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+							PRINTFORMW 「呜...总感觉%CALLNAME:MASTER%还有点遗憾的样子呢...」
+							PRINTFORMW 「只是这样还不够嘛...%CALLNAME:MASTER%真贪心喵～❤」
+							PRINTFORMDW 小猫妖不知为何扭动起了腰身、主动地让%CALLNAME:MASTER%揉捏起了自己的屁股... 
+						ENDIF 
+				ENDSELECT
+		ELSEIF TALENT:24:3 ;恋慕 
+			SELECTCASE RAND:5
+				CASE 0
+					PRINTFORMDW 趁着橙坐在自己身边的时候、把手轻轻贴在了她的腰上、然后慢慢地向下挪动手掌...
+					PRINTFORMW 「喵呀...？」
+					PRINTFORMDW 有些疑惑的小猫妖转过头来、看见了%CALLNAME:MASTER%的手、一下子脸就变得通红、沉默地迅速转了回去
+					PRINTFORMDW 是想装作平时的样子掩饰一下嘛...想到这点、%CALLNAME:MASTER%的手就动的更起劲了、在那对小巧的臀部上来回抓揉起来
+					PRINTFORMW 「嗯...喵呀...嗯喵...呜喵呀...」
+					PRINTFORMW 「%CALLNAME:MASTER%...喵呀啊...太、太过分了喵...哼...」
+					PRINTFORMDW 直到没法忍受而漏出了娇声的小猫妖赶紧用尾巴敲打起那不老实的手掌、%CALLNAME:MASTER%的骚扰才暂时告一段落
+				CASE 1
+					PRINTFORMDW 伸手抱住眼前的橙、顺势把双手按在了那对不停摇晃着的尾巴根上...
+					PRINTFORMW 「呜喵呀啊～尾巴根...不要碰啦...」
+					PRINTFORMDW 被突然的触感吓得浑身发颤、小猫妖的尾巴都炸着毛竖了起来、看起来很惊慌的样子
+					PRINTFORMW 「呜～不要突然就摸那种地方啦...%CALLNAME:MASTER%好过分...」 
+					PRINTFORMDW 把脸埋进了%CALLNAME:MASTER%的怀里、小猫妖像是责怪一样一边不停顶着肚子、一边闷着声音抱怨
+					PRINTFORMDW 轻轻地摸着橙的脑袋表示歉意、她才慢慢放松下来、尾巴也垂了下去
+					PRINTFORMW 「...这、这才差不多嘛...%CALLNAME:MASTER%如果想的话...就继续摸一摸吧？」
+					PRINTFORMDW 平静下来的小猫妖红着小脸主动地用尾巴拉住了%CALLNAME:MASTER%的手、牵向了自己的尾巴根...     
+				CASE 2
+					PRINTFORMW 「呜...不要总是摸橙的屁股啦...」
+					PRINTFORMW 「橙的身上就没有别的地方好摸了吗...？真是的...」
+					PRINTFORMDW 看着%CALLNAME:MASTER%搭上自己腰间不断向下移动着的手掌、小猫妖像是想要阻止一样轻声质问起%CALLNAME:MASTER%
+					PRINTFORMDW 虽然确实能摸其他更有趣的地方、但是现在的话、只想对着橙可爱的小屁屁下手呢...
+					PRINTFORMW 「呜...呜喵...不准这样子说啦...！那、那里怎么可以说可爱...羞死喵了啦...！」
+					PRINTFORMDW 被突然的调戏弄得满脸通红、小猫妖不知所措地紧紧捂住了小脸...   
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%从橙的背后张开双手、托举一般按向了腰部后下方那微微隆起的小巧曲线、慢慢揉搓起来
+					PRINTFORMDW 出乎意料地、那与娇小身体对应的臀部、却有种连手指都要陷进去一样的柔软触感、让%CALLNAME:MASTER%都不愿停下抚摸的动作、不停地揉搓着
+					PRINTFORMW 「喵嗯～...呜～...%CALLNAME:MASTER%...捏得也太起劲了喵...要变形了啦...」
+					PRINTFORMDW 试图阻止%CALLNAME:MASTER%动作的小猫妖用手抓住了%CALLNAME:MASTER%的手腕、却仿佛失去力气一样、只能轻轻扯动着衣袖... 
+				CASE 4
+					PRINTFORMW 「呜喵...又做这种事情...」
+					PRINTFORMDW 察觉到自己背后摸索着贴上尾巴根的手、橙的小脸一下子就变红了
+					PRINTFORMW 「真是的、%CALLNAME:MASTER%就不会觉得害羞吗...喵嗯...」
+					PRINTFORMW 「再、再继续的话、橙就要喊出来了...呀...」
+					PRINTFORMDW 捂着嘴巴忍耐着的小猫妖、不知为何让%CALLNAME:MASTER%想要更加卖力地欺负了起来... 
+			ENDSELECT
+		ELSEIF TALENT:24:8 ;思慕
+				SELECTCASE RAND:4
+				CASE 0
+					PRINTFORMDW 趁着橙不注意、%CALLNAME:MASTER%悄悄地把手伸向橙的背后、张开手指抓了一把
+					PRINTFORMW 「呜喵呀？！什么东西喵？！」
+					PRINTFORMDW 被突然袭击的小猫妖吓得从原地蹦了起来、转身看见%CALLNAME:MASTER%的笑脸才反应过来自己被捉弄了、生气地鼓起了小脸
+					PRINTFORMW 「呜呜呜呜呜～！不要突然搞恶作剧啦！」
+					PRINTFORMDW 迅速在%CALLNAME:MASTER%的手上捶了一下、橙又重新回到了%CALLNAME:MASTER%的身边
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%装作无意间碰触的样子、不时轻轻用手指触碰着橙的臀部
+					PRINTFORMW 「嗯...嗯唔喵...」
+					PRINTFORMDW 尽管小猫妖看起来没有什么反应、但是每回一碰到尾巴根周围的毛、她就会不适应地微微颤抖一下
+					PRINTFORMDW 观察着橙的反应、%CALLNAME:MASTER%饶有兴趣地加快了手上的动作...
+					PRINTFORMW 「......呜哇！受不了啦！%CALLNAME:MASTER%快住手！」
+					PRINTFORMDW ...看来早被小猫妖发现了啊 
+				CASE 2
+					PRINTFORMDW 突然很想摸一摸橙的尾巴呢
+					PRINTFORMW 「诶？突然想摸尾巴？嗯...可是...」
+					PRINTFORMDW 看着%CALLNAME:MASTER%的橙、似乎在犹豫的样子...
+					PRINTFORMDW 故意瞪大了眼睛、用恳求般的眼神紧紧盯着小猫妖的眼睛、无声地表达着自己的渴望
+					PRINTFORMW 「呜、呜喵啊啊...！不、不要像小家伙它们一样盯着橙啦！给、给%CALLNAME:MASTER%摸就是了啦...！」
+					PRINTFORMDW 躲避着%CALLNAME:MASTER%热切视线的橙、连忙转身把自己的尾巴露给了%CALLNAME:MASTER%...
+					PRINTFORMDW 露出得逞的笑容凑近那对微微摇晃着的黑色猫尾、迫不及待地伸手抓住来回抚摸揉搓起来
+					PRINTFORMW 「呜喵...呼嗯...呀...轻一点...」
+					PRINTFORMDW 似乎因为刺激的触感、小猫妖偶尔露出轻呼的同时、微微扭动起了身子...  
+				CASE 3
+					PRINTFORMW 「嗯唔...突然就摸过来了...姆～」
+					PRINTFORMDW 抱着被挠上几爪子的觉悟而把手按在橙的屁股上、她却没有预料中激烈的反应、只是看着%CALLNAME:MASTER%的手掌、稍稍有点生气的样子...
+					PRINTFORMW 「真是的、要摸尾巴的话、就先跟橙说一声嘛！手都放错位置了啦！哼！」
+					PRINTFORMDW 抓住%CALLNAME:MASTER%的手放在自己尾巴上的小猫妖、似乎认为%CALLNAME:MASTER%是想摸尾巴...
+					PRINTFORMDW 默默地回味着先前那软弹的触感、用手赔罪似的梳理着尾巴
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「喵哇啊？！%CALLNAME:MASTER%要干嘛啊！」
+					PRINTFORMDW %CALLNAME:MASTER%的手刚搭上橙的屁股、她就立马跳开了
+					PRINTFORMW 「呜呜...！再敢这么做就咬你哦！」
+				CASE 1
+					PRINTFORMDW 试着把手伸向橙的屁股...
+					PRINTFORMW 「喵呀～——！」
+					PRINTFORMDW 小猫妖身后的尾巴像鞭子一样狠狠抽了一下%CALLNAME:MASTER%的手 
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%的手刚触碰到橙的臀部、她就立马转身按住了手腕
+					PRINTFORMW 「不老实的家伙、就该好好地教训一下！啊呜～」
+					PRINTFORMDW 小猫妖朝着%CALLNAME:MASTER%的手背上张嘴咬了下去！
+					PRINTFORMDW 不过似乎并没有真的打算用力的样子、只是用尖锐的虎牙在手背上警告一般地剐蹭了一会儿...
+			ENDSELECT
+		ENDIF
+	ENDIF 
+ENDIF
+RETURN 1
+;==================================================
+;311,擁抱
+;TFLAG:193(1=大成功 0=成功 -1=失敗)
+;CFLAG:317==2&&TCVAR:20(32=从身前抱住 60=强制接吻 73=洗面奶（用胸部搓脸） 74=互相磨乳房 77=要求吸乳头 ＶＡ性交(85=Ｖ挿入状态 87=Ａ挿入状态 88=V插入时动腰 89=A插入时动腰) 86=要求膣内射精)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_311
+;成否判定
+;TFLAG:192(-2=强制中止指令、-1＝強制失敗、0=根据COM文件决定、1=強制成功or大成功
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_311
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_311
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_311_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_311_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW	在时间停止之下、%CALLNAME:MASTER%用双手紧紧抱住了橙
+			PRINTFORMDW 即便怀中的小猫妖既不能言语也不能行动、%CALLNAME:MASTER%也还是紧紧地在时停中抱着心爱的小猫妖、默默地感受着她温暖的身体
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW %CALLNAME:MASTER%在时停中轻轻抱了抱橙
+			PRINTFORMDW 即便是在无法移动的状态下、小猫妖的身体也依旧温暖柔软
+			PRINTFORMDW %CALLNAME:MASTER%好好地在时停下享受了一会
+		ELSE
+			PRINTFORMDW %CALLNAME:MASTER%在时停中抱住了一动不动的橙
+			PRINTFORMDW 不管如何摆弄、小猫妖仍然保持着原来的姿势、任由%CALLNAME:MASTER%抱着
+		ENDIF
+	ELSEIF CFLAG:334 ;陪睡中
+	
+	
+	ELSEIF CFLAG:313	;睡眠
+		SELECTCASE RAND:3
+			CASE 0	
+				PRINTFORMW 「喵呼呼...哎嘿...」
+				PRINTFORMDW 似乎感受到了身上传来的温暖、橙主动朝着%CALLNAME:MASTER%的手臂蹭了蹭身子、露出了安心的表情
+					IF TALENT:24:3 ;恋慕
+						PRINTFORMW 「嗯...%CALLNAME:MASTER%...最喜欢了...呼呼呼...」
+						PRINTFORMDW 即便是在沉睡之中、小猫妖也表达着对%CALLNAME:MASTER%的爱意 
+					ELSE 
+						PRINTFORMW 「嗯...蓝大人...橙不用哄着睡啦...」
+						PRINTFORMDW 睡梦中的小猫妖似乎将%CALLNAME:MASTER%认成了其他人
+					ENDIF
+			CASE 1	
+				PRINTFORMDW %CALLNAME:MASTER%轻手轻脚地靠近了睡着的橙、抱住了她小小的身体
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「唔嗯...嗯呼...zzz...」
+					PRINTFORMDW 小猫妖蠕动着身子、在%CALLNAME:MASTER%的怀里蜷缩了起来
+					PRINTFORMDW 看起来比起之前睡得更安心了...
+				ELSE 
+					PRINTFORMW 「嗯唔...嗯...？」
+					PRINTFORMDW 小猫妖扭着身子、似乎是对陌生的触感感到奇怪...
+					PRINTFORMDW 不想被橙发现的%CALLNAME:MASTER%赶紧抽出了手
+				ENDIF
+			CASE 2
+				PRINTFORMDW %CALLNAME:MASTER%抱住了还在睡梦当中的橙
+				PRINTFORMW 「嗯...呼呼...」
+				PRINTFORMDW 小猫妖在无意识中、贴近了%CALLNAME:MASTER%的胸口、回抱住了%CALLNAME:MASTER%
+				PRINTFORMW 「喵呼...妈妈...嗯...」
+				PRINTFORMDW %CALLNAME:MASTER%突然感受到胸口传来了湿热的触感...低下头去、看见了小猫妖伸着舌头、舔弄着自己的胸部...
+				PRINTFORMDW 有些惊诧的%CALLNAME:MASTER%、轻轻摇了摇橙、却没有任何反应
+				IF (TALENT:24:3 && TALENT:0:2 != 2) && FIRSTTIME("认错人了啦") ;觉得塞在这里最好...我要不要加个胸大小差分呢（
+					PRINTFORMDW ...大概只是做梦了...吧？
+					PRINTFORMW 「嗯呼...%CALLNAME:MASTER%...当...橙的妈妈...喜欢...」
+					PRINTFORMDW 再次传来的梦中呓语、让%CALLNAME:MASTER%整个身子都顿了一下
+					PRINTFORMDW 居然想的不是蓝大人而是自己吗... 
+					PRINTFORMDW 反应过来的%CALLNAME:MASTER%、红着脸轻叹一口气、掀起自己的上衣、让小猫妖在自己的胸上肆意妄为
+					PRINTFORMDW 要是明天早上跟橙说这件事情、她会有什么反应呢...
+					PRINTFORMDW %CALLNAME:MASTER%一边宠溺地看着怀里像孩子一样舔着自己乳头的小猫妖、一边想像起这事说出口后橙羞愤的样子、意外地感到了满足...
+					PRINTFORMDW ...不过最后、%CALLNAME:MASTER%还是决定把这个秘密烂在肚子里
+				ELSEIF TALENT:24:3 ;普通情况
+					PRINTFORMDW ...大概只是做梦了吧...
+					PRINTFORMDW %CALLNAME:MASTER%叹了口气、任由小猫妖在自己的怀里折腾
+				ELSE
+					PRINTFORMDW ...大概只是做梦了吧...
+					PRINTFORMDW 为了不被橙发现不对劲、%CALLNAME:MASTER%赶紧用枕头替换了自己的位置 
+				ENDIF				
+		ENDSELECT	
+	ELSEIF CFLAG:317 == 1 ;推倒状态
+
+	
+	ELSEIF CFLAG:317 == 2 ;逆推状态
+		SELECTCASE TCVAR:20 
+			;从前面抱住了
+			CASE 32
+				PRINTFORMW 	
+			;强制接吻
+			CASE 60 
+				PRINTFORMW 	
+			;埋胸
+			CASE 73
+				PRINTFORMW 	
+			;互相磨乳房
+			CASE 74
+				PRINTFORMW 	
+			;吸乳头
+			CASE 77 
+				PRINTFORMW 	
+			;V插入
+			CASE 85,88 
+				PRINTFORMW 	
+			;A插入
+			CASE 87,89
+				PRINTFORMW 	
+			;恳求膣内中出
+			CASE 86 
+				PRINTFORMW 	
+			CASEELSE 
+				PRINTFORMW 	
+		ENDSELECT
+	ELSEIF CFLAG:24:1002 >= 1 ;恋慕不高兴状态已触发
+		TFLAG:193 = -1
+		TFLAG:192 = -2
+		PRINTFORMDW 现在随随便便地去抱橙似乎不太好...
+		RETURN 1 
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「喵呀！唔...」
+			PRINTFORMDW %CALLNAME:MASTER%一抱住橙、她就露出了出乎意料的惊慌表情
+			PRINTFORMDW 不过没过几秒钟、反应过来的小猫妖便趴在了怀里、露出了安心的笑容 
+			PRINTFORML 「突然抱过来了呢...嘿嘿～这里果然是最安心的地方呢...」
+			PRINTFORMW 「不过橙现在不太高兴...先哄哄人家再说嘛～！呼呼～」
+			PRINTFORMDW 只好回抱住粘人的小猫、一边摸着那对毛茸茸的耳朵一边轻声安抚起来...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了抱着%CALLNAME:MASTER%的手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「那个...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「喵呀嗯～！」
+			PRINTFORMDW 刚刚碰到橙的身体、她就发出了惊呼、反射似的跳开了
+			PRINTFORMW 「啊、是%CALLNAME:MASTER%啊...呼～...」
+			PRINTFORMW 「不要突然这样子抱过来啦！吓死喵了啦...」
+			PRINTFORMDW 稍稍责怪了几句、小猫妖就补偿似的重新回到身边、用尾巴勾住了%CALLNAME:MASTER%的腰
+		ELSE
+			PRINTFORMW 「呜～！不要突然就粘过来啦、烦死喵了...」
+			PRINTFORMDW 从%CALLNAME:MASTER%的熊抱中钻出来的橙、带着明显不快的表情远离了%CALLNAME:MASTER%	
+		
+		ENDIF
+	ELSEIF CHK_DATENOW(CFLAG:TARGET:约会中) && CFLAG:MASTER:現在位置 != OMANEKIBEYA()
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			SELECTCASE RAND:3
+				CASE 0
+				;公主抱（爱）
+					PRINTFORMW 「%CALLNAME:MASTER%——！」
+					PRINTFORMDW 橙喊着%CALLNAME:MASTER%的名字、朝%CALLNAME:MASTER%飞扑过来
+					PRINTFORMDW %CALLNAME:MASTER%张开双臂牢牢接住了小猫妖、顺势转了几圈
+					PRINTFORMDW 转完圈后也没有把怀里的小猫妖放下来、%CALLNAME:MASTER%抬起了橙的大腿、用公主抱的方式把橙抬离了地面
+					PRINTFORMW 「呜哇啊！又这样子抱着橙了呢、嘿嘿～」
+					PRINTFORMW 「像这样在%CALLNAME:MASTER%温暖的怀里、橙就感觉、除了%CALLNAME:MASTER%什么都不重要了呢...」
+					PRINTFORMW 「%CALLNAME:MASTER%像这样抱着橙、肯定也是把橙当成最宝贵的东西来看待了吧？嘿嘿...谢谢...❤」
+					IF TCVAR:24:352 == 0
+						PRINTFORMDW 这样呢喃着的橙、勾着%CALLNAME:MASTER%的脖子抬起了头、柔嫩的嘴唇与%CALLNAME:MASTER%的嘴唇印在了一起
+						PRINTFORMW 「嗯❤～啾啾❤～呼❤...橙很感谢、%CALLNAME:MASTER%能这样陪伴橙呢...所以这是谢礼...请继续这样、一直抱着橙吧...」
+						TCVAR:24:352 = 1
+						CFLAG:24:1010 += 3 ;三倍进度
+					ENDIF 
+				CASE 1  	
+					PRINTFORMW 「%CALLNAME:MASTER%～～！要抱抱～～！」
+					PRINTFORMDW 看着主动要求%CALLNAME:MASTER%拥抱的橙、%CALLNAME:MASTER%立马张开双臂接住了她
+					PRINTFORMW 「呼呼～%CALLNAME:MASTER%的怀里真是暖和啊...都快要比过蓝大人了哦！」
+					PRINTFORMW 「要是%CALLNAME:MASTER%也长出九条尾巴、橙说不定都要分不清两个人了呢！」 
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%试着从橙的背后抱住她、刚刚伸出手、橙就立马转头回来抱住了%CALLNAME:MASTER%
+					PRINTFORMW 「姆...%CALLNAME:MASTER%总是想从背后抱着橙！不要这样子了啦！」
+					PRINTFORMW 「橙想要好好地看着%CALLNAME:MASTER%的脸、感受%CALLNAME:MASTER%的温暖啊...」
+					PRINTFORMW 「虽然不是讨厌从背后抱...但是、橙还是希望%CALLNAME:MASTER%能多多的让橙看见嘛...」
+					PRINTFORMDW %CALLNAME:MASTER%听着橙轻声的诉求、歉意地来回摸着她的头 
+			ENDSELECT
+		ELSEIF TALENT:24:3 ;恋慕
+			SELECTCASE RAND:3
+				CASE 0
+				;公主抱（恼）
+					PRINTFORMDW 快看！那里是什么？
+					PRINTFORMW 「嗯？是什么——喵呀！！！」
+					PRINTFORMDW 趁着橙分散注意的时间、%CALLNAME:MASTER%迅速地抓住她的身体、用公主抱的方式抱了起来
+					PRINTFORMW 「喵啊啊！%CALLNAME:MASTER%干什么呀！放橙下来啦！快点啦！」
+					PRINTFORMDW 吓了一大跳的小猫妖、愣了一会才反应过来%CALLNAME:MASTER%做了什么、在怀里慌张地扑腾起来
+					PRINTFORMW 「快点放橙下来啦！要被别人看到了啊！喵呜呜...羞死喵了啦...%CALLNAME:MASTER%是大坏蛋...！」
+					PRINTFORMDW 在%CALLNAME:MASTER%怀里的小猫妖知道怎么都挣不出后、脸立马就变得通红、赶紧用手捂住了脸、用尾巴不停地轻轻抽着%CALLNAME:MASTER%的手臂
+					PRINTFORMDW 这样子羞恼的橙、在平时可很少见到呢...%CALLNAME:MASTER%在好好享受了这可爱的表现后、才把满脸通红的橙放了下来 
+				CASE 1
+					PRINTFORMW 「嗯呼呼～%CALLNAME:MASTER%的怀里、真暖和啊...」
+					PRINTFORMDW 在%CALLNAME:MASTER%的拥抱里、小猫妖闭着眼睛露出了微笑
+					PRINTFORMDW 那对毛茸茸的耳朵、也像是趴下来一样、紧紧贴在了%CALLNAME:MASTER%的胸口上
+					PRINTFORMW 「噗通、噗通...%CALLNAME:MASTER%的心、跳得很快呢❤～」
+					PRINTFORMW 「橙的心也一样、噗通噗通的、感觉都快跳出来了呢❤～」
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%从橙的背后伸出双手、揽住了纤细的腰、就这样抱着她
+					PRINTFORMW 「嗯～这样子抱着、橙就看不见%CALLNAME:MASTER%的脸、好可惜...」
+					PRINTFORMW 「但是、这样子橙就能很安心地靠在%CALLNAME:MASTER%的身上了呢...所以也不错啦！」
+					PRINTFORMDW 笑着的小猫妖、把头向后靠在了%CALLNAME:MASTER%的身上、露出了安心的表情
+			ENDSELECT
+		ELSE 
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「在其他人面前被%CALLNAME:MASTER%抱着、感觉有点羞羞的了...」
+					PRINTFORMDW 在%CALLNAME:MASTER%怀里的小猫妖望着四周、脸上微微发红
+					PRINTFORMDW 那要不要就这样放开比较好呢...
+					PRINTFORMW 「啊！不用不用！其实这样子也和橙抱着小家伙们没区别吧？所以就继续抱着嘛！」
+				CASE 1
+					PRINTFORMW 「约会的时候就应该这样抱抱嘛？嗯...好吧！」
+					PRINTFORMDW 橙听了%CALLNAME:MASTER%的话、走过来抱住了%CALLNAME:MASTER%
+					PRINTFORMDW 在怀里的小猫妖实在是很可爱...%CALLNAME:MASTER%忍不住摸了摸她的头
+					PRINTFORMW 「唔嗯...抱着就抱着、%CALLNAME:MASTER%不要摸橙的头啦！弄得橙像个小孩子一样了！」
+					PRINTFORMDW 本来就是小孩子吧...  
+				CASE 2
+					PRINTFORMDW 在橙走在前面的时候、%CALLNAME:MASTER%突然从背后抱了抱她
+					PRINTFORMW 「呜诶？突然就抱过来了！」
+					PRINTFORMDW 橙有些惊讶地看着抱住自己的%CALLNAME:MASTER%、愣在了原地
+					PRINTFORMW 「呜...再这样突然吓橙、下回橙就咬%CALLNAME:MASTER%！」
+					PRINTFORMDW 回过神来的小猫妖、轻轻地用拳头捶了下%CALLNAME:MASTER%的手臂、然后任由%CALLNAME:MASTER%抱着
+			ENDSELECT
+		ENDIF
+	ELSE	
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			SELECTCASE RAND:5
+				CASE 0
+				;公主抱（喜）
+					PRINTFORMDW %CALLNAME:MASTER%抓住橙的身体抬了起来、以公主抱的姿势抱在怀里
+					PRINTFORMW 「哇呀——！又这样子抱着橙起来啦！」
+					PRINTFORMDW 小猫妖的身体十分轻盈、抱起来一点也不吃力、%CALLNAME:MASTER%感觉自己都能抱一整天
+					PRINTFORMW 「真的嘛？嘿嘿～那就尽量多抱抱橙吧！」
+					PRINTFORMW 「橙特别想像这样、在%CALLNAME:MASTER%的怀抱里、一直一直地、温暖地待着呢...」
+					PRINTFORMDW 在%CALLNAME:MASTER%怀抱中的橙、用手勾着%CALLNAME:MASTER%的脖子、紧紧地贴在%CALLNAME:MASTER%的怀里、露出了幸福的笑容
+				CASE 1
+					PRINTFORMW 「呼呼～♪哼哼～♪」
+					PRINTFORMDW 在%CALLNAME:MASTER%怀里的橙、高兴地哼着不知名的曲调
+					PRINTFORMW 「就这样子、和%CALLNAME:MASTER%一起待着、橙就感觉特别幸福呢...」
+					PRINTFORMW 「%CALLNAME:MASTER%也是一样的吧？和橙待在一起就很幸福吧？呼呼～」  
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%从后面抱住了橙、轻轻地在她的后脑勺上蹭着
+					PRINTFORMW 「喵嗯...%CALLNAME:MASTER%简直就像小家伙们一样调皮呢！真是的...不要闹啦！」
+					PRINTFORMDW 小猫妖一边说着像是抱怨的话、一边却用尾巴轻轻地缠住了%CALLNAME:MASTER%的腰、后背也与%CALLNAME:MASTER%的胸口紧密地贴合着
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%特地蹲下、让橙主动抱了过来
+					PRINTFORMW 「嘿嘿～抱住了哦！%CALLNAME:MASTER%感觉怎么样啊？」
+					PRINTFORMDW 不同于平时%CALLNAME:MASTER%主动的怀抱、小猫妖一手抱着%CALLNAME:MASTER%、另一只手在%CALLNAME:MASTER%的后脑勺上摸了起来
+					PRINTFORMDW 而且、比起%CALLNAME:MASTER%平时抱着橙的力度、橙抱着%CALLNAME:MASTER%的力度意外地用得很大...
+					PRINTFORMW 「毕竟橙很怕%CALLNAME:MASTER%就这么溜走了啦...就这样紧紧地抱一会嘛、好不好嘛？」
+				CASE 4
+					PRINTFORMDW %CALLNAME:MASTER%用一只手揽住了橙的纤细腰肢、就这样侧身抱着她
+					PRINTFORMDW 小猫妖也像是回应似的、用尾巴从对侧轻轻地勾住了%CALLNAME:MASTER%的腰、就像手臂抱住%CALLNAME:MASTER%一样
+					PRINTFORMDW 没有言语、%CALLNAME:MASTER%和橙就这样依偎似的互相抱着、度过了一段温馨的时光 
+			ENDSELECT
+		ELSEIF TALENT:24:3 ;只是恋慕
+			SELECTCASE RAND:5
+				CASE 0
+				;公主抱（羞）
+					PRINTFORMDW %CALLNAME:MASTER%看着橙的背影、突然生起了一个有些大胆的想法...
+					PRINTFORMW 「嗯？%CALLNAME:MASTER%在橙的背后想做什么啊——喵呀！！」
+					PRINTFORMDW %CALLNAME:MASTER%突然给小猫妖来了个公主抱、把她高高地抬离了地面
+					PRINTFORMW 「呜啊啊...%CALLNAME:MASTER%突然干什么呀！放橙下来啦！」
+					PRINTFORMDW 那我放下来了哦？
+					PRINTFORMW 「不、不要真放下来啦！...就、就这样继续抱着橙就可以了...呜...」
+					PRINTFORMDW 在%CALLNAME:MASTER%怀抱里的小猫妖声音越来越小、脸也越来越红...
+					PRINTFORMDW 最后干脆紧紧抓住了%CALLNAME:MASTER%的手臂、把脸埋进了%CALLNAME:MASTER%怀里、不再说话了
+				CASE 1
+					
+					PRINTFORMDW %CALLNAME:MASTER%的手紧紧地勒住了小猫妖的纤细腰肢、连尾巴都轻轻地握在了手里 
+					PRINTFORMW 「%CALLNAME:MASTER%抱得真紧啊...这样子的话、橙怎么都逃不出%CALLNAME:MASTER%的怀里啦...」
+					PRINTFORMW 「不过、逃不出也完全没有关系就是啦！嘿嘿～」
+					PRINTFORMDW 在%CALLNAME:MASTER%温暖怀抱里的橙、露出了灿烂的笑容
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%张开双臂、在橙的面前半蹲下来
+					PRINTFORMDW 一下子明白了%CALLNAME:MASTER%的意思、橙立马小跑着钻进了%CALLNAME:MASTER%的怀抱里
+					PRINTFORMW 「哎嘿嘿～♪蓝大人也喜欢这样抱着橙呢...%CALLNAME:MASTER%也喜欢这样子吗？」
+					PRINTFORMDW %CALLNAME:MASTER%点头表示同意、抱着橙转起了圈
+					PRINTFORMW 「呜哇啊——！转起来啦！嘿嘿～喜欢%CALLNAME:MASTER%！」
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%抱住了并排坐着的橙的手臂、轻轻地把头靠在了橙的肩膀上
+					PRINTFORMW 「呜诶？怎么突然这样...%CALLNAME:MASTER%有什么心事吗？」
+					PRINTFORMDW 平时总是像撒娇似的抱着%CALLNAME:MASTER%的小猫妖、这回被%CALLNAME:MASTER%这样抱着、有些意外
+					PRINTFORMW 「有什么事情的话、都可以跟橙说哦...橙一直都是好好地听%CALLNAME:MASTER%说话的呢、这回也不例外！」
+					PRINTFORMDW 看着小猫妖一脸严肃认真的样子、%CALLNAME:MASTER%不禁笑了出来、表示自己只是想平常地抱一抱橙而已
+					PRINTFORMW 「啊、没什么事...只是平常地抱一抱么？嘿嘿～那就好！」
+					PRINTFORMDW 之后和橙互相依偎着、度过了一段悠闲时光  
+				CASE 4
+					PRINTFORMDW %CALLNAME:MASTER%从背后一抱住橙、她的身子就自然地朝着%CALLNAME:MASTER%的怀里倒了过来
+					PRINTFORMW 「就知道是%CALLNAME:MASTER%啦...只有%CALLNAME:MASTER%才会从这里过来抱住橙呢」
+					PRINTFORMW 「总是喜欢在橙的后面做什么嘛...橙也想多看看%CALLNAME:MASTER%的脸啦！」
+					PRINTFORMDW 说着、小猫妖就把身子转了过来、正面朝向%CALLNAME:MASTER%、棕色眼睛与%CALLNAME:MASTER%的对视起来
+					PRINTFORMW 「呼呼...%CALLNAME:MASTER%的脸、橙很喜欢哦！怎么看都看不厌呢！」 
+			ENDSELECT
+		ELSEIF TALENT:24:8 ;思慕
+			SELECTCASE RAND:4
+				CASE 0
+					PRINTFORMDW 从身后抱住了橙、把身体贴在了她的后背上
+					PRINTFORMW 「%CALLNAME:MASTER%好重啊...再靠着橙就要挠你痒痒了！」
+					PRINTFORMDW 小猫妖的尾巴伸向了%CALLNAME:MASTER%的胳肢窝、挠起了%CALLNAME:MASTER%的痒痒
+					PRINTFORMDW 实在没法忍住的%CALLNAME:MASTER%只好大笑着松开了抱着橙的手
+ 				CASE 1
+					PRINTFORMDW 从正面张开双臂、环抱住了橙、橙也高兴地用手臂环抱住了%CALLNAME:MASTER%的腰
+					PRINTFORMW 「呼呼～和蓝大人抱橙的时候一样呢！%CALLNAME:MASTER%也喜欢这样子抱着橙嘛？」
+					PRINTFORMDW 小猫妖毛茸茸的耳朵在%CALLNAME:MASTER%眼前轻轻抖动着、忍不住用手轻轻地抚弄起来
+				CASE 2
+					PRINTFORMW 「%CALLNAME:MASTER%很喜欢这样抱着橙呢」
+					PRINTFORMW 「嗯？和蓝大人比起来怎么样...这有什么好说的啦！抱抱就是抱抱啦！哼！」
+					PRINTFORMDW 不知为什么、小猫妖似乎很讨厌在这点上把%CALLNAME:MASTER%与蓝大人比较...
+					PRINTFORMDW 识趣的%CALLNAME:MASTER%闭上了打算继续询问的嘴
+				CASE 3
+					PRINTFORMW 「呜～抱得太紧了啦！橙又不会跑掉的啊...」
+					PRINTFORMDW 橙用手扒拉起%CALLNAME:MASTER%的手臂、%CALLNAME:MASTER%才刚刚反应过来、赶紧歉意地松开了抱着橙的手
+					PRINTFORMW 「唉？怎么不抱着了...只是想让%CALLNAME:MASTER%松一点而已啦...继续抱一下嘛！」
+					PRINTFORMDW 小猫妖转过来主动抱住了%CALLNAME:MASTER%的身体、轻轻地靠在了%CALLNAME:MASTER%的身上
+			ENDSELECT		
+		ELSE 
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMDW 在橙盯着周围的时候、%CALLNAME:MASTER%悄悄地从背后抱住了橙
+					PRINTFORMW 「喵呀？！%CALLNAME:MASTER%怎么突然抱过来了啊？」
+					PRINTFORMDW 突然被抱住的小猫妖吓得身体都跳了一下
+					PRINTFORMW 「呜、不要这样子啦...橙被吓到的话、会伤到%CALLNAME:MASTER%的哦？」  
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%从正面伸出双手抱住了橙
+					PRINTFORMW 「%CALLNAME:MASTER%这样子抱着橙做什么啊？只是想抱抱？哦...」
+					PRINTFORMDW 不明白%CALLNAME:MASTER%想做什么的小猫妖、茫然地看着%CALLNAME:MASTER%
+				CASE 2
+					PRINTFORMW 「%CALLNAME:MASTER%去找蓝大人要抱抱嘛！紫大人也可以啦！」
+					PRINTFORMW 「反正不要找橙就行啦、这样抱着感觉好累...」
+					PRINTFORMDW 喊着累的小猫妖主动松开了手
+			ENDSELECT
+		ENDIF
+	ENDIF
+
+ENDIF
+RETURN 1
+;==================================================
+;312,接吻
+;TFLAG:193(99=拒絶(接吻不可) 1=大成功 0=成功 -1=失敗)
+;CFLAG:317==2&&TCVAR:20(32=从身前抱住 50=手淫 60=接吻 性交(85=Ｖ挿入状态 87=Ａ挿入状态 88=V插入时动腰 89=A插入时动腰) 86=要求膣内射精)
+;PREVCOM(305=膝枕
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_312
+;成否判定
+;TFLAG:192(-2=强制中止指令、-1＝強制失敗、0=根据COM文件决定、1=強制成功or大成功
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_312
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_312
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_312_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_312_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW	%CALLNAME:MASTER%在时间停止中、抬起了橙的下巴、把嘴唇与那樱桃般的柔软小嘴紧紧地印在了一起
+			PRINTFORMDW 即便小猫妖的身心都已经完全托付给%CALLNAME:MASTER%、这柔软嘴唇的敏感仍然让%CALLNAME:MASTER%难以尽兴
+			PRINTFORMDW 在小猫妖绝对无法动弹的情况下、%CALLNAME:MASTER%含着爱意、用舌头和嘴唇细细地品尝着她口中的每一寸地方
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW %CALLNAME:MASTER%在时间停止之下凑近橙、夺走了她的嘴唇
+			PRINTFORMDW 即使橙已经和%CALLNAME:MASTER%如此亲密、但探索这柔嫩且敏感的口腔、仍然让%CALLNAME:MASTER%兴趣勃勃
+			PRINTFORMDW 就这样在小猫妖绝对不会反抗的情况下、比平时大胆得多地与她的嘴唇紧密接触
+		ELSE
+			PRINTFORMDW %CALLNAME:MASTER%在时停中夺走了橙的嘴唇
+			PRINTFORMDW 平时因为敏感而不会让%CALLNAME:MASTER%碰触的舌头、在时停下任由%CALLNAME:MASTER%摆弄
+		ENDIF	
+	ELSEIF CFLAG:334 ;陪睡中
+		;鉴于陪睡一般只在恋慕后才会出现、我就不做详细的情况差分了（	
+			IF TIME:2 >= 6 && ONCE ("晚安吻") ;晚安吻
+				PRINTFORMW 「要和橙一起睡觉嘛...诶嘿嘿～❤」
+				PRINTFORMDW 在被窝里依偎着的橙、带着十分幸福的表情抬起了小脑袋、挪动着身体凑近了%CALLNAME:MASTER%的脸
+				PRINTFORMW 「那个...睡觉之前...可不可以...再让橙做一件小事呀？呼呼～❤」
+				PRINTFORMDW 没等%CALLNAME:MASTER%做出回复、小猫妖的小嘴就迅速地凑近、轻轻地碰了碰%CALLNAME:MASTER%的嘴唇、然后又迅速地分开了
+				PRINTFORMW 「嗯...这个是...让%CALLNAME:MASTER%和橙都可以安心地睡觉的吻哦...」
+				PRINTFORMW 「希望能让%CALLNAME:MASTER%做个好梦呢...嘿嘿～❤」  
+			ELSE
+				PRINTFORMW 「嗯？%CALLNAME:MASTER%还没亲够嘛...」
+				PRINTFORMDW 看着眼前凑近的嘴唇、橙的小脸一下子变得通红
+				PRINTFORMW 「那就祝%CALLNAME:MASTER%明天也做个好梦吧？嘿嘿～❤」
+				PRINTFORMW 「嗯...❤啾呼...❤嗯喵...❤呼呀...❤嗯...❤再多一点...❤」
+				PRINTFORMDW 回应着%CALLNAME:MASTER%的索求、小猫妖主动把自己的脸凑了过来、延续着睡前甜蜜的柔和亲吻...
+			ENDIF
+			CFLAG:24:1010 += 2
+	ELSEIF CFLAG:313 ;睡眠
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「嗯...嗯？」
+				PRINTFORMDW %CALLNAME:MASTER%轻轻地亲吻了睡梦之中的橙
+				IF TALENT:24:3
+					PRINTFORMW 「呜喵...嘿嘿嘿...」
+					PRINTFORMDW 就像小猫咪一样用手轻轻擦了擦嘴唇、沉睡中的小猫妖露出了幸福的笑容
+				ELSE
+					PRINTFORMW 「嗯...呜呜...」
+					PRINTFORMDW 似乎十分不适应这样的接触、小猫妖皱着眉头不停翻动着身子
+				ENDIF
+			CASE 1
+				PRINTFORMDW %CALLNAME:MASTER%凑近了橙熟睡着的脸庞、用自己的嘴唇与那樱桃小嘴贴在了一起
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「嗯呼...吸溜～吸溜～」
+					PRINTFORMDW 迷迷糊糊的小猫妖、伸出了自己小小的舌头、回应似的轻舔着%CALLNAME:MASTER%的嘴唇...
+				ELSE
+					PRINTFORMW 「嗯...肉肉...啊呜！」
+					PRINTFORMDW 小猫妖张开嘴、用牙齿咬向了%CALLNAME:MASTER%的嘴唇！
+					PRINTFORMDW %CALLNAME:MASTER%赶紧用时停避开了...
+				ENDIF	
+			CASE 2
+				PRINTFORMW 「呼喵...嗯...？」
+				PRINTFORMDW 趁着橙沉睡着的时间、%CALLNAME:MASTER%凑上去与她的可爱嘴唇亲密接触起来...
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「呼...%CALLNAME:MASTER%...喜欢...谢谢...」
+					PRINTFORMDW 松开那可爱的小小嘴唇、睡梦中的小猫妖露出了淡淡的笑容
+				ELSE
+					PRINTFORMW 「呼...嗯...蓝大人...这样...喵...」
+					PRINTFORMDW 松开那可爱的小嘴、小猫妖说起了莫名其妙的梦话...
+				ENDIF
+		ENDSELECT
+	ELSEIF CFLAG:24:4 < 250 || ABL:24:9 < 5 ;在未达到思慕条件前无法接吻
+		TFLAG:193 = 99
+		PRINTFORMDW 现在随便碰橙的嘴唇肯定会被讨厌的...
+		PRINTFORMDW 至少得和橙更加亲密才行
+		TFLAG:192 = -2
+	ELSEIF CFLAG:24:1002 >= 1 ;恋慕相关不高兴已触发
+		TFLAG:193 = 99
+		PRINTFORMDW 若是不把之前的事情好好解决的话、说什么她都不会同意吧...
+		TFLAG:192 = -2
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「嗯？！呜喵？！」
+			PRINTFORMDW 似乎是因为生气而没有注意到%CALLNAME:MASTER%、橙在被夺取嘴唇时露出了明显的惊慌
+			PRINTFORMW 「嗯唔...滋滋...呼嗯...喵唔...哈...」
+			PRINTFORMW 「呜～不准突然亲过来喵！让橙有点准备才行嘛！」
+			PRINTFORMDW 在%CALLNAME:MASTER%的手臂上撒气似的捶了一下、小猫妖就钻进了%CALLNAME:MASTER%的怀里、一边抱怨一边不停蹭着脑袋  
+			PRINTFORMW 「作为补偿什么的...就把这里暂时征用掉好了！呼呼嗯...」
+			PRINTFORMDW 只好顺着怀中小猫的想法、任由她在怀中磨蹭撒娇...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了抱着%CALLNAME:MASTER%的手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「那个...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「哼...」
+			PRINTFORMDW 看着一旁似乎在生闷气的橙、%CALLNAME:MASTER%突然把脸凑过去、轻轻地吻了她一口
+			PRINTFORMW 「诶？！呜喵～？！」
+			PRINTFORMDW 被突然的亲吻吓到了似的、小猫妖突然呆住了一样、愣愣地盯着%CALLNAME:MASTER%看了好一会儿
+			PRINTFORMDW 然后、才顶着一下子烧到耳朵尖的绯红小脸、重重地捶了一下%CALLNAME:MASTER%的胸口、转身紧紧捂住了自己的脸...
+		ELSE
+			PRINTFORMW 「喵嗷～——！！！」
+			PRINTFORMDW 橙突然咬了下%CALLNAME:MASTER%的舌头！
+			BASE:MASTER:0 -= 300
+		ENDIF
+	ELSEIF TALENT:24:6 ;初次接吻
+			TFLAG:192 = 1
+			PRINTFORMDW 在橙的面前慢慢蹲了下来、眼睛直勾勾地与橙的棕色瞳孔对视着
+			PRINTFORMW 「唉？%CALLNAME:MASTER%突然这样子看着橙、是要做什么呀？」
+			PRINTFORMW 「呜哇...眼神好奇怪、有点吓人呢...」
+			PRINTFORMDW 感受到%CALLNAME:MASTER%炽热的目光、小猫妖有些畏惧地微微转头
+			PRINTFORMDW 凑近那微微发红的小小脸蛋、%CALLNAME:MASTER%用手掌托住、把橙的脸轻轻地移了回来
+			PRINTFORMDW 然后、瞄准了那樱桃般小巧的可爱嘴唇、直直地用自己的嘴唇贴了上去
+			PRINTFORMW 「呜喵？！！！」
+			PRINTFORMDW 嘴唇接触的一瞬间、橙惊讶地瞪大了眼睛、全身都随之颤抖了一下、尾巴也像是旗杆一样高高地竖了起来
+			PRINTFORMDW 然后、像是才突然反应过来发生了什么一样、小猫妖慌张地推开了%CALLNAME:MASTER%、捂着自己的嘴一下子跳开了
+			PRINTFORMW 「这、这是做什么呀？！是什么恶作剧吗？！」
+			PRINTFORMW 「呜...这是很重要的东西、不可以恶作剧的啦！」
+			PRINTFORMW 「橙的嘴巴都还没碰过别人...就这样子被%CALLNAME:MASTER%恶作剧夺走了啦！%CALLNAME:MASTER%要怎么赔偿橙呀！呜...%CALLNAME:MASTER%真是坏蛋！」
+			PRINTFORMDW 红透了脸的小猫妖、用猫猫拳不停地捶着%CALLNAME:MASTER%
+			PRINTFORMDW %CALLNAME:MASTER%实在是没有办法、只好用手摸着橙的头、把道歉的词语说了个遍、安抚着发脾气的小猫妖...
+			PRINTFORMW 「哼...看在%CALLNAME:MASTER%这么诚恳的份上、就稍稍原谅你好了！」
+			PRINTFORMW 「虽然、本来橙也不讨厌%CALLNAME:MASTER%这么做就是了...」
+			PRINTFORMDW 是不是听到了什么奇怪的话？
+			PRINTFORMW 「唉？！没、没有！下回再敢这么捉弄、橙就咬你舌头了！哼！」
+			CFLAG:24:1010 += 2 ;双倍进度
+	ELSEIF CFLAG:317 == 1 ;诶嘿嘿 
+		;话说都可以在这种时候亲嘴了的话、是不是一般都触发了下面的内容呢？（
+		;所以暂时先不加记录函数吧
+	ELSEIF CFLAG:317 == 2 	;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20 
+			;从前面抱住了
+			CASE 32
+				PRINTFORMW 	
+			;手淫
+			CASE 50 
+				PRINTFORMW 	
+			;强制接吻
+			CASE 60 
+				PRINTFORMW 	
+			;被V插入
+			CASE 85,88 
+				PRINTFORMW 	
+			;被A插入
+			CASE 87,89
+				PRINTFORMW 	
+			;恳求膣内中出
+			CASE 86 
+				PRINTFORMW 	
+			CASEELSE 	
+				PRINTFORMW 	
+		ENDSELECT
+			CFLAG:24:1010 += 2 ;双倍进度
+	ELSEIF CFLAG:24:1010 >= 50 && FIRSTTIME("渐渐熟悉的舌头") ;接吻累计解锁M相关指令...猫舌没有其他提高舌技术的方法只能看逆推、超级折磨的...
+		PRINTFORMW 「嗯...呼啊...」
+		PRINTFORMDW %CALLNAME:MASTER%像是往常一样、轻轻吻了橙的嘴唇
+		PRINTFORMDW 在刚刚想要分开的时候、%CALLNAME:MASTER%的后脑勺却突然被小猫妖的手轻轻勾住了
+		PRINTFORMDW 疑惑地看向眼前橙的小脸、对方却害羞地避开了视线、沉默了一会才缓缓开口
+		PRINTFORMW 「%CALLNAME:MASTER%...很温柔呢...橙很谢谢...%CALLNAME:MASTER%能这样子做...」
+		PRINTFORMW 「但是、总是让%CALLNAME:MASTER%这样子照顾橙的话...总感觉会欠着%CALLNAME:MASTER%什么呢...」
+		PRINTFORMW 「所以...橙...一定得...这么做了...嗯...」
+		PRINTFORMDW 小猫妖的小手就像是渐渐下定决心一般、慢慢地用力按住了%CALLNAME:MASTER%的头
+		PRINTFORMDW 然后、那红得快滴出血来的柔嫩脸蛋也转了过来、一瞬之间就贴近了%CALLNAME:MASTER%的嘴唇
+		PRINTFORMW 「姆嗯...❤噗啾...噗啾❤...噗滋...滋嘬...❤」
+		PRINTFORMDW 意料之外的猛烈接吻让%CALLNAME:MASTER%都微微有些失神、过了一会才反应过来、那是小猫妖在自己的口腔中、拼命地吻了起来
+		PRINTFORMDW 那细小的敏感舌头、以平时绝对不会达到的激烈程度、缠绕着%CALLNAME:MASTER%的舌尖...
+		PRINTFORMDW 那温软的可爱唇瓣、以仿佛要把%CALLNAME:MASTER%吃掉的气势、吸吮着%CALLNAME:MASTER%的唾液...
+		PRINTFORMW 「嗯呜啊...❤！噗啾...❤！滋滋...❤！咕嗯...❤！」
+		PRINTFORMDW 即便身体开始大幅度地颤抖、尾巴上的毛发也因刺激而微微地炸开、橙也依旧保持着激烈的接吻姿态、紧紧地按着头、不让%CALLNAME:MASTER%逃离分毫
+		PRINTFORMDW 在这绝对不会出现在平时的小猫妖身上的激烈深吻中、%CALLNAME:MASTER%感觉自己的神志也变得模糊起来...
+		PRINTL 
+		PRINTFORMDW ......  
+		PRINTL
+		PRINTFORMW 「嗯...噗哈啊...❤哈啊...呼啊...嗯...❤」
+		PRINTFORMDW 这次接吻过去了多久？就连%CALLNAME:MASTER%一时也弄不清楚...唯一的记忆、仿佛只有那深深刻在了舌头上的柔软触感
+		PRINTFORMDW 以至于、当橙已经把舌头伸出%CALLNAME:MASTER%的口腔、牵出一条银色丝线的时候、%CALLNAME:MASTER%都感觉还在继续着接吻而活动着舌头
+		PRINTFORMDW 直到小猫妖无力地靠在%CALLNAME:MASTER%肩膀上、发出着精疲力尽的断续喘息、那不停颤抖着的触感和散发着浓郁奶油香气的女孩气味才把%CALLNAME:MASTER%拉回了现实
+		PRINTFORMDW 一句话都没说、%CALLNAME:MASTER%轻轻摸着橙颤抖着的耳朵、用动作夸赞着她的努力...
+		PRINTL
+		PRINTFORMW 「嘿嘿...橙的舌头...记住%CALLNAME:MASTER%了呢...」
+		PRINTFORMW 「一切的一切、统统都记住了哦...」
+		PRINTFORMW 「这样的回礼...%CALLNAME:MASTER%一定会喜欢的吧...嘿嘿...❤」
+		PRINTL
+		CALL COLORMESSAGE("橙的舌头不再抗拒你的接触了...",C_PINK,2,1)  
+		ABL:24:51 = 2
+		CFLAG:24:2 += 50
+		CFLAG:24:4 += 25
+	ELSEIF TCVAR:24:352 == 0 ;每日初次接吻
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMW 「今天的亲亲！%CALLNAME:MASTER%还没有交上来哦！」
+			PRINTFORMDW 橙主动拉住了%CALLNAME:MASTER%的手、把%CALLNAME:MASTER%拽到了面前、然后用自己的小嘴印上了%CALLNAME:MASTER%的嘴唇
+			PRINTFORMW 「嗯...啾啾～❤呼～❤」
+			PRINTFORMDW 小猫妖主动把细小的舌头伸进了%CALLNAME:MASTER%的口中、与%CALLNAME:MASTER%的舌头纠缠起来
+			IF ABL:24:51 >= 2
+				PRINTFORMW 「嗯呼...❤喵嗯...❤呼呼...❤」
+				PRINTFORMDW 橙敏感的细小舌头早已熟悉%CALLNAME:MASTER%的接触、二人沉浸在深吻之中...
+				PRINTFORMW 「嗯唔...❤噗哈...❤呼——❤」
+				PRINTFORMDW 不知过了多久、小猫妖才不舍地分开了嘴唇、舌尖架起细细的银桥、仿佛诉说着二人之间那绵密的情意
+				PRINTFORMW 「嘿嘿...最喜欢%CALLNAME:MASTER%了...❤」
+				PRINTFORMDW 满脸通红的橙用嘴又亲了一下%CALLNAME:MASTER%的脸、然后才心满意足一般钻进了%CALLNAME:MASTER%的怀里
+			ELSE
+				PRINTFORMW 「嗯唔...❤！呼啊...❤！嗯嗯～❤！」
+				PRINTFORMDW 试着与那伸入口中的敏感猫舌互动、轻轻摩擦着那细小的柔软尖刺、小猫妖就随之浑身颤抖起来、呼吸声也变得紊乱了
+				PRINTFORMW 「喵哈...❤！不、不行了啦...❤」
+				PRINTFORMDW 轻轻推开了%CALLNAME:MASTER%的舌头、分开了嘴唇、橙就像是被抽走了全部的力气一样压在了%CALLNAME:MASTER%的身体上
+				PRINTFORMW 「呜呜...总是不能让%CALLNAME:MASTER%尽兴...讨厌...」
+				PRINTFORMDW 已经足够努力了啦...%CALLNAME:MASTER%一边轻轻抚摸着那对抖动着的耳朵、一边安抚着自怨自艾的小猫妖
+			ENDIF
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「想和橙亲亲？嗯...可以哦...」
+			PRINTFORMDW 脸上已经泛红的小猫妖闭上双眼、背上双手、抬起头嘟起小嘴等待着%CALLNAME:MASTER%的亲吻...
+			PRINTFORMDW %CALLNAME:MASTER%为了不辜负橙的期望、用尽可能轻柔的方式、亲吻了那嘟着的可爱小嘴
+			PRINTFORMW 「嗯...%CALLNAME:MASTER%、真温柔呢...谢谢...」
+			PRINTFORMDW 睁开眼睛的橙、柔声说出感谢话语、然后一头钻进了%CALLNAME:MASTER%的怀抱之中 	
+		ELSEIF TALENT:24:8 ;思慕
+			PRINTFORMDW %CALLNAME:MASTER%突然拉住了橙的手、让小猫妖的小脸凑到了眼前
+			PRINTFORMW 「嗯？%CALLNAME:MASTER%要做什么...啾呜～？！」
+			PRINTFORMW 「嗯呼...喵哈...%CALLNAME:MASTER%又捉弄橙！呜...大坏蛋！」
+			PRINTFORMDW 看着面前已经分开嘴唇、朝自己微笑着的%CALLNAME:MASTER%、橙发出了生气的娇嗔 
+		ELSE
+			PRINTFORMW 「喵呀？！」
+			PRINTFORMDW 被%CALLNAME:MASTER%亲吻的橙愣在了原地、连尾巴都高高翘了起来
+			PRINTFORMW 「呜...%CALLNAME:MASTER%真烦人！嘿——！」
+			PRINTFORMDW 回过神来的小猫妖按住帽子、朝着%CALLNAME:MASTER%的肚子顶了过去！
+		ENDIF
+		TCVAR:24:352 = 1
+		CFLAG:24:1010 += 3 ;三倍进度
+	ELSE ;通常接吻
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			IF ABL:24:51 >= 2 ;已经熟悉了舌吻
+			SELECTCASE RAND:5
+				CASE 0
+					PRINTFORMW 「咕啾...嗯姆...」
+					PRINTFORMDW 与橙的嘴唇刚一接触、那柔软的细小舌头就滑进了%CALLNAME:MASTER%的口中、与%CALLNAME:MASTER%的舌尖贴在了一起
+					PRINTFORMW 「嗯...啾啾...%CALLNAME:MASTER%的味道...再让橙好好地尝一尝吧...吸溜...噗啾...」
+					PRINTFORMDW 小猫妖的舌尖环绕着%CALLNAME:MASTER%的舌头舔弄起来、细细品尝着互相交换的唾液...
+					PRINTFORMDW 不由自主地与那挑逗着的舌尖纠缠起来、在柔软的温热触感下、融化般的感觉从舌头延伸、遍布全身...
+				CASE 1
+					PRINTFORMW 「橙想和%CALLNAME:MASTER%亲亲了...呐、可以的吧？快点来和橙亲亲嘛...！」
+					PRINTFORMDW 小猫妖顶着泛红的脸颊、轻轻地蹭着%CALLNAME:MASTER%的胸口、央求着%CALLNAME:MASTER%
+					PRINTFORMDW 回应了橙急切的请求、%CALLNAME:MASTER%轻轻地托住了橙的脸蛋、在她满怀期待的水润目光中、夺取了那可爱的嘴唇
+					PRINTFORMW 「唔...噗啾...❤滋滋...❤吸溜溜...呼哈啊...❤」
+					PRINTFORMDW 即使在这样缠绵着的深吻中、小猫妖也没有闭上眼睛、而是用那已经蒙上了浓厚水雾的棕色眼眸、直勾勾地与%CALLNAME:MASTER%对视着
+					PRINTFORMDW 就这样直视着眼瞳、索求着唇舌、橙和亲爱之人持续着交流着身心的、深情的接吻、直到快要窒息的极限才不舍地分开嘴唇...
+				CASE 2
+					PRINTFORMW 「想要亲亲嘛～呼呼...请～❤」
+					PRINTFORMDW 橙像是调皮的小孩子那样、抿着嘴唇微微吐出了小巧的舌尖、朝%CALLNAME:MASTER%眨了眨眼
+					PRINTFORMDW 主动叼住那可爱的柔嫩舌尖、不停地吸吮着那带着微微甜味的唾液、挑弄着敏感的细小肉刺
+					PRINTFORMW 「咿呀...❤喵呼...❤咕啊...❤%CALLNAME:MASTER%讨厌...❤布要欺负舌头啦...❤要肿掉惹...❤」
+					PRINTFORMDW 因为%CALLNAME:MASTER%的挑拨而微微颤抖着身体的橙、嘴上说着生气似的话语、手却轻轻地环抱住%CALLNAME:MASTER%的腰身、把二人紧紧贴在了一起...	
+				CASE 3
+					PRINTFORMW 「噗哈～❤%CALLNAME:MASTER%～❤」
+					PRINTFORMDW 亲吻完的橙、用迷离的眼神看着%CALLNAME:MASTER%的嘴唇、把手指轻轻地按了上去
+					PRINTFORMW 「好想好想、就这样和%CALLNAME:MASTER%一直亲下去呢...❤让%CALLNAME:MASTER%永远都离不开橙...❤」
+					PRINTFORMW 「让%CALLNAME:MASTER%只记得橙一个人...❤直到永远...❤」
+					PRINTFORMDW 小猫妖紧贴着%CALLNAME:MASTER%、就像是说着梦话一般自言自语...
+				CASE 4
+					PRINTFORMW 「呼呀...❤啾噜噜...❤」
+					PRINTFORMDW 亲吻橙的想法刚刚冒出脑海、%CALLNAME:MASTER%的嘴唇就被突然的柔软触感堵住了
+					PRINTFORMDW 小猫妖主动地亲吻着%CALLNAME:MASTER%、把舌头伸进了%CALLNAME:MASTER%口腔中搅弄起来
+					PRINTFORMW 「是不是又猜到了%CALLNAME:MASTER%的想法啦...呼呼～❤」
+					PRINTFORMW 「这样子的%CALLNAME:MASTER%特别可爱呢...❤啾...❤」
+					PRINTFORMDW 意外地被小猫妖夺取了主动权...%CALLNAME:MASTER%只好闭着眼睛、享受着由小猫妖主动的亲密接吻 
+			ENDSELECT
+			ELSE ;还没有熟悉
+			SELECTCASE RAND:5
+				CASE 0
+					PRINTFORMW 「呜呼...啾～吸溜～」
+					PRINTFORMDW 与%CALLNAME:MASTER%拥吻着的橙、紧紧地抱住了%CALLNAME:MASTER%的后脑勺
+					PRINTFORMDW 像是要反复确认亲爱之人嘴唇的味道一样、小猫妖伸出柔嫩的小舌头、不停舔舐着%CALLNAME:MASTER%的嘴唇...
+					PRINTFORMDW 不由得伸出舌头、回应似的挑弄着那敏感的舌尖、橙的身子随之微微颤抖起来、松开了紧贴着的小小嘴唇
+					PRINTFORMW 「喵啊...不、不要舔舌头啦...实在是...不行的喵...呜呜...」
+					PRINTFORMW 「橙已经、很努力地去做了啦...但是舌头...还是受不了啦...」
+					PRINTFORMDW 红透了脸的小猫妖、带着像是要哭出来的语气朝抱着自己的%CALLNAME:MASTER%轻声抱怨着...
+					PRINTFORMDW %CALLNAME:MASTER%轻轻地拍着小猫妖的头、安慰着努力的小猫妖
+				CASE 1
+					PRINTFORMW 「是想要亲亲了嘛？嗯...」
+					PRINTFORMDW 看着凑过来的%CALLNAME:MASTER%、橙闭上了眼睛、静静等待着%CALLNAME:MASTER%的吻
+					PRINTFORMDW 看着那可爱的样子、%CALLNAME:MASTER%不由得使起了坏、把手指捏在一起贴向了小猫妖的嘴
+					PRINTFORMW 「嗯...嗯？好像不太对...」
+					PRINTFORMDW 亲了一会才察觉到异样而睁开眼睛的小猫妖、反应过来的一瞬间就羞红了脸
+					PRINTFORMW 「呜呜呜～！%CALLNAME:MASTER%又捉弄橙...」
+					PRINTFORMW 「就这样认认真真地亲一下橙就行了啦！%CALLNAME:MASTER%真是坏心眼！」
+					PRINTFORMDW 娇嗔着的橙飞快地扑向了%CALLNAME:MASTER%的脸、夺取了%CALLNAME:MASTER%的嘴唇
+					PRINTFORMW 「哼...这样就扯平了！」
+				CASE 2
+					PRINTFORMW 「嗯哈...啾啾～呼嗯...」
+					PRINTFORMDW 刚刚结束一次亲吻、橙就意犹未尽似的、重新贴上了%CALLNAME:MASTER%的嘴唇
+					PRINTFORMW 「呼哈...和%CALLNAME:MASTER%的亲亲...橙怎么感觉都不够呢...❤」
+					PRINTFORMW 「所以、再多多地和橙亲亲吧...啾❤」
+					PRINTFORMDW 真是贪心的小猫妖啊...%CALLNAME:MASTER%配合着橙笨拙的索求动作、直到她满足地分开嘴唇 
+				CASE 3
+					PRINTFORMW 「呐呐、%CALLNAME:MASTER%！快看过来嘛！」
+					PRINTFORMDW 橙不停地用手指轻轻戳着%CALLNAME:MASTER%的脸、让%CALLNAME:MASTER%转头过来
+					PRINTFORMDW 疑惑的%CALLNAME:MASTER%刚转过头去、就碰上了小猫妖柔软的小嘴
+					PRINTFORMW 「啾...❤骗到%CALLNAME:MASTER%了呢！嘿嘿～❤」
+					PRINTFORMDW 小猫妖用食指按住了嘴唇、朝%CALLNAME:MASTER%露出了得逞的笑容...  
+				CASE 4
+					PRINTFORMW 「想和橙亲一下嘛？随时都可以的啦！嘿嘿～」
+					PRINTFORMDW 听到了%CALLNAME:MASTER%的要求、小猫妖就露出了笑容、把小脸主动凑了过来
+					PRINTFORMDW 看着那泛红的可爱脸蛋、%CALLNAME:MASTER%不禁先上去亲了一口、然后再用双手捧起、与橙的嘴唇相印
+					PRINTFORMW 「嗯...❤啾啾...❤嗯❤」
+					PRINTFORMW 「噗啊...呼～❤谢谢%CALLNAME:MASTER%～❤」
+					PRINTFORMDW 分开嘴唇的时候、橙发出了像是做了美梦一般、满足的温热吐息   
+			ENDSELECT
+			ENDIF
+		ELSEIF TALENT:24:3 ;恋慕 
+			SELECTCASE RAND:5
+				CASE 0
+					PRINTFORMW 「嗯...呼啊...啾...」
+					PRINTFORMDW 接受着%CALLNAME:MASTER%的吻、橙的双手不由自主地勾住了%CALLNAME:MASTER%的脖子、尾巴则缠上了%CALLNAME:MASTER%的腰间
+					PRINTFORMW 「喵哈...❤%CALLNAME:MASTER%...不要走嘛...继续亲一下橙吧...❤」
+					PRINTFORMDW 露出迷离表情的小猫妖主动凑了上来、像小鸟啄食一样亲吻着%CALLNAME:MASTER%的嘴唇  
+				CASE 1
+					PRINTFORMW 「呜呜...！喵呼呼...！」
+					PRINTFORMDW %CALLNAME:MASTER%把橙的唇瓣顶开、用柔软的舌头轻轻地与橙那细小的舌头接触起来
+					PRINTFORMDW 敏感的舌尖被%CALLNAME:MASTER%不停挑拨着、小猫妖的身体都随着颤抖起来
+					PRINTFORMW 「呜...噗哈...喵呜啊...不、不行了啦...」
+					PRINTFORMDW 分开嘴唇的那一刻、橙的身体一下子就倒向了%CALLNAME:MASTER%、连那尾巴都瘫软下来、像面条一样耷拉在橙的身后
+				CASE 2
+					PRINTFORMDW %CALLNAME:MASTER%搂住了橙、俯下身去亲吻那可爱的小嘴
+					PRINTFORMW 「嗯...呼呼...啾...」
+					PRINTFORMDW 开始还有些微微反抗的小猫妖、渐渐地在接吻中放松了身体、整个身子靠在了%CALLNAME:MASTER%的胸口上
+					PRINTFORMW 「呜...呜啊...晕、晕掉了啦...都怪%CALLNAME:MASTER%...」
+					PRINTFORMDW 等到二人分开嘴唇、小猫妖的全身都变得软趴趴的了...
+				CASE 3
+					PRINTFORMW 「想要亲亲嘛...嗯...可、可以哦！」
+					PRINTFORMDW 橙有些慌张地躲避着%CALLNAME:MASTER%的视线、同意了%CALLNAME:MASTER%的要求
+					PRINTFORMW 「呜、这、这回让橙来亲%CALLNAME:MASTER%吧？」
+					PRINTFORMDW 这样说着的小猫妖、主动朝%CALLNAME:MASTER%的嘴唇伸了过去、贴在了一起
+					PRINTFORMW 「啾...呼...可以了哦...！」
+					PRINTFORMDW 橙轻轻地碰碰%CALLNAME:MASTER%的嘴唇、就立马偏过头去分开了嘴唇
+					PRINTFORMW 「呜啊...不、不可以继续了啦！再亲的话感觉都要晕掉了啦！」
+				CASE 4
+					PRINTFORMDW %CALLNAME:MASTER%向橙询问着能不能接吻...
+					PRINTFORMW 「唉？这、这种事情...啾呜～？！」
+					PRINTFORMDW 趁着小猫妖犹豫的瞬间、%CALLNAME:MASTER%不等回复就直接亲了上去
+					PRINTFORMDW 像是呆掉了的小猫妖任由%CALLNAME:MASTER%亲吻着、直到%CALLNAME:MASTER%伸进嘴里的舌头缠上了自己敏感的舌尖才如梦初醒、赶紧推开了%CALLNAME:MASTER%
+					PRINTFORMW 「喵...喵呜啊...这样子...呜呜...%CALLNAME:MASTER%...」
+					PRINTFORMDW 脸上冒出蒸汽的橙把脸紧紧地捂住、尾巴绞成了麻花、支支吾吾半天也说不出一句话来... 
+			ENDSELECT
+		ELSEIF TALENT:24:8 ;思慕
+				SELECTCASE RAND:4
+				CASE 0
+					PRINTFORMW 「喵啊...又、又来！」
+					PRINTFORMDW %CALLNAME:MASTER%刚亲了下橙的嘴唇、橙的小脸就一下子变红了
+					PRINTFORMW 「呜...%CALLNAME:MASTER%真是的...橙要用尾巴抽你！」
+					PRINTFORMDW 小猫妖撒气似的用尾巴轻轻抽打着%CALLNAME:MASTER%  
+				CASE 1
+					PRINTFORMW 「唔嗯...啾...」
+					PRINTFORMDW %CALLNAME:MASTER%按住了橙的肩膀、用自己的嘴唇印上了橙的小嘴
+					PRINTFORMW 「嗯嗯...！不行...！」
+					PRINTFORMDW 只是把舌头微微伸进小猫妖的口腔、橙就十分慌张地推开了%CALLNAME:MASTER%
+					PRINTFORMW 「不、不要碰舌头啦！那里很敏感的啦...」
+				CASE 2
+					PRINTFORMW 「呜喵？！呜...%CALLNAME:MASTER%又这样子恶作剧！」
+					PRINTFORMW 「明明橙都没有经常这样子捉弄%CALLNAME:MASTER%的...」
+					PRINTFORMDW 小猫妖鼓着小脸、有些生气地瞪着%CALLNAME:MASTER% 
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%在橙的面前俯下身子、凑近了橙的小嘴
+					PRINTFORMW 「呼嗯...」
+					PRINTFORMDW 看着%CALLNAME:MASTER%的小猫妖、愣愣地接受了%CALLNAME:MASTER%的吻
+					PRINTFORMW 「...哇啊！%CALLNAME:MASTER%又亲了橙...呜...」
+					PRINTFORMDW 待到%CALLNAME:MASTER%的嘴唇分离、橙才像刚刚醒过来一样、捂住了早已红透了的脸蛋
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「喵哇！呜～又来！」
+					PRINTFORMDW 捂住小嘴的橙、生气地瞪大了眼睛盯着%CALLNAME:MASTER%
+					PRINTFORMW 「都说过不行的啦！呜...」
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%突然亲向橙的小嘴
+					PRINTFORMDW 在唇上的柔嫩触感只停留了一瞬、反应过来的小猫妖就立马跳开了
+					PRINTFORMW 「呜...！再这样橙就真的要咬%CALLNAME:MASTER%了哦！」
+					PRINTFORMDW 小猫妖张大嘴巴、朝%CALLNAME:MASTER%露出了嘴里尖尖的牙齿 
+				CASE 2
+					PRINTFORMDW 在橙发呆的时候、%CALLNAME:MASTER%突然亲了她一口
+					PRINTFORMW 「唔唉唉？！」
+					PRINTFORMDW 小猫妖发出了惊讶的声音、愣了一会、然后鼓起了小脸、捶了%CALLNAME:MASTER%一下
+					PRINTFORMW 「又做这种事情！呜...%CALLNAME:MASTER%真讨嫌！」 
+			ENDSELECT
+		ENDIF
+		CFLAG:24:1010 += 1 ;通常进度
+	ENDIF 
+ENDIF
+RETURN 1
+;==================================================
+;313,胸愛撫
+;CFLAG:317==2&&TCVAR:20(27=展示乳沟 33=要求摸胸部 53=乳交 73=洗面奶（用胸部搓脸） 77=要求吸乳头 性交(85=Ｖ挿入状态 87=Ａ挿入状态 88=V插入时动腰 89=A插入时动腰) 86=要求膣内射精)
+;ABL:Ｂ感覚(2未満=很痒似的 5未満=有点舒服 5以上=感觉到快感)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;乳交有较多地文差分，需要参考ERB\口上・メッセージ関連\EVENT_MESSAGE_COM_セクハラ.ERB
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_313
+;成否判定
+;TFLAG:192(-1＝強制失敗
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_313
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_313
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_313_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_313_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW 在时间停止之下、%CALLNAME:MASTER%从背后抱住了橙、如同平时一般伸手玩弄起那对可爱的小巧胸部、不时用手指轻轻捏住挺立的小樱桃转动爱抚
+			PRINTFORMDW 虽然时停中静止的小猫妖没法做出平时的可爱反应、但%CALLNAME:MASTER%仍然持续着手上的动作...
+			PRINTFORMDW 解除了时停后、眼前的小猫究竟会露出怎样美味的表情呢...想象着可能场景的%CALLNAME:MASTER%发出了满足的叹息
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW 在时停下凑近静止的橙、伸手玩弄起了那对如同尚未发育的孩子一般的贫乳
+			PRINTFORMDW 即使在时停之中、橙的身体也仿佛对%CALLNAME:MASTER%的爱抚产生了本能般的反应、微微颤抖着...
+			PRINTFORMDW 用手掌整个盖住了小猫妖的可爱贫乳、来回搓弄揉捏、好好地享受了一番才停下了手 
+		ELSE
+			PRINTFORMDW 在时停之中、%CALLNAME:MASTER%把手伸向了橙的胸部
+			PRINTFORMDW 尽管小猫妖的胸部没有明显的起伏、接触时传来的感觉却意外地柔软...
+			PRINTFORMDW 毫不顾忌地揉捏起这对可爱的小胸、直到衣服都被揉得皱巴巴的才停下了手
+		ENDIF 	
+	ELSEIF CFLAG:313		;睡眠
+		SELECTCASE RAND:3
+			CASE 0	
+				PRINTFORMDW 凑近了睡梦中的橙、把手悄悄伸进被窝之中、摸索着接触到了胸前那对尚未发育一般的柔软
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「呜嗯...%CALLNAME:MASTER%...呀嗯...」
+					PRINTFORMDW 随着%CALLNAME:MASTER%的轻抚、小猫妖的脸上渐渐染上了红霞、原本均匀的呼吸也变得加快了许多...
+				ELSE 
+					PRINTFORMW 「呜喵...你们...别闹啦...！」
+					PRINTFORMDW 皱着眉头的小猫妖嘟囔着模糊的梦话、抓着手臂移开了%CALLNAME:MASTER%的手掌
+					PRINTFORMDW 似乎是把自己的手当成了哪只喜欢钻进被窝里的小猫呢...  
+				ENDIF
+			CASE 1	
+				PRINTFORMW 「喵嗯...呜呼...」
+				PRINTFORMDW 朝着熟睡的橙小心地伸出手指、触碰起睡衣之下的小巧胸部
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「嗯...多、多摸摸...呼呼～...❤」
+					PRINTFORMDW 睡梦中的小猫妖如同反射一般迅速地盘起身子、把%CALLNAME:MASTER%的手牢牢地抱在了怀里、红着小脸露出了笑容...
+					PRINTFORMDW 动弹不得的%CALLNAME:MASTER%、干脆顺着橙的要求、好好地爱抚了一番可爱的贫乳
+				ELSE 
+					PRINTFORMW 「呜嗯嗯...！」
+					PRINTFORMDW 被陌生触感影响的小猫妖迅速转动身子、把%CALLNAME:MASTER%的手压在了身子下面...
+					PRINTFORMDW 担心被发现的%CALLNAME:MASTER%立马用时停抽出了手掌
+				ENDIF
+			CASE 2
+				PRINTFORMW 「嗯唔...嗯？」
+				PRINTFORMDW 从侧卧着的橙的身后抱住了她、顺势用手指玩弄起了那对贫乳的尖端
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「唔唔...嗯...喵唔呼～...哈...❤」
+					PRINTFORMDW 即使在睡梦之中、小猫妖也顺着%CALLNAME:MASTER%揉搓小小樱桃的节奏、发出了轻柔的喘息... 
+				ELSE 
+					PRINTFORMW 「呜喵呀...还、还没长大啦...不要量了喵...」
+					PRINTFORMDW 小猫妖一边嘟囔着奇妙的梦话、一边扭动身体挣开了%CALLNAME:MASTER%的骚扰
+				ENDIF
+		ENDSELECT 	
+	ELSEIF CFLAG:317 == 2		;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20 
+			;挤乳沟
+			CASE 27
+				PRINTFORMW 	
+			;要求揉胸
+			CASE 33
+				PRINTFORMW 	
+			;乳交
+			CASE 53
+				PRINTFORMW 	
+			;埋胸
+			CASE 73
+				PRINTFORMW 	
+			;互相磨乳房
+			CASE 74
+				PRINTFORMW 	
+			;吸乳头
+			CASE 77 
+				PRINTFORMW 	
+			;被V插入
+			CASE 85,88 
+				PRINTFORMW 	
+			;被A插入
+			CASE 87,89
+				PRINTFORMW 	
+			;恳求膣内中出
+			CASE 86 
+				PRINTFORMW 	
+			CASEELSE 
+				PRINTFORMW 	
+		ENDSELECT
+	;关于恋慕不高兴、似乎由于生气情况所以不会触发进一步的性骚扰...所以就不写了（
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「喵哇啊！%CALLNAME:MASTER%要做什么啊！」
+			PRINTFORMDW 突然被%CALLNAME:MASTER%从身后贴了上来、之前还在生着闷气的橙也不禁慌张起来
+			PRINTFORMDW 故意把手掌盖在了那对恰到好处的小巧胸部之上、轻轻地来回抚摸揉捏起来...
+			PRINTFORMW 「呜喵哇...呀...原、原来是打算这样子喵...姆～%CALLNAME:MASTER%也真是的...」
+			PRINTFORMDW 鼓起发红小脸的小猫妖伸出双手、把%CALLNAME:MASTER%的手掌牢牢地按在了自己的胸口上
+			PRINTFORMW 「不、不是不准%CALLNAME:MASTER%摸啦...只是、橙现在还没有那个心情...」
+			PRINTFORMW 「所以啦...就这样子、稍微抱一抱橙...好不好嘛～...」
+			PRINTFORMDW 看着抬起脑袋、带着恳求一般的眼神看着自己的小猫妖、%CALLNAME:MASTER%也只好暂时停下不老实的手上动作、默默地抱住对方安抚起来...      
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「那个...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「咿喵呀啊！！！」
+			PRINTFORMDW 被%CALLNAME:MASTER%摸到胸口的一瞬间、橙就突然弹簧一样跳到了远处
+			PRINTFORMW 「呜呜呜～～！%CALLNAME:MASTER%...不要突然做这种讨厌的事情啦！」
+			PRINTFORMW 「突然摸橙的胸...橙会很困扰的啦！哼！」
+			PRINTFORMDW 后知后觉的小猫妖、带着些许恼怒的表情、钻进了%CALLNAME:MASTER%的怀里、不停挥舞着猫猫拳捶着胸口   
+		ELSE
+			PRINTFORMW 「呜喵嗷嗷～——！！！」
+			PRINTFORMDW 橙突然用爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+			BASE:MASTER:0 -= 300
+		ENDIF
+	ELSEIF NOWEX:3  ;性骚扰时绝顶...某种意义上也是本人XP吧（
+		IF TALENT:24:3 ;限制恋慕以上触发
+			IF ABL:24:3 > 5 ;有一定开发的阶段  
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呼嗯啊❤...胸部...唔嗯哇❤...！」
+					PRINTFORMDW 只是轻轻隔着衣服抚弄着前胸、橙的身体就随着快感而微微颤抖、散发出了微妙的灼热气息...
+					PRINTFORMW 「明明还隔着衣服的❤...怎么会...呼嗯呀❤...嗯喵哇❤...」
+					PRINTFORMW 「%CALLNAME:MASTER%❤...要去了❤...呜喵哇嗯嗯❤❤！！」
+					PRINTFORMDW 早已濒临极限的小猫妖、只是因为%CALLNAME:MASTER%挑逗般的轻抚、就剧烈地颤抖着娇小身躯、达到了高潮...
+					PRINTFORMW 「呼哈❤...嗯喵❤...隔着衣服也...呜喵❤...%CALLNAME:MASTER%❤...」
+					PRINTFORMDW 沉浸在高潮余韵之中的小猫妖、不停地在%CALLNAME:MASTER%耳边呢喃着...  
+				CASE 1
+					PRINTFORMW 「呜哇啊啊❤～...胸部、感觉要变得怪怪的啦❤...唔嗯呀❤...」
+					PRINTFORMDW 依偎在身侧的橙带着迷离的眼神凝视着%CALLNAME:MASTER%在自己胸前揉捏的双手、毫不掩饰地发出了甜美的娇柔喘息
+					PRINTFORMDW 欣赏着小猫妖沉醉于快感的红润小脸、手上的动作便不自觉地加快起来...
+					PRINTFORMW 「呜喵呀呀❤～不行、不行了喵❤...橙要去了喵❤...呼喵呜呀呀❤❤！！」
+					PRINTFORMW 「呼喵喵❤...唔❤...%CALLNAME:MASTER%❤...好舒服❤...呼呼❤...」
+					PRINTFORMDW 无力地瘫在肩上的小猫妖、挂着尚未散去的潮红脸颊、如同受宠的小猫一般不停磨蹭着%CALLNAME:MASTER%的脖颈...
+				CASE 2
+					PRINTFORMW 「呜喵呀❤...！胸口...被%CALLNAME:MASTER%摸着❤...好暖和、好舒服❤...呼嗯呀❤...」
+					PRINTFORMDW 挂着几乎融化的表情、橙主动伸手抓住了%CALLNAME:MASTER%的手腕、紧紧贴在了自己的胸上、如同渴求爱抚般来回挪动着
+					PRINTFORMDW 看着小猫妖的痴态、%CALLNAME:MASTER%回应一般挑动手指、开始不紧不慢地玩弄起胸前那对小小樱桃
+					PRINTFORMW 「呜哇哇❤...呼喵呀❤...更多...再快一点❤...呼咿喵呀呀❤❤！！」
+					PRINTFORMW 「呼哈❤...呼喵哈❤...去了喵❤...%CALLNAME:MASTER%❤...不要停手嘛❤...呼嗯呀❤...再多摸摸❤...呼诶嘿嘿❤...」
+					PRINTFORMDW 刚刚高潮过的小猫妖、带着尚未散去的迷离眼神、不停要求着继续爱抚... 
+				ENDSELECT
+			ELSE ;未开发的阶段
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呜哈...？%CALLNAME:MASTER%...稍微等一下...呜❤...！」  
+					PRINTFORMDW 被胸口逐渐累积的快感挑弄着、小猫妖捂着通红小脸、从指缝间不时漏出困惑娇吟
+					PRINTFORMDW 确认了眼前小猫正顺着自己的爱抚而渐渐达到极限、%CALLNAME:MASTER%伸出手指、朝着布料下胸部尖端的位置用力地夹弄起来
+					PRINTFORMW 「嗯喵哇...！不要...这样子...有什么要...呜嗯嗯❤...！」
+					PRINTFORMDW 随着乳首的揉捏、小猫妖一下子蜷缩起了身子、发出了颤抖着的娇呼迎来了绝顶...
+					PRINTFORMW 「呜哈❤...呼喵❤...这个...好奇怪...到底...是什么呀...」
+					PRINTFORMDW 浑身无力的小猫妖瘫在了%CALLNAME:MASTER%的怀里、如同埋怨一样闷着声音低语着...  
+				CASE 1
+					PRINTFORMW 「感觉、好奇怪...胸口麻麻的...唔呀❤...哈啊❤...」
+					PRINTFORMDW 随着%CALLNAME:MASTER%抚摸胸口的动作、橙的身体一跳一跳地颤抖起来、似乎快要高潮了呢...
+					PRINTFORMW 「喵咿呀！%CALLNAME:MASTER%不要捏——嗯唔呀❤...！」
+					PRINTFORMDW 只是稍稍用力地捏了捏小猫妖的柔软胸部、她就发出了绵软的娇喘、弓着身体迎来了绝顶...
+					PRINTFORMW 「呜呜❤...都说了...不要捏啦...%CALLNAME:MASTER%真是的...大坏蛋...」
+					PRINTFORMDW 渐渐从高潮余韵中舒缓过来的橙、立马鼓起了羞红的小脸、责怪似的轻轻捶打着%CALLNAME:MASTER%的手臂...
+				CASE 2
+					PRINTFORMW 「唔、呜呀...%CALLNAME:MASTER%...不要再摸啦...橙感觉怪怪的...呜哈❤...」
+					PRINTFORMDW 无力地抓住%CALLNAME:MASTER%按在自己胸前的手掌、小猫妖害怕似的轻轻扯动着、试图把手掌移开
+					PRINTFORMDW 然而一碰到胸前的小小凸起、橙就如同触电一般发出了一声娇呼、握住手腕的双手也一下子松开了
+					PRINTFORMW 「呜呀呀...！不行...身体热热的...不要再摸了...嗯喵哇❤...！！」
+					PRINTFORMDW 无法反抗的小猫妖、在%CALLNAME:MASTER%逐渐加快的爱抚下、闭着眼睛发出了抑制不住的娇呼、颤抖着身体迎来了一次小小的高潮...
+					PRINTFORMW 「呼哈❤...呼哈❤...这个...到底是...什么呀...呜呜...」
+					PRINTFORMDW 因为羞耻而紧紧捂住小脸的橙、用几乎要哭出来的腔调、提问般自言自语着...
+				ENDSELECT
+			ENDIF
+		ELSE ;思慕&其他陷落...这里是后续的留空
+			PRINTFORMW 	
+		ENDIF	
+	;通常（ABL:Ｂ感覚（<= 1，很痒似的；<=4，呼出火热的气息，5以上，露出迷离的高潮脸））
+	ELSE
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			IF ABL:24:3 > 5 ;开发完全的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「喵呀❤...唔嗯❤...%CALLNAME:MASTER%❤...哈嗯❤...」
+						PRINTFORMDW 伸手轻轻捏住了橙早已挺立的小小樱桃、她就止不住地发出了响亮的娇喘声
+						PRINTFORMDW 进一步地轻轻转动起夹住尖端的双指、小猫妖的身体就立马瘫软下来、跌进了%CALLNAME:MASTER%的怀中...
+						PRINTFORMW 「唔呀啊啊❤...%CALLNAME:MASTER%❤...不要捏❤...喵呀啊啊❤...」
+					CASE 1
+						PRINTFORMDW 刚刚将手伸向橙的胸前、就被她伸出的小手迅速地拦截了下来
+						PRINTFORMW 「呜～那个...隔着衣服摸、总觉得%CALLNAME:MASTER%还没摸够呢...」
+						PRINTFORMW 「其实...%CALLNAME:MASTER%很想这样子摸吧？」
+						PRINTFORMDW 挂着烧得通红的小小脸蛋、小猫妖主动解开衣领、伸手掀起了内衣、把自己的胸部完全裸露在了%CALLNAME:MASTER%的眼前
+						PRINTFORMDW 白嫩的娇小胸部、如同诱惑一般牢牢吸引了%CALLNAME:MASTER%的视线、连双手也迫不及待地按了上去、如饥似渴地蹂躏起那对粉色的小小樱桃...
+						PRINTFORMW 「喵呜啊❤...%CALLNAME:MASTER%❤...轻点喵❤...呜喵哇❤！...呀啊啊❤！...」
+						PRINTFORMDW 完全忽视了橙悲鸣似的娇喊、%CALLNAME:MASTER%直到自己满足、才慢慢松开玩弄小小胸部的双手   
+					CASE 2
+						PRINTFORMW 「呜喵呀❤！呜嗯❤...总是欺负这里❤...%CALLNAME:MASTER%真是大变态❤...」
+						PRINTFORMDW 手指刚搭上橙的胸前、她就像是反射一样浑身颤抖起来、发出了责怪似的娇嗔
+						PRINTFORMW 「喵嗯❤...不要捏呀❤...喵哇❤！」
+						PRINTFORMDW 随着手指揉捏玩弄可爱贫乳的力度逐渐加大、小猫妖的表情也渐渐变得迷离起来、脸颊染成了桃色...
+					CASE 3
+						PRINTFORMDW 蹲下身子、紧紧环抱住橙的同时、把自己的脸也仅仅贴在了那软绵绵的小胸之间
+						PRINTFORMW 「喵嗯...%CALLNAME:MASTER%...诶嘿嘿～❤最喜欢%CALLNAME:MASTER%了哦～❤」
+						PRINTFORMDW 小猫妖下意识般伸出双手、回抱住了%CALLNAME:MASTER%的后脑勺、主动在%CALLNAME:MASTER%的脸上摩擦起了小小胸部
+						PRINTFORMDW 一时间、脑海中仿佛被温暖的香甜气息和软糯的美妙触感填满、连思维都仿佛暂停了一会儿、直到自己从美妙的萝莉胸部抬起脑袋才恢复过来... 
+					CASE 4
+						PRINTFORMW 「唔喵呀呀❤...呜呼啊❤...%CALLNAME:MASTER%❤...」
+						PRINTFORMDW 依偎在怀中的橙、一边纵容着%CALLNAME:MASTER%揉捏着可爱贫乳、一边如同忍受不住般不停喘息着...
+						PRINTFORMW 「呜呼呀啊啊❤...现在、橙的胸...一定变大了吧❤？」
+						PRINTFORMW 「不然...才不会有这么舒服喵❤...呜呼呀❤...」
+						PRINTFORMDW 为什么还在提这个古怪的话题啊... 
+				ENDSELECT
+			ELSEIF ABL:24:3 >= 2 ;略有感觉的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「那个...如果%CALLNAME:MASTER%喜欢的话...」
+						PRINTFORMW 「伸进去摸...也不是不行啦...」
+						PRINTFORMDW 就像是提醒一般、橙在%CALLNAME:MASTER%的耳边低语、手掌也慢慢搭上了%CALLNAME:MASTER%的手背、引导着解开了衣扣
+						PRINTFORMDW 在视线下几乎完全暴露形状、只有一层薄薄的内衣遮挡住的小小蓓蕾、只是看着就令人心动不已...
+						PRINTFORMDW 毫不客气地伸进双手、肆意揉捏起这对惹人怜爱的娇小乳房、小猫妖也抑制不住地发出了甜腻的喘息...
+						PRINTFORMW 「嗯喵呀❤...呜呀❤...呼嗯❤...多摸摸❤...喵呼呀❤...」
+					CASE 1
+						PRINTFORMDW 从背后将橙搂进怀中的同时、%CALLNAME:MASTER%的手掌顺势按在了那对软绵绵的可爱胸部上
+						PRINTFORMW 「呜喵呀...姆～%CALLNAME:MASTER%的手、故意的吧...？」
+						PRINTFORMDW 仿佛察觉到了%CALLNAME:MASTER%的心思、小猫妖撅着小嘴、从怀中转了个方向、正对着%CALLNAME:MASTER%贴在了身上
+						PRINTFORMW 「总是用手摸来摸去的、%CALLNAME:MASTER%不会觉得腻嘛...呼嗯...」
+						PRINTFORMW 「要是这样子的话、%CALLNAME:MASTER%应该也能感受到橙的胸吧...？呼呼～❤」
+						PRINTFORMDW 带着坏笑的橙缓缓地上下动起了身体、在%CALLNAME:MASTER%的身上摩擦起自己的前胸
+						PRINTFORMDW 正如小猫妖所说的、即使隔着这么多层衣物、%CALLNAME:MASTER%也能明显感受到那娇小胸部的柔软、以及尖端逐渐挺立的微妙触感...
+						PRINTFORMW 「呜嗯...呼呀❤...眼神都飘走了喵...感觉这么舒服嘛？喵嘿嘿❤...」  
+					CASE 2
+						PRINTFORMW 「呼诶...%CALLNAME:MASTER%...又把手搭上橙的胸口做什么啦...」
+						PRINTFORMDW 只是想感受一下橙的心跳哦
+						PRINTFORMW 「呀嗯...等、等一下...呜喵呀❤！」
+						PRINTFORMDW 突然揉捏起橙的前胸、她就从齿间漏出了惊讶的娇呼声
+						PRINTFORMW 「呜喵啊...呀嗯❤...这是哪门子的感受心跳嘛！呜呀❤...」
+						PRINTFORMW 「不准...这样子捉弄橙啦！呜嗯啊❤...」  
+					CASE 3
+						PRINTFORMDW %CALLNAME:MASTER%用双手勾住橙的细腰、在橙的面前俯下身子、把脸轻轻地埋进了那柔软的前胸里面
+						PRINTFORMW 「呜哇...%CALLNAME:MASTER%...哇哈啊哈～...好痒啦！呼气的时候...呜呀～...」
+						PRINTFORMDW 被吹进衣服内部的阵阵吐息挑弄着的小猫妖发出了夹杂着喘息的奇妙笑声、下意识地抬起手掌推着%CALLNAME:MASTER%的脑袋
+						PRINTFORMDW 一边牢牢按住橙的身体、一边故意扭动脑袋、用鼻尖摩擦起衣服下柔软的可爱贫乳、她的声音便渐渐变得娇柔起来...
+						PRINTFORMW 「呜呀啊啊...呜喵呀❤...呀嗯...喵哇呀❤...」
+					CASE 4
+						PRINTFORMW 「喵呀❤！...呜嗯❤...%CALLNAME:MASTER%...还真是喜欢摸橙的胸呢...」
+						PRINTFORMDW 伸手轻轻揉捏橙的小小胸部、她就忍不住发出了轻柔呼声、抬起脑袋望了过来...
+						PRINTFORMW 「呐...%CALLNAME:MASTER%...橙的胸是不是比起之前大了点啦？」
+						PRINTFORMDW 又是这种没头没尾的奇妙问题啊...
+						PRINTFORMW 「毕竟...橙现在感觉...被%CALLNAME:MASTER%摸的时候越来越...舒服了啦...」
+						PRINTFORMW 「肯定是因为在变大吧？呜嗯...」
+						PRINTFORMDW 就算没有变大、现在的手感也很舒服呢...  
+				ENDSELECT
+			ELSE ;尚未开发的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「唔...就那么想摸橙的胸嘛？」
+						PRINTFORMDW 看着%CALLNAME:MASTER%伸向自己胸前的手掌、小猫妖红着小脸、微微抬起了自己的前胸供%CALLNAME:MASTER%接触抚摸  
+						PRINTFORMW 「记得轻一点哦...揉痛了就不给%CALLNAME:MASTER%摸了！」
+						PRINTFORMDW 遵守着橙的要求、%CALLNAME:MASTER%如同对待易碎品一般轻轻地来回爱抚着那对小小胸部
+						PRINTFORMW 「呼...唔嗯...喵呼嗯...哈啊...」 
+					CASE 1
+						PRINTFORMDW 从橙的面前伸出手掌、轻轻贴在了橙的胸前
+						PRINTFORMW 「呼呼～❤%CALLNAME:MASTER%的手、好暖和喵～❤」
+						PRINTFORMW 「让橙多感受一下下吧？诶嘿嘿～❤」
+						PRINTFORMDW 小猫妖主动抬起自己的小手、重叠在了盖住胸口的手掌上、闭着眼睛露出了幸福的笑容...  
+					CASE 2
+						PRINTFORMDW 隔着衣服摸着橙的可爱小胸、不知怎地、总感觉有种意犹未尽的感觉...
+						PRINTFORMW 「唔嗯...明明都已经摸着橙的胸了、居然还不够嘛...唔哇！不要突然伸进来啦！」
+						PRINTFORMDW 突然伸手拉低小猫妖的衣领、%CALLNAME:MASTER%如同向袋子中伸手摸索一般、将手掌探进衣领之下、直接抚摸起了小猫妖被内衣包裹着的前胸
+						PRINTFORMW 「呜呜～%CALLNAME:MASTER%...衣服会坏掉的啦！快停手啦！」
+						PRINTFORMDW 在好好享受了一番与平时完全不同的美妙触感后、%CALLNAME:MASTER%才在橙不停轻轻掐手背的催促下收回了手
+					CASE 3	
+						PRINTFORMDW 从橙的身后伸出双手、如同环抱一般轻轻贴在了她那小小的胸上
+						PRINTFORMW 「呜嗯...总是被%CALLNAME:MASTER%这样子摸来摸去的...橙的胸部一定会变大的吧...？」
+						PRINTFORMDW 纵容着%CALLNAME:MASTER%行为的小猫妖、一边看着胸上来回抚摸的双手、一边提了个莫名其妙的问题
+						PRINTFORMDW 就算自己不主动摸的话、橙的胸部肯定也会正常发育的吧？
+						PRINTFORMW 「唔嗯...被%CALLNAME:MASTER%摸的话、肯定会长得快点的嘛...呼呀嗯...」
+						PRINTFORMDW 就这样一边摸着小猫妖的可爱贫乳、一边继续着奇怪的对话... 
+					CASE 4
+						PRINTFORMDW 隔着衣服、轻轻地围绕着橙的小小尖端画起了圈... 
+						PRINTFORMW 「呀啊？！唔嗯...痒痒的...好奇怪喵...」
+						PRINTFORMDW 被挑弄着的小猫妖不自觉地漏出了轻吟声、微微扭动着身体躲避着%CALLNAME:MASTER%的手指
+						PRINTFORMDW 仿佛恶作剧般的反应让%CALLNAME:MASTER%控制不住一般继续着手上的动作、直到橙鼓着小脸捏住了自己的手指才不得不停了下来 
+				ENDSELECT
+			ENDIF
+		ELSEIF TALENT:24:3 ;恋慕 
+			IF ABL:24:3 > 5 ;开发完全的阶段
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORMDW 伸手贴上了橙的前胸、一边感受着传递过来的阵阵温暖、一边来回抚摸、揉捏起那对小巧的可爱胸部
+						PRINTFORMW 「嗯❤...喵呼❤...喵呀嗯❤...%CALLNAME:MASTER%❤...呼呼❤...」
+						PRINTFORMW 「嗯喵呀❤...再多摸摸❤...咿喵呀❤...呜嗯❤...」
+						PRINTFORMDW 似乎在享受%CALLNAME:MASTER%的爱抚似的、小猫妖带着娇柔的喘息主动磨蹭起%CALLNAME:MASTER%的身体、露出了荡漾的笑容...
+					CASE 1
+						PRINTFORMW 「诶？%CALLNAME:MASTER%...又想摸摸橙的胸嘛...」
+						PRINTFORMW 「姆～就不能稍微收敛一点嘛...真是的...变态❤...」
+						PRINTFORMDW 尽管橙的嘴上在如同抱怨一般地娇嗔着、但那小小胸膛却主动挺了起来、简直就像是在期待着%CALLNAME:MASTER%摸过来一样...
+						PRINTFORMDW 毫不客气地张开手指、按在了那对与主人体型相称的可爱贫乳上、肆意揉捏玩弄起来
+						PRINTFORMW 「喵哇❤...唔喵啊❤...轻、轻一点喵❤...哇啊啊❤...」
+						PRINTFORMDW 随着%CALLNAME:MASTER%的爱抚、小猫妖发出了止不住的娇声、连身体都在随着胸前传来的快感微微颤抖着  
+					CASE 2
+						PRINTFORMDW 从背后紧紧抱住橙的同时、特地将双手按在了胸前、紧紧贴住了那对温暖的小小胸部
+						PRINTFORMDW 即使隔着衣服、也能明显地感觉到小猫妖的小樱桃已经变硬了呢...
+						PRINTFORMW 「唔哇❤！等、等一下啦！不要弄那里——喵哇❤！...咿呀❤...呜❤...」
+						PRINTFORMDW 只是用手指轻轻捏住那对小小的凸起、橙就浑身发颤地发出了悲鸣一般的娇柔呼声、无力地瘫在了%CALLNAME:MASTER%的怀里任凭摆弄...
+				ENDSELECT
+			ELSEIF ABL:24:3 >= 2 ;略有感觉的阶段
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORMW 「呜喵呀...%CALLNAME:MASTER%在干嘛啊...呜嗯...」
+						PRINTFORMDW 只是用手指轻轻点戳橙的胸前、她就不自觉地发出了轻微的呼声、扭着身子试图躲避%CALLNAME:MASTER%的骚扰
+						PRINTFORMW 「哇呀❤...呜喵嗯❤...喵哇❤....呜呜～！不要再戳了啦！%CALLNAME:MASTER%真是的...」  
+						PRINTFORMDW 如同恶作剧一般又轻轻地用力戳了一会儿、好好地品味了一番小猫妖害羞的娇呼、才在被小猫妖牢牢抓住手腕的情况下不舍地停手  
+					CASE 1
+						PRINTFORMDW 从橙的面前张开手掌、轻轻地按在了胸前小巧的柔软胸部之上
+						PRINTFORMW 「唔...那个...%CALLNAME:MASTER%...稍微让橙准备一下嘛...」
+						PRINTFORMDW 感觉到了%CALLNAME:MASTER%的动作、橙的脸一下子变得通红、一边小声嘀咕着、一边把自己的小手重叠在了%CALLNAME:MASTER%的手背上、稍稍用力地捏着手指
+						PRINTFORMDW 只好顺着小猫妖的要求暂时停下手上的动作、感受着胸口传来的阵阵起伏、等到她主动松开按在胸口的双手、才继续抚摸起那可爱的小巧胸部
+						PRINTFORMW 「诶嘿嘿～❤...%CALLNAME:MASTER%...真温柔喵...谢谢...呼嗯❤...喵呀❤...」						
+					CASE 2	
+						PRINTFORMDW 一手搂着橙的细腰将她拉至身侧、另一手则伸向了橙的胸前、轻轻揉捏起小猫妖软绵绵的小小胸部
+						PRINTFORMW 「嗯...喵唔哇...%CALLNAME:MASTER%...又在摸这种地方...呜嗯...」
+						PRINTFORMW 「明明...橙的胸都还没有长大...%CALLNAME:MASTER%就不能等到长大了再摸嘛...」
+						PRINTFORMDW 红透了小脸的小猫妖靠在%CALLNAME:MASTER%的肩膀上、一边低头看着胸前抚摸着的手掌、一边轻声耳语着
+						PRINTFORMDW 还没有长大的话、就把它揉大就好了哦～
+						PRINTFORMW 「这种事情...怎么可能只靠%CALLNAME:MASTER%来...喵嗯...哈啊...喵呀❤...」  
+				ENDSELECT
+			ELSE ;尚未开发的阶段
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORMDW 从橙的面前缓缓蹲了下来、一边注视着她、一边伸出手掌、按在了她那柔软的小巧胸部上
+						PRINTFORMW 「喵呀...又、又在摸这种地方...呜...%CALLNAME:MASTER%真是的...」
+						PRINTFORMW 「而且...不要一边摸...一边还盯着橙看啦...呜呜呜...羞死喵了啦...」
+						PRINTFORMDW 挂着通红小脸、低垂着小脑袋躲避%CALLNAME:MASTER%视线的小猫妖、连身后的尾巴都绞成了麻花...
+						PRINTFORMDW 一边抚摸着娇小的柔软胸部、一边欣赏着眼前小猫的羞涩反应、%CALLNAME:MASTER%感到了出乎意料的满足
+					CASE 1
+						PRINTFORMDW 啊～突然好想摸一摸橙的胸部啊～
+						PRINTFORMW 「呜喵？！这、这种事情...！不要这样子突然说出来啦...！而、而且就算说了也肯定不会现在答应的喵！哼...」
+						PRINTFORMDW 被%CALLNAME:MASTER%突如其来的发言吓到了似的、小猫妖有些慌乱地捂住了自己的身体、有些生气地朝%CALLNAME:MASTER%喊着...
+						PRINTFORMW 「...不过...如果%CALLNAME:MASTER%...真的特别想摸的话...只有这一回哦...！」
+						PRINTFORMDW 然而过了一会儿、橙的手臂就自己放了下来、脸上也渐渐染上了红霞、挪着身体凑了过来...
+						PRINTFORMDW 迫不及待地将双手盖在了那对恰到好处的小巧柔软上、轻轻地揉捏抚摸起来
+						PRINTFORMW 「呜喵呀...%CALLNAME:MASTER%...喵嗯...」
+					CASE 2
+						PRINTFORMW 「唔嗯...%CALLNAME:MASTER%...就这么喜欢摸橙的胸嘛...」
+						PRINTFORMW 「明明橙的胸部都还是小小的样子...不像蓝大人和紫大人那样、大大的又软软的...」 
+						PRINTFORMDW 看着伸手抚摸着自己胸前的%CALLNAME:MASTER%、橙带着红彤彤的小脸、如同提问一般朝%CALLNAME:MASTER%轻声嘀咕着
+						PRINTFORMDW 毫不客气地加快了手上的动作来回答小猫妖的疑问、那张小脸上带着的疑惑就随着融化般的表情消失了...
+						PRINTFORMW 「%CALLNAME:MASTER%...唔喵呀...橙知道了喵...轻一点呀...呜嗯...」   
+				ENDSELECT
+			ENDIF
+		ELSEIF TALENT:24:8 ;思慕
+				SELECTCASE RAND:4
+				CASE 0
+					PRINTFORMDW 趁着和橙互相打闹的机会、%CALLNAME:MASTER%如同恶作剧一般突然伸出手指、迅速戳了戳小猫妖的前胸
+					PRINTFORMW 「哇呀呀...呜诶？！」
+					PRINTFORMW 「...呜呜呜～！恶作剧做过头了哦！哼！」
+					PRINTFORMDW 小猫妖的动作一下子僵住了、片刻之后才回过神似的、挂着微微发红的小脸重重捶了下%CALLNAME:MASTER%的肩膀
+				CASE 1
+					PRINTFORMW 「诶？突然想感受下橙的心跳声？唔...应该...可以吧？」
+					PRINTFORMDW 被%CALLNAME:MASTER%莫名其妙的请求弄得愣了一会儿、小猫妖才带着犹豫点了点头 
+					PRINTFORMDW 把手掌轻轻贴上眼前小猫的小巧胸部、手心处就传来了恰到好处的柔软触感...
+					PRINTFORMW 「唔嗯...差不多了吧！这样子贴着胸口、感觉好闷啦...！」
+					PRINTFORMDW 可惜的是、还没有细细感受、橙就抓着%CALLNAME:MASTER%的手腕、示意把贴在胸前的手掌收回去了...
+					PRINTFORMDW %CALLNAME:MASTER%不舍地慢慢收回了手、在脑中默默回味着小猫妖小巧胸部的触感
+				CASE 2
+					PRINTFORMDW 从背后接近橙、如同挠痒一般用手指来回抚弄起小小胸部
+					PRINTFORMW 「喵呀哈哈...！%CALLNAME:MASTER%要干嘛啦！快停下来喵哈哈～...」
+					PRINTFORMDW 忍不住发出笑声的小猫妖摇晃着身子、挣扎着躲开了%CALLNAME:MASTER%的骚扰
+					PRINTFORMW 「嘿嘿～...轮到橙反击了哦！看招看招～！咯吱咯吱咯吱～～」
+					PRINTFORMDW 带着红润小脸的橙迅速转身、一边笑着一边还击似的挠起了%CALLNAME:MASTER%的前胸
+					PRINTFORMDW ...最后完全变成互相挠痒痒的打闹了呢
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%从背后抱住橙的同时、顺势将手掌按在了那对可爱的小胸上轻轻地抚摸起来
+					PRINTFORMW 「唔嗯...不要总是这么突然地抱过来喵...橙会被吓到的啦...」
+					PRINTFORMDW 似乎对于%CALLNAME:MASTER%手上的小动作没什么感觉、小猫妖只是抓着手腕抬着脑袋、抱怨着自己突然抱过来的事情...
+					PRINTFORMDW 得寸进尺的%CALLNAME:MASTER%挪动手指、轻轻摩擦起了衣服下方微微发硬的尖端
+					PRINTFORMW 「呜喵呀～！呜...不要突然挠奇怪的地方啦！橙都说过好多遍了啦！哼！」
+					PRINTFORMDW 发出惊呼的小猫妖迅速扭着身子、从%CALLNAME:MASTER%的怀里溜了出来、有些生气地伸手扯了扯%CALLNAME:MASTER%的耳朵  
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMDW %CALLNAME:MASTER%突然伸出手指戳了戳橙的胸部
+					PRINTFORMW 「喵哇哇？！」
+					PRINTFORMDW 被突然袭击的橙弓着身子跳开了...
+					PRINTFORMW 「呜～！太过分了啦！哼！」
+					PRINTFORMDW 生气地瞪着%CALLNAME:MASTER%的小猫妖朝着自己的手臂狠狠地掐了一下、好痛... 
+				CASE 1
+					PRINTFORMDW 从背后悄悄地接近橙、然后以自己最快的速度伸出手来抓向了小猫妖的胸部！
+					PRINTFORMW 「喵呜～～——」
+					PRINTFORMDW 橙的身体如同面条一般迅速扭动、从下面躲过了%CALLNAME:MASTER%围成一圈的双手
+					PRINTFORMW 「不要总是偷偷摸摸地过来摸橙啦！很烦人的哦！哼！」
+					PRINTFORMDW 带着明显不愉快的神色、小猫妖用尾巴不停戳弄%CALLNAME:MASTER%的鼻子、赶走了身后的%CALLNAME:MASTER%    
+				CASE 2
+					PRINTFORMW 「呜喵呀！这里不可以摸啦！」
+					PRINTFORMDW 橙紧紧捂住胸口、转动着身子躲开了%CALLNAME:MASTER%的骚扰
+					PRINTFORMW 「呜呜～再弄就咬%CALLNAME:MASTER%哦！」
+					PRINTFORMDW 小猫妖露出了尖尖的牙齿、看起来随时都会咬过来的样子...
+			ENDSELECT
+		ENDIF
+
+	ENDIF
+ENDIF
+RETURN 1
+;==================================================
+;314,肛門愛撫
+;CFLAG:317==2&&TCVAR:20(72=强制舐肛
+;CFLAG:317==2&&TEQUIP:六九式(有胖次TCVAR:20(70～72)在这里依然可触发)
+;ABL:Ａ感覚(2未満=接受不了 4未満=因为异物感而发抖 4以上=感觉到快感)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_314
+;成否判定
+;TFLAG:192(-1＝強制失敗
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_314
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_314
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_314_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_314_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW 
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW 
+		ELSE
+			PRINTFORMDW 在时间停止中贴近橙的身后、掀起裙子轻轻摩挲起小猫妖的后庭
+			PRINTFORMDW 平时
+		ENDIF
+	ELSEIF CFLAG:317 == 2 	;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20 
+			;颜面骑乘肛门
+			CASE 72
+				PRINTFORMW 	
+			CASEELSE 
+				;六九式
+				IF TEQUIP:54
+					PRINTFORMW 	
+				;其它
+				ELSE 
+					PRINTFORMW 	
+				ENDIF 
+		ENDSELECT
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「呜哈❤？！」
+			PRINTFORMDW 突然伸手掏向一旁生着闷气的橙的裙底、她就惊讶地发出了一声娇呼
+			PRINTFORMW 「姆～%CALLNAME:MASTER%突然做什么啦！是恶作剧嘛？！」
+			PRINTFORMW 「才不是...？那是要做什么...呀昂❤？！...不要弄啦！哼！」
+			PRINTFORMDW 被鼓起小脸的小猫妖用力拧住了不老实的手背、吃痛的%CALLNAME:MASTER%不得不停了下来...
+			PRINTFORML
+			PRINTFORMW 「...看橙不高兴、所以想让橙高兴点...呜喵...这、这样子...怎么可能会让橙高兴起来啊！%CALLNAME:MASTER%真是超级的...无可救药的大变态...！」
+			PRINTFORMW 「想让橙高兴起来的话...明明只要好好抱一抱就行了喵...」
+			SIF GETBIT(CFLAG:24:1,1) && ABL:24:11 >=5 ;已经做过、欲望大于5级
+				PRINTFORMW 「虽然...橙也确实觉得做那种事情很舒服就是了啦❤...但是...怎么可以随便做啦！哼...」
+			PRINTFORMW 「总、总之！作为对%CALLNAME:MASTER%变态行为的惩罚！橙就先把%CALLNAME:MASTER%占用直到橙满意为止！哼！」
+			PRINTFORMDW 挂着红得快滴出血的小小脸蛋的小猫妖、把自己的脸深深埋进了%CALLNAME:MASTER%的怀里、不再说话了
+			PRINTFORMDW 只好歉意地轻轻揉弄怀中小猫的小脑袋、一边不停说着道歉的话、直到她满意地抬起脑袋为止...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「虽然%CALLNAME:MASTER%是个奇怪的变态...但是橙也不讨厌就是啦❤...」
+			PRINTFORMW 「所以说...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「呜喵呀啊啊啊？！%CALLNAME:MASTER%在摸哪里啊？！」
+			PRINTFORMDW 刚刚触碰到橙的股间、她就如反射一般迅速地跳开了
+			PRINTFORMW 「呜呜...%CALLNAME:MASTER%...这样子的事情...不行的啦...！」
+			PRINTFORMW 「绝对...绝对的不行哦！再这么做...橙就...咬%CALLNAME:MASTER%的手了...」
+			PRINTFORMDW 用双手死死捂住腿间裙摆、不满地朝%CALLNAME:MASTER%抱怨着的小猫妖、眼睛却不敢直视%CALLNAME:MASTER%一般低垂着...    
+		ELSE
+			PRINTFORMW 「呜喵嗷嗷～——！！！」
+			PRINTFORMDW 橙突然用爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+			BASE:MASTER:0 -= 300
+		ENDIF
+	;通常
+	ELSE
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+
+		ELSEIF TALENT:24:3 ;恋慕
+
+		ELSEIF TALENT:24:8 ;思慕
+			
+		ELSE 
+			SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「呜喵呀！不行！不准碰这里！」
+				PRINTFORMDW %CALLNAME:MASTER%的手刚刚碰到裙下、橙就迅速地从%CALLNAME:MASTER%的身边跳开了
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「蓝大人说过、裙子下面是橙很重要的地方！陌生人不可以随便摸！」
+					PRINTFORMW 「再伸过来的话...橙就对%CALLNAME:MASTER%不客气了哦！哼！」
+					PRINTFORMDW 小猫妖生气地瞪大了眼睛、死死地盯着%CALLNAME:MASTER%的脸、仿佛下一秒就会扑上来用爪子一顿乱抓...
+				ELSE
+					PRINTFORMW 「呜喵～——！！橙可是警告过%CALLNAME:MASTER%的哦！」
+					PRINTFORMW 「看来必须给%CALLNAME:MASTER%一点教训才会听橙说话呢！喵嗷～——！！！」
+					PRINTFORMDW 小猫妖迅速扑向了%CALLNAME:MASTER%、伸出锋利的爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+				CALL RECOVER (MASTER,-500,"体力","被橙抓伤了")
+				ENDIF
+			CASE 1
+				PRINTFORMW 「喵哇！%CALLNAME:MASTER%在干嘛啊！」
+				PRINTFORMDW 小猫妖迅速伸出双手、死死按住了%CALLNAME:MASTER%伸向裙底的手掌
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「那个地方、%CALLNAME:MASTER%不可以随便摸！」
+					PRINTFORMW 「再犯的话、橙就要咬%CALLNAME:MASTER%的手了哦！」
+					PRINTFORMDW 橙张开嘴巴、露出了锋利的牙齿、看得出来她没在开玩笑...
+				ELSE
+					PRINTFORMW 「橙可是提醒过%CALLNAME:MASTER%了啊！！%CALLNAME:MASTER%故意的吗？！」
+					PRINTFORMW 「呜喵啊啊！！！啊呜呜——！！！」
+					PRINTFORMDW 发出愤怒哼声的小猫妖、张开小嘴朝着手掌上咬了下去！
+					CALL RECOVER (MASTER,-500,"体力","被橙咬伤了")
+				ENDIF
+			CASE 2
+				PRINTFORMW 「唔诶？！%CALLNAME:MASTER%在往哪里摸啊？！」
+				PRINTFORMDW 察觉到%CALLNAME:MASTER%伸向裙底摸索的手指、橙立马夹紧双腿蹲了下去、躲开了%CALLNAME:MASTER%的动作
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「虽然橙答应%CALLNAME:MASTER%可以摸橙...但是不准到处乱摸！尤其是裙子底下！！」
+					PRINTFORMW 「再敢乱摸的话、橙可就要还手了哦！」  
+					PRINTFORMDW 小猫妖的瞳孔因为生气而瞪得大大的、连后背都不自觉地弓了起来、看来不是一般地生气呢...
+				ELSE
+					PRINTFORMW 「呜喵哇啊啊～——！！橙真的生气了哦！！」
+					PRINTFORMDW 小猫妖如同闪现一样跳到了%CALLNAME:MASTER%的背后、朝着屁股上狠狠地踢了一脚！
+					PRINTFORMDW 没有防备的%CALLNAME:MASTER%、被出乎预料的袭击给踢到了天上！
+				CALL RECOVER (MASTER,-500,"体力","被橙踢飞了")
+				ENDIF
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+RETURN 1
+;==================================================
+;315,陰蒂愛撫
+;CFLAG:317==2&&TCVAR:20(35=自己掀起裙子 70=クンニ強制 85=Ｖ挿入状态 86=要求膣内射精 87=Ａ挿入状态 88=V插入时动腰 89=A插入时动腰
+;ABL:Ｃ感覚(4未満=很痒的样子 6未満=感觉到舒服 6以上=接受快感)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_315
+;成否判定
+;TFLAG:192(-1＝強制失敗
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_315
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_315
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_315_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_315_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70 ;时停
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW %CALLNAME:MASTER%在时停之中凑近了橙的股间、\@ CFLAG:24:291 ? 一边欣赏着小猫妖微微张开的粉嫩穴口、一边伸出手指、轻柔地剥开幼嫩秘裂、搓弄起小小的阴蒂... # 将%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%小心地拨到一旁、温柔地用手指来回摩擦起幼小密缝... \@
+			PRINTFORMDW 虽然在时停之下的小猫妖没有任何可能做出反应、但从穴口不停流出的温热爱液、似乎证明着她的身体正积蓄着爱抚的快感
+			PRINTFORMDW 意识到这一点的%CALLNAME:MASTER%如同恶作剧得逞般笑了起来、持续着对心爱的小猫妖私处的爱抚、直到自己满意才慢慢停下
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW 在时间停止之下、%CALLNAME:MASTER%从背后接近小猫妖、伸手环抱住她的同时、顺势将手指贴上了那幼小的股间密缝、轻轻地揉搓爱抚起来
+			PRINTFORMDW 即使在时停中的橙没法做出任何反应、但从指尖传来的阵阵湿润热气、还是表明了眼前的娇小身躯正本能地回应着%CALLNAME:MASTER%的爱抚...
+		ELSE
+			PRINTFORMDW 在时间停止之下、%CALLNAME:MASTER%伸手掀起裙摆、伸出手指\@ CFLAG:24:291 ? 直接揉搓起了橙那尚未剥出的小小阴蒂... # 隔着%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%摩擦起了橙的幼小密缝... \@
+			PRINTFORMDW 即使眼前的小猫妖没法做出任何反应、但指腹上传来的诱人柔嫩触感、还是让%CALLNAME:MASTER%止不住地运动着手指... 
+		ENDIF
+	ELSEIF CFLAG:313 ;睡眠
+		SELECTCASE RAND:3
+			CASE 0	
+				PRINTFORMDW 蹑手蹑脚凑近睡梦之中的橙、%CALLNAME:MASTER%一边观赏着小猫妖的睡颜、一边将手掌慢慢伸进了被窝之中、顺着大腿贴上那幼嫩的秘所、轻轻地挪动手指摩擦起来... 
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「唔喵...呀❤...」
+					PRINTFORMW 「喵啊...%CALLNAME:MASTER%❤...不...要❤...」
+					PRINTFORMDW 随着%CALLNAME:MASTER%的爱抚、橙的脸上便渐渐染上了绯红、呼吸也渐渐急促起来...
+				ELSE 
+					PRINTFORMW 「嗯喵...呼诶...嗯...？」
+					PRINTFORMDW 橙皱起眉头、不停扭动着身子发出轻哼、似乎在对陌生的触感感到格外的疑惑...  
+				ENDIF
+			CASE 1	
+				PRINTFORMW 「呼...呼...zzz...」
+				PRINTFORMDW 听着橙匀称的寝息、确认了小猫妖正在沉睡的%CALLNAME:MASTER%、把手缓缓伸向了睡衣覆盖的幼小密缝、隔着布料轻轻揉起了幼嫩耻丘下方的小小凸起...
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「呜嗯❤...呜哈❤...」
+					PRINTFORMW 「这里...不行的喵❤...%CALLNAME:MASTER%...%CALLNAME:MASTER%❤...」
+					PRINTFORMDW 随着爱抚的动作、即使是睡梦之中的小猫妖、也不时轻呼着%CALLNAME:MASTER%的名字、发出着轻柔喘息...
+				ELSE 
+					PRINTFORMW 「喵呜呜...！呜哼...！」
+					PRINTFORMDW 被突然的奇怪触感吓到了似的、小猫妖发出了威胁般的闷哼、同时迅速夹紧了双腿
+					PRINTFORMDW %CALLNAME:MASTER%赶紧抽回了留在橙腿间的手掌
+				ENDIF
+			CASE 2
+				PRINTFORMDW %CALLNAME:MASTER%朝睡梦中的橙伸出手指、顺着小腹向下划动到股间、就这样来回地刺激着小猫妖的私处 
+				IF TALENT:24:3 ;恋慕
+					PRINTFORMW 「嗯❤...喵呼❤...这里❤...」
+					PRINTFORMW 「%CALLNAME:MASTER%...多摸一下❤...呼呼❤...」
+					PRINTFORMDW 小猫妖不仅没有抗拒%CALLNAME:MASTER%的骚扰、甚至还露出了带着红霞的笑容、呢喃着令人心动的梦话...
+				ELSE 
+					PRINTFORMW 「嗯...？！呜...？！」
+					PRINTFORMDW 每回碰触到小小凸起的所在处时、小猫妖的身体就会抖动起来、随后发出困惑的轻声呼喊
+					PRINTFORMDW 似乎再继续的话会把橙弄醒呢...%CALLNAME:MASTER%识相地停下了动作
+				ENDIF
+		ENDSELECT
+
+	ELSEIF CFLAG:317 == 2 	;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20 
+			;掀起裙子
+			CASE 35
+				PRINTFORMW 	
+			;强制舔阴
+			CASE 70
+				PRINTFORMW 	
+			;V插入
+			CASE 85,88 
+				PRINTFORMW 	
+			;A插入
+			CASE 87,89
+				PRINTFORMW 	
+			;恳求膣内中出
+			CASE 86 
+				PRINTFORMW 	
+			CASEELSE 
+				;六九式
+				IF TEQUIP:54
+					PRINTFORMW 	
+				;其它
+				ELSE 
+					PRINTFORMW 	
+				ENDIF 
+		ENDSELECT
+	;关于恋慕不高兴、似乎由于生气情况所以不会触发进一步的性骚扰...所以就不写了（
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「呜哈❤？！」
+			PRINTFORMDW 突然伸手掏向一旁生着闷气的橙的裙底、她就惊讶地发出了一声娇呼
+			PRINTFORMW 「姆～%CALLNAME:MASTER%突然做什么啦！是恶作剧嘛？！」
+			PRINTFORMW 「才不是...？那是要做什么...呀昂❤？！...不要弄啦！哼！」
+			PRINTFORMDW 被鼓起小脸的小猫妖用力拧住了不老实的手背、吃痛的%CALLNAME:MASTER%不得不停了下来...
+			PRINTFORML
+			PRINTFORMW 「...看橙不高兴、所以想让橙高兴点...呜喵...这、这样子...怎么可能会让橙高兴起来啊！%CALLNAME:MASTER%真是超级的...无可救药的大变态...！」
+			PRINTFORMW 「想让橙高兴起来的话...明明只要好好抱一抱就行了喵...」
+			SIF GETBIT(CFLAG:24:1,1) && ABL:24:11 >=5 ;已经做过、欲望大于5级
+				PRINTFORMW 「虽然...橙也确实觉得做那种事情很舒服就是了啦❤...但是...怎么可以随便做啦！哼...」
+			PRINTFORMW 「总、总之！作为对%CALLNAME:MASTER%变态行为的惩罚！橙就先把%CALLNAME:MASTER%占用直到橙满意为止！哼！」
+			PRINTFORMDW 挂着红得快滴出血的小小脸蛋的小猫妖、把自己的脸深深埋进了%CALLNAME:MASTER%的怀里、不再说话了
+			PRINTFORMDW 只好歉意地轻轻揉弄怀中小猫的小脑袋、一边不停说着道歉的话、直到她满意地抬起脑袋为止...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「虽然%CALLNAME:MASTER%是个奇怪的变态...但是橙也不讨厌就是啦❤...」
+			PRINTFORMW 「所以说...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「呜喵呀啊啊啊？！%CALLNAME:MASTER%在摸哪里啊？！」
+			PRINTFORMDW 刚刚触碰到橙的股间、她就如反射一般迅速地跳开了
+			PRINTFORMW 「呜呜...%CALLNAME:MASTER%...这样子的事情...不行的啦...！」
+			PRINTFORMW 「绝对...绝对的不行哦！再这么做...橙就...咬%CALLNAME:MASTER%的手了...」
+			PRINTFORMDW 用双手死死捂住腿间裙摆、不满地朝%CALLNAME:MASTER%抱怨着的小猫妖、眼睛却不敢直视%CALLNAME:MASTER%一般低垂着...    
+		ELSE
+			PRINTFORMW 「呜喵嗷嗷～——！！！」
+			PRINTFORMDW 橙突然用爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+			BASE:MASTER:0 -= 300
+		ENDIF
+	ELSEIF TALENT:24:2 == 3 ;futa橙
+
+	ELSEIF NOWEX:0 ;性骚扰时绝顶...某种意义上也是本人XP吧（
+		IF TALENT:24:3 ;限制恋慕以上触发
+			IF ABL:24:0 > 5 ;有一定开发的阶段  
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呼哈啊❤...明明还穿着衣服的...不要这样子着急喵❤...」
+					PRINTFORMDW 察觉到%CALLNAME:MASTER%隔着裙摆试探地抚摸着腿根、满脸通红的橙转过身来、把脸贴在了%CALLNAME:MASTER%的胸口上
+					PRINTFORMW 「总是隔着衣服就摸...%CALLNAME:MASTER%就不能稍微有耐心一点喵❤...」
+					PRINTFORMW 「忍不住的...又不只有%CALLNAME:MASTER%一个啊❤...呼喵嗯❤...」
+					PRINTFORMDW 把娇小身躯紧贴在%CALLNAME:MASTER%的身上、小猫妖伸手轻轻拎起了裙摆、操纵着尾巴缠住%CALLNAME:MASTER%的手掌、主动拉向了自己散发着诱人湿气的股间
+					PRINTFORMDW 面对这主动邀请般的动作、%CALLNAME:MASTER%也不再掩饰自己、将双指贴在耻丘下方、全力进攻起那颗早已凸起的小小阴蒂...
+					PRINTFORMW 「呜嗯哇❤ 小豆豆麻麻的❤ 要去了❤ 要去了喵❤...」
+					PRINTFORMW 「呜咿喵哇哇啊❤❤——！！」
+					PRINTFORMDW 一下子迎来高潮的橙、不顾周围地发出了高昂的娇喊、剧烈颤抖着迎来了高潮...
+					PRINTFORMW 「呼诶嘿嘿❤...%CALLNAME:MASTER%❤...好舒服喵❤...」 
+				CASE 1
+					PRINTFORMW 「喵呀呀啊啊❤...不行❤...这种时候❤...不可以的啦❤...！」
+					PRINTFORMDW 只是轻轻触碰橙的腿根、她就如同触电一般浑身发颤、发出了小小的轻呼
+					PRINTFORMDW 意识到眼前的小猫已经忍耐到极限、%CALLNAME:MASTER%便将手指伸向股间密缝、快速摩擦的同时观察起她那融化的小脸上露出的美妙表情...
+					PRINTFORMW 「呜嗯嗯嗯呀啊啊❤...要去了❤...%CALLNAME:MASTER%❤...%CALLNAME:MASTER%❤...」
+					PRINTFORMW 「呜喵呀呀❤——唔嗯啊❤——」
+					PRINTFORMDW 在%CALLNAME:MASTER%的注视下、小猫妖露出了近乎失神的融化神情、呼喊着%CALLNAME:MASTER%的名字绝顶了...
+					PRINTFORMW 「...呼嗯哇❤...呜❤...全都被%CALLNAME:MASTER%看见了嘛...呜呜❤...%CALLNAME:MASTER%是大变态❤...」
+					PRINTFORMW 回过神来的橙、在与%CALLNAME:MASTER%对视的一瞬间、就立马羞耻地捂住了小脸...
+				CASE 2
+					PRINTFORMW 「呼咿呀❤！至少、等橙把裙子...呼喵呀❤！」
+					PRINTFORMDW 没有等待小猫妖举起裙子、%CALLNAME:MASTER%饥渴地贴近那纤细的腿间、用拇指隔着布料玩弄起了那已经发硬的小小阴蒂...
+					PRINTFORMW 「呜嗯啊啊❤...不行❤...这样子摩擦着❤...喵咿啊啊❤...」
+					PRINTFORMW 「要来了啦❤...呜喵啊啊❤——喵嗯哇❤——」
+					PRINTFORMDW 似乎是因为已经忍耐到了极点、只是稍稍摩擦抚弄橙的小豆豆、她就一下子缩起了身体、一颤一颤地迎来了绝顶...
+					PRINTFORMW 「呜哇❤...裙子里面❤...全部都湿掉了啦❤...」
+					PRINTFORMW 「都怪%CALLNAME:MASTER%啦❤...橙的衣服都脏掉了喵❤...呜呜❤...」
+					PRINTFORMW 「必须要帮橙好好地遮住...才能原谅%CALLNAME:MASTER%哦❤...」
+				ENDSELECT
+			ELSE ;未开发的阶段
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呼喵？！等一下啦...现在不可以继续摸的喵...呜❤...！」
+					PRINTFORMDW 像是突然感受到了什么似的、小猫妖的尾巴突然伸直、双腿也随即夹紧了%CALLNAME:MASTER%摩擦股间密缝的手指、试图阻止那让自己变得奇怪的动作
+					PRINTFORMDW 无视橙的反应、%CALLNAME:MASTER%毫不客气地继续挑动指尖、玩弄着渐渐变得湿润的幼小密缝、她的双腿也控制不住一般松开了...
+					PRINTFORMW 「呜哈...！橙明明说了不可以继续的...为什么不听呀...呜哇❤...」
+					PRINTFORMW 「肚子里面...有什么热热的要...呜喵唔嗯嗯❤...！」
+					PRINTFORMDW 随着原本张开的双腿又一次夹紧、小猫妖发出着呜咽声迎来了绝顶...
+					PRINTFORMW 「呜哇哇❤...呜呜...橙明明都说了...%CALLNAME:MASTER%为什么不听啊...大坏蛋...」
+					PRINTFORMDW 从快感中渐渐回过神来的小猫妖、因为裙下羞人的湿气而羞红了脸、捶着%CALLNAME:MASTER%的胸口撒起了气...   
+				CASE 1
+					PRINTFORMW 「呜哈...？身体好像...变得热热的了...喵嗯❤...」
+					PRINTFORMDW 将因为尚未熟悉快感而微微颤抖的橙搂进怀中、慢慢加快着对布料之下的小小密缝的爱抚
+					PRINTFORMDW 随着%CALLNAME:MASTER%加快爱抚、小猫妖困惑的喘息也渐渐急促起来
+					PRINTFORMW 「呜嗯❤...%CALLNAME:MASTER%❤...越来越热了❤...」
+					PRINTFORMW 「好像❤...有什么要❤...呜呀嗯❤...！」
+					PRINTFORMDW 随着娇小身躯一阵一阵的颤抖、橙发出了抑制不住的娇呼、闭着眼睛迎来了绝顶...  
+					PRINTFORMW 「呼嗯❤...好奇怪...但是也好舒服...」
+					PRINTFORMW 「到底是什么啦...呜呜...%CALLNAME:MASTER%...」
+					PRINTFORMDW 渐渐从余韵中舒缓下来而睁开眼睛的小猫妖、带着快要哭出来般的眼神看向了%CALLNAME:MASTER%的脸...
+				CASE 2
+					PRINTFORMW 「呼哇呀...！突然就摸那里...呜嗯呀❤...」
+					PRINTFORMDW 隔着裙子轻轻按压小小阴蒂所在的位置、橙便下意识地发出了小小的喘息
+					PRINTFORMDW 就这样保持着从背后抱住小猫妖的姿势、不停地挑弄着她耻丘前端那颗渐渐变硬的小豆豆...
+					PRINTFORMW 「呜咿呀❤...不要❤...%CALLNAME:MASTER%❤...呜喵❤...」
+					PRINTFORMW 「肚子里...热热的要...呜咿喵呀呀❤...！」
+					PRINTFORMDW 随着%CALLNAME:MASTER%的爱抚、小猫妖突然蜷缩起身子、夹紧双腿迎来了绝顶...
+					PRINTFORMW 「呼❤...嗯喵❤...%CALLNAME:MASTER%...不要这样子欺负橙了啦...」
+					PRINTFORMW 「被别人看见的话...呜呜呜...」 
+				ENDSELECT
+			ENDIF
+		ELSE ;思慕&其他陷落...这里是后续的留空
+			PRINTFORMW 	
+		ENDIF
+	ELSE
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			IF ABL:24:0 > 5 ;开发完全的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「呼喵❤...%CALLNAME:MASTER%❤...嗯哇呀❤...！」
+						PRINTFORMDW 只是将手指轻轻地搭上橙的股间、她的身体就如同融化一般软了下来、把全身都贴在了%CALLNAME:MASTER%的手臂上
+						PRINTFORMW 「呜哈❤...%CALLNAME:MASTER%❤...%CALLNAME:MASTER%❤...继续动嘛❤...多摸一摸那里...喵呼呀❤...嗯喵呀❤...」
+						PRINTFORMDW 小猫妖紧紧勾住了%CALLNAME:MASTER%的肩膀、挂着沉醉快感的痴迷神情用大腿紧紧夹住了伸向裙底的手指、主动摩擦起自己的幼小密缝
+						PRINTFORMDW 若是被别人看见的话、指不好还会以为%CALLNAME:MASTER%才是被骚扰的那一方吧...这样想着的%CALLNAME:MASTER%搅动起了手指、更加卖力地抚弄起橙的股间秘裂
+						PRINTFORMW 「喵嗯唔❤...！呼呀❤...好舒服❤...喜欢❤...诶嘿嘿❤...」
+					CASE 1
+						PRINTFORMDW %CALLNAME:MASTER%一手搂住橙的身体、另一手则从二人间的缝隙中伸了进去、掀起橙的裙摆、轻轻爱抚起股间那幼嫩的秘所
+						PRINTFORMW 「喵嗯呀❤...！姆...%CALLNAME:MASTER%...抱着就好好抱着...突然摸那里干什么啦...」
+						PRINTFORMW 「“本来就只想摸下面”...呜喵哇...%CALLNAME:MASTER%是大变态...呜呜❤...」
+						PRINTFORMW 「但是...再抱紧一点点的话...橙就让%CALLNAME:MASTER%随便摸啦...呼嗯❤...」
+						PRINTFORMDW 小猫妖操纵起身后细长的黑色尾巴、绕过手臂勾住了%CALLNAME:MASTER%的后背、紧紧缠住了二人的身体...      
+					CASE 2
+						PRINTFORMW 「唔...不要总是隔着衣服摸了啦...！%CALLNAME:MASTER%真是的...」
+						PRINTFORMW 「总是把衣服弄得乱糟糟的话...蓝大人会跟橙说教的啦...」
+						PRINTFORMDW 红着小脸抓住%CALLNAME:MASTER%不老实的手、小猫妖慢慢操纵着身后尾巴、在%CALLNAME:MASTER%的面前缓缓挑起了裙子前摆
+						PRINTFORMW 「这、这样的话、就不会把衣服弄脏了喵...诶嘿嘿❤...」
+						PRINTFORMDW 露出期待般的荡漾笑容、小猫妖拉动了%CALLNAME:MASTER%的手臂、将手指贴上了自己的小腹、挑逗般来回摩擦起来...
+						PRINTFORMW 「%CALLNAME:MASTER%...温柔一点喵❤...」  
+					CASE 3
+						PRINTFORMDW 从背后突然抱住橙的细腰、顺势将手掌插进了股间、朝着小小阴蒂所在的位置发起了进攻
+						PRINTFORMW 「呼喵呀啊...！呜哈...%CALLNAME:MASTER%❤...那里、不要❤...喵嗯❤...！唔呀❤...！咪呀呀❤...呜啊❤...」
+						PRINTFORMDW 刚刚触碰小猫妖的股间、%CALLNAME:MASTER%的指尖就传来了小豆豆逐渐凸起的奇妙触感
+						PRINTFORMDW 只是稍稍摩擦、小猫妖都会缩起身体发出响亮的娇吟、简直就像是期待着%CALLNAME:MASTER%的爱抚一样呢...
+						PRINTFORMW 「哈啊...才不会...期待这种事情的喵...呜啊呀❤...都怪%CALLNAME:MASTER%突然地就...喵嗯呀❤...」
+						PRINTFORMDW 虽然橙在用颤抖的声音表示着反对、但那因为快感而夹紧双腿、剧烈颤抖的身体、早就把一切都暴露出来了呢...
+					CASE 4
+						PRINTFORMW 「呜嗯...不要突然地摸过来喵...喵呜啊❤...！」
+						PRINTFORMDW 伸手隔着裙摆轻轻搔弄橙的秘所、她就抑制不住般发出了响亮的娇呼声
+						PRINTFORMDW 而那夹紧的两腿之间、也随着%CALLNAME:MASTER%的爱抚而渐渐出现了冒着热气的水流痕迹、一路流至脚跟、连鞋袜都一起弄湿了...
+						PRINTFORMW 「呜啊啊...裙子下面...全都都湿掉了啦...呜呜❤...」
+						PRINTFORMW 「%CALLNAME:MASTER%...不要再摸了喵...呜呀啊啊❤...呜咿呀❤...」
+				ENDSELECT
+			ELSEIF ABL:24:0 >= 4 ;略有感觉的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「呜哈❤...%CALLNAME:MASTER%...还真是喜欢橙的裙子下面啊...」
+						PRINTFORMW 「明明是尿尿的地方...为什么总是用手去摸啊...呼喵❤...哇呀❤...」
+						PRINTFORMDW 小猫妖紧紧地握着%CALLNAME:MASTER%的手臂、因为身下传来的快感而不时发出着夹杂困惑的娇柔喘息
+						PRINTFORMDW 即使橙还没有完全认识到这种快感、那娇小的身躯却早已随着%CALLNAME:MASTER%的爱抚而散发出热气了呢...
+					CASE 1
+						PRINTFORMDW 将橙抱在了自己的腿上、如同对待玩偶一般从四肢不停地来回抚摸、最后突然集中爱抚起股间的密缝
+						PRINTFORMW 「呜呀？！呼嗯❤...%CALLNAME:MASTER%❤...不要❤...呜喵啊❤...」
+						PRINTFORMW 「身体...变奇怪了喵...呼啊啊❤...%CALLNAME:MASTER%...温柔一点、温柔一点喵❤...」
+						PRINTFORMDW 被一下子传来的快感弄得浑身发颤、小猫妖紧紧蜷缩起了身体、带着掩饰不住的娇声不停呼喊着%CALLNAME:MASTER%...
+					CASE 2
+						PRINTFORMDW 觉得只是抚摸还不够的%CALLNAME:MASTER%、干脆在橙的面前蹲下、一边欣赏裙下风光的同时、用手指爱抚起幼嫩秘所
+						PRINTFORMW 「呜哇啊啊...不要盯得那么紧喵...变态...大变态❤...呜呜...」
+						PRINTFORMW 「这样子...感觉更奇怪了喵...喵咿呀...呜啊❤...」
+						PRINTFORMDW 因为羞耻而捂住通红小脸的小猫妖、连双腿都开始发软、好像随时都会倒向%CALLNAME:MASTER%一样...	  
+					CASE 3
+						PRINTFORMDW %CALLNAME:MASTER%从背后紧贴住橙的娇小身躯、然后慢慢的用手指隔着裙子来回挑弄起耻丘下方
+						PRINTFORMW 「嗯唔啊...%CALLNAME:MASTER%...又在恶作剧...呜嗯❤...」
+						PRINTFORMW 「就不能稍微消停一下喵...呼哈啊...喵嗯❤...」
+						PRINTFORMDW 随着温柔的爱抚、小猫妖软绵绵的身体下意识地回贴上了%CALLNAME:MASTER%、连尾巴也缠上了%CALLNAME:MASTER%的腰间、把二人的距离进一步缩短了...
+					CASE 4
+						PRINTFORMW 「呜呼啊❤...！等下...%CALLNAME:MASTER%...嗯喵哇❤...！」
+						PRINTFORMDW 突然伸手按揉橙幼嫩耻丘下方的小小阴蒂、她就如同触电一般发出了惊呼、发出了抑制不住的呻吟声
+						PRINTFORMW 「呜、呜呀❤...那里...不可以这样子揉的...咿喵呀❤...！呜呜啊❤...」
+						PRINTFORMDW 即便隔着裙子、%CALLNAME:MASTER%的指腹也传来了凸起的小豆豆带来的、咕哩咕哩的奇妙触感...
+				ENDSELECT
+			ELSE ;尚未开发的阶段
+				SELECTCASE RAND:5
+					CASE 0
+						PRINTFORMW 「呜喵...！又突然把手伸进橙的裙子底下...%CALLNAME:MASTER%是大变态...」
+						PRINTFORMDW 刚刚将手伸进裙下、小猫妖就隔着裙摆轻轻按住了%CALLNAME:MASTER%的手腕
+						PRINTFORMW 「...只准稍微摸一下下哦！毕竟被别人看见的话...就真的会变成大变态了啦...」
+						PRINTFORMDW 能摸到橙的裙下、就算真的被当成变态也无所谓了呢...
+						PRINTFORMW 「呜啊...就算%CALLNAME:MASTER%...不要脸...呼喵嗯❤...橙还要的啦...呼呀...呜...」
+					CASE 1
+						PRINTFORMDW 顺着橙细长的黑色尾巴、%CALLNAME:MASTER%一寸一寸地朝着股间挪动着手指...
+						PRINTFORMW 「就知道%CALLNAME:MASTER%不会老老实实地摸橙的尾巴呢...唔嗯...」
+						PRINTFORMDW 就像看穿了%CALLNAME:MASTER%的意图似的、小猫妖摇动尾巴、撒气似的轻轻抽着%CALLNAME:MASTER%的手臂
+						PRINTFORMW 「%CALLNAME:MASTER%就真的那么喜欢摸裙子下面嘛...就不能连尾巴也一起多摸摸嘛！呜呜...」
+						PRINTFORMDW 完全没有抗拒越界行为的橙恳求着更多的抚摸、仿佛%CALLNAME:MASTER%只是在进行着普通的身体接触一样...  
+					CASE 2
+						PRINTFORMDW %CALLNAME:MASTER%伸出手指、隔着裙摆轻柔地按压起橙的小小阴蒂
+						PRINTFORMW 「呜嗯...呼呀...不要只是按着那里喵...嗯唔❤...」
+						PRINTFORMDW 每次朝下按、小猫妖的肩膀就会跟着微微颤抖、同时从齿缝间漏出小小的呻吟
+						PRINTFORMDW 即使隔着层层布料、也能感受到指腹下方传来了逐渐变硬的奇妙触感呢... 
+					CASE 3	
+						PRINTFORMW 「不行啦...不可以碰啦...！」
+						PRINTFORMDW 鼓着小脸的橙按住自己的裙摆、不停转身躲避着%CALLNAME:MASTER%伸向裙下的手掌
+						PRINTFORMDW 然而比起平时的动作、小猫妖却明显慢了许多、仿佛是在故意让%CALLNAME:MASTER%抓住一样呢...
+						PRINTFORMW 「呜哇啊...！被抓住了啦...呜呜...」
+						PRINTFORMDW 掐住了欲擒故纵的橙的纤细腰身、她就立马停下了挣扎的动作、带着通红小脸将身体交给了%CALLNAME:MASTER%...
+						PRINTFORMW 「%CALLNAME:MASTER%...轻点哦...」  
+					CASE 4
+						PRINTFORMW 「喵呜哇...！呜...%CALLNAME:MASTER%...温柔一点嘛...」
+						PRINTFORMDW 稍稍用力捏了捏橙还未凸起的阴蒂周围、她就立马发出了小小的惊呼、拉住了%CALLNAME:MASTER%的手
+						PRINTFORMDW 似乎不小心做得太过了呢...担心小猫妖难受的%CALLNAME:MASTER%一边道歉、一边迅速抽出了手掌
+						PRINTFORMW 「诶诶...？%CALLNAME:MASTER%...不摸了嘛？」
+						PRINTFORMW 「那个...橙也没有觉得难受啦...只是被稍微吓到了而已啦...」
+						PRINTFORMDW 看着%CALLNAME:MASTER%收手的橙、脸上不知为何闪过了小小的失望...
+				ENDSELECT
+			ENDIF
+		ELSEIF TALENT:24:3 ;恋慕
+			IF ABL:24:0 > 5 ;开发完全的阶段
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呜喵啊❤...%CALLNAME:MASTER%...呼喵呀❤...」
+					PRINTFORMDW 只是隔着裙子朝橙的股间轻轻搔弄、小猫妖就发出了小小的娇吟、伸手按住了%CALLNAME:MASTER%的手腕
+					PRINTFORMW 「诶...？怎么停下来了...%CALLNAME:MASTER%...不摸了嘛？」
+					PRINTFORMW 「姆～明明是%CALLNAME:MASTER%先摸过来的啦...快点继续嘛...呼哈❤...喵呼呀❤...咿喵呼呀❤...」
+					PRINTFORMDW 故意停下手上的动作、露出迷离眼神的橙便主动挪动%CALLNAME:MASTER%的手指、恳求着继续爱抚...
+				CASE 1
+					PRINTFORMDW 只是将手指轻轻搭上橙的小腹、她就如同反射一般抖了下身子
+					PRINTFORMW 「呜喵啊❤...%CALLNAME:MASTER%...不要总是突然摸这种地方嘛...呜呜...」
+					PRINTFORMW 「明明知道、橙的身体已经很奇怪了...还总是欺负人家...呼呜嗯❤...呜呀❤...」
+					PRINTFORMDW 转身趴进怀中的小猫妖、如同抱怨一般朝着%CALLNAME:MASTER%不停地低语着
+					PRINTFORMDW 而随着%CALLNAME:MASTER%动起夹在二人身体之间、贴在耻丘下方小小凸起上的手指、那抱怨的低语便一下子变成了连绵不断的娇柔喘息...
+					PRINTFORMW 「呜喵啊❤...呼喵呀❤...不行❤...呜呜❤...%CALLNAME:MASTER%❤...又欺负橙❤...唔啊❤...」   
+				CASE 2
+					PRINTFORMW 「呜嗯❤...不行...明明还穿着衣服的...喵呀❤...」
+					PRINTFORMDW 即使隔着衣物、橙的身体也随着%CALLNAME:MASTER%的爱抚而渐渐地变得滚烫
+					PRINTFORMDW 而在裙下爱抚小猫妖幼嫩秘所的手指、也渐渐地感受到了诱人的湿气...
+					PRINTFORMW 「呜喵哇啊❤...裙子下面...湿掉了啦...呜呜❤...」
+					PRINTFORMW 「都怪%CALLNAME:MASTER%啦❤...这样子...到底想对橙做什么啦❤...呼嗯啊❤...」
+					PRINTFORMDW 小猫妖用布满水雾的棕色瞳孔盯着%CALLNAME:MASTER%的手腕、似乎正期待着什么的样子...  
+				ENDSELECT
+			ELSEIF ABL:24:0 >= 4 ;略有感觉的阶段
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「想摸...橙的下面...呜喵...」
+					PRINTFORMW 「这样的事情...怎么可以随便地就...呜...%CALLNAME:MASTER%就不觉得害羞嘛...」
+					PRINTFORMDW 听到%CALLNAME:MASTER%的请求、小猫妖的脸一下子就红了起来、把自己的小脑袋埋在了胸前
+					PRINTFORMW 「...但是、既然是%CALLNAME:MASTER%的要求...橙...也没那么讨厌就是了啦...」
+					PRINTFORMDW 尽管是如同自言自语的小声呢喃、%CALLNAME:MASTER%却不知为何听得一清二楚...
+					PRINTFORMDW 抓住机会的%CALLNAME:MASTER%迅速掀起裙摆、用手指轻轻地\@ CFLAG:24:291 ?  # 隔着内裤的柔软布料 \@爱抚起了小猫妖如同细线般的幼小密缝...
+					PRINTFORMW 「呜喵嗯❤...%CALLNAME:MASTER%..等、等下嘛❤...橙明明都还没说...喵呼哇❤...呜嗯❤...」
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%一只手抓住橙的尾巴、另一只手则顺着尾巴向下撸动、轻轻地贴上了裙下包裹着的小巧臀部...
+					PRINTFORMW 「唔喵...%CALLNAME:MASTER%的手...又不老实了啦...呜...」
+					PRINTFORMW 「不行...不可以再往里面伸啦...咿喵呀...呼喵呀❤...嗯哇啊❤...」
+					PRINTFORMDW 无视小猫妖按住自己手臂意图阻拦的动作、%CALLNAME:MASTER%将手指伸进股间、撸动尾巴的同时隔着裙子摩擦起了幼小密缝
+					PRINTFORMDW 每次手指同时碰触到小小阴蒂和尾巴根部、满脸通红的橙就会浑身颤抖、无法忍受般发出轻声娇吟...  
+				CASE 2
+					PRINTFORMW 「呜喵...不要再摸那种地方了啦...感觉好奇怪的...嗯❤...」
+					PRINTFORMDW 橙的嘴上说着抗拒般的话语、但她的身体却随着%CALLNAME:MASTER%爱抚腿间秘所的动作而不自觉地微微弓起了腰身...
+					PRINTFORMW 「明明...都怪%CALLNAME:MASTER%突然欺负橙了啦...呜嗯❤...」
+					PRINTFORMW 「橙才不知道...这是什么感觉啦...呼喵...呼唔❤...嗯❤...」
+					PRINTFORMDW 还没有完全认识身体快感的小猫妖缩起了身体、捂着小嘴掩饰着漏出的轻吟 
+				ENDSELECT
+			ELSE ;尚未开发的阶段
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「唔喵嗯...%CALLNAME:MASTER%...手...是不是有点放得太靠下了啦...」
+					PRINTFORMDW 看着%CALLNAME:MASTER%贴上自己小腹、还在缓缓向下移动的手掌、橙似乎察觉到了什么似的、渐渐染红了脸
+					PRINTFORMDW 然而除了那可爱的通红脸蛋、小猫妖却没有一点阻止%CALLNAME:MASTER%的意思呢...
+					PRINTFORMDW 得到默许的手指慢慢地探进裙下的空腔、隔着布料摩挲起了那柔嫩的幼小秘所
+					PRINTFORMW 「呜呀...！呼嗯...%CALLNAME:MASTER%...果然想摸那里...」
+					PRINTFORMW 「呜...明明那里很脏的...为什么总是想摸啊...喵唔...」
+					PRINTFORMDW 红着脸蛋的橙默默忍受了一会儿%CALLNAME:MASTER%的骚扰、随即迅速跳开了  
+ 				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%从背后贴近橙的娇小身体、用手掌轻轻按住了那对纤细的柔软大腿、慢慢地来回抚摸着
+					PRINTFORMW 「诶...？%CALLNAME:MASTER%...又打算做什么啊...？」
+					PRINTFORMDW 无视了小猫妖的疑问、默不作声的%CALLNAME:MASTER%紧贴住她的后背、同时顺着光滑的大腿向上移动手臂、在那幼嫩的耻丘上来回抚摸起来
+					PRINTFORMW 「嗯喵哈...？%CALLNAME:MASTER%...好痒喵...？！呼喵哈啊...停一下...呼哈...」
+					PRINTFORMDW 被%CALLNAME:MASTER%抚摸着的橙微微颤抖着身体、发出了夹着笑声的困惑喘息
+				CASE 2
+					PRINTFORMW 「喵哇...？！呜...不要突然就把手伸进橙的裙子下面啦...！」
+					PRINTFORMDW 小猫妖伸手抓住%CALLNAME:MASTER%的手腕、阻拦着进一步伸向裙底的动作
+					PRINTFORMDW 稍稍用力拨开那软绵绵的小手、%CALLNAME:MASTER%便将手掌伸进了橙的裙下、用手指轻柔地按揉起还未凸起的小小阴蒂
+					PRINTFORMW 「呜哇...！呼嗯啊...不、不行...！不要摸那里...感觉好奇怪的喵...！呜喵啊...」
+					PRINTFORMDW 尚未熟悉这种刺激的小猫妖轻轻摇晃着脑袋、不知是舒服还是难受呢...
+				ENDSELECT
+			ENDIF
+		ELSEIF TALENT:24:8 ;思慕
+			SELECTCASE RAND:4
+				CASE 0
+					PRINTFORMW 「想抱一下橙...？唔、但是——喵呀！」
+					PRINTFORMDW 趁着小猫妖还在犹豫的时间、%CALLNAME:MASTER%迅速从背后环抱住了她、同时将手掌顺势按在了软绵绵的小腹上面、隔着裙子的布料、不经意一般轻轻抚弄起耻丘下的小小秘所
+					PRINTFORMW 「唔...喵嗯...呼诶...？」
+					PRINTFORMW 「...姆～%CALLNAME:MASTER%...要抱就好好抱着嘛、手不要总是乱动啦！弄得橙不太舒服呢...」
+					PRINTFORMDW 被陌生的触感挑弄、小猫妖皱着眉头不停扭动着身子、从%CALLNAME:MASTER%的怀抱里钻了出来 
+				CASE 1
+					PRINTFORMW 「诶？鞋子底下好像粘了什么呢？让橙看一下...」
+					PRINTFORMDW 小猫妖突然弯下了腰、似乎在摆弄着鞋子上的东西
+					PRINTFORMDW 而在橙身后的%CALLNAME:MASTER%、便顺着纤细的双腿、看见了裙下\@ CFLAG:24:291 ? 隐隐露出的洁白的大腿... # 从腿间隐隐露出的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@
+					PRINTFORMDW 按捺不住地伸出手指、慢慢地靠近隐藏在裙下的幼小密缝、朝着小小阴蒂所在的位置轻轻地戳了一下
+					PRINTFORMW 「喵哼？！呜呜——！%CALLNAME:MASTER%在干什么喵！不要做这种恶作剧啦！哼！」
+					PRINTFORMDW 发出哼声的橙、身体猛地一颤、然后便迅速抬起了身子、扭头朝%CALLNAME:MASTER%抱怨起来 
+				CASE 2
+					PRINTFORMW 「喵呜哇！%CALLNAME:MASTER%在摸哪里呢？！」
+					PRINTFORMDW 只是轻轻触碰到橙的小腹、她就如同吓到了一样抖了下身子、发出了惊呼
+					PRINTFORMW 「诶...？只是想摸摸橙的肚子嘛...？嗯...倒不是不行啦...」
+					PRINTFORMDW 确认自己似乎骗过橙的%CALLNAME:MASTER%、渐渐得寸进尺地顺着抚摸的节奏向下移动着手掌、慢慢地让自己的拇指摩擦起小腹下的腿间...
+					PRINTFORMW 「嗯呜...嗯喵啊...呼喵...？感觉好奇怪...%CALLNAME:MASTER%真的在...摸肚子嘛？呼啊...」
+					PRINTFORMDW 不知为何纵容着%CALLNAME:MASTER%过界行为的小猫妖、脸上微微泛起了红色...   
+				CASE 3
+					PRINTFORMDW %CALLNAME:MASTER%顺着橙光滑的小腿、向上轻轻划动着手指
+					PRINTFORMW 「这种程度、橙才不会笑出来哦！%CALLNAME:MASTER%再多努力点才行呢！哼哼～♪」
+					PRINTFORMDW 误认为%CALLNAME:MASTER%在挠痒的小猫妖、似乎没有注意到%CALLNAME:MASTER%的手指正越过膝盖、朝着自己的腿间移动...
+					PRINTFORMW 「诶...怎么不挠痒了...呜喵...呼喵呀...？！」
+					PRINTFORMW 「喂...！那里已经超过大腿了吧！%CALLNAME:MASTER%犯规！呜呜...！」
+					PRINTFORMDW 被碰触幼小密缝而发出轻吟的橙、随即生气地鼓起小脸、用大腿把%CALLNAME:MASTER%的手紧紧夹住了
+			ENDSELECT
+		ELSE 
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呜喵呀！不行！不准碰这里！」
+					PRINTFORMDW %CALLNAME:MASTER%的手刚刚碰到裙下、橙就迅速地从%CALLNAME:MASTER%的身边跳开了
+					IF FIRSTTIME ("初次越界")
+						PRINTFORMW 「蓝大人说过、裙子下面是橙很重要的地方！陌生人不可以随便摸！」
+						PRINTFORMW 「再伸过来的话...橙就对%CALLNAME:MASTER%不客气了哦！哼！」
+						PRINTFORMDW 小猫妖生气地瞪大了眼睛、死死地盯着%CALLNAME:MASTER%的脸、仿佛下一秒就会扑上来用爪子一顿乱抓...
+					ELSE
+						PRINTFORMW 「呜喵～——！！橙可是警告过%CALLNAME:MASTER%的哦！」
+						PRINTFORMW 「看来必须给%CALLNAME:MASTER%一点教训才会听橙说话呢！喵嗷～——！！！」
+						PRINTFORMDW 小猫妖迅速扑向了%CALLNAME:MASTER%、伸出锋利的爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+					CALL RECOVER (MASTER,-500,"体力","被橙抓伤了")
+					ENDIF
+				CASE 1
+					PRINTFORMW 「喵哇！%CALLNAME:MASTER%在干嘛啊！」
+					PRINTFORMDW 小猫妖迅速伸出双手、死死按住了%CALLNAME:MASTER%伸向裙底的手掌
+					IF FIRSTTIME ("初次越界")
+						PRINTFORMW 「那个地方、%CALLNAME:MASTER%不可以随便摸！」
+						PRINTFORMW 「再犯的话、橙就要咬%CALLNAME:MASTER%的手了哦！」
+						PRINTFORMDW 橙张开嘴巴、露出了锋利的牙齿、看得出来她没在开玩笑...
+					ELSE
+						PRINTFORMW 「橙可是提醒过%CALLNAME:MASTER%了啊！！%CALLNAME:MASTER%故意的吗？！」
+						PRINTFORMW 「呜喵啊啊！！！啊呜呜——！！！」
+						PRINTFORMDW 发出愤怒哼声的小猫妖、张开小嘴朝着手掌上咬了下去！
+						CALL RECOVER (MASTER,-500,"体力","被橙咬伤了")
+					ENDIF
+				CASE 2
+					PRINTFORMW 「唔诶？！%CALLNAME:MASTER%在往哪里摸啊？！」
+					PRINTFORMDW 察觉到%CALLNAME:MASTER%伸向裙底摸索的手指、橙立马夹紧双腿蹲了下去、躲开了%CALLNAME:MASTER%的动作
+					IF FIRSTTIME ("初次越界")
+						PRINTFORMW 「虽然橙答应%CALLNAME:MASTER%可以摸橙...但是不准到处乱摸！尤其是裙子底下！！」
+						PRINTFORMW 「再敢乱摸的话、橙可就要还手了哦！」  
+						PRINTFORMDW 小猫妖的瞳孔因为生气而瞪得大大的、连后背都不自觉地弓了起来、看来不是一般地生气呢...
+					ELSE
+						PRINTFORMW 「呜喵哇啊啊～——！！橙真的生气了哦！！」
+						PRINTFORMDW 小猫妖如同闪现一样跳到了%CALLNAME:MASTER%的背后、朝着屁股上狠狠地踢了一脚！
+						PRINTFORMDW 没有防备的%CALLNAME:MASTER%、被出乎预料的袭击给踢到了天上！
+					CALL RECOVER (MASTER,-500,"体力","被橙踢飞了")
+					ENDIF
+			ENDSELECT
+		ENDIF
+	ENDIF
+ENDIF
+RETURN 1
+;==================================================
+;316,手指挿入
+;CFLAG:317==2&&TCVAR:20(35=自己掀起裙子 70=クンニ強制 87=Ａ挿入状态 89=A插入时动腰
+;TALENT:処女(连续的手指插入有丧失风险，所以基本会拒绝)
+;ABL:Ｖ感覚(1未満=因为体内的违和感而困惑 5未満=因为爱抚开始感觉到舒服 5以上＝感受到快感)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;==================================================
+@M_KOJO_MOKA_SUCCESS_COM_K24_316
+;成否判定
+;TFLAG:192(-1＝強制失敗
+TFLAG:192 =0
+
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_316
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_316
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_316_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_316_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW 
+		ELSEIF TALENT:24:3 ;恋慕
+			PRINTFORMDW 
+		ELSE
+			PRINTFORMDW 
+		ENDIF
+	ELSEIF CFLAG:313
+		PRINTFORMW
+	ELSEIF CFLAG:318 || TALENT:24:15 == -1 ;生气&心情不快
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人、可能会是性骚扰这一块的通用文本...
+		 	PRINTFORMW 「呜哈❤？！」
+			PRINTFORMDW 突然伸手掏向一旁生着闷气的橙的裙底、她就惊讶地发出了一声娇呼
+			PRINTFORMW 「姆～%CALLNAME:MASTER%突然做什么啦！是恶作剧嘛？！」
+			PRINTFORMW 「才不是...？那是要做什么...呀昂❤？！...不要弄啦！哼！」
+			PRINTFORMDW 被鼓起小脸的小猫妖用力拧住了不老实的手背、吃痛的%CALLNAME:MASTER%不得不停了下来...
+			PRINTFORML
+			PRINTFORMW 「...看橙不高兴、所以想让橙高兴点...呜喵...这、这样子...怎么可能会让橙高兴起来啊！%CALLNAME:MASTER%真是超级的...无可救药的大变态...！」
+			PRINTFORMW 「想让橙高兴起来的话...明明只要好好抱一抱就行了喵...」
+			SIF GETBIT(CFLAG:24:1,1) && ABL:24:11 >=5 ;已经做过、欲望大于5级
+				PRINTFORMW 「虽然...橙也确实觉得做那种事情很舒服就是了啦❤...但是...怎么可以随便做啦！哼...」
+			PRINTFORMW 「总、总之！作为对%CALLNAME:MASTER%变态行为的惩罚！橙就先把%CALLNAME:MASTER%占用直到橙满意为止！哼！」
+			PRINTFORMDW 挂着红得快滴出血的小小脸蛋的小猫妖、把自己的脸深深埋进了%CALLNAME:MASTER%的怀里、不再说话了
+			PRINTFORMDW 只好歉意地轻轻揉弄怀中小猫的小脑袋、一边不停说着道歉的话、直到她满意地抬起脑袋为止...
+			PRINTFORML  
+			PRINTFORMW 「呼～有%CALLNAME:MASTER%在的话、感觉心情一下子就平静了呢...谢谢...」
+			PRINTFORMDW 不知过了多久、怀里的橙才主动松开了手、带着微微发红的小脸从怀里钻了出来
+			PRINTFORMW 「虽然%CALLNAME:MASTER%是个奇怪的变态...但是橙也不讨厌就是啦❤...」
+			PRINTFORMW 「所以说...不管想做什么...都要温柔一点哦...」
+			CFLAG:318 = 0
+			TALENT:24:15 = 1
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMW 「呜喵呀啊啊啊？！%CALLNAME:MASTER%在摸哪里啊？！」
+			PRINTFORMDW 刚刚触碰到橙的股间、她就如反射一般迅速地跳开了
+			PRINTFORMW 「呜呜...%CALLNAME:MASTER%...这样子的事情...不行的啦...！」
+			PRINTFORMW 「绝对...绝对的不行哦！再这么做...橙就...咬%CALLNAME:MASTER%的手了...」
+			PRINTFORMDW 用双手死死捂住腿间裙摆、不满地朝%CALLNAME:MASTER%抱怨着的小猫妖、眼睛却不敢直视%CALLNAME:MASTER%一般低垂着...    
+		ELSE
+			PRINTFORMW 「呜喵嗷嗷～——！！！」
+			PRINTFORMDW 橙突然用爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+			BASE:MASTER:0 -= 300
+		ENDIF
+	ELSEIF CFLAG:317 == 2	;诶嘿嘿 对方主动权
+		SELECTCASE TCVAR:20
+			;掀起裙子
+			CASE 35
+				PRINTFORMW 	
+			;强制舔阴
+			CASE 70
+				PRINTFORMW 				
+			;A插入
+			CASE 87,89
+				PRINTFORMW 	
+			CASEELSE
+				PRINTFORMW 	
+		ENDSELECT
+	ELSE
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+
+		ELSEIF TALENT:24:3 ;恋慕
+
+		ELSEIF TALENT:24:8 ;思慕
+			
+		ELSE 
+			SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「呜喵呀！不行！不准碰这里！」
+				PRINTFORMDW %CALLNAME:MASTER%的手刚刚碰到裙下、橙就迅速地从%CALLNAME:MASTER%的身边跳开了
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「蓝大人说过、裙子下面是橙很重要的地方！陌生人不可以随便摸！」
+					PRINTFORMW 「再伸过来的话...橙就对%CALLNAME:MASTER%不客气了哦！哼！」
+					PRINTFORMDW 小猫妖生气地瞪大了眼睛、死死地盯着%CALLNAME:MASTER%的脸、仿佛下一秒就会扑上来用爪子一顿乱抓...
+				ELSE
+					PRINTFORMW 「呜喵～——！！橙可是警告过%CALLNAME:MASTER%的哦！」
+					PRINTFORMW 「看来必须给%CALLNAME:MASTER%一点教训才会听橙说话呢！喵嗷～——！！！」
+					PRINTFORMDW 小猫妖迅速扑向了%CALLNAME:MASTER%、伸出锋利的爪子狠狠挠起了%CALLNAME:MASTER%的手臂！
+				CALL RECOVER (MASTER,-500,"体力","被橙抓伤了")
+				ENDIF
+			CASE 1
+				PRINTFORMW 「喵哇！%CALLNAME:MASTER%在干嘛啊！」
+				PRINTFORMDW 小猫妖迅速伸出双手、死死按住了%CALLNAME:MASTER%伸向裙底的手掌
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「那个地方、%CALLNAME:MASTER%不可以随便摸！」
+					PRINTFORMW 「再犯的话、橙就要咬%CALLNAME:MASTER%的手了哦！」
+					PRINTFORMDW 橙张开嘴巴、露出了锋利的牙齿、看得出来她没在开玩笑...
+				ELSE
+					PRINTFORMW 「橙可是提醒过%CALLNAME:MASTER%了啊！！%CALLNAME:MASTER%故意的吗？！」
+					PRINTFORMW 「呜喵啊啊！！！啊呜呜——！！！」
+					PRINTFORMDW 发出愤怒哼声的小猫妖、张开小嘴朝着手掌上咬了下去！
+					CALL RECOVER (MASTER,-500,"体力","被橙咬伤了")
+				ENDIF
+			CASE 2
+				PRINTFORMW 「唔诶？！%CALLNAME:MASTER%在往哪里摸啊？！」
+				PRINTFORMDW 察觉到%CALLNAME:MASTER%伸向裙底摸索的手指、橙立马夹紧双腿蹲了下去、躲开了%CALLNAME:MASTER%的动作
+				IF FIRSTTIME ("初次越界")
+					PRINTFORMW 「虽然橙答应%CALLNAME:MASTER%可以摸橙...但是不准到处乱摸！尤其是裙子底下！！」
+					PRINTFORMW 「再敢乱摸的话、橙可就要还手了哦！」  
+					PRINTFORMDW 小猫妖的瞳孔因为生气而瞪得大大的、连后背都不自觉地弓了起来、看来不是一般地生气呢...
+				ELSE
+					PRINTFORMW 「呜喵哇啊啊～——！！橙真的生气了哦！！」
+					PRINTFORMDW 小猫妖如同闪现一样跳到了%CALLNAME:MASTER%的背后、朝着屁股上狠狠地踢了一脚！
+					PRINTFORMDW 没有防备的%CALLNAME:MASTER%、被出乎预料的袭击给踢到了天上！
+				CALL RECOVER (MASTER,-500,"体力","被橙踢飞了")
+				ENDIF
+			ENDSELECT 
+		ENDIF
+	ENDIF
+ENDIF
+RETURN 1
+;==================================================
+;317,動起腰身（Ｖ）
+;TFLAG:194 : 插入选择支，0=腰技巧不足 1=激烈地动腰 2=慢慢地抽插 3=扭动着腰
+;ABL:Ｖ感覚(2未満=还不太舒服 5未満=有点舒服 5以上=感受到快感
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_317
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_317
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_317_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_317_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	SELECTCASE TFLAG:194 
+		CASE 0 
+			PRINTFORMW 	
+		CASE 1 
+			PRINTFORMW 	
+		CASE 2 
+			PRINTFORMW 	
+		CASE 3
+			PRINTFORMW 	
+	ENDSELECT 
+ENDIF
+RETURN 1
+;==================================================
+;318,動起腰身（Ａ）
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_318
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_318
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_318_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_318_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	SELECTCASE TFLAG:194 
+		CASE 0 
+			PRINTFORMW 	
+		CASE 1 
+			PRINTFORMW 	
+		CASE 2 
+			PRINTFORMW 	
+		CASE 3
+			PRINTFORMW 	
+	ENDSELECT 
+ENDIF
+RETURN 1
+
+;====================================================================================================
+;320,对方主導正常位
+;====================================================================================================
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_320
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_320
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_320_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_320_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FIRSTTIME(SELECTCOM) 
+		;破瓜
+		IF TALENT:0
+			PRINTFORMW 	
+		;非处女
+		ELSE 
+			PRINTFORMW 	
+		ENDIF 
+	;通常
+	ELSE 
+		PRINTFORMW 
+	ENDIF 
+ENDIF
+RETURN 1
+
+;====================================================================================================
+;322,对方主導後背位
+;====================================================================================================
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_322
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_322
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_322_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_322_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FIRSTTIME(SELECTCOM) 
+		;破瓜
+		IF TALENT:0
+			PRINTFORMW 
+		;非处女
+		ELSE 
+			PRINTFORMW 
+		ENDIF 
+	;通常
+	ELSE 
+		PRINTFORMW 
+	ENDIF 
+ENDIF
+RETURN 1
+
+;====================================================================================================
+;323,对方主導後背位Ａ
+;====================================================================================================
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_323
+RETURN 0
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_323
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_323_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_323_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FIRSTTIME(SELECTCOM) 
+		;Ａ破瓜
+		IF TCVAR:Ａ破瓜
+			PRINTFORMW 
+		;非肛门处女
+		ELSE 
+			PRINTFORMW 
+		ENDIF 
+	;通常
+	ELSE 
+		PRINTFORMW 
+	ENDIF 
+ENDIF
+RETURN 1
+
+;==================================================
+;330,掀起裙子
+;TFLAG:193(-5=拒絶（打耳光） -3=拒絶（掐手） -1=提出抗议 0=提出抗议（娇嗔） 1=主动掀起或者无抵抗
+;TFLAG:193=1&&ABL:14(5以上=在显眼的地方，也会主动撩起裙子 4以下，在有人的对方会稍微抵抗 3以上=在没有人的地方，会自己撩起裙子 3未満=会稍微抵抗)
+;TFLAG:400(1=约会地点旁边的人作出了反应)
+;不是从后面被踹，而是从前面被踹的感觉(如果不是那样的话，想要翻起来的时候停下来当场被打一拳是不可能的，只能在被翻起来之后被打，在那种情况下比起被打一拳一般用弹幕一拳KO不成为才奇怪
+;(原文如此)
+;==================================================
+
+@M_KOJO_MOKA_MESSAGE_MESSAGECHECK_COM_K24_330
+RETURN 1 ;关闭地文方便自我发挥（
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_330
+CALL M_KOJO_MOKA_MESSAGE_COM_K24_330_1
+RETURN RESULT
+
+@M_KOJO_MOKA_MESSAGE_COM_K24_330_1
+;-------------------------------------------------
+;启用（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	IF FLAG:70 ;时停
+		
+		IF TALENT:24:3 && TALENT:24:7 ;恋慕恋人
+			PRINTFORMDW %CALLNAME:MASTER%在时间停止之下、伸手缓缓掀起%CALLNAME:MASTER%的裙摆
+			IF 充填率(TARGET,1) >= 10
+				PRINTFORMDW 随着橙的裙子被缓缓掀起、那\@ CFLAG:24:291 ? 散发着混杂精液气味的淫靡气息、还在顺着腿间流下白浊的幼小密缝 # 被混杂着白浊的爱液沾染、几乎完全浸湿的内裤 \@也呈现在了%CALLNAME:MASTER%的眼前...
+			ELSE
+				PRINTFORMDW 橙的裙子如同舞台的幕布般被缓缓拉起、渐渐露出了裙下\@ CFLAG:24:291 ? 毫无遮挡的幼小密缝 # %PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@
+			ENDIF
+			PRINTFORMDW 凑近小猫妖的股间、用几乎要贴上般的方式视奸着、直到满足为止才不舍地挪开视线
+		ELSEIF TALENT:24:3 ;恋慕 
+			PRINTFORMDW %CALLNAME:MASTER%在时停中伸手掀起橙的裙摆、把脑袋探进了裙子里面
+			IF 充填率(TARGET,1) >= 10
+				PRINTFORMDW 一边嗅闻着小猫妖裙下夹着精液气味的浑浊热气、一边欣赏着小猫妖\@ CFLAG:24:291 ? 微微颤抖、还在抽动着流出精液的幼小密缝 # 被精液浸染、勾勒出小穴部位的内裤 \@、%CALLNAME:MASTER%感到了意外的满足...
+			ELSE
+				PRINTFORMDW 就这样一边细细品尝着小猫妖裙下的香甜气息、一边好好欣赏了小猫妖藏在裙下的\@ CFLAG:24:291 ? 毫无遮挡的幼小密缝 # %PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@...
+			ENDIF		
+		ELSE
+			PRINTFORMDW %CALLNAME:MASTER%在时间停止中伸手抓住橙的裙摆、毫不客气地掀了起来
+			IF 充填率(TARGET,1) >= 10
+				PRINTFORMDW 掀起的裙子凝固在了半空当中、把小猫妖裙下\@ CFLAG:24:291 ? 因为被侵犯而从中流出精液的幼小密缝 # 因为被侵犯而被精液浸湿的内裤 \@完全展现在%CALLNAME:MASTER%眼前
+			ELSE
+				PRINTFORMDW 掀起的裙子凝固在了半空当中、把小猫妖裙下\@ CFLAG:24:291 ? 毫无遮挡的幼小密缝 # %PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@完全展现在%CALLNAME:MASTER%眼前
+			ENDIF	
+		ENDIF
+	ELSEIF CFLAG:24:1002 >= 1 ;恋慕不高兴状态已触发
+		TFLAG:193 = -3
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「...%CALLNAME:MASTER%不会觉得这样很好玩吧？」 
+				PRINTFORMDW 面对%CALLNAME:MASTER%掀起裙摆的动作、橙却没有一点反应、只是用冷冰冰的眼神盯着%CALLNAME:MASTER%的脸...
+			CASE 1
+				IF TALENT:MASTER:7 && MARK:24:3 >= 1 ;非常生气！
+				PRINTFORMW 「为什么...要一直对着橙做这种事情啊！」
+				PRINTFORMW 「明明就不喜欢橙、却一直在对橙做这种令人讨厌的事情...」
+				PRINTFORMW 「难不成是为了让橙亲口对%CALLNAME:MASTER%说出那种话...可、可是...橙做不到...」
+				PRINTFORMW 「...烦死了啦！哼！」
+				PRINTFORMDW 带着复杂表情的小猫妖突然猛地推开%CALLNAME:MASTER%、一下子跑掉了 
+				CFLAG:24:320 = 0
+				CFLAG:0:320 = 0
+				CFLAG:24:300 = CFLAG:24:311
+				CALL DOKU_KM_RENEW_TARGET(24)
+				ELSE
+				PRINTFORMW 「总是做这种小孩子才做的事情、%CALLNAME:MASTER%不害臊嘛？！」
+				PRINTFORMW 「感觉给橙收回去！」
+				PRINTFORMDW 小猫妖用尾巴紧紧绞住%CALLNAME:MASTER%不老实的手腕、用力甩了回去
+				ENDIF
+			CASE 2
+				PRINTFORMDW 试图伸手摸向橙裙底的%CALLNAME:MASTER%、突然感觉手掌被牢牢地握住了
+				PRINTFORMW 「...」
+				PRINTFORMDW 小猫妖一言不发、手上的力度却在不停加大着、连指甲都掐进了肉里面...识相的%CALLNAME:MASTER%及时抽回了手 
+		ENDSELECT
+	ELSEIF CFLAG:24:317 == 2 ;逆推状态	
+	
+	
+	ELSEIF 充填率(TARGET,1) >= 10 && TALENT:24:3 ;被内射过(恋慕以上才会出现)
+		SELECTCASE RAND:2
+		CASE 0
+			PRINTFORMW 「呜喵❤...%CALLNAME:MASTER%...不要掀橙的裙子了啦...」
+			PRINTFORMW 「明明都被%CALLNAME:MASTER%...做了那种事情的❤...嗯❤...」
+			PRINTFORMDW 颤抖着娇小身躯的小猫妖无力阻止伸向裙摆的手掌、只能发出小声的悲鸣、任由%CALLNAME:MASTER%掀起裙摆
+			IF CFLAG:24:291 ;无胖次
+				IF 充填率(TARGET,1) >= 100 
+					PRINTFORMDW 在掀开的裙底下、是被%CALLNAME:MASTER%不停地灌注、如同水球一般鼓起来的光滑小腹、以及沾满了白浊、还在从穴口一股一股地喷着精液的幼小密缝
+					PRINTFORMW 「呜哈❤...都怪%CALLNAME:MASTER%❤❤...喵呜❤...」
+					PRINTFORMW 「肚子里❤...全是%CALLNAME:MASTER%的精液❤❤...都快走不动路了喵❤...」
+				ELSEIF 充填率(TARGET,1) >= 50
+					PRINTFORMDW 在掀开的裙下、是被%CALLNAME:MASTER%的白浊完全侵染、还在从入口处一滴一滴地滴落精液的幼小密缝
+					PRINTFORMW 「嗯❤...%CALLNAME:MASTER%❤...不要盯着那里看了啦❤...」
+					PRINTFORMW 「还在...不停地漏出来❤...羞死喵了啦❤...呜呜❤...」 
+				ELSE  
+					PRINTFORMDW 在掀开的裙底下、是小猫妖微微张开、顺着腿间流淌着夹杂白浊的水迹的幼小密缝
+					PRINTFORMW 「嗯❤...被%CALLNAME:MASTER%看着❤...感觉好奇怪❤...」				
+				ENDIF
+			ELSE ;有胖次
+				IF 充填率(TARGET,1) >= 100 
+					PRINTFORMDW 在掀开的裙底下、是被%CALLNAME:MASTER%不停地灌注、如同水球一般鼓起来的光滑小腹、以及几乎被浓郁白浆浸透、还在从小穴部分不停渗出精液的内裤
+					PRINTFORMW 「呜哈❤...都怪%CALLNAME:MASTER%❤❤...喵呜❤...」
+					PRINTFORMW 「肚子里❤...全是%CALLNAME:MASTER%的精液❤❤...都快走不动路了喵❤...」
+				ELSEIF 充填率(TARGET,1) >= 50
+					PRINTFORMDW 在掀开的裙底下、是被%CALLNAME:MASTER%的精液沾满、几乎要隔着布料滴下白浊的内裤
+					PRINTFORMW 「嗯❤...%CALLNAME:MASTER%❤...不要盯着那里看了啦❤...」
+					PRINTFORMW 「还在...不停地漏出来❤...羞死喵了啦❤...呜呜❤...」
+				ELSE  
+					PRINTFORMDW	在掀开的裙底下、是橙穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%、小穴周围已经被精液浸湿了...
+					PRINTFORMW 「嗯...被%CALLNAME:MASTER%看着...感觉好奇怪❤...」 			
+				ENDIF
+			ENDIF
+			SIF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700 || CFLAG:24:142 == 210;还想要❤
+				PRINTFORMW 「%CALLNAME:MASTER%❤...橙还想要❤...呼喵❤...」
+		CASE 1
+			PRINTFORMW 「想看橙的裙子底下...？可是刚才——」
+			PRINTFORMDW 刚想说些什么的橙、突然意识到了一般低下脑袋、藏起了染上潮红的小脸蛋
+			PRINTFORMW 「呜喵...是故意的嘛...呜呜、%CALLNAME:MASTER%是大变态❤...」
+			PRINTFORMW 「但是啦...橙...还是会给%CALLNAME:MASTER%看的啦❤...」
+			PRINTFORMDW 小猫妖主动伸手、缓缓提起了裙摆、在%CALLNAME:MASTER%期待的眼神下、露出了裙底风光... 
+			IF CFLAG:24:291 ;无胖次
+				IF 充填率(TARGET,1) >= 100 
+					PRINTFORMDW 映入眼中的、是小猫妖高高隆起的小腹、以及还在不停抽动着涌出浓郁精液的幼嫩秘所
+					PRINTFORMW 「呼呼❤...%CALLNAME:MASTER%❤❤...射了好多❤...」
+					PRINTFORMW 「肯定觉得很舒服吧❤❤...诶嘿嘿～❤...」 
+				ELSEIF 充填率(TARGET,1) >= 50
+					PRINTFORMDW 映入眼中的、是小猫妖不停抖动、连带大腿都被精液弄得黏糊糊的幼嫩秘所
+					PRINTFORMW 「喵嗯❤...%CALLNAME:MASTER%❤...那里❤...」
+					PRINTFORMW 「不要❤...盯得那么紧喵❤...呜呜❤...」
+				ELSE  
+					PRINTFORMDW 映入眼中的、是小猫妖微微颤抖着、从穴口垂下丝丝白浊的幼嫩秘所
+					PRINTFORMW 「明明都被%CALLNAME:MASTER%弄脏了...为什么还想看呐...呜❤...」				
+				ENDIF	
+			ELSE ;有胖次
+				IF 充填率(TARGET,1) >= 100 
+					PRINTFORMDW 映入眼中的、是小猫妖高高隆起的小腹、以及被染成精液颜色的、还在不停从腿上流淌着白浊的内裤
+					PRINTFORMW 「呼呼❤...%CALLNAME:MASTER%❤❤...射了好多❤...」
+					PRINTFORMW 「肯定觉得很舒服吧❤❤...诶嘿嘿～❤...」 
+				ELSEIF 充填率(TARGET,1) >= 50
+					PRINTFORMDW 映入眼中的、是小猫妖几乎被精液完全浸湿、正顺着腿间滑下水痕的内裤
+					PRINTFORMW 「喵嗯❤...%CALLNAME:MASTER%❤...那里❤...」
+					PRINTFORMW 「不要❤...盯得那么紧喵❤...呜呜❤...」
+				ELSE  
+					PRINTFORMDW 映入眼中的、是小猫妖被精液浸湿的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%、隐隐地勾勒出了小穴的模样
+					PRINTFORMW 「明明都被%CALLNAME:MASTER%弄脏了...为什么还想看呐...呜❤...」				
+				ENDIF	
+			ENDIF
+			SIF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700 || CFLAG:24:142 == 210 ;还想要❤
+				PRINTFORMW 「%CALLNAME:MASTER%❤...就满足了嘛❤...橙还想再继续做嘛❤...」
+		ENDSELECT
+	ELSE ;通常状态
+		SELECTCASE TFLAG:193 
+			CASE -5 ;迅速按住下装扇MASTER耳光
+				SELECTCASE RAND:2
+				CASE 0
+					PRINTFORMDW %CALLNAME:MASTER%试图掀起橙的裙子...
+					PRINTFORMW 「喵嗷～————！！！」
+					PRINTFORMDW 橙伸出锋利的爪子、狠狠地抓挠起%CALLNAME:MASTER%的手臂！
+					CALL RECOVER(MASTER, -500, "体力", "被挠伤了")
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%试图掀起橙的裙子...
+					PRINTFORMW 「呜呜呜～——哈！！！」
+					PRINTFORMDW 橙飞快地扭过身子、在%CALLNAME:MASTER%的手上狠狠地咬了一口！
+					CALL RECOVER(MASTER, -500, "体力", "被咬伤了")
+				ENDSELECT
+			CASE -3 ;迅速按住下装，掐MASTER的手
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMDW %CALLNAME:MASTER%试图掀起橙裙子的手被死死地按住了
+					PRINTFORMW 「呜呜呜...！！！再敢这么做就咬你哦！」
+					PRINTFORMDW 因为愤怒而瞪大眼睛的小猫妖、狠狠地掐了一下%CALLNAME:MASTER%的手背表示警告
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%的手刚刚碰到橙的裙边、就感觉被什么东西牢牢抓住了手腕
+					PRINTFORMW 「...再干这种事情可没有好下场哦！哼...」
+					PRINTFORMDW 小猫妖锋利的爪子、像是提醒一般在%CALLNAME:MASTER%的手腕上来回刮动着...
+				CASE 2
+					PRINTFORMDW 即将接触到裙摆的瞬间、橙像是感应到了一样、嗖地一下跳开了
+					PRINTFORMW 「再这样乱摸、信不信橙叫蓝大人来教训你啊！」
+					PRINTFORMDW 小猫妖叉着腰、不耐烦地皱着眉头紧盯着%CALLNAME:MASTER%的脸、证明她刚才的话不是开玩笑
+				ENDSELECT		
+			CASE -1 ;按住下装，提出抗议
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMDW 趁着橙没有注意的时候、%CALLNAME:MASTER%突然伸手扯住了她的裙摆、猛地向上一提！
+					PRINTFORMW 「喵呀？！」
+					PRINTFORMDW 慌张的小猫妖赶紧捂住裙子蹲了下去、用尾巴和手掌挡住了即将走光的裙底
+					PRINTFORMW 「姆～%CALLNAME:MASTER%真是的！哼！」
+					PRINTFORMDW 橙顶着气鼓鼓的小脸、对着%CALLNAME:MASTER%的肚子使出了一记头槌！   
+				CASE 1
+					PRINTFORMDW 面朝着橙的%CALLNAME:MASTER%突然把手搭上裙摆、试图向上掀起
+					PRINTFORMW 「喵哇啊！%CALLNAME:MASTER%在干嘛啊！」
+					PRINTFORMDW 反应过来的小猫妖立马按住了%CALLNAME:MASTER%的手臂、阻止了进一步的动作
+					PRINTFORMW 「...再怎么说、橙也是女孩子啦！突然伸手掀裙子什么的也太差劲了吧！哼！」
+					PRINTFORMDW 橙抬起腿来用力踢了下%CALLNAME:MASTER%的小腿肚、好痛...    
+				CASE 2
+					PRINTFORMW 「喵啊！！！呜～」
+					PRINTFORMDW 被%CALLNAME:MASTER%抓住裙摆的橙紧紧捂住了裙子、连尾巴都收在了裙子下面
+					PRINTFORMW 「这样子做、就算是恶作剧也太过分了喵！」
+					PRINTFORMW 「赶紧把手收回去啦！再敢伸过来、橙可就咬%CALLNAME:MASTER%了哦！」
+					PRINTFORMDW 小猫妖把%CALLNAME:MASTER%的手用力地甩了回去 
+				ENDSELECT 	
+			CASE 0 ;按住下装，娇嗔地抗议
+				SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「诶？那里有什么嘛？嗯...？」
+					PRINTFORMDW 趁着橙分心的间隔、%CALLNAME:MASTER%迅速伸手、从背后掀起了她的裙子
+					PRINTFORMW 「喵呀啊！！！」
+					PRINTFORMDW 被突然袭击的小猫妖吓得从原地直接蹦了起来、扑在地上翻滚了一圈、才勉强稳住身子站了起来
+					PRINTFORMW 「姆呜呜～——！%CALLNAME:MASTER%！恶作剧太过分了啦！哼！」
+					PRINTFORMDW 小猫妖带着微微发红的小脸、按住裙子朝%CALLNAME:MASTER%表示着抗议
+				CASE 1
+					PRINTFORMDW %CALLNAME:MASTER%伸手搭上了橙的裙摆...然后被橙牢牢握住了手腕
+					PRINTFORMW 「总是把手伸过来、%CALLNAME:MASTER%是不是又在打算做坏事了啊？」
+					PRINTFORMW 「...不过、总是喜欢掀橙的裙子干什么啦！那下面有...那么...好看嘛...呜...」
+					PRINTFORMDW 说着说着、小猫妖的脸就不自觉地变红、连语气都变得支支吾吾起来...   
+				CASE 2
+					;我说不掀裙子也是一种掀裙子（
+					PRINTFORMW 「嗯？%CALLNAME:MASTER%怎么突然蹲下来了啊？」
+					PRINTFORMW 「呜、就算是擦鞋子、也没必要这样子吧...」
+					PRINTFORMDW 橙一脸疑惑地看着眼前不停朝下蹲下去、几乎要趴在地上的%CALLNAME:MASTER%
+					PRINTFORMDW 而没有意识到%CALLNAME:MASTER%企图的小猫妖、自然毫无防备地朝%CALLNAME:MASTER%露出了裙下风光
+					PRINTFORMDW 抓紧时间好好品鉴了小猫妖裙下\@ CFLAG:24:291 ? 因为没有内裤而毫无遮挡、不安地扭动着大腿的股间风光 # 微微张开的两腿间穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@、%CALLNAME:MASTER%迅速从地上爬了起来
+					PRINTFORMW 「呜...到底在干什么啦...看上去好满足的样子...没在做什么坏事吧？」
+					PRINTFORMDW 仍然没有弄明白%CALLNAME:MASTER%到底在做什么的橙、小脸上却不知为何燃起了红霞   
+				ENDSELECT	
+			CASE 1 
+				IF GET_TARGETNUM() == 1 && !DATE_HITOGOMI(CFLAG:PLAYER:現在位置) && !WITH_MOB() ;无人
+					IF ABL:14 > 3 ; 自己掀起裙子/脱下裤子展示出来
+						IF FIRSTTIME ("初次自己掀裙子")
+							PRINTFORMW 「%CALLNAME:MASTER%...稍微等一下嘛...」
+							PRINTFORMDW 刚试图掀起橙的裙子、她就立马抓住了%CALLNAME:MASTER%的手腕
+							PRINTFORMW 「嗯、那个、总是让%CALLNAME:MASTER%自己掀起来看的话...总感觉有点...」
+							PRINTFORMDW 支支吾吾说着什么的小猫妖、脸颊上渐渐燃起了阵阵红霞 
+							PRINTFORMW 「嗯、总之就是...呜...说不出来啦...那样的事情...」
+							PRINTFORMDW 松开抓住%CALLNAME:MASTER%手腕的双手、橙带着几乎要哭出来的羞涩表情、把手慢慢搭在了自己的裙摆上
+							PRINTFORMW 「...反正...不...不要%CALLNAME:MASTER%动手啦！橙、橙自己来掀给%CALLNAME:MASTER%看就可以啦！看吧！！！」
+							PRINTFORMDW 伴随着“唰”的一声、小猫妖就像是自暴自弃一般闭上眼睛大喊着、同时用力向上提起了自己的裙子、朝着%CALLNAME:MASTER%毫不吝啬地展示着裙下的风景
+							PRINTFORMDW 映入%CALLNAME:MASTER%眼帘的、是\@ CFLAG:24:291 ? 失去了内裤的保护、毫无遮掩的紧闭幼小密缝 # 紧贴着股间、仿佛能够看出内部形状的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@
+							PRINTFORMW 「...呜诶？！怎、怎么掀得这么高？！那不是、让%CALLNAME:MASTER%全部都...看见了！」
+							PRINTFORMW 「...呜、呜喵哇啊啊啊...！」
+							PRINTFORMDW 后知后觉的小猫妖一下子羞耻到了顶点、脸上几乎都有丝丝蒸汽冒出、看上去好像随时都会晕掉一样...
+							PRINTFORMDW 似乎没有好好欣赏裙下美好风景的时间了呢...%CALLNAME:MASTER%赶紧抱住了几乎要晕倒的小猫妖、轻轻拍着后背安抚起来
+							PRINTL
+							PRINTFORMDW ......
+							PRINTL
+							PRINTFORMW 「呜...到现在还是好害羞...都怪%CALLNAME:MASTER%要看橙的裙底啦！哼！变态变态大变态...！」
+							PRINTFORMDW 在%CALLNAME:MASTER%怀中渐渐冷静下来的小猫妖、带着尚未完全消去绯红的脸颊、气鼓鼓地用猫猫拳捶着%CALLNAME:MASTER%的胸口
+							PRINTFORMDW 不知是不是捶够了、小猫妖渐渐停下了拳头、转而用脸颊紧紧贴上了%CALLNAME:MASTER%的胸口
+							PRINTFORMW 「...不过啦、被%CALLNAME:MASTER%看着那里...也不讨厌就是了...要是%CALLNAME:MASTER%之后还想看的话...跟橙说一声就行了哦...」
+							PRINTFORMDW 从胸口传来的、轻得只有竖起耳朵才能听见的呢喃声、以及胸膛上传来的阵阵炙热、似乎证明这句话并不是在开玩笑... 
+						ELSE
+							SELECTCASE RAND:4
+								CASE 0
+									PRINTFORMW 「诶？想看橙的裙子底下...呜～%CALLNAME:MASTER%真是变态...」
+									PRINTFORMW 「不过、毕竟答应了%CALLNAME:MASTER%...只给%CALLNAME:MASTER%一个人看的话...嗯...可以哦...」
+									PRINTFORMDW 听到%CALLNAME:MASTER%请求的橙、带着一下子就变得通红的小脸、面朝%CALLNAME:MASTER%抓住裙边、缓缓提起了裙子
+									PRINTFORMDW 顺着逐渐露出的纤细大腿不断抬高着视线、直到 \@ CFLAG:24:291 ? 那毫无遮掩的幼小密缝完整地展现在眼前 # 穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%完整展现在眼前 \@
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMDW \@ CFLAG:24:291 ? 即使是只看一眼、也能看出那密缝之中正渗出着爱液、顺着大腿内侧形成了几道水痕... # 胖次贴近密缝的部分已经被渗出的液体浸湿、仿佛能清晰地看出布料之下的形状... \@
+									PRINTFORMW 「呜...不要...盯得这么紧啊...呜、呜喵...❤」
+									PRINTFORMDW 因为羞耻而偏开脑袋的小猫妖、股间却似乎因为被%CALLNAME:MASTER%注视而更加兴奋地分泌着液体...
+									PALAM:24:9 += 2000
+									ELSE
+									PRINTFORMW 「嗯唔...看、看够了没有啦...好害羞的啦...万一被别人看见了什么的...呜...」
+									PRINTFORMDW 带着害羞表情东张西望的小猫妖、像是催促一样用身后的尾巴不停地轻轻敲打着%CALLNAME:MASTER%的头顶 
+									ENDIF
+								CASE 1									
+									PRINTFORMW 「又、又要看橙的...裙子底下嘛...呜...」
+									PRINTFORMW 「要是突然有人过来的话...脸都要丢光了喵...」
+									PRINTFORMDW 虽然嘴上像在朝%CALLNAME:MASTER%抱怨、橙的手指却早已老实地摸上了自己的裙边、朝着弯腰等候着的%CALLNAME:MASTER%慢慢卷起裙子
+									PRINTFORMDW 迫不及待地把脑袋钻进小猫妖还没有完全卷起的裙子里面、以几乎贴上的距离观察着裙下\@ CFLAG:24:291 ? 因为失去内裤保护而露出的光滑洁白的可爱私处 # 穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@ 
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMDW \@ CFLAG:24:291 ? 使坏地朝着裸露的股间吹气、橙就浑身颤抖着发出了悲鸣似的娇喘 # 伸出手轻轻抚摸着胖次覆盖下的柔嫩耻丘、橙就不由自主地扭着身子发出了娇喘 \@
+									PRINTFORMW 「呜哇...❤呜啊...❤嗯...❤%CALLNAME:MASTER%...❤不要...❤」
+									PRINTFORMDW 伴随着%CALLNAME:MASTER%的挑逗、原先面带羞涩的小猫妖渐渐露出了融化般的迷离表情...
+									PALAM:24:9 += 2000
+									ELSE
+									PRINTFORMW 「姆～！突然把脑袋钻进来干什么啦！太...太过分了啦！哼...！」
+									PRINTFORMDW 随着小猫妖的娇嗔、眼前的纤细大腿突然抬起膝盖、不停轻轻顶着%CALLNAME:MASTER%的脑袋
+									PRINTFORMDW 不过用的力气实在是很轻、完全就没有阻止%CALLNAME:MASTER%的意思吧... 
+									ENDIF
+								CASE 2									
+									PRINTFORMDW 正打算看看橙的裙底时、眼前却突然一黑！
+									PRINTFORMW 「呜呼呼～嘿嘿～❤」
+									PRINTFORMW 「这样子做、%CALLNAME:MASTER%还能知道这是哪里嘛...呼呼～❤」
+									PRINTFORMDW ...只是闻一闻这浓郁的奶油一般的香气、就已经能知道这是橙的裙底了呢
+									PRINTFORMW 「诶！真的猜对了啦！唔...那就让%CALLNAME:MASTER%好好地看一遍橙的裙底好了！」
+									PRINTFORMDW 说着、小猫妖稍稍松开了隔着裙子摁住%CALLNAME:MASTER%脑袋的双手、大方地朝着%CALLNAME:MASTER%提起了裙摆
+									PRINTFORMDW \@ CFLAG:24:291 ? 在裙下、失去内裤保护的幼小密缝毫不遮掩地展示在了%CALLNAME:MASTER%眼前 # 在裙下、橙穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@ 
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMDW \@ CFLAG:24:291 ? 不由自主地把脑袋凑向了眼前娇小可爱的股间秘所、用几乎贴上去的鼻尖细细嗅闻着逐渐充斥着淫靡气味的裙下气息 # 不由自主地用脸紧贴上橙的小腹、感受到了格外炙热的触感 \@ 
+									PRINTFORMW 「喵呀...%CALLNAME:MASTER%...凑得那么近...呜喵...❤呼啊...❤」
+									PRINTFORMDW 不时发出轻喘的小猫妖用纤细大腿轻轻夹弄着股间%CALLNAME:MASTER%的脑袋、仿佛在期待什么的样子... 
+									PALAM:24:9 += 2000
+									ELSE
+									PRINTFORMW 「嘿嘿...这样子给%CALLNAME:MASTER%看裙底、感觉就没那么害羞了呢...」
+									PRINTFORMDW 的确是比起平时更加大胆的行为呢... 
+									ENDIF
+								CASE 3
+									PRINTFORMW 「%CALLNAME:MASTER%...又想看橙的裙子底下了嘛...」
+									PRINTFORMW 「嗯...这样子提起来有点累呢...该怎么办好呢？」
+									PRINTFORMDW 朝%CALLNAME:MASTER%提着裙摆的橙稍稍思索了一会儿、然后微微垂下脑袋、用嘴巴叼住了高高提起的裙摆
+									PRINTFORMDW 在裙子的夹缝之中露出的\@ CFLAG:24:291 ? 是小猫妖一丝不挂、如同一条细线般紧闭着的幼小密缝 # 是小猫妖穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMW 「呜...❤这样子...❤空出来的手就...❤喵啊啊...❤呼嗯...❤」
+									PRINTFORMW 「呐...❤%CALLNAME:MASTER%...❤橙都已经...❤喵哇啊...❤」
+									PRINTFORMDW 在%CALLNAME:MASTER%的注视之下、橙把手指伸向了自己的股间、用融化般的眼神盯着%CALLNAME:MASTER%的同时、轻轻揉搓着自己已经湿透的秘所... 
+									PALAM:24:9 += 2000
+									ELSE
+									PRINTFORMW 「姆～...%CALLNAME:MASTER%的眼睛都看直了啦...变态...❤」
+									PRINTFORMW 「不过啦...只给%CALLNAME:MASTER%一个人看的话...随%CALLNAME:MASTER%怎么做都可以哦...嘿嘿...❤」
+									PRINTFORMDW 在%CALLNAME:MASTER%的注视之下、小猫妖的脸上渐渐褪去了原本带着的羞涩、露出了满足般的浓郁红晕 
+									ENDIF			
+							ENDSELECT
+						ENDIF   	
+					ELSE ; 小声叫唤，但不会抵抗
+						SELECTCASE RAND:3
+							CASE 0
+								PRINTFORMW 「喵呀！怎么突然...！」
+								PRINTFORMDW 被%CALLNAME:MASTER%突然从掀起裙子的橙一下子愣住了
+								PRINTFORMW 「呜喵啊啊...不、不准%CALLNAME:MASTER%看啦...呜...」
+								PRINTFORMDW 随着裙底被%CALLNAME:MASTER%看光、小猫妖发出了像是哀鸣般的呜咽声、捂住了自己羞红的小脸、把尾巴急忙收进了裙子里面遮挡自己的私处
+								PRINTFORMDW \@ CFLAG:24:291 ? 即使尾巴勉强遮挡住股间、%CALLNAME:MASTER%还是看见了那隐隐露出的幼小密缝 # 即使用尾巴挡住了最重要的部分、穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%还是被%CALLNAME:MASTER%看得清清楚楚 \@
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMDW \@ CFLAG:24:291 ? 即便只是用眼睛、都能看见那裸露的幼嫩秘所已经被蜜液润湿了... # 尽管被尾巴遮住了部分、还是能看见胖次上接近小穴的部分已经湿了一片... \@
+									PRINTFORMW 「那里...是不是看见了...呜呜...%CALLNAME:MASTER%...是不是...想做些什么啊...？」
+									PRINTFORMDW 羞耻得快要哭出来的小猫妖钻进了%CALLNAME:MASTER%的怀里、用带着不安的期待眼神凝视着%CALLNAME:MASTER%...
+									PALAM:24:9 += 2000
+								ELSE
+									PRINTFORMW 「呜啊...不、不要再那样子紧盯着啦...」
+									PRINTFORMW 「即、即使用尾巴遮住了也...很害羞的啦...」
+									PRINTFORMDW 满脸通红的小猫妖张开捂住眼睛的手指、十分羞怯地观察着%CALLNAME:MASTER%的反应
+								ENDIF 
+							CASE 1
+								PRINTFORMDW %CALLNAME:MASTER%伸手抓住了橙的裙摆、然后用力向上掀了起来！
+								PRINTFORMW 「喵诶诶？！」
+								PRINTFORMDW 好像还没反应过来的小猫妖、毫无防备地朝%CALLNAME:MASTER%展示了裙下风光
+								PRINTFORMDW \@ CFLAG:24:291 ? 在裙下藏着的、是因为毫无防备而不安地扭动大腿摩擦着的股间 # 在裙下藏着的、是%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@
+								PRINTFORMW 「...呜哇啊啊啊！那么喜欢看就让%CALLNAME:MASTER%看个够好啦！看招看招～！」
+								PRINTFORMDW 后知后觉的橙、带着半是生气半是羞耻的表情、鼓着脸用裙子包住了%CALLNAME:MASTER%的脑袋、用力揉搓起来 
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMW 「哼呜❤...啊呀❤...%CALLNAME:MASTER%❤...嗯...❤」
+									PRINTFORMDW 每当%CALLNAME:MASTER%接触到橙的股间周围、她都会一边身体微微发颤一边发出轻喘
+									PRINTFORMDW 不知何时、裙子里和%CALLNAME:MASTER%的脑袋、都已经被奇异的淫靡香气所填满了...
+									PALAM:24:9 += 2000 
+								ELSE
+									PRINTFORMW 「哼哼～怎么样呀～看够了没有呢～嘿嘿～♪」
+									PRINTFORMDW 被摇得头晕目眩的情况下、%CALLNAME:MASTER%完全没有好好欣赏裙下风光的时间、只好赶紧抽出脑袋、逃离了橙的捉弄   
+								ENDIF	  
+							CASE 2
+								PRINTFORMDW %CALLNAME:MASTER%像是平常伸手一般搭上了橙的膝盖、然后拎着裙边缓缓地向上拉起
+								PRINTFORMW 「嗯...」
+								PRINTFORMDW 把头刻意偏向另一侧的小猫妖完全没有搭理裙子上的动作、似乎在纵容%CALLNAME:MASTER%的行为...
+								PRINTFORMDW 得寸进尺的%CALLNAME:MASTER%用双手牢牢按住小猫妖的纤细大腿、不断向上抬起手掌、一边享受着肌肤的触感一边向上掀起裙子
+								PRINTFORMW 「呜...只、只准看到这里啦！不准再提上去！」
+								PRINTFORMDW 直到手指贴在了大腿根上、坐立不安的橙才伸手按住%CALLNAME:MASTER%、下令阻止%CALLNAME:MASTER%的变态行为...
+								PRINTFORMDW ...但是都到了这个地步了、怎么可能还会停下！
+								PRINTFORMW 「喵哇呀？！」
+								PRINTFORMDW \@ CFLAG:24:291 ? 随着双手猛地向上一提、失去内裤保护的幼小密缝完全暴露在了%CALLNAME:MASTER%的视线之中 # 随着双手猛地向上一提、橙穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%完全暴露在了%CALLNAME:MASTER%的视线之中 \@   
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMW 「呜、呜喵啊啊啊...被、被看见了...呜喵...」
+									PRINTFORMDW 意识到自己的私处正在被%CALLNAME:MASTER%视奸着的小猫妖、脸上却不知为何染上了与害羞完全不搭边的潮红...
+									PALAM:24:9 += 2000   
+								ELSE
+									PRINTFORMW 「呜喵啊！被%CALLNAME:MASTER%看见了啦...呜呜...」
+									PRINTFORMDW 羞涩的小猫妖不安地夹紧了双腿、挂着通红小脸忍受着%CALLNAME:MASTER%的视奸...
+								ENDIF	 
+						ENDSELECT
+					ENDIF 
+				ELSE ;有人
+					IF ABL:14 > 5 ; 不在意旁边有没有人，自行脱下进行展示
+						IF FIRSTTIME ("初次自己掀裙子")
+							PRINTFORMW 「%CALLNAME:MASTER%...稍微等一下嘛...」
+							PRINTFORMDW 刚试图掀起橙的裙子、她就立马抓住了%CALLNAME:MASTER%的手腕
+							PRINTFORMW 「嗯、那个、总是让%CALLNAME:MASTER%自己掀起来看的话...总感觉有点...」
+							PRINTFORMDW 支支吾吾说着什么的小猫妖、脸颊上渐渐燃起了阵阵红霞 
+							PRINTFORMW 「嗯、总之就是...呜...说不出来啦...那样的事情...」
+							PRINTFORMDW 松开抓住%CALLNAME:MASTER%手腕的双手、橙带着几乎要哭出来的羞涩表情、把手慢慢搭在了自己的裙摆上
+							PRINTFORMW 「...反正...不...不要%CALLNAME:MASTER%动手啦！橙、橙自己来掀给%CALLNAME:MASTER%看就可以啦！看吧！！！」
+							PRINTFORMDW 伴随着“唰”的一声、小猫妖就像是自暴自弃一般闭上眼睛大喊着、同时用力向上提起了自己的裙子、朝着%CALLNAME:MASTER%毫不吝啬地展示着裙下的风景
+							PRINTFORMDW 映入%CALLNAME:MASTER%眼帘的、是\@ CFLAG:24:291 ? 失去了内裤的保护、毫无遮掩的紧闭幼小密缝 # 紧贴着股间、仿佛能够看出内部形状的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@
+							PRINTFORMW 「...呜诶？！怎、怎么掀得这么高？！那不是、让%CALLNAME:MASTER%全部都...看见了！」
+							PRINTFORMW 「...呜、呜喵哇啊啊啊...！」
+							PRINTFORMDW 后知后觉的小猫妖一下子羞耻到了顶点、脸上几乎都有丝丝蒸汽冒出、看上去好像随时都会晕掉一样...
+							PRINTFORMDW 似乎没有好好欣赏裙下美好风景的时间了呢...%CALLNAME:MASTER%赶紧抱住了几乎要晕倒的小猫妖、轻轻拍着后背安抚起来
+							PRINTL
+							PRINTFORMDW ......
+							PRINTL
+							PRINTFORMW 「呜...到现在还是好害羞...都怪%CALLNAME:MASTER%要看橙的裙底啦！哼！变态变态大变态...！」
+							PRINTFORMDW 在%CALLNAME:MASTER%怀中渐渐冷静下来的小猫妖、带着尚未完全消去绯红的脸颊、气鼓鼓地用猫猫拳捶着%CALLNAME:MASTER%的胸口
+							PRINTFORMDW 不知是不是捶够了、小猫妖渐渐停下了拳头、转而用脸颊紧紧贴上了%CALLNAME:MASTER%的胸口
+							PRINTFORMW 「...不过啦、被%CALLNAME:MASTER%看着那里...也不讨厌就是了...要是%CALLNAME:MASTER%之后还想看的话...跟橙说一声就行了哦...」
+							PRINTFORMDW 从胸口传来的、轻得只有竖起耳朵才能听见的呢喃声、以及胸膛上传来的阵阵炙热、似乎证明这句话并不是在开玩笑... 
+						ELSE
+							SELECTCASE RAND:4
+								CASE 0
+									PRINTFORMW 「要是被其他人看见了的话、%CALLNAME:MASTER%说不定就会被当成奇怪的家伙抓走哦...」
+									PRINTFORMW 「就算这样、%CALLNAME:MASTER%也想看嘛？呜...真是的、大变态❤...」
+									PRINTFORMDW 带着恶作剧般笑容的小猫妖、朝着%CALLNAME:MASTER%的方向伸手拎起裙角、慢慢地提了起来
+									PRINTFORMDW 顺着露出的大腿内侧不断向上抬起视线、最终看见了\@ CFLAG:24:291 ? 失去内裤保护、仿佛一条细线般的幼嫩秘所... # 仍然穿在身上的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@  
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+										PRINTFORMW 「橙的那里...因为被%CALLNAME:MASTER%看着所以已经...呜嗯❤...」
+										PRINTFORMDW \@ CFLAG:24:291 ? 只是被看着、橙的小穴里也开始兴奋地分泌液体、渐渐润湿了密缝... # 在%CALLNAME:MASTER%的注视下、胖次靠近小穴的部分渐渐地湿了起来... \@
+										PRINTFORMW 「呐、%CALLNAME:MASTER%...只是看着...就足够了嘛...？」
+										PRINTFORMDW 带着几乎快化掉的炙热眼神紧盯着%CALLNAME:MASTER%的小猫妖、似乎在期待着什么似的不停扭动着身体...
+										PALAM:24:9 += 2000
+									ELSE
+										PRINTFORMW 「呜哇～眼睛都盯直了啦...要是橙喊人的话、%CALLNAME:MASTER%绝对会被当成变态的吧？嘿嘿～❤」
+										PRINTFORMDW 虽然嘴上说着这样的话、橙的手却没有一点放下裙摆的意思、任由%CALLNAME:MASTER%欣赏着裙下风光...									
+									ENDIF	  
+								CASE 1
+									PRINTFORMDW 趁着橙靠在自己身旁、%CALLNAME:MASTER%把手伸向了裙子下面、试着掀起来...
+									PRINTFORMW 「姆～%CALLNAME:MASTER%在做什么啦！周围还有别人在啊！哼！」
+									PRINTFORMDW 撅起小嘴的小猫妖立马按住了%CALLNAME:MASTER%不老实的手腕、阻止了进一步的动作
+									PRINTFORMW 「...不、不是不给%CALLNAME:MASTER%看啦...而是、只能给%CALLNAME:MASTER%一个人看才行...」
+									PRINTFORMW 「所以...%CALLNAME:MASTER%、帮橙挡一下嘛...」
+									PRINTFORMDW 还没做出反应、橙的尾巴就已经勾住了%CALLNAME:MASTER%的腰、把自己紧紧贴在了%CALLNAME:MASTER%的身上
+									PRINTFORMDW 随后、橙抓住手腕的双手主动向上抬了起来、控制着%CALLNAME:MASTER%掀起了自己的裙子
+									PRINTFORMDW \@ CFLAG:24:291 ? 在高高掀起的裙子夹缝之中、露出的是小猫妖一丝不挂的幼嫩私处... # 在高高掀起的裙子夹缝之中、露出了橙穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@ 
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+										PRINTFORMW 「呐、%CALLNAME:MASTER%...是不是很好看呢？呼呼❤」
+										PRINTFORMW 「作为补偿的话、就这样吧...嗯❤...呼呀❤...喵呀嗯❤...」
+										PRINTFORMDW 露出痴迷表情的小猫妖继续拉着%CALLNAME:MASTER%的手腕、用%CALLNAME:MASTER%的手指摩擦起自己已经变得湿热的股间、发出了抑制不住的娇柔喘息...
+										PALAM:24:9 += 2000  
+									ELSE
+										PRINTFORMW 「只有%CALLNAME:MASTER%才能看见这里哦...是不是很棒啊？呼呼❤」
+										PRINTFORMDW 小猫妖带着通红的小脸、继续给%CALLNAME:MASTER%提供着专享的裙下风景...									
+									ENDIF	
+								CASE 2
+									PRINTFORMW 「唔...突然提这种要求...周围还有人在的...啊！呜...」
+									PRINTFORMDW 说到这里、橙也仿佛突然意识到一样、瞬间染红了脸颊、沉默了下来、转过身背对着%CALLNAME:MASTER%
+									PRINTFORMW 「......」
+									PRINTFORMDW 一言不发的小猫妖、并没有伸手来掀起裙子、而是操纵着身后的尾巴勾住裙边、慢慢地拉起了后面的裙子
+									PRINTFORMDW \@ CFLAG:24:291 ? 在尾巴拉起的裙下、是带着可爱曲线的、如同去壳鸡蛋般白嫩的小巧臀部... # 在尾巴拉起的裙下、露出了%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@  
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+										PRINTFORMW 「呜...被%CALLNAME:MASTER%盯着了呢...嗯❤...」
+										PRINTFORMW 「身体...控制不住啦...呜喵❤...」 
+										PRINTFORMDW 随着%CALLNAME:MASTER%的视线、橙的臀部仿佛不受控制一般微微抬起、朝着%CALLNAME:MASTER%诱惑似的晃动起来
+										PALAM:24:9 += 2000   
+									ELSE
+										PRINTFORMW 「那个...待会儿看够了的话...就帮橙放下来哦...」
+										PRINTFORMDW 转过头来提醒了一句、仍然挂着通红小脸的橙就转了回去、任由%CALLNAME:MASTER%欣赏与平时不尽相同的裙下风景
+									ENDIF
+								CASE 3
+									PRINTFORMW 「呜...%CALLNAME:MASTER%是不是想看橙被笑话啊！被别人看见、脸都要丢光了喵...」
+									PRINTFORMDW %CALLNAME:MASTER%拍着自己的胸口、说丢掉的脸都算在自己这里就好了
+									PRINTFORMW 「诶？那既然都这么说了...不对啦怎么可以这么算啦！」
+									PRINTFORMW 「...但、但是毕竟答应了%CALLNAME:MASTER%、所以...就算不扣%CALLNAME:MASTER%的面子、橙也会掀起来的啦...」
+									PRINTFORMDW 带着比起平时都更加红润的小小脸蛋、小猫妖朝着%CALLNAME:MASTER%的方向拎起了两侧裙角、顺着大腿慢慢向%CALLNAME:MASTER%展示起裙下风光
+									PRINTFORMDW \@ CFLAG:24:291 ? 最终看见的、是失去了内裤保护而暴露在空气中的幼小密缝 # 最终看见的、是穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@  
+									IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+										PRINTFORMW 「呜...虽然...不用扣面子什么的...」
+										PRINTFORMW 「但是嘛...待会%CALLNAME:MASTER%、可不可以跟橙...诶嘿嘿～❤」
+										PRINTFORMDW 不知何时、橙的脸上已经由羞涩的脸红变成了情欲的潮红...
+										PALAM:24:9 += 2000
+									ELSE
+										PRINTFORMW 「呜...看够了的话...就记得把面子还给橙啦！」
+										PRINTFORMDW 在欣赏完裙下风光后、%CALLNAME:MASTER%立马好好地抱住了小猫妖当做补偿
+									ENDIF	
+								CASEELSE
+									
+							ENDSELECT
+						ENDIF	
+					ELSE ; 注意到周围的目光，不怎么使劲地按住裙子/裤子
+						SELECTCASE RAND:3
+							CASE 0
+								PRINTFORMW 「喵呀...！！！」
+								PRINTFORMDW 被%CALLNAME:MASTER%突然从背后掀起裙子、橙吓得一下子蹦了起来！
+								PRINTFORMDW \@ CFLAG:24:291 ? 即便橙急忙尾巴遮住走光的部位、%CALLNAME:MASTER%还是看清了裙下没有布料遮挡的光洁股间... # 即使跳起时只有一瞬、裙下穿着的%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%还是被%CALLNAME:MASTER%看得清清楚楚... \@
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMW 「呜哇哇...不、不准看裙子下面啦...！」
+									PRINTFORMW 「至少...去个只有%CALLNAME:MASTER%的地方嘛...呜嗯❤...」
+									PRINTFORMDW 按住裙子、夹紧双腿的小猫妖、似乎比起害羞更多的是在忍耐着什么...
+								ELSE
+									PRINTFORMW 「呜、呜哇啊啊啊...！再...再这么做...橙就...！」
+									PRINTFORMDW 噙着眼泪的小猫妖补救似的死死按住裙摆瞪视着%CALLNAME:MASTER%、好像随时都会哭出来一样...
+								ENDIF	 
+							CASE 1
+								PRINTFORMDW 把橙抱在了自己的大腿上、然后用手轻轻地捏住侧边的裙摆、慢慢地向上提起裙边
+								PRINTFORMW 「呜～%CALLNAME:MASTER%...周围...还有人呢...」
+								PRINTFORMDW 渐渐察觉到%CALLNAME:MASTER%的小动作、小猫妖的脸“噗”地一下变得通红、迅速按住了%CALLNAME:MASTER%不老实的手...
+								PRINTFORMW 「喵呀呀～！！」
+								PRINTFORMDW 朝着眼前不安抖动着的猫耳突然伸嘴叼住、那阻止%CALLNAME:MASTER%的小手就立马失去了力气、任由%CALLNAME:MASTER%的手继续向上卷起裙边
+								PRINTFORMDW \@ CFLAG:24:291 ? 在%CALLNAME:MASTER%满怀期待的眼神中、出现的是紧紧夹着大腿也遮挡不住的裸露小缝... # 在%CALLNAME:MASTER%满怀期待的眼神中、出现的是%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)%... \@
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMW 「呜❤...呜喵啊啊❤...%CALLNAME:MASTER%❤...」
+									PRINTFORMDW 被看见私处的一刻、小猫妖的身体瞬间变得烫了许多、仿佛已经完全不在意羞耻一般发出了娇喘...
+								ELSE
+									PRINTFORMW 「呜哇哇...这样的...不行的啦...」
+									PRINTFORMDW 小猫妖捂住了几乎快冒出蒸汽的通红脸蛋、几乎要在%CALLNAME:MASTER%的怀里缩成一团...
+								ENDIF	  
+							CASE 2
+								PRINTFORMW 「要是被别人...看见什么的...呜...」
+								PRINTFORMDW 用双手紧紧按住了裙子的橙、几乎要把脑袋埋进自己胸口一样低着头躲避视线
+								PRINTFORMW 「呜...只准...稍微看一下下哦！」
+								PRINTFORMDW 突然抬起脑袋、朝着%CALLNAME:MASTER%的耳边轻轻喊了一句话、红着脸的小猫妖就稍稍放松了压住裙子的手掌...
+								PRINTFORMDW \@ CFLAG:24:291 ? 慢慢地提起裙子一角、看见了裙下失去内裤保护而裸露出来的幼小密缝... # 慢慢提起裙子一角、看见了%PANTS_DESCRIPTION(EQUIP:6, TARGET)%%PANTSNAME(EQUIP:6, TARGET)% \@ 
+								IF TCVAR:24:142 == 1 || CFLAG:24:340 >= 700  || CFLAG:24:142 == 210;想要了
+									PRINTFORMDW 欣赏了一会儿裙下风光、遵守小猫妖的话的%CALLNAME:MASTER%试图松开抓住裙边的手、却被她立马拉住了
+									PRINTFORMW 「嗯...%CALLNAME:MASTER%...」
+									PRINTFORMW 「其实...多摸一下...也...没什么的吧？呜嗯❤...」
+									PRINTFORMDW 带着急促喘息的橙、把%CALLNAME:MASTER%的手重新拉进了裙下、轻轻地用手指碰触着自己的大腿内侧  
+								ELSE
+									PRINTFORMW 「差不多了吧...」
+									PRINTFORMW 「...再不出来橙就掐%CALLNAME:MASTER%了哦！哼...」
+									PRINTFORMDW 直到羞恼的小猫妖轻轻掐起了%CALLNAME:MASTER%的手背、%CALLNAME:MASTER%才不舍地放下了裙子
+								ENDIF	 
+						ENDSELECT 	
+					ENDIF 
+				ENDIF 
+		ENDSELECT
+	ENDIF 
+ENDIF
+RETURN 1

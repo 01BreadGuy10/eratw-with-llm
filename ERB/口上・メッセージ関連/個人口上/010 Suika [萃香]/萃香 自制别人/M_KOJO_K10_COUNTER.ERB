@@ -1,0 +1,2580 @@
+﻿;※※※※※※※※※※※※※※※※※※※※※※※※※※
+;"COUNTER"系列剧本文本
+;※※※※※※※※※※※※※※※※※※※※※※※※※※
+;-------------------------------------------------
+;总览
+;-------------------------------------------------
+;维护人：狂气刘俊海 
+;维护日期：2026年1月24日
+
+;"COUNTER"指，在一个指令回合中，玩家发动指令后，在场角色可能发动的COUNTER(原意反制，实为反应)指令。
+;调用位置：仅在eraTW独特的指令事件统合@SOURCE_CHECK中调用；在玩家指令文本之后分割显示，随后一起进入数值结算环节。
+;函数流："COUNTER"系列剧本文本调用函数受剧本统一管理接口@KOJO_MESSAGE_SEND控制，先执行文本控制函数MESSAGE_COUNTER_MESSAGECHECK、再执行文本打印函数MESSAGE_COUNTER。
+;返回值：会逐层传递出剧本统一管理接口@KOJO_MESSAGE_SEND，不在调用位置@SOURCE_CHECK中被利用，无意义。
+
+;*********************************************
+;文本控制函数MESSAGE_COUNTER_MESSAGECHECK
+;*********************************************
+;文本控制函数MESSAGE_COUNTER_MESSAGECHECK行为与@KOJO_MESSAGE_SEND中的其他MESSAGECHECK控制函数相同，
+;用于控制何时需要略过通用的情景描写以及剧本台词。
+;
+;	返回值RESULT 的位含义如下（从低位开始编号）：
+;	SKIP_MESSAGE = GETBIT(RESULT, 0)   ; 第0位：是否略过【通用情景描写】
+;	SKIP_KOJO    = GETBIT(RESULT, 1)   ; 第1位：是否略过【剧本台词文本】
+;
+;	略过通用描写和略过台词共同存储在本函数的返回值中，所有组合列举如下：
+
+; 返回值组合一览
+;────────────────────────────────────
+; RESULT 值 | 二进制    | 略过通用描写 | 略过台词    | 典型使用场景
+;────────────────────────────────────
+;     0     |  00       |  ×（显示）  |  ×（显示） | 正常显示所有文本
+;     1     |  01       |  ○（略过）  |  ×（显示） | 剧本侧希望重写行为描述
+;     2     |  10       |  ×（显示）  |  ○（略过） | 罕见，控制台词是否略过在MESSAGE函数本体中实现即可
+;     3     |  11       |  ○（略过）  |  ○（略过） | 取消所有文本信息，隐性发动C指令。
+;────────────────────────────────────
+
+;用法简介：（0）正常显示所有文本是绝大多数情况。
+;（1）除此之外，特殊用法中跳过描述、保留剧本文本是最常见的，常见于需要重写描述的情况。
+;   甚至可以用这一招，彻底改写一个C指令。比方说弃用把下巴搁在肩上，把描写改为帮玩家整理仪容，台词也围绕整理仪容展开。把下巴搁在肩上这一互动就似乎消失了，而出现了一个新的整理仪容的互动。
+;（3）取消所有文本显示，对于日常互动而言，是将其禁用最为直接的一个技巧。虽然C指令实际发动了，也会造成数值变化，但是其数值变化与玩家指令一同结算，如若没有对应文本，就仿佛没有发动，玩家也不易察觉；
+;   在没有禁用C指令的接口前，想要禁用C指令就是这样操作的
+;   真正能够禁用C指令的剧本接口在M_KOJO_K10_CUSTOM_CHECKS.ERB的@M_KOJO_MOMO_CHECK_K10_CCOM_ORDER
+
+;如果不知道指令的含义，不知道如何设计差分，金标准是参照该指令的情景描写文本。
+;本系列的情景描写在COUNTER_MESSAGE.ERB
+
+
+;-------------------------------------------------
+;コミュニケーション 交流
+;-------------------------------------------------
+;==================================================
+;距離が近い 离得好近
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF TALENT:恋慕 || TALENT:愛欲
+		IF TALENT:愛欲 && RAND:2
+			PRINTFORMDL 一双温热的掌心从身后覆上了你的眼睛
+			PRINTFORMDL 视野变成一片黑暗，但那股混着酒气的体香你是认得出来的
+			PRINTFORML 「猜——猜——我——是——谁——」
+			PRINTFORMDL 她把每个字都拖得很长，尾音里藏着压不住的笑
+			PRINTFORMDL ……萃香
+			PRINTFORML 「切——每次都能猜到。但如果是猜错的话，可就要收到惩罚了哦」
+			PRINTFORMDL 她没有松手，反而把整个上半身都贴上了你的后背
+			PRINTFORMDL 虽然平坦，但那份柔软和温度却隔着衣服清晰地传了过来
+			PRINTFORML 「罚你成为我的靠垫——现在就先不动了」
+			PRINTFORMDL 她的下巴搁在你肩上，呼出的热气拂过你的耳根
+			PRINTFORMDL 你偏过头，正好对上她近在咫尺的眼睛
+			PRINTFORMDL 那双眼睛里映着你，还有一点你从未见过的认真
+			PRINTFORMDL 你没有多想，侧过脸，轻轻吻了上去
+			PRINTFORMDL 她的嘴唇上带着一点酒的味道，还带着一点颤抖
+			PRINTFORMDL 在接吻之后，她将头靠在你的肩膀上，用角轻轻地蹭着你的脖子
+			PRINTFORML 「……偷袭是会遭报应的，你知道吧」
+			PRINTFORMDL 嘴上还硬着，耳后那一抹绯色却怎么都藏不住
+			PRINTFORMDL 真可爱
+			EXP:MASTER:接吻経験 += 1
+			EXP:10:接吻経験 += 1
+	ELSE
+		SELECTCASE RAND:2
+				CASE 1
+					PRINTFORMDL 你都没注意到萃香是什么时候靠过来的
+					PRINTFORMDL 回过神来的时候，她的肩膀已经贴着你的手臂了
+					PRINTFORML 「嗯？什么时候来的……就刚才啊」
+					PRINTFORMDL 她仰头朝你笑着，好像偷袭成功了一样得意
+					PRINTFORML 「我就要在这待着——不可以么？」
+					PRINTFORMDL 她在说的时候将脑袋靠上来了，根本没给你拒绝的余地
+				CASE 0
+					PRINTFORMDL 萃香从旁边慢慢蹭了过来
+					PRINTFORMDL 一寸一寸地，像是怕被你发现
+					PRINTFORMDL 你看过去的时候她已经离得很近了
+					PRINTFORML 「哈哈，本想看看你什么时候才会发现我呢」
+					PRINTFORML 「没想到马上就被你抓住了」
+					PRINTFORMDL 在被你抓住后，她顺势将整个身体靠在了你的身上
+					PRINTFORML 「要一辈子这样抱住我哦~」
+					PRINTFORMDL 她在说完后闭上眼睛，呼吸也渐渐平稳了下来，你顺势摸了摸她的脑袋
+			ENDSELECT
+		ENDIF
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 萃香走过来，一屁股坐到你旁边，把两条腿往你膝盖上一搁
+				PRINTFORML 「跑了一天了，腿酸死了——帮我揉揉」
+				PRINTFORMDL 她抓过你的手按在自己小腿上，然后覆着你的手背往上推
+				PRINTFORMDL 从小腿到膝盖，从膝盖到大腿，越往上越慢
+				PRINTFORMDL 直到大腿根部，她才终于将手给松开
+				PRINTFORMDL 你的掌心还贴在她腿上的皮肤上，热乎乎的
+				PRINTFORML 「……你喜欢这种方式吧，毕竟你好像真的很喜欢呢」
+				PRINTFORMDL 你并未答话，只是默默地看着眼前的小巧少女
+			CASE 0
+				PRINTFORMDL 萃香凑到你的跟前，随后使劲地在你的领口附近闻了一圈
+				PRINTFORML 「……只有别的女孩子的味道呢」
+				PRINTFORMDL 她睁开眼，退了半步，拿起葫芦喝了一口
+				PRINTFORML 「你去和别的女孩子睡觉，只要别的女孩子身上带着女孩子的味道的话我倒是无所谓」
+				PRINTFORMDL 她抹了抹嘴角
+				PRINTFORML 「但是如果喝酒却不叫我的话——」
+				PRINTFORMDL 她把葫芦往你胸口戳了一下
+				PRINTFORML 「那可是绝对不可以的哦」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 你正站在那儿，忽然背上多了一份重量
+				PRINTFORMDL 转过头，萃香把额头抵在你后背上
+				PRINTFORML 「站太久了……借我用一下」
+				PRINTFORMDL 她没有抱你，只是用额头抵着，两只手背在身后
+				PRINTFORMDL 这姿势不像撒娇，倒像是在找个支点
+				PRINTFORMDL 过了几秒她就自己弹开了，退后两步朝你笑了笑
+				PRINTFORML 「谢啦——下次请你喝酒」
+				PRINTFORMDL 她转身走了几步，又回头看了你一眼，然后才真的走掉
+			CASE 0
+				PRINTFORMDL 你正靠在墙角歇着，旁边忽然多了一个人
+				PRINTFORMDL 萃香学你的样子靠在墙上，胳膊差不多挨着你的胳膊
+				PRINTFORML 「你这位置不错，我也来试试」
+				PRINTFORMDL 她闭上一只眼，又把那只眼睁开，好像在比较什么
+				PRINTFORML 「嗯……从这边看，你的侧脸还挺顺眼的」
+				PRINTFORMDL 说完她就收回了视线，拿起葫芦喝了一口，好像刚才只是随口说说
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 萃香不知道什么时候已经靠在你旁边的柱子上
+				PRINTFORMDL 也不打招呼，也不看你，只是跟你在同一片阴影里乘凉
+				PRINTFORML 「天一热就容易没精神呢——你也要提提神么？」
+				PRINTFORMDL 没等你回答，她就把冰凉的酒葫芦往你脸上一贴
+				PRINTFORMDL 你被冻了一个激灵，而她则在旁边乐出了声
+			CASE 0
+				PRINTFORMDL 你正蹲着捡东西，一双脚停在你面前
+				PRINTFORMDL 抬头一看，萃香正低着头看你，脑袋差点撞上你的额头
+				PRINTFORML 「哦，你在啊——没事，我就是路过」
+				PRINTFORMDL 她说完却没有走的意思，蹲下来跟你一起看着地上
+				PRINTFORML 「掉了啥？我帮你找——反正闲着也是闲着」
+				PRINTFORMDL 她看起来兴致勃勃的，那她平时可能真的很无聊了
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;==================================================
+;チラ見 偷瞟
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_2
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_2
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL %CALLNAME:MASTER%一回看过去，两个人的视线碰了个正着
+				PRINTFORML 「那个、你……要不要一起喝酒……」
+				PRINTFORMDL 她的声音越来越小，手指却不自觉地绞着袖口
+			CASE 0
+				PRINTFORMDL %CALLNAME:MASTER%朝她看过去，她马上把脸藏到了酒葫芦后面
+				PRINTFORML 「……不许看」
+				PRINTFORML 「要看的话、就过来坐我旁边看吧……」
+				PRINTFORMDL 声音从葫芦后面闷闷地传了过来
+		ENDSELECT
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 她撑着下巴，眼神比平时更火热了一点
+				PRINTFORML 「……嗯？」
+				PRINTFORMDL 在被你发现后，她反而舔了一下嘴唇以示回应
+				PRINTFORML 「说真的，我可不是只想看看而已」
+			CASE 0
+				PRINTFORMDL 你对上她的视线，她歪头回应你
+				PRINTFORML 「怎么了？我难道不能看我最爱的男人么？」
+				PRINTFORMDL 明明是她在看你，结果是你先被质疑
+				PRINTFORML 「嘿嘿，我就喜欢看着这样的你」
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 她完全没在躲，甚至还朝你挑了挑眉
+				PRINTFORML 「干嘛，我不能看你了？」
+				PRINTFORML 「又不是没看过——你身上哪个地方我没见过」
+				PRINTFORMDL 在说完后她自己先笑了，随后拿酒葫芦遮了遮嘴
+			CASE 0
+				PRINTFORMDL 她往你这边瞟了一眼，注意到你也在看着她
+				PRINTFORML 「我说，你最近是不是……稍微变顺眼了那么一点点」
+				PRINTFORMDL 她在说完之后，轻轻地掀起裙角，让你稍微一览裙下风光
+				PRINTFORML 「嘿嘿，变态」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 她瞥了你一眼，又继续喝她的酒去了
+				PRINTFORML 「啊？没怎么——就是看你闲得慌」
+				PRINTFORML 「要不要找点事做？比如……陪我喝酒」
+				PRINTFORMDL 她晃了晃手里的酒葫芦
+			CASE 0
+				PRINTFORMDL 她托着下巴，一点也没有要躲的意思
+				PRINTFORML 「你又不是什么不能看的东西」
+				PRINTFORML 「还是说——你害羞了？哎嘿嘿」
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;==================================================
+;おはなし 搭话
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_3
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_3
+#LOCALSIZE 1
+#LOCALSSIZE 1
+		PRINTFORML 「%CALLNAME:MASTER%你知道么....」
+		PRINTFORMDL 嗯？怎么了么？
+		PRINTFORML 「就是啊，之前——」
+		PRINTFORMDL 萃香和%CALLNAME:MASTER%开心地聊着之前发生的事
+RETURN 1
+
+;==================================================
+;いい匂い 飘来好闻的味道
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_4
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_4
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%？你干嘛把脸转过去啊」
+				PRINTFORMDL ……没什么
+				PRINTFORML 「你今天真的怪怪的……是不是喝酒了？」
+				PRINTFORMDL 萃香凑近了闻了闻你的衣领
+				PRINTFORMDL 她皱起眉头，又闻了闻
+				PRINTFORML 「……没有酒味啊，那你的脸为什么这么红呢？」
+				PRINTFORML 「该不会……生病了吧？人类不是很脆弱的么」
+				PRINTFORMDL 萃香的语气里带上了一点认真
+				PRINTFORMDL 她伸手按着你的肩膀，随后踮起脚尖，将额头贴上你的额头
+				PRINTFORML 「……好像也没有发烧啊」
+				PRINTFORMDL 太近了
+				PRINTFORMDL 近到能看清她的睫毛
+				PRINTFORML 「咦，你往后躲什么！我还没量完呢——别动！」
+				PRINTFORMDL 她两只手捧住你的脸，固定住了
+				PRINTFORMDL 额头贴着额头，鼻尖差点碰上鼻尖
+				PRINTFORMDL 她就这么贴了好一会儿
+				PRINTFORML 「唔……体温好像确实有点高……要不要去找医生看看？」
+				PRINTFORMDL 不、不用了
+				PRINTFORML 「真的不用？人类可是很容易死掉的」
+				PRINTFORMDL 她终于松开了手，还是一脸狐疑的表情
+				PRINTFORMDL 从头到尾，她都没意识到自己的杀伤力有多大
+			CASE 0
+			PRINTFORMDL 她身上那股混着酒气的体香飘过来的时候，你不自觉地深吸了一口气
+			PRINTFORMDL 她注意到了，凑过来仰着头看你
+			PRINTFORML 「你在闻什么……我身上的味道？」
+			PRINTFORMDL 她抬起袖子自己闻了闻
+			PRINTFORML 「唔，我也闻不出来——不就是酒味么」
+			PRINTFORMDL 她把袖口扯到你面前
+			PRINTFORML 「喏，想闻就闻呗——不用偷偷摸摸的」
+			PRINTFORMDL 你把她的手轻轻按下去，她也没挣扎，就那样歪着头看你
+			PRINTFORML 「不过说起来，你身上的味道，我也很喜欢闻呢」
+			PRINTFORMDL 在说完这句话后，她像是才意识到自己说了什么，耳尖唰地红了起来
+			PRINTFORML 「不是——我是说，你闻起来不像别的那些人类——反正就是——不讨厌」
+			PRINTFORMDL 她越解释越乱，最后把脸扭过去不让你看见她的脸
+			PRINTFORMDL 领子里面闷闷地飘出来一句
+			PRINTFORML 「……反正我就是喜欢你的一切，无论是气味还是其他所有的一切，我都喜欢」
+			PRINTFORMDL 尽管你没有看见她的正脸，但你已经能想象到她的表情了
+		ENDSELECT
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 萃香身上那股混着酒气的体香飘过来，你下意识往她那边偏了偏
+				PRINTFORMDL 她歪着头看你，眼睛笑得弯弯的
+				PRINTFORML 「在闻么？……你很喜欢这个味道？」
+				PRINTFORMDL 她往前靠了一步，把头发撩到一边，露出脖子
+				PRINTFORML 「那久凑近点闻吧——隔着空气能闻出什么来呢」
+				PRINTFORMDL 她的颈窝就在你鼻尖前面，皮肤上浮着一层薄薄的温热
+				PRINTFORMDL 你屏住呼吸，她反而伸手按住了你的后脑勺，轻轻往前带了带
+				PRINTFORML 「躲什么——不是你要闻的么」
+				PRINTFORMDL 她的指尖在你后颈上画着圈，力道很轻，痒得你缩了一下
+				PRINTFORML 「……你抖什么。我又不会咬你」
+				PRINTFORMDL 她嘴上这么说，嘴角的弧度却藏都藏不住
+			CASE 0
+				PRINTFORMDL 你感觉后背一暖——萃香从后面环了上来
+				PRINTFORMDL 她把脸埋在你肩胛骨中间，深深地吸了一口气
+				PRINTFORML 「嗯……还是你身上的味道让人安心」
+				PRINTFORMDL 她的胳膊在你腰间收紧了一点，整个人贴得更近
+				PRINTFORMDL 你能感觉到她的呼吸透过衣服渗到皮肤上，热乎乎的
+				PRINTFORML 「别乱动——让我补充一会%CALLNAME:MASTER%能量」
+				PRINTFORMDL 她的手从腰间滑上来，指尖顺着你的肋骨一根一根往上数
+				PRINTFORMDL 数到胸口的时候停了一下，然后整只手掌贴了上去
+				PRINTFORML 「你心跳好快，是因为我么？」
+				PRINTFORMDL 没等你回答，她就用脸在你的背上蹭了蹭，像是猫在标记领地
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 她身上那股酒气和体香混在一起，浓得你忍不住多闻了两下
+				PRINTFORMDL 她侧过头瞄了你一眼
+				PRINTFORML 「你在闻什么——我身上的味道？」
+				PRINTFORMDL 她低头扯起领口自己闻了闻
+				PRINTFORML 「唔，不就是酒味么。喜欢的话你直接说不就好了」
+				PRINTFORMDL 她往前一靠，把整个上半身贴在了你胸口上
+				PRINTFORMDL 隔着两层衣服，那份柔软的触感还是清晰得过分
+				PRINTFORML 「这样闻比较快吧——省得你伸长脖子像个傻子似的」
+				PRINTFORMDL 她仰着头看你，下巴抵在你胸口上，一副「你拿我怎么办」的表情
+			CASE 0
+				PRINTFORMDL 萃香不知道什么时候把袖子撸到了肩膀，正揪着自己领口往里扇风
+				PRINTFORML 「热死了——夏天的太阳真是鬼都受不了」
+				PRINTFORMDL 她抬起胳膊，露出光溜溜的腋下，凑到你鼻子跟前
+				PRINTFORML 「喏，闻闻，酒味以外还有别的么——我今天可没怎么出汗」
+				PRINTFORMDL 你往后仰了仰，她追着往前凑
+				PRINTFORML 「躲什么！又不是没闻过——上次你不还说我身上有股甜味儿」
+				PRINTFORMDL 她把胳膊举得更高了些，腋下那片皮肤薄薄的，能看见底下细细的青色血管
+				PRINTFORML 「快点闻吧，举着好累的——还是说你要换一边闻闻？」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 一阵风把她的气味送到你这边
+				PRINTFORMDL 你抬起头，发现她也在看你，两个人同时把视线弹开了
+				PRINTFORML 「……今天的风是往你那边吹的」
+				PRINTFORMDL 她找了一个毫无逻辑的理由来解释刚才的对视
+			CASE 0
+				PRINTFORMDL 她走到你旁边，那股淡淡的香气也跟着落了下来
+				PRINTFORMDL 你没有说话，她也没有
+				PRINTFORMDL 她就站在那儿喝她的酒，跟你隔着不到两步
+				PRINTFORML 「……你往这边挪什么」
+				PRINTFORMDL 你才发现自己的脚不知道什么时候往她的方向移了半步
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 离着三步远你就知道她来了——酒气比人先到
+				PRINTFORML 「好浓的酒味……你到底喝了多少？」
+				PRINTFORML 「没数——反正葫芦空了，人也差不多该醉了」
+				PRINTFORMDL 她晃了晃倒不出半滴的葫芦，然后又凑近你闻了闻
+				PRINTFORML 「嗯？你身上没什么味道嘛——真奇怪呢」
+				PRINTFORMDL 她好像对你产生了奇怪的兴趣
+			CASE 0
+				PRINTFORMDL 你闻到了她身上那股太有辨识度的味道，还没回头就打了招呼
+				PRINTFORML 「哦吼——鼻子挺灵的啊」
+				PRINTFORMDL 她绕到你面前，把葫芦往你鼻子底下一凑
+				PRINTFORML 「再闻闻，猜我今天喝的什么酒——猜对了分你一口」
+				PRINTFORMDL 你闻不出来。她叹了口气，好像很失望，然后自己喝了一口
+				PRINTFORML 「算了，你们人类鼻子也就这样了」
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;==================================================
+;中だし後 忍受精液的瘙痒
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_9
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_9
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;ベリーソフト 亲昵
+;-------------------------------------------------
+;==================================================
+;近寄ってくる 靠近身侧
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_11
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_11
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 你感觉袖子被人拽了拽。低头一看，萃香正仰着脑袋看你
+				PRINTFORML 「你太高了，跟你说话脖子酸」
+				PRINTFORMDL 这也要怨我么
+				PRINTFORML 「你坐下来的话我也不至于要仰着头了啊」
+				PRINTFORMDL 她伸出一只手拉住你的胳膊，那只手看着小小的，力道却稳稳当当
+				PRINTFORMDL 你还没反应过来，人就被她拉着坐了下来
+				PRINTFORML 「你看，这样不就刚好」
+				PRINTFORMDL 她满意地点点头，在你旁边坐下了
+				PRINTFORMDL 有那么一会儿，谁也没说话。萃香拔开塞子喝了一口，又把葫芦递到你手边
+				PRINTFORMDL 你摇了摇头，她也不勉强，收回去自己又喝了一口
+				PRINTFORMDL 傍晚的风从远处吹过来，带着神社那边特有的线香味道
+				PRINTFORMDL 她将肩膀靠在你胳膊上，一点都不重
+				PRINTFORML 「呐，%CALLNAME:MASTER%」
+				PRINTFORMDL 嗯？
+				PRINTFORML 「没什么——就是想叫一下你的名字」
+				PRINTFORMDL 她说完后便眯起眼睛，看着远处的云越飘越远，嘴角则挂着自己都没察觉的笑容
+				PRINTFORMDL 你觉得偶尔这样也行，和心爱的人坐在一起什么都不做，但是心里却有着十分充足的感觉
+			CASE 0
+				PRINTFORMDL 萃香拿着酒葫芦在你面前晃了晃
+				PRINTFORML 「来一口？」
+				PRINTFORMDL 要是我一口气全喝完了呢？
+				PRINTFORML 「哈哈……不要开这种玩笑了，快尝尝吧」
+				PRINTFORMDL 她把葫芦塞到你手里
+				PRINTFORML 「喝吧喝吧——没事的」
+				PRINTFORMDL 你接过来喝了一口。酒很烈，辣得你直皱眉头
+				PRINTFORML 「噗——你这是什么表情啊，哈哈哈哈」
+				PRINTFORML 「不会喝就别勉强啦，还给我还给我」
+				PRINTFORMDL 她把葫芦接过去，低头摩挲着葫芦口，声音忽然轻了下来
+				PRINTFORML 「不过……愿意陪我喝酒的家伙里，你是我最喜欢的那个呢」
+				PRINTFORMDL 说完后又马上灌了一口，好像这样就能把刚才那句话冲回肚子里去
+		ENDSELECT
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 不知道什么时候，萃香已经挨着你坐下了
+				PRINTFORMDL 她把头靠在你胳膊上，仰着脸看你
+				PRINTFORML 「……看什么。就是想离近一点，不行么」
+				PRINTFORMDL 她的手指在你手背上轻轻划着，从指节划到手腕，再从手腕划回来
+				PRINTFORML 「你身上好暖和……人类真方便，自带暖炉」
+				PRINTFORMDL 她闭上眼睛，把脸埋进你袖子的褶皱里，呼吸声渐渐变慢
+				PRINTFORMDL 你不确定她是不是睡着了，但你没有动
+			CASE 0
+				PRINTFORMDL 你正站着，一双胳膊从旁边伸过来，抱住了你一条手臂
+				PRINTFORML 「抓到你了」
+				PRINTFORMDL 萃香把脸贴在你袖子上，仰着头朝你笑
+				PRINTFORML 「今天还没抱过——现在补上」
+				PRINTFORMDL 她抱得很紧，整个人挂在你的胳膊上，脚尖几乎离开了地面
+				PRINTFORML 「嗯……充电完毕」
+				PRINTFORMDL 嘴上说完了，手还没松开
+				PRINTFORMDL 你低头看她，她仰着脸对上你的视线，然后踮起脚在你下巴上啄了一口
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 萃香坐到你的身边，随后立即让后背靠在了你的胸口上
+				PRINTFORMDL 整个鬼往后一仰，像是把你当成沙发靠垫一样靠在了你的胸口
+				PRINTFORML 「嗯……这样靠着比你那个硬邦邦的胳膊舒服多了」
+				PRINTFORMDL 她的肩胛骨隔着衣服硌在你胸口上，头枕在你锁骨的位置
+				PRINTFORMDL 她扭了扭身子调整角度，后背在你胸前蹭了几下，然后不动了
+				PRINTFORML 「呵呵，色鬼遇到真鬼了呢」
+				PRINTFORMDL 她嘴上这么说着，一只手却不老实的摸索着你的胯部
+			CASE 0
+				PRINTFORMDL 萃香挨着你坐下，翘起二郎腿，膝盖正好搭在你的大腿上
+				PRINTFORMDL 她一边喝酒一边晃脚，小腿和你的大腿隔着两层布来回磨蹭
+				PRINTFORMDL 晃得很有节奏，好像完全没意识到自己正在做什么
+				PRINTFORML 「嗯？你腿怎么绷那么紧——放松啦放松」
+				PRINTFORMDL 她用手拍了拍你的大腿，然后把膝盖往上挪了半寸
+				PRINTFORML 「说起来，上次你好像挺喜欢我用腿来着——对吧？」
+				PRINTFORML 「嘿嘿，真是一个变态呢，但我貌似也不逞多让呢！」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 不知道什么时候，萃香已经坐到了你旁边，近到手肘能碰到手肘
+				PRINTFORML 「……没什么啊，就想离近一点坐」
+				PRINTFORMDL 她把头往你肩上歪了歪，又没完全靠上去，差着几厘米的距离
+				PRINTFORML 「嗯，就这样，别动」
+				PRINTFORMDL 她拿出酒葫芦喝了一口，就着这个不远不近的位置
+				PRINTFORMDL 你问她这个距离有什么讲究
+				PRINTFORML 「靠太近的话，不就显得太亲密了么」
+				PRINTFORML 「这样刚好——既不会显得太亲密，还能坐在一起」
+				PRINTFORMDL 她说完又喝了一口，她貌似对距离感把握的并不是很好
+			CASE 0
+				PRINTFORMDL 萃香不知道从哪里晃到你面前，背着手，歪着头，盯着你不说话
+				PRINTFORMDL ……干嘛
+				PRINTFORML 「不干嘛。就是突然觉得——你虽然平时怪怪的，但并不让鬼讨厌」
+				PRINTFORMDL 谢谢……？
+				PRINTFORML 「不客气」
+				PRINTFORMDL 她踮起脚，伸手拍了拍你的头
+				PRINTFORML 「哈啊，我现在要去喝酒了——」
+				PRINTFORMDL 她说完就转身走了。走了几步又回头
+				PRINTFORML 「下次来找我，我有瓶好酒给你留着」
+				PRINTFORMDL 然后这次是真的走了，步子比刚才还快了一点
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 1
+				PRINTFORMDL 萃香啪嗒啪嗒地走过来，一屁股坐在你旁边
+				PRINTFORMDL 近到你能闻见她葫芦里飘出来的酒气
+				PRINTFORML 「借我靠一下——今天忙了一天，腿酸死了」
+				PRINTFORMDL 她的后背靠在你胳膊上，仰头灌了一口
+				PRINTFORML 「哎，感觉人类真麻烦啊，每天都忙的要死」
+				PRINTFORML 「天天早上爬起来干活，我可过不了这种日子」
+				PRINTFORMDL 她自顾自地念叨着，也没等你回话
+			CASE 0
+				PRINTFORMDL 萃香晃到你面前，往你旁边的地上一坐
+				PRINTFORMDL 也不说话，就那么喝着酒，然后用脚后跟磕了磕地面
+				PRINTFORML 「喂——你就没有什么好玩的事要做么」
+				PRINTFORMDL 她把空葫芦举到耳边摇了摇，听着最后几滴酒液撞壁的声音
+				PRINTFORML 「没酒了，也没事做。所以我就来找你了」
+				PRINTFORMDL 原来你是排在酒后面的第二个选项
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;==================================================
+;笑顔を浮かべる 露出笑容
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_12
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_12
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 1
+				PRINTFORMDL 你抬起头，发现萃香正托着下巴看你
+				PRINTFORMDL 眼神撞到一起，她没有躲，反而弯起眼睛笑了一下
+				PRINTFORML 「被你发现了」
+				PRINTFORML 「在看我喜欢的人，有什么问题吗」
+				PRINTFORMDL 她倒是坦荡得让你不知道该怎么接话
+				PRINTFORMDL 见你不说话，她歪了歪头，又补了一句
+				PRINTFORML 「怎么啦，不说点什么？你这样我会不好意思的——虽然也没有很不好意思」
+				PRINTFORMDL 嘴上说着不好意思，脸上的笑却越咧越大
+			CASE 0
+				PRINTFORML 「——噗」
+				PRINTFORMDL 萃香看着你，忽然笑出声来
+				PRINTFORMDL 笑什么啊
+				PRINTFORML 「没有……就是看见你，心情就变好了」
+				PRINTFORMDL 她把脸枕在胳膊上，歪着头继续看着你
+				PRINTFORML 「你忙你的吧——我就看看，不打扰你」
+				PRINTFORMDL 说是这么说，但她的目光黏在你脸上，安静得像一只找到了晒太阳位置的猫
+			CASE 2
+				PRINTFORMDL 萃香不知道什么时候开始哼起了小曲，调子跑得厉害
+				PRINTFORMDL 你抬头看她，她正对着你笑，笑得眼睛都眯成了一条缝
+				PRINTFORML 「好听么？我自己编的——叫『有个笨蛋让我很开心之歌』」
+				PRINTFORMDL 那个笨蛋是谁
+				PRINTFORML 「你觉得呢」
+				PRINTFORMDL 她把脸往胳膊里一埋，只露出两只弯弯的眼睛在外面
+		ENDSELECT
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 1
+				PRINTFORMDL 你感觉到萃香在看你，目光比平时更烫一点
+				PRINTFORMDL 你转过头去，她没有躲，笑意反而加深了
+				PRINTFORML 「嗯……今天有点忍不住」
+				PRINTFORML 「想过来抱你一下。现在就想」
+				PRINTFORMDL 她说这话的时候没有在笑，但眼睛是弯的
+				PRINTFORMDL 你没有动，她也没有——两个人就那样看着对方
+				PRINTFORMDL 然后她先顶不住了，把脸别到一边，用袖子扇了扇风
+				PRINTFORML 「……算了，再盯下去我可就真的忍不住了」
+			CASE 0
+				PRINTFORMDL 萃香盯着你看了很久，久到你开始不自在
+				PRINTFORML 「我在想……你是不是在我的酒里下了什么药」
+				PRINTFORMDL 什么
+				PRINTFORML 「不然为什么我满脑子都是你」
+				PRINTFORMDL 她说完自己先愣住了，然后一头埋进了胳膊里
+				PRINTFORMDL 过了好几秒，胳膊底下才闷出一句
+				PRINTFORML 「笨蛋……你刚才什么都没听见」
+			CASE 2
+				PRINTFORMDL 你从书页上抬起头，正好撞上萃香的视线
+				PRINTFORMDL 她坐在对面，下巴搁在交叠的手臂上，望着你出神
+				PRINTFORML 「别停，你继续看你的」
+				PRINTFORMDL 她抬手在半空中描了一遍你低头的轮廓，指尖在空气里画了个圈
+				PRINTFORML 「我只是在想——你这张脸，我怎么就看不够呢」
+				PRINTFORMDL 她说完自己先不好意思了，抓过旁边的葫芦猛灌了一口
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:3
+			CASE 1
+				PRINTFORML 「……嘿嘿」
+				PRINTFORMDL 萃香看着你，露出了一个不怎么正经的笑
+				PRINTFORMDL 你笑什么
+				PRINTFORML 「我只是在想——你昨天晚上说梦话喊了我的名字哎」
+				PRINTFORMDL 她托着下巴，一脸看好戏的表情
+				PRINTFORML 「放心吧，我不会到处说的——才怪」
+				PRINTFORMDL 你伸手去捂她的嘴，她往后一闪，笑得更大声了
+			CASE 0
+				PRINTFORMDL 你注意到萃香正朝你笑，笑得意味深长
+				PRINTFORMDL ……你想干嘛
+				PRINTFORML 「没干嘛啊，就是忽然想起来——上次接吻的时候，你的表情真是……」
+				PRINTFORMDL 她往前探了探身子，脸离你近了许多
+				PRINTFORML 「要不这次闭着试试？——练习一下，又不收你钱」
+				PRINTFORMDL 她没等你回答，凑过来在你嘴唇上啄了一下
+				PRINTFORMDL 很轻，很短，带着一股酒气，像夏天路过酒窖时被风吹了一口
+				PRINTFORML 「嗯，有进步——至少这次没瞪眼。下次再练练舌头」
+				PRINTFORMDL 她舔了舔自己的嘴角，一副验收完毕的表情
+			CASE 2
+				PRINTFORMDL 萃香低头看了看自己的胸口，又抬头看看你
+				PRINTFORML 「你刚才是不是在盯——算了我都习惯了」
+				PRINTFORMDL 她抓过你一只手直接按在了自己胸前
+				PRINTFORMDL 隔着衣服，掌心下面一片平坦，只有一颗微微凸起的点
+				PRINTFORML 「摸吧摸吧——反正你摸也是平的，不摸也是平的」
+				PRINTFORMDL 她按着你的手背不让你抽回去，然后歪着头观察你的表情
+				PRINTFORML 「怎么样？手感是不是比看起来强一点？」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:3
+			CASE 1
+				PRINTFORMDL 萃香看着%CALLNAME:MASTER%的脸，不知怎么就笑了出来
+				PRINTFORMDL 脸上沾东西了？
+				PRINTFORML 「没有没有——就是觉得」
+				PRINTFORML 「你这人有时候真的挺有意思的」
+				PRINTFORMDL 她说完低头去摆弄酒葫芦，像是随口一说
+				PRINTFORMDL 手指在葫芦上划拉了半天，塞子拔了又塞，塞了又拔
+				PRINTFORMDL 你问她是不是还有什么话想说
+				PRINTFORML 「没有——酒不够了。我去打点」
+				PRINTFORMDL 她起身走了，但葫芦明明是满的
+			CASE 0
+				PRINTFORML 「嘿嘿……」
+				PRINTFORMDL 萃香一个人在那里笑出了声
+				PRINTFORMDL 又喝多了？
+				PRINTFORML 「今天没喝！清醒得很——」
+				PRINTFORML 「清醒的时候心情好不行么」
+				PRINTFORMDL 那什么事心情这么好
+				PRINTFORML 「不告诉你——反正跟你没关系」
+				PRINTFORMDL 她仰头灌了一口酒，耳朵尖有一点发红
+				PRINTFORMDL 过了一会儿，她又偷偷往你这边瞄了一眼，确认你没有在看她，才把嘴角彻底放开
+			CASE 2
+				PRINTFORMDL 萃香从你身边经过的时候，脚步顿了一下
+				PRINTFORMDL 你抬头，她正看着你，嘴角还挂着你没见过的温柔弧度
+				PRINTFORML 「……没什么。你继续」
+				PRINTFORMDL 她移开视线往前走，走出去几步又回头看了你一眼
+				PRINTFORMDL 这一次被你抓住了，她没有躲，只是朝你晃了晃手里的葫芦，然后真的走远了
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 1
+				PRINTFORMDL 你余光扫到萃香在看你
+				PRINTFORMDL 转过头去，她迅速把视线移开——但嘴角还没收住
+				PRINTFORML 「……没笑」
+				PRINTFORMDL 你明明在笑
+				PRINTFORML 「好吧笑了，怎么了，幻想乡哪条规矩不能笑么」
+				PRINTFORMDL 她叉着腰，理直气壮地倒打一耙
+				PRINTFORMDL 你又看了她一眼，她赶紧把脸埋进葫芦里，差点呛着
+			CASE 0
+				PRINTFORMDL 萃香看着你，忽然笑了一下又收回去了
+				PRINTFORMDL 好像想到了什么好玩的事，又懒得跟你讲
+				PRINTFORML 「没什么——接着喝接着喝」
+				PRINTFORMDL 她晃了晃酒葫芦，朝你的方向虚虚地碰了个杯
+				PRINTFORMDL 你问她到底在笑什么，她摆摆手，又喝了一口，眼睛在葫芦沿上弯成了月牙
+			CASE 2
+				PRINTFORMDL 你听到身后传来一声极力压住的笑
+				PRINTFORMDL 回头一看，萃香正捂着嘴，肩膀一耸一耸的
+				PRINTFORML 「不是笑你——我是笑灵梦。她上次被魔理沙的蘑菇熏到的事情突然想起来了」
+				PRINTFORMDL 她努力板起脸，但不到两秒又破功了
+				PRINTFORML 「不行，一想起来就忍不住——哈哈哈哈」
+		ENDSELECT
+	ENDIF
+RETURN 1
+
+;==================================================
+;構って欲しがる 想要被搭理
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_13
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_13
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香抱住了%CALLNAME:MASTER%的胳膊
+			PRINTFORML 「%CALLNAME:MASTER%.....」
+			PRINTFORMDL ……怎么了么？
+			PRINTFORML 「……不，没什么……嘿嘿...」
+		CASE 2
+			PRINTFORMDL 萃香轻轻的抱住%CALLNAME:MASTER%的手臂
+			PRINTFORML 「……呐，%CALLNAME:MASTER%……」
+			PRINTFORMDL 萃香用饱含感情的眼神看着你。
+		CASE 3
+			PRINTFORMDL 萃香从背后戳了戳你的肩膀
+			PRINTFORMDL 你转过头，她把手背在身后，歪着头朝你笑
+			PRINTFORML 「你是不是忘了一件事」
+			PRINTFORMDL 什么事
+			PRINTFORML 「今天还没理我呢——我可是数着呢」
+		CASE 0
+			PRINTFORMDL 你感觉袖子被拽了一下，回过头，萃香正仰着脑袋看你
+			PRINTFORML 「你在忙什么——好无聊啊，陪我说会儿话呗」
+			PRINTFORMDL 她把你手里的东西抽走了，随后坐到你旁边开始和你聊天
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;身をすり寄せる 依偎过来
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_14
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_14
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香靠在%CALLNAME:MASTER%肩膀上
+			PRINTFORMDL ……突然靠过来……困了么？
+			PRINTFORML 「……不，请别太在意……」
+			PRINTFORMDL 萃香闭上了眼睛，露出了放松的神情
+		CASE 2
+			PRINTFORMDL 萃香用身体靠着%CALLNAME:MASTER%
+			PRINTFORMDL 轻轻用胳膊揽住，很难想象这样娇小的身体拥有着那样恐怖的怪力
+			PRINTFORML 「让我靠一会，可以吗……？」
+			PRINTFORMDL 得到你肯定的答复之后，萃香安心的闭上眼睛
+			PRINTFORML 「……谢谢……」
+		CASE 3
+			PRINTFORMDL 你正坐着时，萃香无声无息地靠了过来
+			PRINTFORMDL 她没有说话，只是把身子的重心慢慢移到了你身上
+			PRINTFORMDL 你侧过头看她，她正闭着眼睛，而嘴角有着一点点细微的上扬
+		CASE 0
+			PRINTFORMDL 萃香从侧面靠上来，整条胳膊都挨着你
+			PRINTFORMDL 她身上那股淡淡的酒香也跟着飘了过来
+			PRINTFORML 「嗯……你这个角度刚好能当扶手，别动」
+			PRINTFORMDL 说完后她将酒葫芦搁在你的腿上，然后拧开塞子准备喝酒
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;見つめてくる 凝视
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_15
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_15
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香凝视着%CALLNAME:MASTER%。
+			PRINTFORMDL ……萃香？怎么一直盯着我看啊.....
+			PRINTFORML 「呵呵……有吗？…」
+			PRINTFORMDL 萃香笑着回答道
+		CASE 2
+			PRINTFORMDL ……萃香。
+			PRINTFORML 「怎么了么？」
+			PRINTFORMDL 我的脸上有奇怪的东西吗？
+			PRINTFORML 「不，什么都没有哦」
+			PRINTFORMDL ……是吗。
+			PRINTFORMDL %CALLNAME:MASTER%被萃香一直盯着，感觉有些不自在
+		CASE 3
+			PRINTFORMDL 你抬头的时候正好撞上萃香的视线——她已经不知道盯了多久了
+			PRINTFORMDL 她没有躲，只是歪了歪头，换了个角度继续盯着你
+		CASE 0
+			PRINTFORMDL 萃香撑着下巴，直勾勾地盯着你，眼睛一眨不眨
+			PRINTFORMDL 你被她看得浑身发毛，但她完全没有收手的意思
+			PRINTFORML 「你这个人类真的很有意思呢，就让我再看一会呗」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;肩にあご乗せ 把下巴搁在你的肩头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_16
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_16
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香从后面抱住了%CALLNAME:MASTER%的脖子。
+			PRINTFORMDL 把下巴搭在肩膀上，用脸颊贴着%CALLNAME:MASTER%。
+			PRINTFORMDL 怎么了么？你感觉今天的萃香像一只小猫一样
+			PRINTFORML 「没怎么哦...呼呼...」
+		CASE 2
+			PRINTFORML 「嘿嘿……%CALLNAME:MASTER%……」
+			PRINTFORMDL 萃香偷偷靠了过来，把下巴靠在%CALLNAME:MASTER%的肩膀上。
+			PRINTFORMDL 她的表情看起来十分快乐。
+			PRINTFORMDL 有谁能拒绝这么可爱的鬼之天王呢？
+		CASE 3
+			PRINTFORMDL 你正往前走着时，肩上忽然多了一份重量——萃香从后面把下巴搁了上来
+			PRINTFORML 「嗯，这个高度刚刚好。你长这么高原来是为了让我搁下巴啊」
+			PRINTFORMDL 她的头发扫过你的脖子，痒得你想躲又不想躲
+		CASE 0
+			PRINTFORMDL 萃香绕到你的背后，踮起脚尖把下巴搁在你的左肩上
+			PRINTFORMDL 她的呼吸在你耳边热乎乎的，带着一股酒味
+			PRINTFORML 「你肩膀借我一会儿——昨晚没睡好，站着就想靠东西」
+			PRINTFORMDL 她说着说着声音就突然变小了，好像真的快睡着了似的
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;差し入れ 犒劳（恢复力气）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_17
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_17
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;ソフト 软性性骚扰
+;-------------------------------------------------
+;==================================================
+;色っぽい仕草 以性感姿势挑逗
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_20
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_20
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORML 「哈……嗝……真的是……」
+			PRINTFORMDL 萃香应该是又喝醉酒了，一个人不知道在念叨着什么
+			PRINTFORMDL 她一点一点靠了过来
+			PRINTFORML 「……呼呼……喂、%CALLNAME:MASTER%、要喝一点么……？」
+			PRINTFORMDL 萃香从前面抱住%CALLNAME:MASTER%，凑近了质问道
+		CASE 2
+			PRINTFORML 「%CALLNAME:MASTER%……」
+			PRINTFORMDL 萃香一边念着%CALLNAME:MASTER%的名字，一边缓缓靠近
+			PRINTFORML 「……呐～……%CALLNAME:MASTER%……？」
+			PRINTFORMDL 萃香用胸部贴住%CALLNAME:MASTER%的手臂，虽然没什么起伏但贴得很紧
+		CASE 3
+			PRINTFORMDL 萃香喝了酒之后色胆比平时大了不止一倍
+			PRINTFORMDL 她直接从你背后环住你的腰，整张脸埋在你背上，手不老实地往你肚子下面摸去
+			PRINTFORML 「嘿嘿——你的腰比看起来结实嘛。平时没少锻炼吧？」
+		CASE 0
+			PRINTFORMDL 萃香把酒葫芦往旁边一扔，整个人爬到你腿上坐着
+			PRINTFORMDL 她把领口往下拽了拽，虽然没什么东西可以露，但锁骨和肩头的线条在她这个姿态下特别好看
+			PRINTFORML 「热死了……夏天真是特别难熬啊——我来帮你扇扇风吧」
+			PRINTFORMDL 她拿起一把扇子往你胸口扇风，自己的衣襟却越敞越开
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;見つめる 盯着看（同上，强调让对象（玩家）感受到被盯着）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_21
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_21
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香目不转睛地盯着%CALLNAME:MASTER%看
+			PRINTFORMDL 有什么事吗？
+			PRINTFORML 「……不，没什么事情……」
+			PRINTFORMDL 萃香继续盯着%CALLNAME:MASTER%，眼睛里有种说不清的东西
+		CASE 2
+			PRINTFORML 「――――――」
+			PRINTFORMDL 萃香目不转睛的盯着%CALLNAME:MASTER%
+			PRINTFORMDL 那种被鬼注视的感觉确实让人脊背发凉——但又不太一样
+		CASE 3
+			PRINTFORMDL 萃香的视线从你脸上慢慢往下移，停在你的嘴唇上，然后是脖子，然后是胸口
+			PRINTFORMDL 她的目光像在打量一件她非常熟悉但每次看都还是觉得有趣的东西
+			PRINTFORML 「我在想……你今天穿这件衣服是因为知道我想看，还是凑巧的呢？」
+		CASE 0
+			PRINTFORMDL 你被萃香盯得有些坐不住了，她的视线在你身上扫来扫去
+			PRINTFORMDL 最后停在了你的腿间，她好像在研究一幅画一样盯着你的裆部
+			PRINTFORML 「你知道么——你在紧张的时候那个地方会有反应的，隔着裤子我都能看出来」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;体を摺り寄せる 缠上你的身体
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_22
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_22
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香整个人贴了过来，肩膀、胳膊、腰侧都挨了上来
+			PRINTFORMDL 她仰着头看你，嘴角挂着一丝若有若无的笑
+			PRINTFORML 「怎么样——手感还行吧？虽然没什么料」
+			PRINTFORMDL 她扭了扭腰，用身体蹭着你的侧面
+		CASE 2
+			PRINTFORMDL 一阵温热从背后压了上来
+			PRINTFORMDL 萃香的额头抵在你后背上，整个人的重量慢慢靠上来
+			PRINTFORML 「别动——我在测试你这个人肉靠垫的耐用度」
+			PRINTFORMDL 她的手从你腰侧滑到腹部，整张脸埋进了你背上的衣料里
+		CASE 3
+			PRINTFORMDL 萃香面对面贴上来，双手绕到你脖子后面搂住
+			PRINTFORMDL 她踮着脚尖才能勉强让脸在你下巴的高度
+			PRINTFORMDL 整个人挂在你身上，腿根贴着你大腿，小腹蹭着你的髋骨
+			PRINTFORML 「这样贴着好舒服……而且你的体温比我高那么一点点……这感觉真的……好……奇……妙」
+		CASE 0
+			PRINTFORMDL 萃香从你背后缠了上来，双臂环过你的腰腹，交叠在肚脐的位置
+			PRINTFORMDL 她的嘴唇贴着你的脊梁骨，顺着脊椎沟一路往上亲
+			PRINTFORMDL 到后颈的时候停了一下，用鼻尖蹭了蹭你发际线那里的绒毛
+			PRINTFORML 「你这里的味道和最一开始不一样了——是不是换浴盐了？」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;スカートめくり 掀起（玩家）的裙子
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_23
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_23
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 一阵凉风灌进来，你低头发现裙子被掀到了膝盖以上
+			PRINTFORMDL 萃香蹲在你身后，仰着脸朝你咧嘴笑
+			PRINTFORML 「哈哈——反应不错嘛」
+		CASE 2
+			PRINTFORMDL 你感觉裙摆被拽了一下，回头一看萃香正揪着你的裙角不放
+			PRINTFORML 「我就是好奇——为什么要穿这样的裙子？」
+			PRINTFORMDL 她掀起一角往里面瞄了一眼，然后若无其事地松手
+		CASE 3
+			PRINTFORMDL 萃香这次把裙子从后面整个掀起来了，凉风直接灌到你大腿根
+			PRINTFORMDL 她的视线在你腿上扫了一遍，然后伸手在你大腿内侧弹了一下
+			PRINTFORML 「上次就说你这里比别处白——没骗你吧。晒不到太阳的地方就是嫩」
+		CASE 0
+			PRINTFORMDL 萃香从前面掀起你的裙子，往里看了半天
+			PRINTFORMDL 她歪着头，表情从好奇变成了某种微妙的满意
+			PRINTFORML 「嗯……今天穿的是我上次说不错的那条？——记性不赖嘛」
+			PRINTFORMDL 她将裙摆放下来的时候，手指无意间擦过了你的腿根
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;息を吹きかける 在耳边吹气
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_24
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_24
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 一阵温热的呼吸忽然贴上你的耳廓，混着淡淡的酒气
+			PRINTFORML 「嘿嘿——你耳朵好红。是因为我么？」
+			PRINTFORMDL 她换到另一边耳朵又吹了一口
+		CASE 2
+			PRINTFORMDL 萃香踮起脚尖凑到你耳后，对着你的耳根呼了一口长气
+			PRINTFORML 「上次你也是这样抖的——还说自己不怕痒」
+		CASE 3
+			PRINTFORMDL 萃香的嘴唇几乎贴上了你的耳廓，先是一声极轻的笑，然后一股湿热的气息灌进你耳朵里
+			PRINTFORMDL 她呼完气之后没有退开，而是用舌尖在你耳垂上轻轻舔了一下
+			PRINTFORML 「耳朵和脖子都红了呢——再往下我就不知道会红到哪里去了呢，要不要继续试试？」
+		CASE 0
+			PRINTFORMDL 萃香从后面捂住了你的眼睛，嘴唇贴着你的耳后，说话的时候嘴唇蹭着你的皮肤
+			PRINTFORML 「猜猜我现在在干嘛——猜对了就奖励你，猜错了就罚你让我多吹几口」
+			PRINTFORMDL 她往你耳朵里轻轻吹了一口气，然后嘴唇顺着你的耳廓慢慢往下滑到脖子
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;尻を撫でる 摸屁股
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_25
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_25
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 一只手从背后伸过来，不轻不重地拍了一下你的臀部
+			PRINTFORML 「嗯？怎么了——我只是会用手触碰自己喜欢的东西啊」
+			PRINTFORMDL 她带着评估的意味伸手捏一下
+		CASE 2
+			PRINTFORMDL 你正往前走时，屁股忽然被两只手同时抓了一下
+			PRINTFORML 「哇哦——你的反应好大啊。又不是第一次，至于嘛」
+		CASE 3
+			PRINTFORMDL 萃香的手在你臀上停住了，不拍不捏，就那样贴着臀部
+			PRINTFORMDL 然后五根手指慢慢地收拢，从臀峰揉到臀缝的边缘
+			PRINTFORML 「手感越来越好了——最近有在练么？这个弹性是越来越好了呢，嘿嘿。」
+			PRINTFORMDL 她在揉够了之后用手指在你屁股上摸了几把，随后才将手缩了回去
+		CASE 0
+			PRINTFORMDL 萃香绕到你身后，两只手直接扣住了你的臀瓣
+			PRINTFORMDL 她十指发力，从两边往中间挤，力道用得刚好——能感觉到肌肉被揉开但不会疼
+			PRINTFORML 「上次我就发现了——你这里特别有弹性，今天摸起来也是弹性十足呢。」
+			PRINTFORMDL 她说这话的时候语气跟点评酒差不多，但手指已经顺着你的臀缝往下滑了
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;腕抱き付き 挽着你的胳膊
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_26
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_26
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香一把抱住了你的手臂，整个人挂在上面
+			PRINTFORML 「你这条胳膊今天被我征用了」
+		CASE 2
+			PRINTFORMDL 萃香把你的手臂圈在了怀里，仰着脸朝你笑
+			PRINTFORML 「这样走路比较省力——你不介意吧？」
+			PRINTFORMDL 她用胸口抵着你的肘弯，虽然没什么起伏，但那份温度是真真切切的
+		CASE 3
+			PRINTFORMDL 萃香抱着你的手臂，故意把你的手往自己胸前带
+			PRINTFORMDL 你的手背蹭在她的乳尖上，隔着衣服能感觉到那一点硬硬的触感
+			PRINTFORML 「感觉到了么——变态？」
+		CASE 0
+			PRINTFORMDL 萃香把你的整条胳膊拽进怀里，然后用腿夹住了你的手腕
+			PRINTFORMDL 你的手被固定在离她腿间很近的位置，她的大腿内侧的体温传到了你的指节上
+			PRINTFORML 「抱胳膊也太普通了——这样更有意思对吧？」
+	ENDSELECT
+RETURN 1
+;==================================================
+;谷間を見せる 秀出乳沟
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_27
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_27
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香扯着领口往前倾了倾身子，低头看了看
+			PRINTFORML 「……想看的话——看吧。反正你也看不到什么」
+			PRINTFORMDL 她拽着领口往两边拉了拉，锁骨下面一片平坦
+		CASE 2
+			PRINTFORMDL 萃香双手撑在膝盖上半弯着腰，领口垂下来
+			PRINTFORML 「够义气吧？别人想看我还不让别人看呢。」
+		CASE 3
+			PRINTFORMDL 萃香今晚穿了一件领口特别大的寝衣，坐下来的时候锁骨和肩头全露在外面
+			PRINTFORMDL 她往你这边靠了靠，领口滑得更开了，几乎能看到胸口全部的皮肤
+			PRINTFORML 「这件衣服买了很久一直没穿——因为领口太大了，一低头就全露出来」
+			PRINTFORMDL 她低头看了看自己，然后又抬头看你
+			PRINTFORML 「不过反正也没什么能露的——穿不穿都差不多。不如趁这个机会穿给你看」
+		CASE 0
+			PRINTFORMDL 萃香凑到你面前，手指勾着领口往下拉
+			PRINTFORMDL 拉到一半的时候停了一下，因为你看见了她的乳尖——隔着衣服，但硬起来的轮廓很清楚
+			PRINTFORML 「哈啊，你是不是看见了——我就知道。」
+			PRINTFORMDL 她又往下拉了一点，然后忽然松手，衣服弹回去了
+			PRINTFORML 「好了——变态，下次想看的话自然会让你看到的哦」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;尻ズリ 下面有个同名的，这里是※隔着衣物※用（她的）鸡巴蹭（你的）屁股
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_28
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_28
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;セクハラ 性骚扰 以下开始为诶嘿嘿时触发
+;-------------------------------------------------
+;==================================================
+;キス 接吻
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_30
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_30
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香踮起脚尖，一只手揪着你的领口把你拉低，在你嘴上印了一下
+			PRINTFORML 「……嗯。今天也是让人迷醉的酒味哦——你尝出来了么？」
+			PRINTFORMDL 她舔了舔自己的嘴唇，歪着头看你像是在等待评价
+		CASE 2
+			PRINTFORMDL 你还没反应过来，萃香已经凑到了你面前，闭着眼睛仰起了脸
+			PRINTFORMDL 吻住之后她没有马上退开，而是停了两秒
+			PRINTFORML 「……果然你的嘴唇比葫芦口要舒服呢」
+		CASE 3
+			PRINTFORMDL 萃香双手捧住你的脸，拇指按在你颧骨上，直接把你拉下来吻了起来
+			PRINTFORMDL 她的舌头带着酒味撬开了你的嘴唇，舌尖也在你的上颚快速扫过
+			PRINTFORMDL 吻完之后她并没有松手，而是保持着额头抵额头，鼻尖碰鼻尖的姿势说道
+			PRINTFORML 「每次吻你都像喝酒——但你的嘴比酒更让我上瘾呢」
+		CASE 0
+			PRINTFORMDL 萃香把你推到墙上，一只手撑着墙，一只手揪着你衣领往下拉
+			PRINTFORMDL 她踮起脚尖吻上来的时候，整个人的重量都挂在了你的身上
+			PRINTFORMDL 酒气和她的体温一起灌进来，舌头在你嘴里搅了足足半分钟才松开
+			PRINTFORML 「下次换你主动——每次都要我踮脚，累死了」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;後ろから抱きつく 从后面抱住
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_31
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_31
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 一双胳膊从你腋下穿过，在你胸前扣住了
+			PRINTFORMDL 萃香的脸颊贴在你肩胛骨中间
+			PRINTFORML 「抓到你了」
+		CASE 2
+			PRINTFORMDL 你背后忽然多了一份重量，一双小手在你肚子上交叠
+			PRINTFORML 「别动——我今天心情不太好，借你后背用一下」
+		CASE 3
+			PRINTFORMDL 萃香从背后抱住你之后并没有停下——她的手从你胸口滑到了小腹，掌心在你肚脐周围打着圈
+			PRINTFORMDL 指尖顺着腹肌的中线一直往下滑，停在你裤腰的位置
+			PRINTFORML 「你每次被我从后面抱的时候，腹肌都会绷紧——就这么怕我往下摸？」
+		CASE 0
+			PRINTFORMDL 萃香从背后抱紧你，用胸口贴着你的后背，整个人紧紧地贴在你身上
+			PRINTFORMDL 她能感觉到你背上的每一块肌肉，她的乳尖隔着两件衣服在你背上硬起来
+			PRINTFORML 「感觉到了？真不知道你我究竟谁才是那个变态了」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;前ろから抱きつく 从前面抱住
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_32
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_32
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香一头扎进你怀里，两条胳膊死死箍住你的腰
+			PRINTFORML 「充电中——请勿打扰」
+			PRINTFORMDL 过了几秒她松开手退后一步
+			PRINTFORML 「好了，充满了」
+		CASE 2
+			PRINTFORMDL 萃香张开双臂拦在你面前
+			PRINTFORML 「等一下——这里要收抱抱做过路费」
+			PRINTFORMDL 她把脸埋进你胸口，在深吸了一口气后才松开
+		CASE 3
+			PRINTFORMDL 萃香从正面抱住你，脸埋在你胸口，手却不安分地在你后腰上游走
+			PRINTFORMDL 她的手指抠进你后腰的肌肉里，指腹顺着脊椎往下滑到裤腰的位置
+			PRINTFORML 「从前面抱有个好处——能感受到你有没有勃起……」
+			PRINTFORMDL 她在说这话的时候小腹故意往你腿间压了一下
+		CASE 0
+			PRINTFORMDL 萃香在扑进你怀里的时候用力过猛，将你整个人都撞退了一步
+			PRINTFORMDL 她的角戳在你锁骨上，有点疼，但她仰起脸来的时候眼睛弯成了两道月牙
+			PRINTFORML 「抱都抱了——顺便摸一下不过分吧」
+			PRINTFORMDL 她的手从你后背绕过来，隔着裤子在你臀上拍了一巴掌
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;胸を揉ませる 揉胸
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_33
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_33
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香抓过你的手，直接按在了自己胸口上
+			PRINTFORML 「怎么样——虽然小，但该有的感觉还是有吧？」
+		CASE 2
+			PRINTFORMDL 萃香把你的手往她自己胸口上带
+			PRINTFORML 「想就摸呗，又不是没摸过」
+			PRINTFORMDL 她隔着衣服将你的掌心按在自己胸前
+			PRINTFORML 「心跳很快对吧——这可是你的功劳哦」
+		CASE 3
+			PRINTFORMDL 萃香解开上衣的扣子，把衣服往两边拉开，露出那片平坦但敏感的胸口
+			PRINTFORMDL 她抓过你的手直接按在自己左边的乳尖上——没有布料的阻隔，你的掌心直接贴住了那粒小小的凸起
+			PRINTFORML 「隔着衣服和直接摸，不一样吧？你的手心好烫，我这里都快被你熨平了」
+			PRINTFORMDL 她按着你的手背让你用指腹揉她乳尖，而自己则闭着眼睛咬着下唇，强行忍耐着快感
+		CASE 0
+			PRINTFORMDL 萃香让你躺在下面，自己骑在你身上，把你的双手按在自己胸前
+			PRINTFORMDL 她抓着你的手指教你怎么揉——食指和中指夹住乳尖轻轻捻，掌心在整个乳晕上画圈
+			PRINTFORML 「对了——就是这个力道，你学得挺快的嘛」
+			PRINTFORMDL 她在说着的同时腰不自觉地往下压，湿透的内裤蹭在你还硬着的地方
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;股間をまさぐる 揉裆
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_34
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_34
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的手从你大腿侧面滑上来，指尖在你的腿间轻轻按了一下
+			PRINTFORML 「嗯……好像比刚才精神了一点」
+		CASE 2
+			PRINTFORMDL 萃香的手已经摸到了那里，低头专注地用手心感受着温度和形状
+			PRINTFORML 「……硬了？是我的缘故么？」
+		CASE 3
+			PRINTFORMDL 萃香把你的裤子往下拉了一半，直接用手掌握了上去
+			PRINTFORMDL 她的手很小，但温度很高，握上去的时候你感觉到血液全往那个地方涌
+			PRINTFORML 「比刚才又大了呢——我就摸了一下就这样了，要是含进去你是不是当场就交代了，哈哈」
+			PRINTFORMDL 她手上开始慢慢套弄，同时抬头看着你的表情
+		CASE 0
+			PRINTFORMDL 萃香跪坐在你腿间，两只手捧着你硬起来的肉棒，像捧着一件需要仔细检查的东西
+			PRINTFORMDL 她的拇指按着顶端渗出来的透明液体画圈，目光专注地研究你自己的体液在指腹上拉丝的质感
+			PRINTFORML 「这个量和这个颜色——说明你最近身体不错，吃得好睡得香，所以连这里的分泌物都变清了么」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;スカートの中を見せる 掀起（她的）裙子给你看里面
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_35
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_35
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香在你面前站定，两只手抓住裙摆往上提了提
+			PRINTFORML 「喏——看吧。不过只能看这么多，剩下时间就可是付费档了」
+		CASE 2
+			PRINTFORMDL 萃香背对着你将裙子撩到腰际
+			PRINTFORML 「怎么啦——又不是没看过」
+			PRINTFORMDL 她停了两秒，随后才让裙摆落了回去
+		CASE 3
+			PRINTFORMDL 萃香慢慢地将裙子提到腰际，然后用一只手攥住裙角，另一只手掀开内裤的边缘
+			PRINTFORMDL 她把腰扭过来让你看到侧面——大腿根和大腿相接的那道弧线，还有内裤边缘勒出来的一点点软肉
+			PRINTFORML 「呵呵，怎么样，是不是看入迷了啊，变态？」
+			PRINTFORMDL 她松开手让裙子和内裤弹回去，随之朝你眨了眨眼
+		CASE 0
+			PRINTFORMDL 萃香这次直接跪在你面前，把自己的裙子撩到小腹以上
+			PRINTFORMDL 她的内裤是浅色的，你能看见中间那一小片已经湿透了贴在皮肤上
+			PRINTFORML 「你在看这里对吧。我是故意的——就是想看看你什么表情」
+			PRINTFORMDL 她伸手在自己的内裤上用指尖轻轻划了一下，那个痕迹也跟着变长了
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;後ろから胸もみもみ 从身后揉胸
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_36
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_36
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香从背后环住你，手从你腋下穿过，直接覆上了你的胸口
+			PRINTFORML 「你这里也没什么肉嘛——咱俩半斤八两」
+		CASE 2
+			PRINTFORMDL 一双小手从背后伸过来，隔着衣服揉上了你的胸口
+			PRINTFORMDL 萃香的手法很熟练，拇指和食指配合着捻
+			PRINTFORML 「你这里比我还敏感呢——变态」
+		CASE 3
+			PRINTFORMDL 萃香从背后揉着你的胸口，嘴唇却在你后颈上慢慢舔
+			PRINTFORMDL 她的手指夹着你的两边乳尖同时捻，舌头在你发际线以下的皮肤上画湿痕
+			PRINTFORML 「你的反应还真是有趣呢」
+		CASE 0
+			PRINTFORMDL 萃香让你靠在她怀里，从背后帮你揉胸口
+			PRINTFORMDL 她的手指从你的腹部一路揉上来，掌心贴着肋骨往上推，最后停在胸口来回揉
+			PRINTFORML 「从这个角度揉的话，我就能感觉到你的心跳呢。」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;飴強奪 抢走嘴里的糖（亲吻）
+;2026年1月24日 4.976修复机制
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_39
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_39
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;おねだり 央求
+;-------------------------------------------------
+;==================================================
+;正常位Ｖおねだり 央求正常位V插入
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_41
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_41
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;==================================================
+;後背位Ｖ挿入おねだり 央求背后位V插入
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_43
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_43
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;後背位Ａおねだり 央求背后位A插入
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_44
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_44
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;愛撫 爱抚
+;-------------------------------------------------
+;==================================================
+;手淫
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_50
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_50
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香蹲在你面前，两只手握住你的肉棒开始上下捋动
+			PRINTFORMDL 她的手很小，力道却恰到好处，掌心那一层薄薄的茧蹭得你直抽气
+			PRINTFORML 「嗯？很舒服？——那就好，我还怕力气用大了」
+			PRINTFORMDL 她仰着脸看你的表情，手上的节奏跟着你的反应调整
+		CASE 2
+			PRINTFORMDL 萃香把你拉到一个角落里，二话不说解开了你的裤带
+			PRINTFORML 「坐好，别动——我来」
+			PRINTFORMDL 她的手握着你，大拇指在顶端画着圈，每一下都慢得让人发疯
+			PRINTFORML 「你这种表情挺少见的——我得好好记住」
+		CASE 3
+			PRINTFORMDL 萃香把酒葫芦里最后一点酒倒在自己手心里，凉凉的酒液裹着她的手掌覆上了你的肉棒
+			PRINTFORMDL 酒精挥发带走热量的同时，她的手开始快速套弄，冰火两重天的刺激让你的腰立刻绷紧了
+			PRINTFORML 「嘿嘿——这个是我自己想出来的。酒倒上去凉凉的，但是你的血会涌上去把它变热，对吧？」
+			PRINTFORMDL 她换了一只手继续套弄，沾酒的那只手慢慢往下揉你的根部。两边的温度和力道完全不同
+			PRINTFORMDL 凉的那只在顶端画圈，温热的那只在根部挤压，你的下体在两种极端之间反复弹跳
+			PRINTFORML 「你的表情好有趣——我以后得多用这招」
+		CASE 0
+			PRINTFORMDL 萃香跪在你腿间，两只手交替套弄着你的肉棒，一只手往下捋的同时另一只手已经在顶端等着了
+			PRINTFORMDL 她的节奏越来越快，手心被先走汁濡湿后发出了黏腻的水声，四周只有手掌和你的体液摩擦的声音
+			PRINTFORML 「出来好多……你快要到了吧——别忍，射在我手上，我想看」
+			PRINTFORMDL 她仰着脸，眼睛一眨不眨地盯着你的顶端，舌头不自觉地舔了一下自己的嘴角
+			PRINTFORMDL 你那浓厚的精液一道一道地喷在她的手心，量多得从指缝间溢出来滴在她跪着的大腿上
+			PRINTFORML 「好多……还烫的。你这积了多久啊——下次记得早点来找我啊」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;口淫
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_51
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_51
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香跪坐在你面前，张嘴含住你的肉棒
+			PRINTFORMDL 她闭着眼睛，长长的睫毛在颧骨上投下两小片阴影，舌头从根部一路舔到顶端
+			PRINTFORML 「怎么样……舒服么？我特意跟美宵学了学怎么用舌头哦」
+		CASE 2
+			PRINTFORMDL 你低头的时候正好对上了萃香的眼睛
+			PRINTFORMDL 她含着你的肉棒，从下往上看着你的表情，然后退出来用舌尖在顶端快速舔了几下
+			PRINTFORML 「唔……不要忍耐——想射就射出来」
+		CASE 3
+			PRINTFORMDL 萃香含了一口酒在嘴里，然后低头把你的肉棒整个吞了进去
+			PRINTFORMDL 冰凉的酒液混着她温热的口腔，你的肉棒像被泡在了一杯活着的烈酒里
+			PRINTFORMDL 她的舌头搅动着酒液在你周围打转，气泡顺着柱身往上冒，每一颗炸开的时候你都抖一下
+			PRINTFORML 「唔……咕噜……这酒四十三度，你那里现在大概也是这个温度」
+			PRINTFORMDL 她把酒咽下去一半，剩下的含着你用舌尖在头部画圈，酒气混着唾液从她嘴角溢出来滴在你的小腹上
+			PRINTFORMDL 她的嘴唇沿着包皮往下捋，牙齿轻轻磕过冠状沟的位置，你差点从床上弹起来
+		CASE 0
+			PRINTFORMDL 萃香双手扶着你大腿，嘴含着你一路往下吞，直到鼻尖碰到小腹才停下来
+			PRINTFORMDL 她的喉咙深处蠕动着包住你的顶端，那种被整根吞没又被软肉紧紧吸住的快感让你差点直接交代
+			PRINTFORMDL 她停在那里，抬着眼睛看你，睫毛湿漉漉的，然后用喉咙的肌肉故意夹了你一下
+			PRINTFORML 「唔……你刚才是不是差点就出来了——我能感觉到，它在跳」
+			PRINTFORMDL 她慢慢退出来呼吸了一口，嘴角拉出的丝挂在下巴上，然后用指尖挑断了放到嘴里舔掉
+			PRINTFORML 「味道越来越浓了呢——是要射了么？」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;素股
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_52
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_52
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香跨坐在你腿上，将你的肉棒夹在她大腿中间
+			PRINTFORMDL 她前后晃动腰身，大腿内侧的软肉紧紧夹着你的肉棒来回摩擦
+			PRINTFORML 「呜嗯……温度好烫……」
+		CASE 2
+			PRINTFORMDL 你感觉到大腿上一阵温热——萃香把你的肉棒夹在她腿间，身体缓缓下沉
+			PRINTFORMDL 她的腿并得很紧，上下套弄的时候肌肉微微颤抖
+			PRINTFORML 「哈啊……这样夹着……有感觉舒服么……」
+		CASE 3
+			PRINTFORMDL 萃香抓着你的肉棒抵在自己大腿内侧最嫩的那块软肉上，腰身一沉，整根被她的腿肉吞没了
+			PRINTFORMDL 她的大腿并拢之后那道缝隙又湿又热，她自己的爱液早就顺着大腿内侧淌下来了
+			PRINTFORML 「我的腿、全都湿了……你和我的东西都混在一起变得黏糊糊的」
+			PRINTFORMDL 她的腿肌夹得更紧了一些，皮肤上那层薄薄的汗让每一次摩擦都带着滑腻的触感
+			PRINTFORMDL 你每往前顶一次她的腿就抖一下，爱液从腿根一直流到膝盖窝，洇出一大片深色
+			PRINTFORML 「腿根那里感觉都快要磨出火了——算了，反正到最后都会被你弄脏，不如一次性弄个够」
+		CASE 0
+			PRINTFORMDL 萃香面对面骑在你身上，把你的肉棒按在她早已湿透的腿间
+			PRINTFORMDL 你的顶端每次往前顶的时候都会蹭到她自己的入口，她的身体就会在那一瞬间收紧
+			PRINTFORML 「啊——碰到了……你别故意顶那里……我的腿都快夹不住了」
+			PRINTFORMDL 她的爱液将你的小腹打湿了，你往前挺的时候，龟头滑过她整个蜜穴口，她的声音也随之碎成一段一段的
+			PRINTFORMDL 最后一下你的顶端直接撞到了她的花核，她整个人绷成一张弓，腿夹得比手还紧
+			PRINTFORML 「哈啊——你故意的——你就是故意的——」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;パイズリ 乳交
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_53
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_53
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香低头看了看自己的胸口，又看了看你的肉棒，随后无奈地叹了口气
+			PRINTFORML 「……认真的？」
+			PRINTFORMDL 但她还是用手把胸前的衣服往中间挤了挤，勉强夹住了一部分
+			PRINTFORML 「行吧——有点感觉就算成功，所以你有感觉么？」
+		CASE 2
+			PRINTFORMDL 萃香把你的肉棒按在自己胸口上，用掌心压着它来回滚
+			PRINTFORML 「单纯乳交什么的还是算了吧——但我可以用手和胸一起」
+			PRINTFORMDL 她托着那对几乎不存在的弧度，配合着手掌包住你上下套弄
+			PRINTFORML 「这样勉强应该也算乳交吧，反正你就将就一下吧」
+		CASE 3
+			PRINTFORMDL 萃香伏在你的身上，用胸前那一点微微的隆起压着你的肉棒
+			PRINTFORML 「正面不行的话就上能力，让你看看身为鬼王那超越凡人的力量吧」
+			PRINTFORMDL 她将整个上半身的重量都集中在那小片区域上，你的肉棒突然被一股莫名的力量挤压着
+			PRINTFORMDL 尽管肉棒依旧贴着那平坦的胸部，但是那柔软的触感绝对不是平板所能给予的
+			PRINTFORML 「哼嗯……怎么样，这就是我的能力哦，我控制了你肉棒周围的疏密程度，现在有被巨乳包裹的感觉了吧」
+		CASE 0
+			PRINTFORMDL 萃香解开上衣，露出那片贫瘠但敏感的胸口，然后把你的肉棒夹在乳沟位置
+			PRINTFORMDL 她用两只手从外侧把胸往里挤，掌心包着乳肉，乳尖刚好碰到你的柱身
+			PRINTFORMDL 上下套弄的时候你的龟头蹭过她的锁骨，她低头看了一眼，然后将胸挤得更用力了
+			PRINTFORML 「哼嗯，大变态……」
+			PRINTFORMDL 她将动作放慢，用锁骨慢慢划过你的冠状沟，那个位置的触感竟惊人的奇妙
+			PRINTFORML 「锁骨应该比胸有感觉吧——哎，我究竟在说什么鬼话呢？」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;足コキ 足交
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_54
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_54
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香踢掉了鞋，赤裸的脚掌踩上你早已硬挺的肉棒，脚心的温度比你想象的还高
+			PRINTFORMDL 她用脚趾夹着柱身上下套弄，大脚趾时不时在顶端碾过，力道恰到好处
+			PRINTFORML 「你这里比刚才又胀大了哎——是被我的脚踩出来的？」
+			PRINTFORMDL 她一边说一边把脚趾张开又并拢，让整个脚掌包住你，足弓的弧度刚好嵌住最敏感的那一段
+			PRINTFORMDL 透明的先走汁从顶端渗出来，滴在她脚背上，她低下头看了看，然后用脚趾把它抹开涂在整个柱身上
+			PRINTFORML 「呵呵，变态……」
+		CASE 2
+			PRINTFORMDL 萃香让你躺下，自己跪坐在地上，两只脚心相对夹住你已经湿了大半的肉棒
+			PRINTFORMDL 她把脚掌并得更紧了一些，脚掌之间那道肉感的缝隙把你的硬物挤得变了形
+			PRINTFORMDL 脚后跟碾过根部时，你下意识闷哼了一声，而她便立刻在那个位置多碾了几下
+			PRINTFORML 「找到了——这里更敏感对吧？」
+			PRINTFORMDL 她俯下身看你的表情，同时脚跟压着你的根部画圈，脚趾则在你顶端来回拨弄
+			PRINTFORMDL 前后夹击下，让你的腰不受控制地往上挺了好几寸
+		CASE 3
+			PRINTFORMDL 萃香并没有脱下袜子，那两只裹着白棉袜的脚伸过来的时候，你先闻到一股干净的皂角味
+			PRINTFORMDL 棉袜粗糙的织纹隔着布料刮在你的硬物上，那种半遮半掩的摩擦感比光脚更致命
+			PRINTFORMDL 她的脚趾在袜子里蜷曲又伸开，布料被撑出五个小小的凸点，轮番碾着你的顶端
+			PRINTFORML 「袜子被你弄湿了……这里、这里还有这里，全是你弄得啊」
+			PRINTFORMDL 透明的黏液已经把棉袜洇出了几块深色，紧贴在皮肤上，脚趾的形状隔着那一层薄湿完全透了出来
+			PRINTFORMDL 她将脚掌合得更拢，棉袜糙面的摩擦力让每一次上下都比光脚多了一层让人发疯的刺激感
+		CASE 0
+			PRINTFORMDL 萃香把你推到椅子上，自己坐在你对面，抬起双脚用棉袜脚底夹住你已经硬到发痛的肉棒
+			PRINTFORMDL 棉袜的针织纹路一格一格碾过你的敏感带，你的先走汁很快就把袜尖洇湿了一小片
+			PRINTFORML 「才几下就湿成这样——你比我还容易湿」
+			PRINTFORMDL 她把湿透的袜尖用力按在你的顶端上画圈，那层半透明的布料裹着脚趾，里面的皮肤若隐若现
+			PRINTFORMDL 你的视线跟过去的时候她故意把脚趾从袜子里半褪出来，露出圆润的指尖，然后又套回去继续夹紧你上下搓弄
+			PRINTFORML 「想看里面么？先忍着——射完了我就给你看」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;アナル愛撫 A爱抚
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_55
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_55
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的手指沾了酒——她自己喝的酒——在你臀缝间轻轻画着圈
+			PRINTFORML 「酒能消毒——大概，反正你信我就行了」
+			PRINTFORMDL 她的指尖在那个入口处试探性的按了几下
+		CASE 2
+			PRINTFORMDL 你趴在床上，萃香跪在你身后，指尖在你的后穴周围慢慢揉着
+			PRINTFORML 「放松——你看我的手这么小，不会很疼的」
+			PRINTFORMDL 她俯下身在你后背上亲了一下，然后手指沾着酒液，缓缓推进了第一个指节
+			PRINTFORMDL 很快，你的惨叫声就响彻了整个幻想乡
+		CASE 3
+			PRINTFORMDL 萃香的手在你臀缝间来回抚摸，拇指按着入口旁边的褶皱一圈一圈地揉开
+			PRINTFORMDL 她把酒含在嘴里暖温了才倒在自己手指上，温热的酒液顺着指尖流进你的后穴
+			PRINTFORML 「凉的会缩——温的会涨，这应该是常识」
+			PRINTFORMDL 她说话的时候手指在里面慢慢转了一圈，你能感觉到每一道指节上的纹路刮过内壁
+			PRINTFORMDL 然后她加了第二根手指，两根指尖在深处微微分开，慢慢扩张，你的后穴被撑开的感觉让你的前面又硬了几分
+			PRINTFORML 「两根了，很疼么？不过看你前面的反应应该是不疼——毕竟你都硬起来了」
+		CASE 0
+			PRINTFORMDL 萃香让你趴在床沿上，自己跪在地上正好能够到那个位置
+			PRINTFORMDL 她先用舌头在你尾骨附近舔了一下——不是肛门而是尾骨，那地方你自己都不知道为啥会那么敏感
+			PRINTFORMDL 你的腰直接塌下去了，她在你身后发出了一声很轻的笑声
+			PRINTFORMDL 然后她用手指代替舌头，沾着已经温热的酒液，从尾骨一路往下划到入口，在那里慢慢打着圈
+			PRINTFORML 「刚才只是开胃菜——接下来才是正餐，准备好了吗？」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;アナル舐め 舔菊
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_56
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_56
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;==================================================
+;指挿入 指插入
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_57
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_57
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的手指又一次回到了你的后穴，这次带着酒液
+			PRINTFORML 「上次只放了一个指节——这次试试多进去一点」
+			PRINTFORMDL 她的食指慢慢推了进去，里面又热又紧，而她也放慢了速度给你时间适应
+		CASE 2
+			PRINTFORMDL 你感觉到她的手指在你体内弯了一下，找到某个地方轻轻一按
+			PRINTFORMDL 一股酥麻从腰间直冲到头顶，这让你忍不住哼了一声
+			PRINTFORML 「啊——找到了，就是这里对吧」
+			PRINTFORMDL 她又按了一下，这次你的腰直接就塌了下去
+		CASE 3
+			PRINTFORMDL 萃香这次用了两根手指。食指和中指并在一起沾满了温酒，慢慢推进去
+			PRINTFORMDL 两根手指在里面像剪刀一样微微撑开，她感受着你内壁的紧缩，调整着角度
+			PRINTFORML 「两根和一根感觉完全不一样吧？你的这里一直在吸我的手指，好厉害」
+			PRINTFORMDL 她的指腹压在你最敏感的那个点上，不轻不重地揉着，像是在给一颗葡萄按摩
+			PRINTFORMDL 按摩的节奏越来越快，你感觉到那种酥麻感从尾椎一路窜上来，前面硬得顶端发紫
+			PRINTFORML 「你这个点比别人的都浅——我只要手指弯一下就能碰到。好方便」
+		CASE 0
+			PRINTFORMDL 萃香的手指在你体内找到了前列腺的位置，食指和中指交替按压，节奏越来越快
+			PRINTFORMDL 与此同时她的手心贴着你的会阴处，三根手指同时给你三重刺激
+			PRINTFORMDL 你的前面硬得发痛，顶端渗出来的液体已经把床单打湿了一小片
+			PRINTFORML 「光靠后面就能让你湿成这样——前面反而成了摆设了呢」
+			PRINTFORMDL 她低头在你大腿根上轻轻咬了一口，齿印留在了最敏感的那块皮肤上
+			PRINTFORML 「咬你的同时按你的前列腺——这样会不会让你更快到？」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;胸愛撫 胸爱抚
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_58
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_58
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的手从你衣服下摆伸进去，掌心贴在你胸口上，手心的温度烫得你皮肤发紧
+			PRINTFORML 「你也挺平的——怎么这么敏感啊」
+			PRINTFORMDL 她说话的时候指尖在你乳尖上轻轻一刮，让你浑身都抖了一下
+		CASE 2
+			PRINTFORMDL 萃香双手齐上，一边揉着你胸口一边观察你的表情
+			PRINTFORML 「左边和右边哪个更舒服——我正在做科学实验」
+			PRINTFORMDL 她轮流在两边加重力道，像在比较两种酒的酿造工艺
+		CASE 3
+			PRINTFORMDL 萃香的双手贴在你胸口上，掌心刚好盖住两边乳尖，然后慢慢地揉着画圈
+			PRINTFORMDL 她的手不大，但力道掌握得特别好——时轻时重，像是用指尖在弹一首只有你们两个人知道的曲子
+			PRINTFORML 「你这里的反应比刚才更快了——才揉了几下就硬成这样。平时自己洗澡的时候会不会也这样？」
+			PRINTFORMDL 她低头用嘴唇在你胸口上轻轻碰了一下，然后抬起眼睛看你
+		CASE 0
+			PRINTFORMDL 萃香直接解开了你的衣服，把脸埋在你胸前，温热的脸颊贴在你的皮肤上
+			PRINTFORMDL 她蹭了几下之后抬起头，用舌尖在你的乳尖上画了一圈
+			PRINTFORML 「嗯……虽然不是我的，但蹭起来还挺舒服的。你这里比看上去要敏感呢」
+			PRINTFORMDL 她把两只手的掌心分别覆在你两边的乳尖上，像在暖手，又像是在等你的心跳加速
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;乳首吸い 吸乳头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_59
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_59
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香俯下身，张嘴含住了你胸前的那一点
+			PRINTFORMDL 她的舌尖在顶端打着转，力道又轻又黏，同时嘴唇用力吸着
+			PRINTFORML 「嗯……没味道，不过口感还行」
+		CASE 2
+			PRINTFORMDL 你感觉到胸口一阵温热的吮吸感——萃香正用牙齿轻轻叼着你的乳尖
+			PRINTFORMDL 她用舌尖来回拨弄，时不时抿住嘴唇用力嘬一下，声音在安静的房间里格外响
+			PRINTFORML 「你心跳好快哦」
+		CASE 3
+			PRINTFORMDL 萃香含着你左边的乳尖，手指却在右边揉着，两边给了完全不同的力道
+			PRINTFORMDL 嘴里轻吸慢舔像在品一杯陈酿，手上却是又快又准地拨弄，指甲时不时刮过乳晕边缘
+			PRINTFORML 「左边吸了多久了——右边是不是也该轮到？公平起见，每边五分钟」
+			PRINTFORMDL 她换到右边的时候在原来的地方留下了一个浅浅的牙印，然后用舌头在牙印上轻轻舔了一下
+			PRINTFORMDL 牙印周围的皮肤比其他地方更敏感，你被她舔的时候整个胸口都在发紧
+		CASE 0
+			PRINTFORMDL 萃香把你按在墙上，踮着脚尖刚好能够到你胸口的高度
+			PRINTFORMDL 她的嘴含着你的乳尖用力一吸，同时手顺着你的腹肌往下滑，隔着裤子握住你已经硬了的肉棒
+			PRINTFORML 「上面和下面哪个更想要我？」
+			PRINTFORMDL 她用牙齿在你乳尖上轻轻磕了一下，手里的力道也跟着紧了半分
+			PRINTFORMDL 牙齿磕下去的同时她的拇指按着你的顶端画了一圈，上下两处刺激串联起来让你的腰猛地往前挺起
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;ディープキス 深吻
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_60
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_60
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香按住你的后脑勺，嘴唇贴上来的时候直接撬开了你的牙齿
+			PRINTFORMDL 她的舌头带着一股浓烈的酒味探进你口腔，在里面横冲直撞
+			PRINTFORML 「你今天喝的什么——我尝到了一股不太一样的味道」
+		CASE 2
+			PRINTFORMDL 这次是萃香主动的。她踮起脚尖双手捧着你的脸，舌头滑进你嘴里
+			PRINTFORMDL 酒气和她的体温一起灌进来，舌尖纠缠着不肯松开
+			PRINTFORMDL 分开时候的一条银丝挂在你们嘴唇之间，被她用手指轻轻挑断了
+			PRINTFORML 「嗯——这次比上次好，有进步」
+		CASE 3
+			PRINTFORMDL 萃香的舌头在你嘴里搅动的时候，她的手也没闲着——一只手按着你的后颈不让你退，另一只手从你的衣摆底下伸进去摸你的腰侧
+			PRINTFORMDL 她的舌面刮过你的上颚，那块地方你自己都不知道会那么敏感，酸麻感直冲天灵盖
+			PRINTFORMDL 吻到后来她的嘴角溢出了一点唾液，顺着下巴滴到了两人的锁骨之间，她低头看了一眼然后用手指抹掉了
+			PRINTFORML 「唔……啾……你嘴上说不要，舌头可不是这么说的」
+			PRINTFORMDL 她把沾着唾液的手指放进自己嘴里舔干净，又低头吻了上来，这次的入侵比刚才更深
+		CASE 0
+			PRINTFORMDL 萃香把你抵在墙上吻你，踮着脚，整个人挂在你身上才能勉强够到你的嘴唇
+			PRINTFORMDL 她的舌头在你嘴里翻搅，酒气和热气一起灌进来，你感觉到她的小腹隔着衣服贴在你已经硬了的地方
+			PRINTFORMDL 吻着吻着她的手就从你胸口滑到了你的腰带上，两根手指勾着腰带往下拉了半分
+			PRINTFORML 「接下来……你是想继续亲，还是换个地方亲？」
+			PRINTFORMDL 她不等你回答就自己做了决定——嘴唇从你嘴角滑到下巴，再从下巴一路往下，停在了你的喉结上
+	ENDSELECT
+RETURN 1
+;==================================================
+;誤爆挿入 素股时误插入
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_61
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_61
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 1
+
+
+;-------------------------------------------------
+;奉仕 （让你）侍奉
+;-------------------------------------------------
+;==================================================
+;クンニ強制 （让你）舔豆
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_70
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_70
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香把你按在床沿上，裙子一撩，跨坐到你脸上
+			PRINTFORMDL 一阵混杂着酒香和雌性气息的味道扑面而来，你的鼻子差点撞上她的腿间
+			PRINTFORML 「舌头——快点」
+			PRINTFORMDL 她把腰往下压了压，湿热的软肉刚好贴在你嘴唇上
+		CASE 2
+			PRINTFORMDL 萃香站在你面前，抓着你的头发往后一扯，把你的脸仰了起来
+			PRINTFORMDL 她低头看着你，表情像是在检查一杯刚开封的酒
+			PRINTFORML 「快点张嘴，变态」
+			PRINTFORMDL 她抓住你的后脑勺，你的舌头滑过她腿间那道湿热的缝时，她吸了一口气
+		CASE 3
+			PRINTFORMDL 萃香趴下来让腿敞开，用手掰开自己的花唇，里面已经是亮晶晶的一片
+			PRINTFORMDL 她把你的脸拉近，你的舌尖刚碰到那颗硬硬的花核，她的大腿就夹住了你的头
+		CASE 0
+			PRINTFORMDL 萃香让你躺下，自己面对面反着跨在你脸上，这个角度你的视线完全被她的腿间占满了
+			PRINTFORMDL 你的舌头沿着她花缝从下往上舔，舔到花核的时候她在上面剧烈地抖了一下
+			PRINTFORML 「嗯——对、就是那里……继续。」
+			PRINTFORMDL 她的腰已不受控制地自己贴上来往你的舌头上来回碾
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;フェラチオ強制 （让你）口交
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_71
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_71
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;==================================================
+;アナル奉仕 （让你）舔菊
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_72
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_72
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香趴在你面前，自己用手把臀瓣往两边掰开
+			PRINTFORMDL 她把酒葫芦拿过来在自己后腰上浇了一小股酒液，透明的液体顺着臀缝往下淌
+			PRINTFORML 「酒能消毒，嘿嘿」
+			PRINTFORMDL 你的舌尖碰到她后穴的褶皱时，她的腰轻轻弓了一下
+		CASE 2
+			PRINTFORMDL 萃香跪趴在床上，把枕头垫在小腹下面，回头看你
+			PRINTFORML 「慢慢来……用力的话我就顶死你」
+			PRINTFORMDL 你俯下身开始舔她后面的那一圈褶皱，她的说话声忽然停了一下，然后她将脸埋进了枕头里
+		CASE 3
+			PRINTFORMDL 萃香让你的舌头在她后穴周围画着圈，同时你的手指在她腿间已经湿透的地方慢慢揉着
+			PRINTFORMDL 前面和后面同时被照顾到让她的脚趾蜷了起来，葫芦也从手里滚到了床角
+		CASE 0
+			PRINTFORMDL 萃香让你坐好，她自己反坐到你的身上，将后背贴在你胸口，然后把臀部往上抬了抬
+			PRINTFORMDL 这个角度你能清楚看到自己的舌尖是怎么伸进她后穴的——她低头看着，脸颊比平时酗酒的状态还要红
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;ぱふぱふ 啪敷啪敷（用乳房给你洗脸）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_73
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_73
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香低头看了看自己的胸口
+			PRINTFORML 「……要不换个项目？」
+		CASE 2
+			PRINTFORMDL 萃香用手把胸前那两片几乎不存在的弧度往中间挤了挤，把你的脸按在自己胸口上
+			PRINTFORML 「行吧——反正也没有比这更贫的了」
+		CASE 3
+			PRINTFORMDL 萃香骑在你胸口上，解开上衣
+			PRINTFORMDL 她把整个上半身压下去，两块微小的隆起加两根硬起来的乳尖同时蹭在你脸上
+			PRINTFORMDL 虽然是平的，但皮肤的温度和乳尖硬硬的触感清清楚楚
+			PRINTFORMDL 你张开嘴含住了一颗，她在上面震了一下，手撑着你的胸口才没趴下来
+		CASE 0
+			PRINTFORMDL 她把你的脸按在自己左胸上，被你呼出的热气烫得缩了一下
+			PRINTFORMDL 她就着这个姿势把另一边的乳尖送到你嘴边
+			PRINTFORMDL 你的鼻尖陷在她几乎不存在的乳沟里，呼出的每一口气都让她那片的皮肤起了一层细小的颗粒
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;乳合わせ （两个女性）磨乳房
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_74
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_74
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORML 「难兄难弟」
+			PRINTFORMDL 她靠上来，把胸口贴在你胸口上，四颗乳头隔着两层布触在一起
+		CASE 2
+			PRINTFORMDL 萃香伏在你身上，用胸口压着你的胸口
+			PRINTFORML 「排骨碰排骨么——还挺有意思的」
+			PRINTFORMDL 她调整姿势让乳尖对上了乳尖，然后像推磨一样慢慢碾了起来
+		CASE 3
+			PRINTFORMDL 萃香直接解开了两人的上衣，皮肤贴着皮肤，乳尖对上乳尖
+			PRINTFORMDL 她粘了一点点自己的唾液抹在两人乳尖中间，然后开始慢慢画圈碾
+			PRINTFORMDL 四颗乳尖被那一点唾液粘着来回蹭，硬得像四粒小石子
+			PRINTFORML 「平归平，感觉一点不少」
+			PRINTFORMDL 她加快了碾动的速度，而你和她同时深吸了一口气
+		CASE 0
+			PRINTFORMDL 萃香把酒倒在手心里，抹在自己和你胸前，冰凉的酒液被体温迅速温热
+			PRINTFORMDL 她伏下来用胸口压住你的胸口，酒液的润滑让两人的皮肤之间几乎没了摩擦力
+			PRINTFORMDL 乳尖在最滑的液体里抵在一起，任何一点微小的移动都被放大了好几倍
+			PRINTFORMDL 她借着酒液的润滑开始来回碾，你的胸口被她的体温和酒液一起烫得发红
+			PRINTFORML 「好玩」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;タワシ洗い 海藻刷（风俗项目，用阴毛为你打泡沫，在游戏里指的夹住手臂用阴部磨蹭）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_75
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_75
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORML 「别动——自制的身体刷」
+			PRINTFORMDL 萃香变出一个葫芦做的刷子，沾了酒就往你身上招呼
+		CASE 2
+			PRINTFORMDL 你被刷得浑身发热，酒味把你的每一寸皮肤都浸透了
+			PRINTFORML 「洗干净了，现在你闻起来像我的人了」
+		CASE 3
+			PRINTFORMDL 萃香让你趴在浴桶沿上，自己拿着酒葫芦坐在你身后，把酒倒在刷子上从你的后颈一路往下刷
+			PRINTFORMDL 刷毛顺着脊椎沟划过，又痒又麻，到腰窝的地方她故意放慢了速度，用刷柄按了一下
+			PRINTFORMDL 刷子继续往下扫到了臀缝的边缘，在那里来回刮了三下
+		CASE 0
+			PRINTFORMDL 萃香刷完背面让你翻过来。温酒从你胸口浇下来的时候你的皮肤红了一片
+			PRINTFORMDL 她用刷毛在你大腿内侧来回扫，那个位置的皮肤比别处细，刷毛的触感被放大了好几倍
+			PRINTFORMDL 你的肉棒在她面前硬得翘了起来，刷子正在大腿根部来回晃，距离越来越近
+			PRINTFORMDL 她在离那里半寸的地方停住了，在你顶端轻轻吹了一口气
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;強制アソコ愛撫 （让你）用手爱抚（她的）小穴
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_76
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_76
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的手已经探进了你的裤子里，两根手指在你的腿间画着圈
+			PRINTFORML 「别躲……每次都说不要，每次都硬得比谁都快」
+		CASE 2
+			PRINTFORMDL 你被萃香按在墙上，她的手已经从裤腰伸了进去，掌心覆在你最敏感的地方
+			PRINTFORML 「嘴上说不要，腿倒是分得挺开的」
+		CASE 3
+			PRINTFORMDL 萃香把你按在床上，一只手压着你的小腹，另一只手在你腿间快速进出
+			PRINTFORMDL 她用了三根手指，指节弯起来的弧度刚好顶在你最敏感的那个点上
+			PRINTFORMDL 每一下进出都带出黏腻的水声，你的大腿内侧已经被自己的体液打湿了一大片
+			PRINTFORML 「听听这个水声——你自己说，到底是谁想要谁」
+			PRINTFORMDL 她突然加快到最快的速度，三根手指并拢在你最深处痉挛一样地颤动
+		CASE 0
+			PRINTFORMDL 萃香蹲在你腿间，大拇指按着你的花核画圈，食指和中指在入口处慢慢抽送
+			PRINTFORMDL 她的指甲剪得很短，指腹却异常柔软，在你的内壁上找到了那个粗粝的小点反复地按
+			PRINTFORMDL 你的腰弹起来的时候她另一只手按住了你的小腹把你压回去
+			PRINTFORML 「才按了几下就受不了了？我给你数着呢——刚才一共弹起来三次」
+			PRINTFORMDL 第四次的时候你没有弹起来，因为整个下半身都麻了
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;乳を吸わせる （让你）吸乳头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_77
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_77
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香撩起衣服，把胸口凑到你面前
+			PRINTFORML 「吸吧——虽然吸不出什么来，但感觉还是有的」
+			PRINTFORMDL 你把那粒小小的乳尖含进嘴里，她的身体轻轻颤了一下
+		CASE 2
+			PRINTFORMDL 她跨坐在你腿上，自己把乳尖送到你嘴边
+			PRINTFORML 「你上次说喜欢——我就记住了」
+		CASE 3
+			PRINTFORMDL 你含住萃香的乳尖轻轻吸着，她骑在你身上，嘴里发出一声极轻的叹息
+			PRINTFORMDL 你的舌头在她乳尖上打转的时候她的大腿夹紧了你的腰
+			PRINTFORML 「吸另一边——左边比右边敏感」
+			PRINTFORMDL 你换到左边用力一吸，她的整个腰马上软了下去
+		CASE 0
+			PRINTFORMDL 萃香让你坐在床沿上，自己跨坐上来，一颗一颗地解开上衣的扣子
+			PRINTFORMDL 你含住那粒小小的乳尖，她用指腹在你后颈上画着圈
+			PRINTFORMDL 你吸的时候她轻轻哼了一声，小腹同时贴着你硬起来的肉棒微微地压了一下
+	ENDSELECT
+RETURN 1
+;==================================================
+;尻ズリ （她）用肉棒磨蹭你的臀沟
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_78
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_78
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;-------------------------------------------------
+;性交
+;-------------------------------------------------
+;==================================================
+;挿入される（MASTER受け） 被正常位V插入（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_80
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_80
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香把你按倒，跨骑上来，扶着你的硬物对准了自己
+			PRINTFORMDL 她缓缓坐下，里面又紧又热，吞没你的每一寸都让她咬着嘴唇闷哼
+			PRINTFORML 「唔……你别动——我自己来」
+		CASE 2
+			PRINTFORMDL 你躺着，萃香跪在你腰间，扶着你一点点往里送
+			PRINTFORMDL 她低头看着你进入她的样子，看了几秒就把脸扭到一边
+			PRINTFORML 「别看……」
+		CASE 3
+			PRINTFORMDL 萃香把你按在椅子上，自己扶着你的肉棒对准了慢慢坐下
+			PRINTFORMDL 她往下沉的时候里面一层一层地裹住你，每过一寸都缩一下，像在含着一根太长的酒勺
+			PRINTFORML 「唔……太粗了……」
+			PRINTFORMDL 她用膝盖夹着你的大腿外侧，开始上下起伏，椅子的木头被她坐得咯吱响
+			PRINTFORMDL 腿间流出来的蜜液顺着你的根部往下淌，把椅面打湿了一大片
+		CASE 0
+			PRINTFORMDL 萃香让你坐在床沿上，自己骑上来背对着你，反手扶着你的根部往下坐
+			PRINTFORMDL 这个角度你看得见你的肉棒是怎么一点点消失在她身体里的——臀缝夹着柱身，蜜穴吞没头部
+			PRINTFORMDL 她回头看你，眼神里水光潋滟，然后用后背贴着你的胸口，整个人往后一倒
+			PRINTFORMDL 她把手掌按在你大腿上一借力，自己动了起来——角度让她双腿不方便发力，但还在努力
+			PRINTFORMDL 她抓起你的手按在自己小腹上，让你隔着皮肤感受你在她体内的形状
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;後背位Ｖ挿入される（MASTER受け） 被背后位V插入（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_83
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_83
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;腰振りＶ受け 摆腰被V插入（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_84
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_84
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;騎乗位Ｖ 女性主导骑乘位V（玩家插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_85
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_85
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香躺在下面，自己抱着腿窝，把你往她身上拉
+			PRINTFORML 「进来——我都不怕你怕什么」
+			PRINTFORMDL 她的角差点撞到床头柜，但她根本不在乎
+			PRINTFORML 「别管它，你先别停——」
+		CASE 2
+			PRINTFORMDL 萃香背对着你趴好，自己伸手扶着你，对准了才回头看你
+			PRINTFORML 「好了——我自己找的角度，自己负责」
+		CASE 3
+			PRINTFORMDL 萃香趴在窗台边上，窗外的月光把她光裸的后背涂了一层银
+			PRINTFORMDL 她反手揪着你的衣领把你往身上带，腰往后拱的时候整个窗框都在轻响
+			PRINTFORML 「灵梦在隔壁的话……你就轻点」
+			PRINTFORMDL 她说到灵梦的时候里面突然收紧了，不知道是故意的还是紧张
+		CASE 0
+			PRINTFORMDL 萃香把你拉到地上，自己跪在垫子上，扶着茶几把腰塌下去
+			PRINTFORMDL 酒葫芦被震翻了滚到墙角暗处，里面的酒液在空气里发酵成更浓的味道
+			PRINTFORMDL 每一次挺进都让她的角蹭过茶几的腿，发出规律的咚咚声
+			PRINTFORMDL 她伸手拿起翻倒的葫芦，仰头喝了一口然后回头把酒渡进你嘴里
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;だいしゅきホールド 内射爱的抱抱（高潮时四肢缠住玩家索要内射）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_86
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_86
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香的双腿紧紧箍在你的腰上，脚踝在你背后交叉锁住
+			PRINTFORMDL 她的胳膊搂着你的脖子，整个人挂在你身上
+			PRINTFORML 「不许跑——今晚就这样抱着我睡」
+		CASE 2
+			PRINTFORMDL 你还在她体内，萃香忽然双腿一收，把你整个人锁在了她身上
+			PRINTFORML 「别动——里面暖着比较好很舒服」
+			PRINTFORMDL 她用鼻尖蹭了蹭你的下巴，呼吸逐渐变得又长又稳
+		CASE 3
+			PRINTFORMDL 萃香在高潮的瞬间用腿锁住了你，脚踝在你背后交叉扣死，你感觉到她的内壁在剧烈收缩
+			PRINTFORMDL 她整个人都在发抖，但腿上的力道却越来越紧，像要把你整个人揉进她身体里
+			PRINTFORML 「别抽出来……还在跳……别拔、别拔——」
+			PRINTFORMDL 她的内壁持续不断地痉挛着裹住你，你感觉所有的理智都被她腿间的温度融化了
+		CASE 0
+			PRINTFORMDL 你快要到的时候想往外退，萃香的腿立刻锁了上来，比你快得多
+			PRINTFORML 「射在里面，退出去的话我就把你按回来」
+			PRINTFORMDL 她的内壁紧紧咬着你，大腿内侧的肌肉绷得像石头
+			PRINTFORMDL 你射的时候她把腿绞得更紧了，直到最后一滴都被她内壁吸干净
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;Ａ挿入する（TARGET受け） 女性主导骑乘位Ａ（玩家插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_87
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_87
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香趴在床上，自己用手掰开臀瓣
+			PRINTFORML 「进来——我自己来把握」
+			PRINTFORMDL 她反手拉着你，自己往后一点点送
+			PRINTFORML 「这个深度刚好……你先别动」
+		CASE 2
+			PRINTFORMDL 萃香跪趴在床上，主动往后拱着腰，自己用手扶着根部对准了慢慢往后坐
+			PRINTFORML 「别碰角……你又不是不知道……哈啊……」
+		CASE 3
+			PRINTFORMDL 萃香自己往后坐到底的时候，整根没入，她仰起脖子发出了一声压抑了很久的呻吟
+			PRINTFORMDL 她的后背弓成了一道漂亮的弧线，角上的银色在烛光里闪烁得像两把弯刀
+			PRINTFORMDL 她自己扶着开始前后摇动，每一下都坐到底再抬起来，屁股拍在你大腿上发出清脆的声响
+			PRINTFORMDL 而每次顶到最里面的地方时，她的内壁就痉挛着绞你一次
+		CASE 0
+			PRINTFORMDL 萃香趴在床上，让你从后面进入，她用牙齿咬着枕头的一角，口水把布洇湿了一小片
+			PRINTFORMDL 她的内壁比前面更紧，每一次进出都像被一只温热的手紧紧攥着从根捋到头
+			PRINTFORMDL 她松开枕头回头看你，嘴角还挂着拉丝的唾液，眼神已经涣散了大半
+			PRINTFORML 「不行了——先停、不——别停——继续——」
+			PRINTFORMDL 她语无伦次的时候后穴反而绞得更紧，你的整根都被吸在了里面
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;腰振りＶ （她主导骑乘位V时）摆腰（玩家插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_88
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_88
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香骑在你身上，双手撑在你胸口，腰肢像波浪一样前后摆动
+			PRINTFORMDL 她闭着眼睛咬着下唇，声音从齿缝里一点一点漏出来
+			PRINTFORML 「嗯、嗯……刚好顶在最里面……」
+		CASE 2
+			PRINTFORMDL 你躺在下面，由着萃香主导节奏。她撑着你的肩膀，腰身画着圈往下碾
+			PRINTFORML 「别催——让我自己找……啊、就是那里——」
+		CASE 3
+			PRINTFORMDL 萃香骑在你身上，双手撑在你胸口上，腰的节奏突然变快了
+			PRINTFORMDL 她整个人往后仰，角差点戳到吊灯，里面的肉壁因为角度的改变狠狠绞住了你
+			PRINTFORML 「啊啊……这个角度……别动……我自己来……」
+			PRINTFORMDL 她的腿开始发抖，蜜液顺着你的根部将你的腿间全打湿了
+		CASE 0
+			PRINTFORMDL 萃香把酒葫芦拿过来，自己喝了一口后低头吻你，酒液混着她的唾液从两人嘴角溢出来
+			PRINTFORMDL 吻着吻着她的腰开始慢慢往下碾，每往下一点她就在你嘴里发出一声闷哼
+			PRINTFORMDL 她把酒葫芦倾斜，剩下的酒液淅淅沥沥地浇在你的胸口上
+			PRINTFORML 「嘿嘿……」
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;腰振りＡ （她主导骑乘位Ａ时）摆腰（玩家插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_89
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_89
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香反坐在你身上，背对着你，用后面吞吐着你的硬物
+			PRINTFORML 「哈啊，果然还是掌握主动权更舒服呢」
+		CASE 2
+			PRINTFORMDL 萃香骑在躺着的你的腰间，用菊穴缓缓吞下
+			PRINTFORML 「后面习惯之后比前面还舒服呢」
+		CASE 3
+			PRINTFORMDL 萃香背对着骑在你身上，自己扶着根部一寸一寸往下坐
+			PRINTFORMDL 整个吞进去的时候她被胀得仰头长吸了一口气，然后又缓缓吐了出来
+			PRINTFORMDL 她的手撑在你膝盖上，用那个角度前后摇，每一次你都被她内壁的褶皱刮得绷紧腰肌
+			PRINTFORMDL 她的后穴比前面温度更高，整根埋在里面像是被含进了一团温热的软肉里
+		CASE 0
+			PRINTFORMDL 萃香让你靠在床头，自己背对着你骑上来，从后面入口坐到底
+			PRINTFORMDL 这个角度你的下巴刚好搁在她肩膀上，能闻到她头发里那股混着酒香的气味
+			PRINTFORMDL 你的手覆在她小腹上能感觉到你隔着那层薄薄的皮肤在她体内的轮廓
+			PRINTFORMDL 她抓起你的手按在自己肚脐下面，让你感受每次挺进时的微微凸起
+	ENDSELECT
+RETURN 1
+
+;==================================================
+;後背位Ａ挿入される（MASTER受け） 被背后位Ａ插入（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_90
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_90
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;==================================================
+;イラマチオされる（MASTER受け） 被深喉（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_91
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_91
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香跪在你面前，仰着头，自己扶着你往嘴里送
+			PRINTFORMDL 她一口气含到了底，鼻尖贴上了你的小腹
+			PRINTFORML 「咳、太深了——但你别动，我再试一次」
+		CASE 2
+			PRINTFORMDL 萃香深吸一口气，张嘴把你的肉棒整个吞了下去
+			PRINTFORMDL 喉咙深处蠕动着包裹住你，她闭着眼睛，睫毛湿漉漉的
+			PRINTFORML 「成功了，真的有点爽呢」
+		CASE 3
+			PRINTFORMDL 萃香让你靠着墙站着，自己跪在你面前，仰头把你的肉棒含进喉咙
+			PRINTFORMDL 她的喉咙里发出连续的咕噜声，食道蠕动着按摩你的头部和柱身整根
+			PRINTFORMDL 她退出来大喘气的时候嘴角挂着黏丝，眼里全是水光
+			PRINTFORMDL 她说完又吞了回去，这次比刚才更快更深
+		CASE 0
+			PRINTFORMDL 萃香躺下来让头垂在床沿，这个角度下，食管和喉咙是一条直线
+			PRINTFORMDL 她自己掰着嘴唇让你进去，你从上往下看的时候能看见她的喉咙上鼓起一小段你的形状
+			PRINTFORMDL 她没法说话，只能用手指在你大腿上写——「别动」，然后自己调整角度往下吞
+			PRINTFORMDL 她的睫毛湿透了，生理性的泪水从眼角滑进发际线，但她还是没有停下来
+	ENDSELECT
+RETURN 1
+
+[SKIPSTART]
+;==================================================
+;アナル開発許可を求める 央求开发你的肛门 狂气小白兔表示不考虑实装
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_92
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_92
+#LOCALSIZE 1
+#LOCALSSIZE 1
+	SELECTCASE RAND:4
+		CASE 1
+			PRINTFORMDL 萃香趴在你腿上，歪着头看你，手指在你后腰附近画着圈
+			PRINTFORML 「呐……让我玩玩你的屁股？」
+			PRINTFORMDL 她说得若无其事，好像只是在问你借一口酒
+		CASE 2
+			PRINTFORMDL 萃香翻了个身，从枕头底下摸出酒葫芦喝了一口后认真地看着你
+			PRINTFORML 「我想试试你的后面，我会很小心的——比开百年陈酿还小心」
+			PRINTFORMDL 她把葫芦递到你嘴边，像是在提前赔罪，又像是在贿赂
+		CASE 3
+			PRINTFORMDL 萃香从后面抱住你的腰，下巴搁在你肩膀上
+			PRINTFORML 「上次你不是挺舒服的么——这次换你来」
+			PRINTFORMDL 她的手指从你的腰侧慢慢滑到你臀缝的位置，隔着衣服轻轻画了个圈，然后停在那里不动
+		CASE 0
+			PRINTFORMDL 萃香今晚特别安静地坐在你旁边，没有喝酒，没有闹
+			PRINTFORMDL 过了好一会儿她才开口，声音比平时轻了一半
+			PRINTFORMDL 她用手指在你后腰上轻轻戳了一下
+			PRINTFORML 「这里——能让我试试么，我保证比摸我的角还轻」
+	ENDSELECT
+RETURN 1
+[SKIPEND]
+;==================================================
+;腰振り逆Ａ 玩家骑乘位时摆腰（玩家被插入A）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_93
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_93
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;正常位Ａ挿入される 被正常位Ａ插入（玩家被插入）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_94
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_94
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+
+;------------------------------------------
+;120～139 抱住模式（仅限女生之间触发对方主导）
+;------------------------------------------
+;==================================================
+;頭撫で 摸头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_120
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_120
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;髪梳き 梳头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_121
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_121
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;抱きつき 投入（玩家）怀抱中
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_122
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_122
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;抱きしめ 把玩家拥入怀抱
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_123
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_123
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;頬撫で 摸脸颊
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_124
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_124
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;くすぐり 挠痒
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_125
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_125
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;膝枕させる 索求玩家的膝枕
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_126
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_126
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;匂いを嗅ぐ 闻味道
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_127
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_127
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;話しかける 咬耳朵说悄悄话
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_128
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_128
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+;==================================================
+;首筋舐め 舔脖子
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_MESSAGECHECK_K10_129
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COUNTER_K10_129
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;PRINTFORML 请删除句首“;”，在此输入文本
+RETURN 1
+

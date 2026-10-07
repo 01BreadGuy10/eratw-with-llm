@@ -1,0 +1,615 @@
+﻿@CHARAMOVE_DATA_1(ARG, ARG:2)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+LOCAL = 1
+SELECTCASE ARG
+	;連動設定（RETURN=依存するキャラ, RESULT:1～3=対等に連動するキャラ）
+	CASE 1
+	;特殊生活時間設定（CFLAG:LOCAL:生活時間補正を設定する）
+	CASE 3
+	;移動傾向（±～10=行きやすい/行きにくい, -100=行かない）
+	CASE 4
+		SELECTCASE ARG:2
+			;よく居る
+			CASE P2境内, P10走廊
+				RETURN 5
+			;他所
+			CASE P30三妖精之家・風呂, P39夢幻遺跡・浴室, P56阿吽の棲家
+				RETURN -100
+			CASE P502香霖堂
+				RETURN 3
+		ENDSELECT
+	;出現場所
+	CASE 7
+		SELECTCASE ARG:2
+			CASE 桜花道的鳥居, 神社境内, 神社本堂, 神社走廊
+				RETURN 1
+			CASE 広場, 商家町, 呑屋小道, 長屋街
+				RETURN 1
+			CASE 香霖堂
+				RETURN 1
+			CASE 魔界都市
+				RETURN 1
+		ENDSELECT
+	;引力設定（CFLAG:LOCAL:引力点を設定する）
+	CASE 8
+ENDSELECT
+
+@EXIST_キャラデータ1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;オブジェクト本体
+@キャラデータ1(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "霊夢")
+
+;こっから衣装設定
+CASE "今天的睡衣"
+	CALLF MAKE_STR(V_NAME, "睡衣（襦袢）套")
+
+CASE "便装：飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_袖]])
+CASE "便装：帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_蝴蝶结]])
+CASE "便装：靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "便装：襪子"
+	IF FLAG:2 > 0
+		CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+	ENDIF
+CASE "便装：裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_行灯袴]])
+CASE "便装：上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_博麗的巫女服]])
+CASE "便装：其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_驱魔棒]])
+CASE "固有指令"
+	CALLF MAKE_STR(V_NAME, "神签契约")
+CASE "固有指令実行可能"
+	CALLF MAKE_INT(V_NAME, !FLAG:神簽契約)
+
+;料理関連
+CASE "料理：喜欢的味道"
+	CALLF MAKE_STR(V_NAME, "米/洋食/葉物/简易/淡白/質素/上品/家庭的/软绵绵/" + "甜/酸/" * 2 + "春物/煎餅/" * 3)
+CASE "料理：讨厌的味道"
+	CALLF MAKE_STR(V_NAME, "辣/妖力/" * 2 + "怪诞/謎料理/" * 5)
+CASE "料理：助手効果"
+	CALLF MAKE_STR(V_NAME, "薄味/得意料理＊和食＊/")
+;贈り物関連
+CASE "感性：好き"
+	CALLF MAKE_STR(V_NAME, "赤/秩序/かわいい/和風/" + "神霊/巫術/护符/狐の/春の/永遠の/" * 3 + "蓮花蝶の/樱花の/巫女の/楽園の/封魔の/針/驅魔棒/" * 5)
+CASE "感性：嫌い"
+	CALLF MAKE_STR(V_NAME, "混沌/洋風/ロリータ/マニアック/" + "护臂/機械/" * 3 + "妖怪/" * 5 + "守矢の/妖怪の/" * 10)
+
+CASE "固有内衣形容詞"
+	CALLF MAKE_STR(V_NAME, "正中系着小蝴蝶结的")
+CASE "固有下半身内衣名"
+	CALLF MAKE_STR(V_NAME, "前缎带胖次")
+CASE "固有上半身内衣"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "固有上半身内衣名"
+	CALLF MAKE_STR(V_NAME, "蝴蝶结胸罩")
+CASE "固有内衣着用条件"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "固有内衣半透明(前)"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "固有内衣半透明(後)"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "固有内衣布料厚度"
+	CALLF MAKE_INT(V_NAME, 2)
+
+;農民関連
+;神社は土地持ってそう、神田
+CASE "農民：説明"
+	CALLF MAKE_STR(V_NAME, "米農家")
+CASE "農民：作物"
+	CALLF MAKE_STR(V_NAME, "大米")
+CASE "農民：田的种类"
+	CALLF MAKE_STR(V_NAME, "水田")
+CASE "農民：畑の所在地"
+	CALLF MAKE_STR(V_NAME, "博麗神社")
+
+CASE "農民：MapID"
+	CALLF MAKE_INT(V_NAME, 0)
+CASE "農民：場所ID"
+	CALLF MAKE_INT(V_NAME, 22)
+CASE "農民：報酬"
+	CALLF MAKE_INT(V_NAME, 400)
+CASE "農民：金利"
+	CALLF MAKE_INT(V_NAME, 5)
+
+;ここは依頼IDが関連しない情報
+;依頼発生率スカ2/一般3/固有5
+CASE "没有依頼発生率"
+	CALLF MAKE_INT(V_NAME, 2)
+CASE "一般依頼発生率"
+	CALLF MAKE_INT(V_NAME, 3)
+CASE "固有依頼発生率"
+	CALLF MAKE_INT(V_NAME, 5)
+CASE "固有依頼最終要素"
+	CALLF MAKE_INT(V_NAME, 103)
+CASEELSE
+	;固有依頼関連のデータにバトンタッチ
+	SIF STRCOUNT(O_DATA, "依頼")
+		CALLF F固有依頼1(ARG, O_DATA, V_NAME)
+
+;固有Counterテスト
+
+
+ENDSELECT
+
+@SPECIAL_MENU_1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+DISH_NAME = 红白馒头
+RESULTS = 甜点
+CALL 材料設定("甜味料")
+DISH_TASTE = 和食/饅頭/甜/上品/芸術的/软糯的/祝福/
+DISH_COMMENT = 庆祝喜事时食用的喜庆馒头。具有[祝福]的效果。
+RETURN 1
+
+;IMAGE_I1_特殊服装(CHARA)-------------------------------------------------------------------
+;キャラクター特有の服装表示条件
+;エフェクトを共有する服装差分はこちらで指定する
+;使用時注意点:
+;	RESULTSに特殊服装を格納すること
+;	書式は %服装%%特殊服装% 適宜"_"等入れること
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊服装(CHARA)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIM CHARA
+VARSET RESULTS
+SELECTCASE CFLAG:1:差し替え適用
+	;差し替え画像
+	CASE 4
+		IF CHECK_NUDE(CHARA)
+		ELSE
+			;服
+			IF IS_BUNNY(CHARA)
+				RESULTS = _バニー
+			ELSEIF DAY:2 == 4
+				RESULTS = _冬服
+			ENDIF
+		ENDIF
+	CASE 1
+		IF CHECK_NUDE(CHARA)
+			;裸
+			IF FLAG:立絵種類
+				;顔絵
+				IF DAY:2 == 4
+					RESULTS = _冬服
+				ENDIF
+			ELSE
+				;立ち絵
+				IF DAY:2 == 4
+					RESULTS = _冬服
+				ENDIF
+			ENDIF
+		ELSE
+			;服
+			IF FLAG:立絵種類
+				;顔絵
+				IF IS_BUNNY(CHARA)
+					RESULTS = _バニー
+				ELSEIF CURRENT_CLOTHES_SET(CHARA) == 62
+					RESULTS = _変T
+				ELSEIF CURRENT_CLOTHES_SET(CHARA) == 74
+					RESULTS = _セーラー
+				ELSEIF TEQUIP:CHARA:SWIMMING || EQUIP:CHARA:レオタード == 8
+					RESULTS = _水着
+				ELSEIF CHECK_CLO("bra_visible", CHARA)
+					RESULTS = _下着
+				ELSEIF DAY:2 == 4
+					RESULTS = _冬服
+				ENDIF
+			ELSE
+				;立ち絵
+				IF IS_BUNNY(CHARA)
+					RESULTS = _バニー
+				ELSEIF CURRENT_CLOTHES_SET(CHARA) == 62
+					RESULTS = _変T
+				ELSEIF CURRENT_CLOTHES_SET(CHARA) == 74
+					RESULTS = _セーラー
+				ELSEIF TEQUIP:CHARA:SWIMMING || EQUIP:CHARA:レオタード == 8
+					RESULTS = _水着
+				ELSEIF CHECK_CLO("bra_visible", CHARA) && EQUIP:CHARA:下半身内衣２ != 0
+					RESULTS = _下着
+				ELSEIF CHECK_CLO("bra_visible", CHARA) && EQUIP:CHARA:下半身内衣２ == 0
+					RESULTS = _ノーパン下着
+				ELSEIF IS_TOPLESS(CHARA)
+					RESULTS = _ノーブラ下着
+				ELSEIF DAY:2 == 4
+					RESULTS = _冬服
+				ENDIF
+			ENDIF
+		ENDIF
+	CASE 0
+		;通常画像
+		IF CHECK_NUDE(CHARA)
+			;裸
+			SIF BATHROBE_SWITCH && BATHROOM() && !CFLAG:诶嘿嘿
+				RESULTS = _浴袍
+		ELSE
+			;服
+			IF FLAG:立絵種類
+				;顔絵
+			ELSE
+				;立ち絵
+			ENDIF
+		ENDIF
+ENDSELECT
+
+;IMAGE_I1_体形(CHARA)-----------------------------------------------------------------------
+;キャラクター特有の体形表示条件
+;エフェクトを共有する体形差分はこちら
+;服装を指定しても自動で表示されるので注意
+;使用時注意点:
+;	RESULTSに体形を格納すること
+;	書式は %体形%%服装% 適宜"_"等入れること
+;	"巨乳"は本編で実装済み %体形%巨乳%服装% で追記可能
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_体形(CHARA)
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+;IMAGE_I1_特殊表情(CHARA)--------------------------------------------------------------------
+;キャラクター特有の表情表示条件
+;時間停止中でも維持する表情はこちら
+;使用時注意点:
+;	RESULTS:0に表情を格納
+;	RESULTS:1にマウスオーバー時の表情を格納すること
+;	"通常","笑顔","憤怒","発情","睡眠"は本編で実装済み
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊表情(CHARA)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIM CHARA
+
+SELECTCASE CFLAG:1:差し替え適用
+CASE 4
+	;ISAAC的自定义表情
+	SIF GETPALAMLV(PALAM:CHARA:恥情, 10) >= 2
+		RESULTS:0 = 照れ
+CASE 0
+	;通常画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ENDSELECT
+
+;IMAGE_I1_特殊表情COM(CHARA, コマンド)-------------------------------------------------------
+;直前のコマンドで変化するキャラクター特有の表情表示条件
+;時間停止中は変化しない表情はこちら
+;使用時注意点:
+;	RESULTS:0に表情を格納
+;	RESULTS:1にマウスオーバー時の表情を格納すること
+;	"オナニー","愛撫","性交"は本編で実装済み
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊表情COM(CHARA, コマンド)
+#DIM CHARA
+#DIM コマンド
+
+SELECTCASE CFLAG:1:差し替え適用
+	CASE 4
+		IF FLAG:立絵種類
+			;顔絵
+		ELSEIF CHECK_NUDE(CHARA)
+			SELECTCASE TEQUIP:CHARA:110
+				CASE 1
+					RESULTS:0 = COM60
+				CASE 2
+					RESULTS:0 = COM61
+				CASE 3
+					RESULTS:0 = COM65
+				CASE 4
+					RESULTS:0 = COM67
+				CASE 5
+					RESULTS:0 = COM68
+				CASEELSE
+			ENDSELECT
+		ENDIF
+	CASE 1
+		IF FLAG:立絵種類
+			;顔絵
+		ELSE
+			;立ち絵
+		ENDIF
+ENDSELECT
+
+;IMAGE_I1_差分(CHARA)-----------------------------------------------------------------------
+;キャラクター特有の差分表示条件
+;裸やエフェクトを共有しない画像はこちら
+;使用時注意点:
+;	RESULTSに差分を格納すること
+;	書式は {CHARA}%差分% 適宜"_"等入れること
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_差分(CHARA)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	SIF DAY:2 == 4
+		RESULTS = _冬服
+ENDIF
+
+;IMAGE_I1_特殊照れ(CHARA)--------------------------------------------------------------------
+;キャラクター特有の照れエフェクト表示条件
+;使用時注意点:
+;	RESULTSに特殊照れを格納すること
+;	書式は %特殊照れ%照れ
+;	"裸"は本編で実装済み %特殊照れ%裸照れ で追記可能
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊照れ(CHARA)
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+		IF GROUPMATCH(CFLAG:1:差し替え適用, 1)
+			IF IS_BUNNY(CHARA)
+				RESULTS = バニー
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 62
+				RESULTS = 変T
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 74
+				RESULTS = セーラー
+			ELSEIF TEQUIP:CHARA:SWIMMING || EQUIP:CHARA:レオタード == 8
+				RESULTS = 水着
+			ELSEIF CHECK_CLO("bra_visible", CHARA)
+				RESULTS = 下着
+			ELSEIF CFLAG:CHARA:睡眠
+				RESULTS = 睡眠
+			ELSEIF DAY:2 == 4
+				RESULTS = 冬服
+			ENDIF
+		ENDIF
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+ENDIF
+
+;IMAGE_I1_特殊吐息(CHARA)--------------------------------------------------------------------
+;キャラクター特有の吐息エフェクト表示条件
+;使用時注意点:
+;	RESULTSに特殊吐息を格納すること
+;	書式は %特殊吐息%吐息
+;	"裸"は本編で実装済み %特殊吐息%裸吐息 で追記可能
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊吐息(CHARA)
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+		IF GROUPMATCH(CFLAG:1:差し替え適用, 1)
+			IF IS_BUNNY(CHARA)
+				RESULTS = バニー
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 62
+				RESULTS = 変T
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 74
+				RESULTS = セーラー
+			ELSEIF TEQUIP:CHARA:SWIMMING || EQUIP:CHARA:レオタード == 8
+				RESULTS = 水着
+			ELSEIF CHECK_CLO("bra_visible", CHARA)
+				RESULTS = 下着
+			ELSEIF CFLAG:CHARA:睡眠
+				RESULTS = 睡眠
+			ELSEIF DAY:2 == 4
+				RESULTS = 冬服
+			ENDIF
+		ENDIF
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+;IMAGE_I1_特殊汗(CHARA)--------------------------------------------------------------------
+;キャラクター特有の汗エフェクト表示条件
+;使用時注意点:
+;	RESULTSに特殊汗を格納すること
+;	書式は %特殊汗%汗
+;	"裸"は本編で実装済み %特殊汗%裸汗 で追記可能
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊汗(CHARA)
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+		IF GROUPMATCH(CFLAG:1:差し替え適用, 1)
+			IF IS_BUNNY(CHARA)
+				RESULTS = バニー
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 62
+				RESULTS = 変T
+			ELSEIF CURRENT_CLOTHES_SET(CHARA) == 74
+				RESULTS = セーラー
+			ELSEIF TEQUIP:CHARA:SWIMMING || EQUIP:CHARA:レオタード == 8
+				RESULTS = 水着
+			ELSEIF CHECK_CLO("bra_visible", CHARA)
+				RESULTS = 下着
+			ELSEIF CFLAG:CHARA:睡眠
+				RESULTS = 睡眠
+			ELSEIF DAY:2 == 4
+				IF CHECK_NUDE(CHARA)
+					RESULTS = 冬服裸
+				ELSE
+					RESULTS = 冬服
+				ENDIF
+			ENDIF
+		ENDIF
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+;IMAGE_I1_特殊エフェクトチェック(CHAR, エフェクト)--------------------------------------------
+;キャラクター特有のエフェクト判定  特殊エフェクトを直接指定したい場合に参照
+;引数 "エフェクト" に固有のエフェクトが含まれるかを判定する
+;例の通り、STRFINDを使用してください
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊エフェクトチェック(CHARA, エフェクト)
+#DIM CHARA
+#DIMS エフェクト
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+ELSE
+	;通常画像
+	SIF STRFIND(エフェクト, "すやすや照れ") != -1
+		RETURN 1
+ENDIF
+
+RETURN 0
+
+;IMAGE_I1_特殊エフェクト(CHARA)--------------------------------------------------------------------
+;キャラクター特有のエフェクト表示条件
+;使用時注意点:
+;	RESULTS配列に特殊エフェクトを格納
+;	RETURNで追加するエフェクト数を返却すること
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊エフェクト(CHARA)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIM CHARA
+#DIM DYNAMIC エフェクト数 = 0
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立絵種類 && CHECK_BLUSH(CHARA) && CFLAG:CHARA:睡眠
+		;顔絵
+		RESULTS:エフェクト数 = すやすや照れ
+		エフェクト数 ++
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+RETURN エフェクト数
+
+;IMAGE_I1_特殊自慰(CHARA)--------------------------------------------------------------------
+;キャラクター特有の自慰画像表示条件
+;使用時注意点:
+;	RESULTS:0に自慰画像の主体を格納すること
+;	RESULTS:1 ～ 3に自慰エフェクトを格納すること
+;-------------------------------------------------------------------------------------------
+@IMAGE_I1_特殊自慰(CHARA)
+#DIM CHARA
+VARSET RESULTS
+
+IF CFLAG:[[霊夢]]:差し替え適用
+	;差し替え画像
+	IF FLAG:立ち絵種類
+		;顔絵
+		IF GROUPMATCH(CFLAG:[[霊夢]]:差し替え適用, 1)
+			RESULTS:0 = 別顔_AFTERTRAニー_1
+			SIF TALENT:CHARA:バストサイズ > 0 && FLAG:巨乳差分表示
+				RESULTS:0 = 別顔_AFTERTRAニー巨乳_1
+		ENDIF
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立ち絵種類
+		;顔絵
+		;AFTERTRAニーは寝間着
+		RESULTS:0 = 顔絵_AFTERTRAニー_1
+		SIF TALENT:CHARA:バストサイズ > 0 && FLAG:巨乳差分表示
+			RESULTS:0 = 顔絵_AFTERTRAニー巨乳_1
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+;IMAGE_I1_自慰エフェクト(CHARA)--------------------------------------------------------------------
+;キャラクター特有の自慰エフェクト表示条件
+@IMAGE_I1_自慰エフェクト(CHARA)
+#DIM CHARA
+#DIM DYNAMIC エフェクト数 = 0
+VARSET RESULTS
+
+IF CFLAG:1:差し替え適用
+	;差し替え画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ELSE
+	;通常画像
+	IF FLAG:立絵種類
+		;顔絵
+	ELSE
+		;立ち絵
+	ENDIF
+ENDIF
+
+RETURN エフェクト数
+;********************************************************************************************

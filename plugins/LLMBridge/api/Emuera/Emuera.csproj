@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ==========================================================================
+       Emuera 引用桩程序集（reference stub）—— 【仅编译期使用，绝不随插件分发】
+       ==========================================================================
+       为什么需要它：
+
+       引擎 PluginManager.LoadPlugins() 会执行
+           PluginManifestAbstract manifest = (PluginManifestAbstract)Activator.CreateInstance(manifestType);
+
+       这个强转要求插件的 PluginManifest **真正继承引擎自己的**
+       PluginManifestAbstract。如果在插件里本地声明同名类型，运行时会存在两个
+       同名不同程序集的类，强转必然抛 InvalidCastException —— 而引擎没有
+       try/catch，异常会直接终止游戏启动。这正是之前崩溃的原因。
+
+       因此插件必须生成指向**名为 `Emuera` 的程序集**的 TypeRef。
+       但本出厂 exe 是单文件，磁盘上没有 Emuera.dll 可供引用，
+       所以这里用一个"身份完全相同、内容仅含契约类型"的桩程序集充当编译期引用。
+
+       身份必须精确匹配（取自随附 ClassLibrary1.dll 的 AssemblyRef 行）：
+           Name           = Emuera
+           Version        = 1.824.0.0
+           PublicKeyToken = (空，未强命名)
+
+       运行时：插件的 TypeRef 按名字解析，命中已加载的引擎程序集（其标识正是 Emuera），
+       于是强转成立。桩 DLL 本身**不需要**出现在 plugins/ 里。
+       ========================================================================== -->
+
+  <PropertyGroup>
+    <AssemblyName>Emuera</AssemblyName>
+    <RootNamespace>MinorShift.Emuera</RootNamespace>
+    <Version>1.824.0.0</Version>
+    <AssemblyVersion>1.824.0.0</AssemblyVersion>
+    <FileVersion>1.824.0.0</FileVersion>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+    <!-- 只用于编译期引用，不参与部署 -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

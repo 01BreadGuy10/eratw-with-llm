@@ -1,0 +1,371 @@
+﻿;※※※※※※※※※※※※※※※※※※※※※※※※※
+;多人数プレイ
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+
+;==================================================
+;509,双重口交
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_9
+CALL M_KOJO_MESSAGE_SCOM_K39_9_1
+RETURN RESULT
+
+;一人目口上
+@M_KOJO_MESSAGE_SCOM_K39_9_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+;二人目口上
+@M_KOJO_MESSAGE_SCOM_K39_9_2
+VARSET LOCAL
+;一人目
+LOCAL:101 = MASTER_POSE(SET_M,SET_P)
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;一人目のID＠口で,MASTERの陰茎を,このターンに占有中の角色
+	;上ですでにLOCAL:101に一人目のIDを代入してもらっているものの、
+	;行儀悪いけど楽なのでLOCALに代入
+	;一人目口上の後に呼び出されるため、台詞は『』でくくるようにしています
+	LOCAL =  MASTER_POSE(4,1)
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;時姦中
+	IF FLAG:70
+		PRINTFORMDW 
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 『哈姆…嗯、舔舔、舔舔哦…』
+				PRINTFORML 『唔…我一个人做的时候更兴奋吗？…不过嘛、算了、怎样都好就是啦……』
+				PRINTFORMDW 纳兹琳与%CALLNAME:LOCAL%一起、将舌头缠绕在了%CALLNAME:MASTER%的肉棒上…
+			CASE 1
+				PRINTFORML 『啾噜噜、舔啾、啾噜噜…哈姆、咔噗…嗯…』
+				PRINTFORMDL 抚摸着热心侍奉着的纳兹琳的头、她回以了一个有些不好意思的微笑
+				PRINTFORML 『…噗啊…在这样的亲热时候把人家当小孩子哄吗？』
+				IF TALENT:LOCAL:恋慕 && RAND:2 == 0
+					PRINTFORML 『……我倒是无所谓啦…不过、那个…』
+					PRINTFORMDW 感受到%CALLNAME:LOCAL%有些羡慕的视线、%CALLNAME:MASTER%轻轻地摸了两个人的头…
+				ELSE
+					PRINTFORML 『……嘛、随你喜欢吧。啾、啾噜啾…』
+					PRINTFORMDW 纳兹琳的尾巴轻摇了一下、随后更加黏腻地亲吻起肉棒来…
+				ENDIF
+			CASE 2
+				PRINTFORML 『库噗、啾噗噜、舔舔哦…』
+				PRINTFORM 『呵呵、
+				;一人目が星
+				IF LOCAL == 87
+					PRINTFORM 主人
+				ELSE
+					PRINTFORM %CALLNAME:LOCAL%
+				ENDIF
+				PRINTFORML 和我的侍奉感觉如何呢？』
+				PRINTFORMDW 回答说再好不过了、纳兹琳的嘴角不易察觉地微微上扬了一下、继续用嘴侍奉起你来
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ENDIF
+
+;==================================================
+;10,双重素股
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_10
+CALL M_KOJO_MESSAGE_SCOM_K39_10_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_10_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_10_2
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+
+;==================================================
+;11,双重乳交
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_11
+CALL M_KOJO_MESSAGE_SCOM_K39_11_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_11_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_11_2
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;一人目のID＠胸で,MASTERの陰茎を,このターンに占有中の角色
+	;行儀悪いけど楽なのでLOCALに代入
+	;一人目口上の後に呼び出されるため、台詞は『』でくくるようにしています
+	LOCAL = MASTER_POSE(5,1)
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;時姦中
+	IF FLAG:70
+		PRINTFORMDW 
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 『哈啊、哈啊、库、嗯嗯…』
+				PRINTFORML 『你也是…有相当不得了的、姻缘之人呐……哈呜、…』
+				CALL HPH_PRINT,@"『被这样、两个人一起央求…啊、呜哇…HPH　喂、不要恶作剧啦…』","L"
+				PRINTFORMDW 用指尖轻轻拨弄了下尖挺着的樱色乳尖、纳兹琳红着脸抗议了起来…
+			CASE 1
+				CALL HPH_PRINT,@"『这、这样…咕呜HPH　前面、蹭到了…』","L"
+				PRINTFORMDW 在重复着侍奉动作时、纳兹琳的小樱桃与%CALLNAME:LOCAL%%OPPAI_DESCRIPTION(LOCAL)%不时会碰到、鼠少女此刻因摩擦的快乐而身体颤抖着
+			CASE 2
+				;胸の尺寸差が大きい、または貧乳同士
+				IF TALENT:LOCAL:胸围 - TALENT:39:胸围 >= 2 || (TALENT:LOCAL:胸围 < 0 && TALENT:39:胸围 < 0)
+					CALL HPH_PRINT,@"『唔，呼……嗯嗯！HPH　虽然每次都这样……你的品味可真是够特别的啊』","L"
+					PRINTFORMD 纳兹琳比较着%CALLNAME:LOCAL%%OPPAI_DESCRIPTION(LOCAL,1)%与自己胸部的差距、像是怨恨般的轻声嘀咕着
+				;それ以外
+				ELSE
+					PRINTFORML 『唔、唔嗯…真是令人无语呢……你就这么喜欢胸吗？』
+					PRINTFORMDW 纳兹琳注视着在重叠的四个乳房之间颤动着跳跃的肉棒、轻轻地喘了口气
+				ENDIF
+				;一人目が星
+				IF LOCAL == 87
+					PRINTFORML
+					CALL HPH_PRINT,@"『主人也真是的。…HPH　像这样、两个人给一个人做侍奉什么的…真是寡廉鲜耻、呀…HPH』","W"
+				;其他寺メンバー 恋:38 小傘:40,鵺:41，聖:55, 心:57 猯藏:69,一輪:85, 村紗:86, 響子:88, 女苑:125
+				ELSEIF GROUPMATCH(LOCAL,38,40,41,55,57,69,85,86,88,125)
+					PRINTFORMDL
+					CALL HPH_PRINT,@"『…哈呜、哈啊……HPH　更别提还要这样、让自己人一起做…』","L"
+					PRINTFORMW 『真是的、你这家伙可真是个人物呢…嗯嗯…这不是在夸你哦…』
+				ELSE
+					PRINTFORMDW …
+				ENDIF
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ENDIF
+
+
+
+;==================================================
+;13,交互挿入
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_13
+CALL M_KOJO_MESSAGE_SCOM_K39_13_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_13_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_SCOM_K39_13_2
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF

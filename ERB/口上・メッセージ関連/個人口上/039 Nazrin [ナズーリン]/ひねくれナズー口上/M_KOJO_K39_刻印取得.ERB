@@ -1,0 +1,88 @@
+﻿;-------------------------------------------
+;刻印取得 
+;絶頂.ERBから分離しただけ、カラッポ
+;-------------------------------------------
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MARKCNG_MESSAGECHECK_K39
+RETURN 0
+
+@M_KOJO_MESSAGE_MARKCNG_K39
+;苦痛刻印
+IF TFLAG:苦痛刻印取得 == 1
+	PRINTFORMDW 
+ELSEIF TFLAG:苦痛刻印取得 == 2
+	PRINTFORMDW 
+ELSEIF TFLAG:苦痛刻印取得 == 3
+	TALENT:度胸 = -1
+	CALL COLORMESSAGE(@"纳兹琳获得了[臆病]",C_YELLOW,1,1)
+	PRINTFORMDW 
+ENDIF
+
+;快楽刻印
+IF TFLAG:23 == 1
+	PRINTFORMDW 
+ELSEIF TFLAG:23 == 2
+	PRINTFORMDW 
+ELSEIF TFLAG:23 == 3
+	TALENT:快感応答 = 1
+	CALL COLORMESSAGE(@"纳兹琳获得了[接受快感]",C_YELLOW,1,1)
+	PRINTFORMDW 
+ENDIF
+
+;時姦刻印
+IF TFLAG:時姦刻印取得 == 1
+	PRINTFORMDW 
+ELSEIF TFLAG:時姦刻印取得 == 2
+	PRINTFORMDW 
+ELSEIF TFLAG:時姦刻印取得 == 3
+	TALENT:濡れやすさ = 1
+	CALL COLORMESSAGE(@"纳兹琳获得了[容易湿]",C_YELLOW,1,1)
+	PRINTFORMDW 
+ENDIF
+
+;不等刻印
+;快楽による刻印
+;LV1
+IF TFLAG:24 == 11
+	PRINTFORMDW 
+;LV2
+ELSEIF TFLAG:24 == 12
+	PRINTFORMDW 
+;LV3
+ELSEIF TFLAG:24 == 13
+	PRINTFORMDW 
+;苦痛、恐怖による刻印
+;LV1
+ELSEIF TFLAG:24 == 21
+	PRINTFORMDW 
+;LV2
+ELSEIF TFLAG:24 == 22
+	PRINTFORMDW 
+;LV3
+ELSEIF TFLAG:24 == 23
+	PRINTFORMDW 
+;不埒、恭順による刻印
+;LV1
+ELSEIF TFLAG:24 == 31
+	PRINTFORMDW 
+;LV2
+ELSEIF TFLAG:24 == 32
+	PRINTFORMDW 
+;LV3
+ELSEIF TFLAG:24 == 33
+	TALENT:献身的 = 1
+	CALL COLORMESSAGE(@"纳兹琳获得了[献身]",C_YELLOW,1,1)
+	PRINTFORMDW 
+ENDIF
+
+;反発刻印
+IF TFLAG:反発刻印取得 == 1
+	PRINTFORMDW 
+ELSEIF TFLAG:反発刻印取得 == 2
+	PRINTFORMDW 
+ELSEIF TFLAG:反発刻印取得 == 3
+	PRINTFORMDW 
+ENDIF

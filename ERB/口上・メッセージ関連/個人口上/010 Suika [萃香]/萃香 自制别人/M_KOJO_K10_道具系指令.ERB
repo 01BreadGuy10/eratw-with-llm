@@ -1,0 +1,1941 @@
+﻿;-------------------------------------------------
+;指令系总览
+;-------------------------------------------------
+;
+;*********************************************
+;道具系指令说明
+;*********************************************
+;道具系指令涉及使用各种性爱辅助道具对对象进行调教。根据道具是否装备在对象身上，分为装备中和解除时两个主要分支。
+;部分指令（如跳蛋、乳头跳蛋）可能不设置装备状态，而是在使用指令时触发一次性的效果。
+;对于有装备状态的指令，应在装备中（TEQUIP:XX为真）和解除时（TEQUIP:XX为假）分别设计台词。
+;典型分支顺序为：时奸判定(FLAG:70) > 初次判定(FIRSTTIME) > 装备/解除分支 > 陷落状态嵌套(恋慕/屈服3/其他)
+;其中44号振动棒有特殊的破瓜(TCVAR:破瓜)判定，48号搾乳机和50号避孕套可根据需要有不同文本结构。
+;
+[SKIPSTART]
+;关于剧本文本控制函数的说明，请参看爱抚系指令中的总览。这里仅提供模板，按需复制使用。
+;==================================================
+;指令成否判定
+;剧本侧覆写式接管指令的结果的规则，以TFLAG:192返回成否鉴定值。0表示剧本侧不干涉COM本体设定，其余值的定义具体参照COMXX。
+;==================================================
+@M_KOJO_MOMO_SUCCESS_COM_K10_XX
+#LOCALSIZE 1
+#LOCALSSIZE 1
+TFLAG:192 = 0
+
+@M_KOJO_MOMO_EXTRASOURCE_COM_K10_XX
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;做任何事
+
+@M_KOJO_MOMO_MESSAGE_MESSAGECHECK_COM_K10_XX
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RETURN 0
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_XX
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;可以使用LOCAL与LOCALS。如需使用LOCAL:1，则需要将#LOCALSIZE 1改为#LOCALSIZE 2.依此类推，如需使用LOCAL:X，则需要将#LOCALSIZE 1改为#LOCALSIZE X+1
+IF 0
+	PRINTFORML
+	RETURN 1
+ENDIF
+RETURN 0
+
+[SKIPEND]
+;
+;==================================================
+;40,跳蛋
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_40
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	IF TALENT:恋慕
+		PRINTFORMDL 在时间停止的时候，%CALLNAME:MASTER%仔细地将跳蛋放置在她的阴蒂上
+		PRINTFORMDL 将跳蛋的档位缓缓调高，虽然萃香毫无反应，但那处小小的凸起已经微微充血
+		PRINTFORMDW 闭上眼睛，所能感受到的只有跳蛋的嗡嗡声。%CALLNAME:MASTER%感受着从所未有的宁静
+	ELSEIF TALENT:思慕
+		PRINTFORMDL 在静止的时间中，%CALLNAME:MASTER%将跳蛋放在了萃香毫无防备的阴蒂上
+		PRINTFORMDL 如果是在正常的时间流动里，她大概会像受惊的兔子一样跳起来吧
+		PRINTFORMDW 这种只有自己知道的恶作剧让%CALLNAME:MASTER%嘴角浮起了一丝笑意
+	ELSE
+		PRINTFORMDL 在时间停止的时候，将跳蛋放置在她的阴蒂上
+		PRINTFORMDL 趁她毫无反应，%CALLNAME:MASTER%甚至将跳蛋来回滚动了好几圈
+		PRINTFORMDW 这种偷偷摸摸的感觉，反而让%CALLNAME:MASTER%觉得格外兴奋
+	ENDIF
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「跳蛋……%CALLNAME:MASTER%从哪里拿出来的这种东西啊……」
+				PRINTFORML 萃香看着%CALLNAME:MASTER%手中嗡嗡作响的小玩意，脸颊却不自觉地发烫
+				PRINTFORML 「真的要放在那种地方吗……如果是%CALLNAME:MASTER%想的话……」
+				PRINTFORMW 萃香小声嘀咕着，但双腿已经微微分开，做好了被放置的准备
+			CASE 1
+				PRINTFORML 「那个小东西……是放在……那里的？」
+				PRINTFORML 萃香指着跳蛋，声音逐渐变小，手指不自觉地绞在了一起
+				PRINTFORMW 「虽然不太懂人类的这些奇怪发明……但是，%CALLNAME:MASTER%的话，我……我愿意试试……」
+			CASE 2
+				PRINTFORML 「这就是人类用来……增加快感的道具吗……」
+				PRINTFORML 萃香好奇地凑近观察，跳蛋在%CALLNAME:MASTER%掌心震动着，发出细细的嗡嗡声
+				PRINTFORML 「我们鬼族从来不用这种东西……不过，既然是你拿出来的，那就随便用吧……」
+				PRINTFORMW 萃香红着脸别过头去，不想让%CALLNAME:MASTER%看到她期待的表情
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「这个……会嗡嗡响的小东西……是要做什么用？」
+				PRINTFORML %CALLNAME:MASTER%将跳蛋放在萃香手心，她的手指不自觉地蜷缩了起来
+				PRINTFORMW 「震得好厉害……这个……真的要放在那种地方吗……」
+			CASE 1
+				PRINTFORML 「人类的小玩具还真是多种多样啊……」
+				PRINTFORML 萃香翻来覆去地看着手心里的跳蛋，眼神里带着好奇和一丝不安
+				PRINTFORMW 「好吧……既然你都说要用了，那我就试试看好了……」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「跳蛋？%CALLNAME:MASTER%的装备可真齐全呢……」
+				PRINTFORML 萃香用手指戳了戳在%CALLNAME:MASTER%掌心震动的跳蛋，嘴角勾起了一个意味深长的笑
+				PRINTFORMW 「来吧，让我见识见识……这个小东西到底有没有你说的那么厉害」
+			CASE 1
+				PRINTFORML 「啊哈，终于要动用道具了吗？」
+				PRINTFORML 萃香伸了个懒腰，像只慵懒的猫一样在床上舒展开来
+				PRINTFORMW 「无所谓，反正你用什么我都受得住……尽管放马过来」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「等一下……那是什么！嗡嗡的……好吓人！」
+				PRINTFORML 萃香本能地往后缩了缩，但%CALLNAME:MASTER%轻轻拉住了她的手
+				PRINTFORMW 「我、我可不是怕那个东西……只是……只是觉得它对身体不好！」
+			CASE 1
+				PRINTFORML 「人类居然发明了这种东西……呜……」
+				PRINTFORML 跳蛋震动的声音让萃香浑身发毛，但她还是强撑着站在原地
+				PRINTFORMW 「要、要放就放！鬼才不怕你们人类的这些破烂玩意！」
+			CASE 2
+				PRINTFORML 「这个……是要干什么的……」
+				PRINTFORML 萃香困惑地看着%CALLNAME:MASTER%手里的跳蛋，直到%CALLNAME:MASTER%示意要放在她腿间才恍然大悟
+				PRINTFORMW 「不行！！那里不行！！！！你难道就没有别的地方可以放它吗！？」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+SIF !RAND:4
+	GOTO SUIKA_C_CLIMAX_1
+IF TALENT:恋慕
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%……又要用跳蛋来欺负我了吗？」
+			PRINTFORMDL %CALLNAME:MASTER%安抚着萃香的情绪，将跳蛋压在了萃香的阴蒂之上
+			PRINTFORML  「唔…没事……我还好……咿！！！」
+			PRINTFORMDW 萃香无法压抑跳蛋带来的快感，低声呻吟了起来。小小的身体在%CALLNAME:MASTER%怀里微微发抖
+		CASE 1
+			PRINTFORML 「嗯……跳蛋贴在豆豆上的感觉……好奇怪……」
+			PRINTFORML 萃香抓着%CALLNAME:MASTER%的衣袖，指尖都微微泛白
+			PRINTFORML 「每次震动的时候……全身都像有电流窜过去一样……%CALLNAME:MASTER%太狡猾了……」
+			PRINTFORMW 明明嘴上抱怨着，萃香的蜜穴却已经渗出了爱液，将大腿根部染得一片湿滑
+		CASE 2
+			PRINTFORML 「%CALLNAME:MASTER%……把跳蛋的档位调低一点啦……这么强的话我会……」
+			PRINTFORML 话说到一半，萃香的声音就被一声惊呼吞没了
+			PRINTFORML 「啊啊！不是让你调高！！你绝对是故意的！！」
+			PRINTFORMW %CALLNAME:MASTER%笑着将跳蛋按得更紧了些，萃香弓起腰，双腿不自觉地夹紧了%CALLNAME:MASTER%的手
+		CASE 3
+			PRINTFORML 「跳蛋而已……我自己来就可以……你在旁边看就好……呜！」
+			PRINTFORML 萃香红着脸想要自己拿着跳蛋，%CALLNAME:MASTER%却趁她不注意把它贴上了最敏感的位置
+			PRINTFORML 「你……你偷袭……嗯嗯……别动……让我自己控制……」
+			PRINTFORMW 虽然嘴上逞强，但萃香握着跳蛋的手早已抖得不成样子，最后还是乖乖把它交给了%CALLNAME:MASTER%
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:思慕
+	SIF !RAND:5
+		GOTO SUIKA_C_CLIMAX_1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「又是跳蛋吗……%CALLNAME:MASTER%真的很喜欢这些小玩意呢……」
+			PRINTFORML 萃香的语气里没有了以前的抗拒，取而代之的是一种无奈的温柔
+			PRINTFORML 「唔……震得好厉害……感觉整个下面都酥了……」
+			PRINTFORMW 她偷偷看了%CALLNAME:MASTER%一眼，发现%CALLNAME:MASTER%正专注地看着她的反应，脸更红了
+		CASE 1
+			PRINTFORML 「奇怪……之前明明觉得这个东西很吓人的……」
+			PRINTFORML 萃香看着%CALLNAME:MASTER%将跳蛋缓缓靠近她的腿间，心跳不由自主地加速
+			PRINTFORML 「现在是……有点……不，是开始期待了……」
+			PRINTFORMW 话音刚落，跳蛋便贴上了她已经微微挺立的阴蒂。萃香咬住了下唇，但还是漏出了一声甜腻的呻吟
+		CASE 2
+			PRINTFORML 「嗯……每次被跳蛋震的时候……身体就变得不太像自己的了……」
+			PRINTFORML 萃香将脸埋在%CALLNAME:MASTER%肩窝里，声音闷闷的
+			PRINTFORML 「身体热热的……头脑晕晕的……这就是你想要的吧……」
+			PRINTFORMW 嘴上说着像是在抱怨的话，但萃香的双臂却把%CALLNAME:MASTER%搂得更紧了些
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:炮友
+	SIF !RAND:4
+		GOTO SUIKA_C_CLIMAX_1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…又要用这种小玩具来对付我么？」
+			PRINTFORMDL 萃香看着%CALLNAME:MASTER%手里的跳蛋，眼神中露出妖异的光芒
+			PRINTFORML 「比起这种东西……我还是想要%CALLNAME:MASTER%亲自安慰我呢~」
+			PRINTFORMW 在%CALLNAME:MASTER%将跳蛋贴上去之后，萃香伴随着跳动的规律呻吟了起来
+		CASE 1
+			PRINTFORML 「这次是跳蛋啊……我看看能不能让我比上次更舒服……」
+			PRINTFORML 萃香主动抬起腰，让%CALLNAME:MASTER%更方便地将跳蛋贴上她的阴蒂
+			PRINTFORML 「呼啊……！对……就按在那里……别松手……」
+			PRINTFORMW 她的声音在跳蛋的震动下变得断断续续，却依然不忘指挥%CALLNAME:MASTER%调整位置
+		CASE 2
+			PRINTFORML 「哼……小玩具罢了……看我忍给你看——咿呜！！」
+			PRINTFORML 萃香原本的挑衅被跳蛋贴上的一瞬间打得粉碎，整个人像虾米一样蜷了起来
+			PRINTFORML 「等一下……不是说好最低档先来的吗！！你怎么一上来就——啊啊！！」
+			PRINTFORMW %CALLNAME:MASTER%看着她逞强失败的狼狈模样，忍不住笑出了声
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:愛欲
+	SIF !RAND:3
+		GOTO SUIKA_C_CLIMAX_1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「跳蛋……嘿嘿……%CALLNAME:MASTER%终于要给我了吗……♡」
+			PRINTFORML 萃香的眼睛里满是期待和渴望，甚至连声音都变得甜腻了几分
+			PRINTFORML 「快……贴上去……贴到我的豆豆上……我那里已经等不及要跳起来了……♡」
+			PRINTFORMW 跳蛋刚一接触她的阴蒂，萃香便发出了连自己都没察觉到的高亢叫声，蜜液浸湿了一大片床单
+		CASE 1
+			PRINTFORML 「啊哈……跳蛋……我最喜欢的东西之一……仅次于%CALLNAME:MASTER%的肉棒呢……♡」
+			PRINTFORML 萃香用手指把自己的花瓣拨开，露出了那颗早已充血膨胀的阴蒂
+			PRINTFORML 「来吧，对准这里……让它尽最大力气震……我已经准备好在%CALLNAME:MASTER%面前高潮了……♡」
+			PRINTFORMW 跳蛋以最高档位压上去的一瞬间，萃香的瞳孔就涣散了，全身痉挛着迎来了第一波绝顶
+		CASE 2
+			PRINTFORML 「唔……光是看到%CALLNAME:MASTER%拿出跳蛋……下面就已经开始湿了……」
+			PRINTFORML 萃香的呼吸变得急促，双腿不自觉地磨蹭着
+			PRINTFORML 「我是不是……已经被%CALLNAME:MASTER%调教得太敏感了……连道具都还没用上就……」
+			PRINTFORMW %CALLNAME:MASTER%没有回答，只是把仍在震动的跳蛋轻轻抵在了她湿漉漉的大腿内侧，一点点向上滑去
+	ENDSELECT
+	RETURN 1
+ELSEIF ABL:Ｃ感覚 > 5
+	$SUIKA_C_CLIMAX_1
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…等一下……不要！咿呀啊！！！！！」
+			PRINTFORMDL 明明跳蛋只是刚放上去且是最低档，萃香就因为阴蒂的敏感而高潮
+			PRINTFORML 「%CALLNAME:MASTER%…混蛋……坏蛋！大色狼……等……」
+			PRINTFORMDW 没有等萃香的求饶说出口，%CALLNAME:MASTER%擅自将跳蛋提到了最大档次
+		CASE 1
+			PRINTFORML 「不……不要……豆豆不行了！已经不行了！一碰就要！」
+			PRINTFORML 萃香拼命想要合拢双腿，却被%CALLNAME:MASTER%牢牢按住
+			PRINTFORML 「轻一点……拜托……至少从最低档开始……嗯啊啊啊啊！！！」
+			PRINTFORMW 话还没说完，跳蛋刚接触阴蒂的刹那，萃香就失声尖叫着迎来了瞬间的高潮
+	ENDSELECT
+	EXP:10:Ｃ経験 += 4
+	EXP:10:Ｃ絶頂経験 += 4
+	EXP:10:絶頂経験 += 4
+	RETURN 1
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…那个是什么？」
+			PRINTFORMDL 回答着萃香问题的时候，将打开的跳蛋轻轻地压了上去
+			PRINTFORML 「%CALLNAME:MASTER%…感觉……有些奇怪……」
+			PRINTFORMDW 萃香貌似只感受到了酥麻的感觉，并没有从中感受到快感
+		CASE 1
+			PRINTFORML 「这个东西在震！好奇怪！快拿开快拿开！」
+			PRINTFORML 萃香被震动的触感吓了一跳，本能地扭动着身体想要躲开
+			PRINTFORML 「人类为什么会喜欢这种嗡嗡响的东西啊……太奇怪了……」
+			PRINTFORMW 虽然嘴上这么说，但萃香的腿却没有真正合拢，似乎是在给%CALLNAME:MASTER%留下继续的空间
+		CASE 2
+			PRINTFORML 「唔……震得腿都麻掉了……这就是跳蛋么……」
+			PRINTFORML 萃香皱着眉头感受着从未体验过的震动，脸上写满了困惑
+			PRINTFORML 「说实话……也没有那么讨厌……就是麻麻的，痒痒的……」
+			PRINTFORMW 她小声嘀咕着，手指不自觉地攥紧了床单，不知道是想推开还是想更靠近
+		CASE 3
+			PRINTFORML 「我说……这个该不会是用来拷问鬼的道具吧……」
+			PRINTFORML 萃香警觉地盯着%CALLNAME:MASTER%手中的跳蛋，仿佛在看某种危险的暗器
+			PRINTFORML 「我们鬼族才不会因为这种东西就……就……呜……」
+			PRINTFORMW 跳蛋贴上的一瞬间，萃香把没说完的话吞了回去，咬牙死撑着不让声音漏出来
+	ENDSELECT
+	RETURN 1
+ENDIF
+RETURN 0
+
+;==================================================
+;41,電動按摩棒（非插入，C按摩）
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_41
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	IF TALENT:恋慕
+		PRINTFORMDL 在时间停止的时候，%CALLNAME:MASTER%将按摩棒轻轻按在她的阴蒂上
+		PRINTFORMDL 虽然她毫无反应，但那颗小小的豆豆在持续的震动下渐渐充血膨胀
+		PRINTFORMDW 虽然并不知道这个的意义何在，但是想做就做吧——%CALLNAME:MASTER%遵从着内心的声音，保持着按摩棒在其阴蒂上继续振动
+	ELSEIF TALENT:思慕
+		PRINTFORMDL 在静止的时间中，%CALLNAME:MASTER%将按摩棒贴上了萃香毫无防备的阴蒂
+		PRINTFORMDL 按摩棒的震动频率比跳蛋强了不止一倍，即使没有意识，身体也在微微地做出反应
+		PRINTFORMDW 想象着她醒来后发现自己内裤湿透的困惑表情，%CALLNAME:MASTER%的嘴角不自觉地上扬
+	ELSE
+		PRINTFORMDL 趁着时间停止，%CALLNAME:MASTER%将按摩棒贴上了那处毫无防备的突起
+		PRINTFORMDL 关掉声音，在绝对的静寂中，唯一能感知到的就是按摩棒强劲的震动
+		PRINTFORMDW 这种单向的恶作剧，有种无法言喻的背德快感
+	ENDIF
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「按摩棒……这个看起来比跳蛋厉害多了呢……」
+				PRINTFORML 萃香看着%CALLNAME:MASTER%手中微微震动的棒状物，脸颊染上了红晕
+				PRINTFORML 「不是插进去的……只是放在外面……对吧？」
+				PRINTFORMW 她轻轻呼出一口气，双腿犹豫了一下，最终还是慢慢分开了
+			CASE 1
+				PRINTFORML 「这个……也是人类发明的玩具吗？」
+				PRINTFORML 萃香小心翼翼地用手指碰了碰按摩棒的顶端，震动顺着指尖传了过来
+				PRINTFORMW 「好强的震动……如果放在那种地方……光是想想就有点……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……不是插进去的，只是贴在豆豆上？」
+				PRINTFORML 得到%CALLNAME:MASTER%的点头确认后，萃香才松了一口气，但随即又紧张了起来
+				PRINTFORMW 「但是光贴在上面……被震到的话也会很不得了吧……%CALLNAME:MASTER%要温柔一点哦……」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「这个是……按摩用的吗？人类的东西还真是什么都有呢……」
+				PRINTFORML 萃香歪着头研究了半天，直到%CALLNAME:MASTER%把振动中的按摩棒靠近她腿间时才反应过来
+				PRINTFORMW 「哎？不是按摩肩膀的吗！？为什么对着那里——」
+			CASE 1
+				PRINTFORML 「比跳蛋大好多……震得也更厉害……」
+				PRINTFORML 萃香吞了口唾沫，但还是鼓起勇气点了点头
+				PRINTFORMW 「好吧……就试试看……但你说好了不插进去的哦……」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「按摩棒？这次升级装备了啊……」
+				PRINTFORML 萃香舔了舔嘴唇，眼神里带着挑衅和期待
+				PRINTFORMW 「来吧，看看是你的新玩具厉害，还是我的耐力厉害~」
+			CASE 1
+				PRINTFORML 「哦~这个看上去震感就很强呢……」
+				PRINTFORML 萃香大大方方地躺下来，还把双腿分得很开
+				PRINTFORMW 「不用客气，直接上最高档也行哦？我才不会因为区区按摩棒就投降呢」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「等等！那个又粗又长的东西是什么！？」
+				PRINTFORML 萃香看见按摩棒的瞬间就往后缩了几步，脸上写满了警惕
+				PRINTFORMW 「不是那里面用的……只是外面？……那也不行！！那个看起来太可怕了！！」
+			CASE 1
+				PRINTFORML 「人类……发明这种东西到底是要干什么啊……」
+				PRINTFORML 按摩棒在%CALLNAME:MASTER%手中嗡嗡作响，萃香的表情在恐惧和好奇之间来回摇摆
+				PRINTFORMW 「只是贴在外面……真的？你发誓不插进去？……那、那就一下下……」
+			CASE 2
+				PRINTFORML 「跳蛋已经够夸张了，居然还有更大号的……」
+				PRINTFORML 萃香看着按摩棒的眼神像是在看某种凶器，但%CALLNAME:MASTER%已经按下了开关
+				PRINTFORMW 「别、别过来……我警告你……那个碰到我的话我会——咿！！」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+SIF !RAND:4
+	GOTO SUIKA_C_CLIMAX_2
+IF TALENT:恋慕
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…要用……用那个么？」
+			PRINTFORMDL %CALLNAME:MASTER%安抚着萃香告诉她不是插进去的，将按摩棒压在了萃香的阴蒂之上
+			PRINTFORML  「唔…呼哈……咿呀……哈啊」
+			PRINTFORMDW 在按摩器的进攻下，萃香只好压抑着呻吟声的同时默默接受着
+		CASE 1
+			PRINTFORML 「按摩棒比跳蛋震得厉害多了……%CALLNAME:MASTER%是故意的吧……」
+			PRINTFORML 萃香说话的声音都在发抖，身体随着震动的节奏一阵一阵地抽搐
+			PRINTFORML 「呜……腿……腿自己张开了……不是我自己想这样的……」
+			PRINTFORMW 嘴上虽然否认着，但萃香的腰却不自觉地往上挺，拼命想要将按摩棒贴得更紧一些
+		CASE 2
+			PRINTFORML 「唔……按摩棒贴在豆豆上……感觉整个下半身都不是自己的了……」
+			PRINTFORML 萃香咬着嘴唇，努力让自己不要发出太大的呻吟声，但鼻息却越来越重
+			PRINTFORML 「%CALLNAME:MASTER%……轻一点……再这样震的话……脑袋要变得奇怪了……」
+			PRINTFORMW %CALLNAME:MASTER%没有降低档位，反而用手指轻轻捏住了她另一边的小小的乳尖，双管齐下
+		CASE 3
+			PRINTFORML 「啊……不行了……这个真的不行……比平时快三倍的速度……我受不了了……」
+			PRINTFORML 萃香伸手想要推开%CALLNAME:MASTER%的手腕，但手臂早已因为快感而发软
+			PRINTFORML 「不仅不放手还握得更紧了！！！%CALLNAME:MASTER%你是魔鬼吗！！」
+			PRINTFORMW 话是这么说，但萃香已经开始主动地扭动腰肢，让按摩棒的头在不同位置滑动，寻找最舒服的角度
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:思慕
+	SIF !RAND:5
+		GOTO SUIKA_C_CLIMAX_2
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……比上次被震到的时候……好像更有感觉了……」
+			PRINTFORML 萃香的声音里带着困惑，身体却诚实地迎合着按摩棒的频率
+			PRINTFORML 「以前只觉得麻麻的……现在怎么开始变得奇怪起来了……」
+			PRINTFORMW 她偷偷地瞟了%CALLNAME:MASTER%一眼，又飞快地移开视线，耳根早已红透
+		CASE 1
+			PRINTFORML 「按摩棒……现在看到它的时候心跳就会变快……」
+			PRINTFORML 萃香低声坦白着，手指紧张地揪着床单
+			PRINTFORML 「这不是因为害怕……我也说不太清楚……就是……」
+			PRINTFORMW 没等她说完，%CALLNAME:MASTER%便将震动的按摩棒贴上她的阴蒂。萃香的解释化为了一声甜腻的惊呼
+		CASE 2
+			PRINTFORML 「嗯……频率调低一点好不好……太刺激了……」
+			PRINTFORML 萃香用商量的语气说着，但眼睛里却闪过一丝期待的光芒
+			PRINTFORML 「好吧……不调低也行……但我要是叫得很大声的话你不许笑我……」
+			PRINTFORMW 她深吸一口气，然后把脸埋进枕头，像鸵鸟一样做好了接受全部刺激的准备
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:炮友
+	SIF !RAND:4
+		GOTO SUIKA_C_CLIMAX_2
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…又要用这种小玩具来对付我么？」
+			PRINTFORMDL 萃香看着%CALLNAME:MASTER%手里的按摩器，眼神中露出妖异的光芒
+			PRINTFORML 「比起这种东西……我还是想要%CALLNAME:MASTER%亲自安慰我呢~」
+			PRINTFORMW 在%CALLNAME:MASTER%将按摩棒贴上去之后，萃香伴随着跳动的规律呻吟了起来
+		CASE 1
+			PRINTFORML 「今天的主题是按摩棒吗？不错不错……」
+			PRINTFORML 萃香熟练地调整了一下姿势，还顺手拿过一个枕头垫在腰下
+			PRINTFORML 「这个角度会让豆豆完全露出来，震起来效果更好——别问我是怎么知道的」
+			PRINTFORMW 说完便理所当然地把%CALLNAME:MASTER%的手拉过去，指挥着按摩棒应该放在什么位置
+		CASE 2
+			PRINTFORML 「喂喂，这次的档位是不是比上次更高了？」
+			PRINTFORML 萃香挑着眉毛质问着，但双腿却在越来越强的震动下一寸寸地张开
+			PRINTFORML 「不……不是让你停下来……就是觉得……你越来越鬼畜了……唔……」
+			PRINTFORMW 她的话尾变成了绵长的呻吟，眼睛不由自主地眯了起来
+	ENDSELECT
+	RETURN 1
+ELSEIF TALENT:愛欲
+	SIF !RAND:3
+		GOTO SUIKA_C_CLIMAX_2
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「按摩棒……嘿嘿……比跳蛋劲更大对吧……♡」
+			PRINTFORML 萃香眼睛里闪着期待的光芒，主动把自己的花瓣拨开
+			PRINTFORML 「跳蛋已经满足不了我了……我要更强的……让我的豆豆飞起来的那种……♡」
+			PRINTFORMW 按摩棒按上去的瞬间，萃香发出了像是被电到了一样的高亢叫声，腰肢猛地弹了起来
+		CASE 1
+			PRINTFORML 「啊哈……就是那个……按摩棒的顶端刚好卡在豆豆的位置……♡」
+			PRINTFORML 萃香的呼吸早已紊乱，但还在不停地指挥着%CALLNAME:MASTER%
+			PRINTFORML 「再用力一点压下去……对……就这样……别动……让我自己蹭……♡」
+			PRINTFORMW 她开始主动扭动臀部，让按摩棒的头部在阴蒂上来回滑动，投入的眼中已经看不到其他任何东西
+		CASE 2
+			PRINTFORML 「%CALLNAME:MASTER%……看……我的豆豆已经自己站起来了……在等按摩棒……♡」
+			PRINTFORML 萃香用手指捏着自己充血的阴蒂，语气中充满了赤裸的欲望
+			PRINTFORML 「我保证……只要一秒钟……不，都不用一秒钟……贴上来的瞬间我就会高潮……♡」
+			PRINTFORMW 说着她按住了%CALLNAME:MASTER%握着按摩棒的手，亲自将它对准了自己最敏感的那一点，然后深呼吸，把眼睛紧紧闭上了
+	ENDSELECT
+	RETURN 1
+ELSEIF ABL:Ｃ感覚 > 5
+	$SUIKA_C_CLIMAX_2
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…等一下……不要啊啊，啊啊啊！啊，阴蒂…、这个、好啊…啊啊啊啊！」
+			PRINTFORMDL 明明按摩棒只是刚放上去且是最低档，萃香就因为阴蒂的敏感而高潮
+			PRINTFORML 「%CALLNAME:MASTER%…混蛋……坏蛋！大色狼……等……」
+			PRINTFORMDW 没有等萃香的求饶说出口，%CALLNAME:MASTER%擅自将按摩棒提到了最大档次
+		CASE 1
+			PRINTFORML 「不……不要……一看到按摩棒……豆豆就自己开始跳了……」
+			PRINTFORML 萃香的阴蒂已经完全变成了深红色，只是被空气轻轻擦过都会让她浑身一颤
+			PRINTFORML 「求你了……今天用最低档……最低档就够……啊啊啊啊来不及了贴上来了！！！」
+			PRINTFORMW 按摩棒接触的瞬间，萃香的瞳孔瞬间涣散，双腿在痉挛中踢乱了床单
+	ENDSELECT
+	EXP:10:Ｃ経験 += 4
+	EXP:10:Ｃ絶頂経験 += 4
+	EXP:10:絶頂経験 += 4
+	RETURN 1
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「%CALLNAME:MASTER%…那个是什么？」
+			PRINTFORMDL 回答着萃香问题的时候，将打开的按摩棒轻轻地压了上去
+			PRINTFORML 「我还以为是那个是插到里面的呢，有点吓人呢……」
+			PRINTFORMDW 萃香貌似只感受到了酥麻的感觉，并没有从中感受到快感
+		CASE 1
+			PRINTFORML 「比上次那个还要大……你们人类到底发明了多少这种东西……」
+			PRINTFORML 萃香警惕地保持着距离，但%CALLNAME:MASTER%已经按下了开关
+			PRINTFORML 「等等我还没同意——唔……震得好厉害……」
+			PRINTFORMW 猝不及防被贴上阴蒂的萃香浑身一僵，但很快就发现似乎也没有想象中那么可怕
+		CASE 2
+			PRINTFORML 「喂……这个会不会很痛……」
+			PRINTFORML 萃香小心翼翼地试探着，神情里带着孩子般的紧张
+			PRINTFORML 「不插进去就好……你说的……要是你敢骗我，我就——咦？痒痒的……」
+			PRINTFORMW 按摩棒贴上来的瞬间，她的威胁变成了困惑的嘟囔，身体不自觉地放松了下来
+		CASE 3
+			PRINTFORML 「按摩棒……这名字倒是挺正经的……但绝对不是正经用途吧！」
+			PRINTFORML 萃香虽然嘴上吐槽，却没有躲开%CALLNAME:MASTER%伸过来的手
+			PRINTFORML 「你这个变态……连这种东西都买……唔……震感比看起来要温柔一点……」
+			PRINTFORMW 嘴上还在骂着，但萃香的身体已经不再抗拒，甚至开始好奇这种震动能带来什么样的感觉
+	ENDSELECT
+	RETURN 1
+ENDIF
+RETURN 0
+
+;==================================================
+;42,豆豆夹
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_42
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「阴蒂夹……光听名字就知道不是什么好东西……」
+				PRINTFORML 萃香看着%CALLNAME:MASTER%手中小小的夹子，下意识地夹紧了大腿
+				PRINTFORML 「咬住豆豆……光是想象就觉得好痛……但是是%CALLNAME:MASTER%想用的话……」
+				PRINTFORMW 她深吸一口气，闭上眼睛点了点头，睫毛止不住地轻颤着
+			CASE 1
+				PRINTFORML 「这个夹子……是要夹在最敏感的地方对吗……」
+				PRINTFORML 萃香的声音越来越小，脸已经红到了耳根
+				PRINTFORMW 「我们鬼族真的没有这种玩法……但既然是人类发明的……试试……也不是不行……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……这个看起来比跳蛋还要欺负人……」
+				PRINTFORML 萃香的眼眶里甚至泛起了一点水光，但还是强撑着没有躲开
+				PRINTFORMW 「我知道了……给你夹就是了……不过你等下要好好抱着我……」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「夹子？夹在……那里？光是想想就觉得疼了……」
+				PRINTFORML 萃香本能地往后缩，但看到%CALLNAME:MASTER%认真的表情后又犹豫了
+				PRINTFORMW 「好吧……但你要轻一点……那个地方真的很脆弱的……」
+			CASE 1
+				PRINTFORML 「跳蛋之后是夹子……你收集这种东西的兴趣还真是特殊啊……」
+				PRINTFORML 萃香叹了口气，但嘴角却不经意地上扬了
+				PRINTFORMW 「那个……夹上之后会有什么感觉？……算了还是别剧透了，我自己感受……」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哦？这次又是什么新道具——阴蒂夹？」
+				PRINTFORML 萃香饶有兴趣地打量着小小的夹子，甚至还用手拉了拉试试弹力
+				PRINTFORMW 「咬合力不错嘛……夹在那个地方一定很有感觉，来来来，让我试试」
+			CASE 1
+				PRINTFORML 「终于到这个了吗？听说夹上去很爽的……」
+				PRINTFORML 萃香完全不掩饰自己的期待，甚至开始用手指拨弄着自己那颗小小的豆豆让它提前做好心理准备
+				PRINTFORMW 「我看看……对准这里……啪地一下夹上去……光是想象下面就流水了……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「夹、夹子！？你要夹哪里！？」
+				PRINTFORML 萃香条件反射地用手护住腿间，脸上的表情像是在面对某种刑具
+				PRINTFORMW 「不是……为什么会有这种东西啊！！这是拷问道具吧绝对是拷问道具！！」
+			CASE 1
+				PRINTFORML 「那个……是夹在什么东西上的……」
+				PRINTFORML 萃香警觉地盯着小小的金属夹子，听到解释后脸色瞬间变得煞白
+				PRINTFORMW 「绝对是骗人的！！怎么可能有人会把那种东西夹在那里！！会死掉的！！」
+			CASE 2
+				PRINTFORML 「人类的道具已经超出了我的理解范围了……」
+				PRINTFORML 萃香揉着太阳穴，一脸头疼的表情
+				PRINTFORMW 「好吧……一次……就一次……如果太痛的话我会直接把夹子捏碎的……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+IF TEQUIP:42
+	IF FLAG:70
+		IF TALENT:恋慕
+			PRINTFORMDL 在时间停止的时候，%CALLNAME:MASTER%将阴蒂夹安在了她的阴蒂上
+			PRINTFORMDL 将阴蒂夹安在萃香的豆豆上后，%CALLNAME:MASTER%看向毫无反应的萃香陷入沉思
+			PRINTFORMDW 这么做的意义究竟是什么呢？——不过每次看到小小的夹子在静止的空气中微微反光，%CALLNAME:MASTER%的心情便莫名地愉快起来
+		ELSEIF TALENT:思慕
+			PRINTFORMDL 在静止的时间中，%CALLNAME:MASTER%小心地掰开夹子，对准了那颗小小的凸起
+			PRINTFORMDL 如果她能感觉到，大概会全身僵硬然后发出混合着疼痛与快感的惊呼吧
+			PRINTFORMDW 想象着那个画面，%CALLNAME:MASTER%忍不住轻轻弹了一下已经咬住豆豆的夹子——毫无反应，和预想中的一样+
+		ELSE
+			PRINTFORMDL 趁着时间停止，%CALLNAME:MASTER%精确地将阴蒂夹安在了萃香的阴蒂上
+			PRINTFORMDL 这种单向的恶作剧——看着她身上多了一个小小的金属装饰——有种说不出的满足感
+			PRINTFORMDW 也许这就是在时间停止里最大的乐趣吧，做任何事都不会被反抗
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SIF !RAND:4
+			GOTO SUIKA_C_CLIMAX_3
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「%CALLNAME:MASTER%…要用……用那个么？」
+				PRINTFORMDL %CALLNAME:MASTER%安抚着萃香的同时，将阴蒂夹夹在了萃香的阴蒂之上
+				PRINTFORML  「唔…呼哈……咿呀……啊，啊啊啊！啊，阴蒂…、这个…太！」
+				PRINTFORMDW 在阴蒂夹安装后，萃香因为过度刺激而叫了出来
+			CASE 1
+				PRINTFORML 「嗯……夹子咬住豆豆之后……每走一步都会扯到……」
+				PRINTFORML 萃香试着挪了挪身子，夹子随之一晃，她立刻倒吸了一口冷气
+				PRINTFORML 「不行……这个比想象中还要……光是呼吸的时候身体起伏就能感觉到它在拉着豆豆……」
+				PRINTFORMW 她的声音里混杂着委屈和无法掩饰的愉悦，双腿无意识地磨蹭着
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……夹子是不是夹得太紧了……豆豆要坏掉了……」
+				PRINTFORML 萃香想要伸手去调整，却被%CALLNAME:MASTER%轻轻按住了手腕
+				PRINTFORML 「你……你是故意的……想看我自己碰到的样子……变态……唔……」
+				PRINTFORMW 嘴里骂着，但萃香的手最后还是乖乖地放下了，任由夹子继续咬着她最敏感的地方
+			CASE 3
+				PRINTFORML 「夹子……让豆豆完全暴露在外面了……感觉凉飕飕的……」
+				PRINTFORML 萃香害羞到不敢低头看自己的身体，但手指却不由自主地摸到了那枚金属夹子
+				PRINTFORML 「碰到了……呜……指尖传来的震动感……豆豆现在是不是变得很难看……」
+				PRINTFORMW %CALLNAME:MASTER%凑近仔细观察，那颗小小的豆豆在夹子的作用下涨得通红，看起来格外惹人怜爱
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SIF !RAND:5
+			GOTO SUIKA_C_CLIMAX_3
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「夹上了……唔……比跳蛋更一直存在……一直在咬着我……」
+				PRINTFORML 萃香的声音有点不稳，身体微微地发着抖
+				PRINTFORML 「又痛又舒服……这种感觉好奇怪……但是又不想让它停下来……」
+				PRINTFORMW 她抬起湿润的眼睛看着%CALLNAME:MASTER%，眼神中带着困惑和隐隐的期待
+			CASE 1
+				PRINTFORML 「唔……夹子夹在豆豆上的感觉……和当时第一次被摸的时候好像……」
+				PRINTFORML 萃香的声音带着一丝怀念，嘴角微微上扬
+				PRINTFORML 「那个时候也是又痛又舒服……结果是现在变成这样了……」
+				PRINTFORMW 她自嘲地笑了笑，却把身体往前凑了凑，让夹子咬得更深一些
+			CASE 2
+				PRINTFORML 「奇怪……之前明明觉得这种东西一定是用来折磨人的……」
+				PRINTFORML 萃香放松下来后，阴蒂夹的持续压迫感逐渐转化为了另一种东西
+				PRINTFORML 「现在觉得……这种一直被咬住的感觉……其实还不错……」
+				PRINTFORMW 她说完立刻把脸藏进了枕头里，只留一对红透的耳朵对着%CALLNAME:MASTER%
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友
+		SIF !RAND:4
+			GOTO SUIKA_C_CLIMAX_3
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「%CALLNAME:MASTER%…又要用……这种小玩具来对付我么？」
+				PRINTFORMDL 萃香看着%CALLNAME:MASTER%手里的阴蒂夹，眼神中露出妖异的光芒
+				PRINTFORML 「比起这种东西……我还是，想要%CALLNAME:MASTER%亲自安慰我呢~」
+				PRINTFORMW 在%CALLNAME:MASTER%将阴蒂夹夹上去之后，萃香无可忍耐的呻吟了起来
+			CASE 1
+				PRINTFORML 「这个夹子还蛮有设计感的嘛……看来没少花钱……」
+				PRINTFORML 萃香倒是很爽快地接受了，夹子一夹好就开始测试自己的身体反应
+				PRINTFORML 「还不错，压得很到位……不过我建议下次买个带重锤的——算了回头我自己买」
+				PRINTFORMW 她在品位情趣道具方面的专业态度让%CALLNAME:MASTER%一时不知作何反应
+			CASE 2
+				PRINTFORML 「说实话夹子这种道具需要一些适应时间……嗯嗯……」
+				PRINTFORML 萃香紧锁着眉头，手撑着床单，显然夹子给她带来了不小的冲击
+				PRINTFORML 「不过适应过来之后……就会开始有感觉了……比如说现在……啊哈……」
+				PRINTFORMW 她的语调突然变得甜腻，看来夹子已经成功将她的大脑调到了另一种模式
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:愛欲
+		SIF !RAND:3
+			GOTO SUIKA_C_CLIMAX_3
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「阴蒂夹……我最爱的道具之一……♡」
+				PRINTFORML 萃香的呼吸在看到夹子的那一瞬间就已经乱了
+				PRINTFORML 「快……夹上去……让夹子狠狠地咬住我的豆豆……♡」
+				PRINTFORMW 夹子合上的瞬间，萃香的腰猛地弹了起来，嘴里发出分不清是惨叫还是娇喘的声音
+			CASE 1
+				PRINTFORML 「啊哈……夹上来了……咬住了……！♡」
+				PRINTFORML 萃香低头看着自己腿间那枚小小的金属夹子，眼神中带着迷醉
+				PRINTFORML 「好棒……我的豆豆看起来是不是很可怜？被夹得通红通红的……♡」
+				PRINTFORMW 她伸出手指，不是去取掉夹子，而是轻轻弹了一下——然后整条腿都在那一弹下剧烈地颤抖
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%你看……我不行了……只是被夹子咬住而已下面就已经洪水泛滥了……♡」
+				PRINTFORML 萃香的蜜液已经顺着夹子滴落到床单上，但她完全没有要掩饰的意思
+				PRINTFORML 「等会你取下夹子的时候……帮我用嘴巴接住流出来的东西好不好……♡」
+				PRINTFORMW 她在%CALLNAME:MASTER%耳边轻声请求着，声音里满是赤裸裸的欲望
+		ENDSELECT
+		RETURN 1
+	ELSEIF ABL:Ｃ感覚 > 5
+		$SUIKA_C_CLIMAX_3
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「%CALLNAME:MASTER%…等一下……不要啊啊，啊啊啊！啊，阴蒂…、这个、好啊…啊啊！」
+				PRINTFORMDL 明明阴蒂夹只是刚夹上去，萃香就因为阴蒂的敏感而高潮
+				PRINTFORML 「%CALLNAME:MASTER%…呼哈……咿呀……咿哈……」
+				PRINTFORMDW 在%CALLNAME:MASTER%开发和阴蒂夹的双重作用下，萃香的秘穴不断地流出蜜液……
+			CASE 1
+				PRINTFORML 「不行……夹子的话太犯规了……又不是震动的……怎么会……」
+				PRINTFORML 萃香不懂为什么仅仅是持续的压力就能让自己失控，但身体比大脑更诚实
+				PRINTFORML 「只是夹着而已……为什么豆豆自己在跳……为什么下面自己就湿透了……」
+				PRINTFORMW 她带着哭腔控诉着，阴蒂夹随着每一次抽泣而微微晃动，带来一连串叠加的刺激
+		ENDSELECT
+		EXP:10:Ｃ経験 += 4
+		EXP:10:Ｃ絶頂経験 += 4
+		EXP:10:絶頂経験 += 4
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「%CALLNAME:MASTER%…那个」
+				PRINTFORMDL %CALLNAME:MASTER%将阴蒂夹安在萃香的豆豆上后，萃香的身体明显僵了一下
+				PRINTFORML 「呼，呼，呼哈……还能撑得住……」
+				PRINTFORMDW 萃香貌似从中感受到快感，但还是不愿意表露出来
+			CASE 1
+				PRINTFORML 「痛痛痛……这个真的很痛……人类为什么会发明这种东西……」
+				PRINTFORML 萃香的眼泪都快出来了，但%CALLNAME:MASTER%注意到她的乳头反而挺了起来
+				PRINTFORML 「但是……夹着夹着……下面就开始有奇怪的感觉了……」
+				PRINTFORMW 她看起来对自己的身体反应感到困惑和羞耻，但脸上的红晕并不全是出于疼痛
+			CASE 2
+				PRINTFORML 「被夹子咬住的时候……全身都会绷紧……这到底是什么原理……」
+				PRINTFORML 萃香一边抽着冷气一边试图用理性来分析，但每说几个字就被夹子的压力打断
+				PRINTFORMW 「不行了……不能思考了……脑袋被豆豆支配了……完全没办法想别的事……」
+			CASE 3
+				PRINTFORML 「唔……被夹的过程中……好像慢慢习惯了这种感觉……」
+				PRINTFORML 萃香的声音从一开始的吃痛渐渐变得柔和，身体也不再僵硬
+				PRINTFORML 「好像是……痛和舒服之间有一种平衡……现在正在往舒服那边倒……」
+				PRINTFORMW 她眯起眼睛，呼吸渐渐均匀，看来是找到了给身体带来快感的那条微妙的线
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ELSE
+	IF FLAG:時間停止
+		PRINTFORMDL %CALLNAME:MASTER%将阴蒂夹从萃香的豆豆上取了下来
+		PRINTFORMDL 夹子取下的瞬间，那颗被压迫的豆豆在静止的空气中弹了一下，然后缓缓恢复了原本的颜色
+		PRINTFORMDW 即使在时间停止中，身体的本能反应也无法被冻结——这或许是最有趣的发现
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「终于……取下来了……被夹了那么久，豆豆都麻掉了……」
+				PRINTFORML 夹子取下的瞬间，积攒的快感一下子涌到被解放的阴蒂上
+				PRINTFORML 「咦……等、等一下……明明取下来了为什么感觉更强了——啊啊！！」
+				PRINTFORMW 血液猛地回流到刚才被压迫的地方，延迟的刺激让萃香在夹子取下后才迎来了真正的高潮
+			CASE 1
+				PRINTFORML 「哈啊……取下来了……豆豆……豆豆没事吧？」
+				PRINTFORML 萃香紧张地低头查看，那颗被夹子欺负过的小小凸起现在可怜兮兮地红肿着
+				PRINTFORMW 「还好……只是红了一点……不过……你能不能帮我揉揉……轻轻的……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「嗯……取掉的瞬间……反而有种奇怪的空虚感……」
+				PRINTFORML 萃香摸了摸自己的阴蒂，那里还残留着夹子的压痕
+				PRINTFORMW 「之前一直有东西咬着还没觉得……现在没有了才意识到自己已经习惯了被咬着的感觉……」
+			CASE 1
+				PRINTFORML 「呼……取下来之后整个人都放松了……」
+				PRINTFORML 萃香长长地出了一口气，然后低头看了看那枚被取下的夹子
+				PRINTFORMW 「不过说实话……戴着的时候感觉也不是很难受……下次……还可以再试试……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「啊呀！终于……放下来了……豆豆都快变成夹子的形状了……」
+				PRINTFORML 萃香揉着被夹到发麻的阴蒂，似笑非笑地看着%CALLNAME:MASTER%
+				PRINTFORMW 「不过说实话还挺刺激的……下次换个更大号的试试？」
+			CASE 1
+				PRINTFORML 「取下夹子的时候反而感觉更强烈是什么体质啊……」
+				PRINTFORML 萃香一边抱怨一边夹紧双腿，试图压制取下夹子后涌上来的快感余波
+				PRINTFORMW 「算了……反正迟早又会被你夹上……我提前做好心理准备就是了……」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼……终于取下来了……」
+				PRINTFORMW 萃香松了一口气，但取下的瞬间忍不住倒吸了一口凉气——被压制许久的快感在解放后集中爆发
+			CASE 1
+				PRINTFORML 「结束了吗……豆豆还在一跳一跳的……感觉还没回过神来……」
+				PRINTFORMW 萃香用手轻轻盖住腿间，脸上的表情是如释重负和隐隐约约的意犹未尽
+		ENDSELECT
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;43,飛機杯（已被封印）
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_43
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF TEQUIP:43
+	IF TALENT:恋慕
+		PRINTFORML 
+		RETURN 1
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORML 
+		RETURN 1
+	ELSE
+		PRINTFORML 
+		RETURN 1
+	ENDIF
+ELSE
+	IF TALENT:恋慕
+		PRINTFORML 
+		RETURN 1
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORML 
+		RETURN 1
+	ELSE
+		PRINTFORML 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;44,振動棒
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_44
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TCVAR:破瓜 == 1 && STRCOUNT(CSTR:処女喪失履歴, "振动棒")
+		IF TALENT:恋慕
+			PRINTFORMW 「%CALLNAME:MASTER%…是想用这个来拿走我的第一次吗？」
+			PRINTFORML 萃香看着振动棒，眼神里闪过复杂的情绪——失望，伤心，但更多的是困惑
+			PRINTFORML 「我明明是想把第一次给%CALLNAME:MASTER%的……不是给这种东西……」
+			PRINTFORMDL 振动棒贯穿处女的瞬间，萃香没有哭也没有叫，只是紧紧闭上了眼睛
+			PRINTFORMW 从那之后，萃香没有再和%CALLNAME:MASTER%说一句话。空气中只剩下振动棒的嗡嗡声和偶尔落下的泪滴
+			CFLAG:好感度 = 0
+		ELSEIF TALENT:思慕
+			PRINTFORML 「那个……真的是第一次……%CALLNAME:MASTER%不能自己来吗……」
+			PRINTFORML 萃香咬着嘴唇，声音里带着最后一丝期待，但看到%CALLNAME:MASTER%点头后眼神暗了下去
+			PRINTFORMW 振动棒插入时带出了鲜红的血丝，萃香的身体僵了一下，但很快便完全安静下来，仿佛灵魂离开了身体
+			CFLAG:好感度 = 0
+		ELSE
+			PRINTFORMW 「%CALLNAME:MASTER%…%CALLNAME:MASTER%是想用那个来夺走我的处女么？」
+			PRINTFORMDL 在看见%CALLNAME:MASTER%点头之后，萃香沉默了起来
+			PRINTFORML 即使在%CALLNAME:MASTER%将振动棒插进去之后，将她的处女之血沾染在振动棒上时,她也没有和%CALLNAME:MASTER%说一句话
+			PRINTL
+			PRINTL
+			PRINTFORMDL 萃香失去了对%CALLNAME:MASTER%的信任
+			CFLAG:好感度 = 0
+		ENDIF
+		RETURN 1
+	ENDIF
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「振动棒……看起来就好可怕……但是如果是%CALLNAME:MASTER%想用的话……」
+				PRINTFORML 萃香深吸了几口气，像是下了很大决心似的躺了下来
+				PRINTFORMW 「我准备好了……%CALLNAME:MASTER%要温柔一点……拜托了……」
+			CASE 1
+				PRINTFORML 「终于……连这种东西也要用上了吗……」
+				PRINTFORML 萃香看着嗡嗡作响的振动棒，表情里有紧张也有好奇
+				PRINTFORMW 「比按摩棒大……而且是放进里面的……你确定不会疼吗……骗我的话我会生气的哦……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……会好好照顾我的对吧……」
+				PRINTFORML 萃香像寻求安慰的小动物一样蹭了蹭%CALLNAME:MASTER%的手
+				PRINTFORMW 「我相信你……所以……进来吧……让我感受%CALLNAME:MASTER%选的东西是什么感觉……」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「插入式的……比之前那些都厉害呢……」
+				PRINTFORML 萃香吞了口口水，眼神里是努力想要维持镇定的逞强
+				PRINTFORMW 「好、好吧……都已经到这一步了……我不会逃的……」
+			CASE 1
+				PRINTFORML 「这个是要插进去的吗……」
+				PRINTFORML 萃香接过振动棒，用手比了比尺寸，脸上的表情变了好几次
+				PRINTFORMW 「好吧……反正迟早要面对的……与其继续害怕不如直接试试看……」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「振动棒！终于到这个了！我等好久了！」
+				PRINTFORML 萃香的期待几乎要溢出来了，迫不及待地躺下掀起了衣服露出小腹
+				PRINTFORMW 「快点快点，让我看看是你的手厉害还是振动棒厉害！」
+			CASE 1
+				PRINTFORML 「啊哈，这次是可以放进里面的？品味不错嘛……」
+				PRINTFORML 萃香用手指沿着振动棒的表面从下往上滑了一遍，感受着那均匀的震动
+				PRINTFORMW 「完美的周长和震动频率……看来你挑选的时候很认真呢。我喜欢做事认真的人~」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「等等等等！！！那个要放进里面！？不可能不可能不可能！！」
+				PRINTFORML 萃香像炸了毛的猫一样弹了起来，拼命地往后缩
+				PRINTFORMW 「那么大的东西！还在震动的！放进去的话绝对会坏掉的！！」
+			CASE 1
+				PRINTFORML 「你……你是认真的吗……那个……插进……里面？」
+				PRINTFORML 萃香抱着膝盖缩在床角，声音小得像蚊子嗡嗡
+				PRINTFORMW 「我不要……太可怕了……可不可以……不用那个……」
+			CASE 2
+				PRINTFORML 「人类的性欲真是……连这种东西都能发明出来……」
+				PRINTFORML 萃香盯着振动棒的双眼充满恐惧，但%CALLNAME:MASTER%注意到她的双腿并没有真正合拢
+				PRINTFORMW 「……一次。就一次。如果你让我痛了我就立刻结束。这是警告，不是请求。」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+IF TEQUIP:44
+	IF FLAG:70
+		IF TALENT:恋慕
+			PRINTFORMDW 在时间停止的时候，将开到最大的振动棒插入她的蜜穴口内
+			PRINTFORMDL 虽然萃香毫无反应，但振动棒在被体温包裹的蜜穴中持续震动着
+			PRINTFORMDW 在这种单向的安静中，%CALLNAME:MASTER%甚至能通过手指感受到振动棒的震动经过阴道壁传出的一阵阵细微波纹
+		ELSEIF TALENT:思慕
+			PRINTFORMDL 静止的时间中，振动棒在萃香紧致的蜜穴内无声地震动着
+			PRINTFORMDL 没有呻吟、没有挣扎，只有振动棒规律地工作着，而萃香的身体在无知觉中缓慢渗出了爱液
+			PRINTFORMDW 等她醒来发现自己下面的异样时，会是什么表情呢——光是想象就让%CALLNAME:MASTER%心情愉悦
+		ELSE
+			PRINTFORMDW 在时间停止的时候，将开到最大的振动棒插入她的蜜穴口内
+			PRINTFORMDL 看着毫无反应的萃香，%CALLNAME:MASTER%试图抽弄振动棒来获得一些反应
+			PRINTFORMDW 很显然，这只是无用功，而现在%CALLNAME:MASTER%要将振动棒留在这里，去寻找新的乐子
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「又要用那个了么？相比之下，还是更想要%CALLNAME:MASTER%的欧金金啊！」
+				PRINTFORMDW 无视着萃香的抱怨，%CALLNAME:MASTER%将振动棒插入进去
+				PRINTFORML 「咿呼！嗯唔，这个…太厉害了！这样的话，马上，马上就要去了❤」
+				PRINTFORMDW 在震动棒的进攻下，萃香的理智被溶解了，身体本能的操纵蜜穴口紧紧地夹住振动棒的同时摇晃着腰……
+			CASE 1
+				PRINTFORML 「呼姆…%CALLNAME:MASTER%！变态、色鬼、虐待狂……」
+				PRINTFORMDW 没有理会萃香的挑衅，%CALLNAME:MASTER%让振动棒的尖端在蜜穴口上下摩擦着，用这样的方式挑逗着萃香
+				PRINTFORML 「求%CALLNAME:MASTER%…%CALLNAME:MASTER%！放、放进来吧、呀啊……」
+				PRINTFORMDL 放进哪里呢？ %CALLNAME:MASTER%用调笑的语气说着的同时用振动棒轻轻地探入蜜穴口内，加大了手上调弄的力度
+				PRINTFORML 「请…请…请%CALLNAME:MASTER%将振动棒插到我淫荡的小穴……啊啊啊啊啊  啊啊，啾，进来了……啊啊啊！啊，这个、好啊…啊啊啊啊！」
+				PRINTFORMW 用振动棒贯穿萃香的子宫后，萃香因为过度的兴奋而悲鸣起来
+			CASE 2
+				PRINTFORML 「啊……振动棒一进来……里面就自动缩紧了……没法控制……」
+				PRINTFORML 萃香的阴道像是早就认识振动棒一样，熟练地缠绕了上去
+				PRINTFORML 「里面被震得乱七八糟的……脑袋也跟着乱七八糟的……%CALLNAME:MASTER%抱紧我……」
+				PRINTFORMW 她伸出双臂环住%CALLNAME:MASTER%的脖子，在他耳边用颤抖的声音一遍遍地叫着他的名字
+			CASE 3
+				PRINTFORML 「不是说了今天只想和%CALLNAME:MASTER%做的吗……结果又用上振动棒了……」
+				PRINTFORML 萃香嘴上嘟囔着，但双腿却主动在%CALLNAME:MASTER%腰间夹紧，催促着振动棒进得更深
+				PRINTFORML 「不过……偶尔这样也不错……只是这样的话我就没法自己动了……%CALLNAME:MASTER%要负责到底……」
+				PRINTFORMW 她将身体的重量完全交给了%CALLNAME:MASTER%，闭上眼睛全心地感受着振动棒在体内的每一次律动
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……振动的感觉……在里面……比上次更清晰了……」
+				PRINTFORML 萃香咬着嘴唇，但身体的反应已经无法隐藏——她的腰不由自主地扭动着
+				PRINTFORMW 「我开始……明白为什么会有人喜欢这种东西了……虽然有点可怕，但是……很舒服……」
+			CASE 1
+				PRINTFORML 「插进来的时候还是会紧张……但是开始动了之后……就变舒服了……」
+				PRINTFORML 萃香慢慢地放松了身体，让振动棒更容易地进进出出
+				PRINTFORMW 「奇怪……明明不是%CALLNAME:MASTER%在动……但还是感觉很安心……是因为你在旁边看着吗……」
+			CASE 2
+				PRINTFORML 「振动棒在里面震的时候……腰自己就想动了……这是怎么回事……」
+				PRINTFORML 萃香试图保持静止，但腰像是被振动棒操纵了一样前后摇摆，让振动棒能碰到更深的地方
+				PRINTFORMW 「身体和脑袋的意见不一致……脑袋说好丢脸，身体说好舒服……我到底该听谁的……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「又是用那个了么？相比之下，我还是更想要%CALLNAME:MASTER%的大肉棒啊」
+				PRINTFORMDW 拍开萃香的伸向下面的手，%CALLNAME:MASTER%将振动棒插入其蜜穴之中
+				PRINTFORML 「咿呼！嗯唔，这个…好厉害！还是，马上就要去了❤」
+				PRINTFORML 「啊啊！%CALLNAME:MASTER%❤！%CALLNAME:MASTER%❤！」
+				PRINTFORMDW 萃香叫着%CALLNAME:MASTER%的名字，同时身体也因为过度的兴奋而颤抖起来
+			CASE 1
+				PRINTFORML 「振动棒的好处就是可以一直震不用停下来……你知道这意味着什么吗？」
+				PRINTFORML 「意味着我可以被震多久就爽多久——而我的手可以腾出来做别的事……比如摸摸你……」
+				PRINTFORMW 她一边享受着振动棒在体内的暴动，一边伸手悄悄握住了%CALLNAME:MASTER%的手，指尖在掌心里暧昧地画着圈
+			CASE 2
+				PRINTFORML 「每次你拿出振动棒的时候，那个眼神就特别认真——你是不是其实更喜欢看道具的反应而不是我的反应啊？」
+				PRINTFORML 萃香半眯着眼睛审视着%CALLNAME:MASTER%的脸，但声音却在振动棒的起伏中断成了一节一节
+				PRINTFORMW 「算了不管了……反正最后舒服的是我……要便宜你就便宜你吧……啊啊……就是那里……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「振动棒……我最爱的玩具没有之一……♡」
+				PRINTFORML 萃香的眼睛在看到振动棒的一瞬间就变得迷蒙，双腿自动地张开
+				PRINTFORML 「快……插进来……把我的里面搅得天翻地覆……♡」
+				PRINTFORMW 振动棒一进入就发出了咕啾的水声——她的蜜穴早已做好了万全的准备，湿润得不需要任何润滑
+			CASE 1
+				PRINTFORML 「啊哈……振动棒就是不一样……能震到手指够不到的地方……♡」
+				PRINTFORML 萃香弓起腰，让振动棒能触到子宫口附近最敏感的某处
+				PRINTFORML 「就是那里！对！再深一点！再用力一点！不要停下来！♡」
+				PRINTFORMW 她的声音大得让人担心隔壁能不能听到，但此刻的萃香显然已经完全不在乎了
+			CASE 2
+				PRINTFORML 「振动棒让我同时有三重的快乐……震动的感觉、被填满的感觉、还有看着%CALLNAME:MASTER%操作它的感觉……♡」
+				PRINTFORML 萃香一边说着一边伸手引导着%CALLNAME:MASTER%的手腕，让振动棒沿着她最满意的轨道进出
+				PRINTFORMW 「我是不是坏掉了……一想到是%CALLNAME:MASTER%在操纵着振动棒……感觉比平时还要舒服好几倍……♡」
+		ENDSELECT
+		RETURN 1
+	ELSEIF (TALENT:愛欲 || TALENT:炮友 || TALENT:恋慕) && ABL:10:Ｖ感覚 > 8
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼…%CALLNAME:MASTER%！%CALLNAME:MASTER%还真是个变态……」
+				PRINTFORMDW 在听到%CALLNAME:MASTER%的请求后，萃香毫不留情的嘲弄起来
+				PRINTFORML 「不过，我好像也不能说%CALLNAME:MASTER%什么呢，所以，把那个放进来吧……」
+				PRINTFORMDL 在确定萃香没有问题后，%CALLNAME:MASTER%将振动棒调到最大功率，将振动棒的前端塞入蜜穴当中
+				PRINTFORML 「哈啊  呼，啾，进来了呢……有点……有点难呢……」
+				PRINTFORMDL 虽然只是振动棒的前端，但是高强度的震动频率还是无法承受么
+				PRINTFORML 「不  呼哈，没事，%CALLNAME:MASTER%看着就行了……哈啊……咿呀……」
+				PRINTFORMDL 萃香虽然看上去因为振动棒而有些失力，但是凭借着强大的腰部力量，振动棒肉眼可见的在被吞没
+				PRINTFORMDL 看来以后做爱尽量不要惹她生气，万一直接夹断了就得不偿失了
+				PRINTFORMDL 正当%CALLNAME:MASTER%胡思乱想的时候，萃香已经将整根振动棒吞了进去
+				PRINTFORML  「怎 怎么样，我，我厉害吧！嘿嘿……哈啊……呼姆……」
+			CASE 1
+				PRINTFORML 「哎……%CALLNAME:MASTER%要看绝活？你还真是越来越会欺负人了……」
+				PRINTFORML 萃香嘴上抱怨着，手上却接过了开到最大的振动棒
+				PRINTFORML 「好吧好吧……反正你喜欢的身体随便你怎么用……看着哦，我自己来……」
+				PRINTFORMDL 萃香没有像上次那样慢慢来，而是一口气把整根振动棒推了进去——
+				PRINTFORMDL 然后她的身体猛地绷紧了，瞳孔在一秒内放大又缩小，牙关紧咬但喉间还是滚出了低沉的吼声
+				PRINTFORML 「哈啊……哈啊……一下到底……太勉强了……但是做到了……表扬我……表扬我……」
+				PRINTFORMDW 她把头埋进%CALLNAME:MASTER%胸口，声音带着得意的颤抖——即便已经摇摇欲坠，鬼的骄傲还是让她不肯服输
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊哈，要用那种东西？等等……！」
+				PRINTFORMW 在%CALLNAME:MASTER%表示萃香的反对无效后，将振动棒插入萃香的阴道内
+				PRINTFORML 「哈呀……等，不！？那个，不可以……！！」
+				PRINTFORMW 打开震动棒的开关后，萃香因为过度刺激而让身体不自觉的弯曲……
+			CASE 1
+				PRINTFORML 「等一下等一下等一下！真的要进去吗！我感觉到了！尖端已经碰到了！」
+				PRINTFORML 萃香的声音里同时夹杂着恐惧和某种她自己都没意识到的东西
+				PRINTFORMDL 尽管嘴上抗议着，但她的蜜穴入口已经分泌出了足够多的爱液，振动棒插入时几乎没有遇到任何阻力
+				PRINTFORMW 「身体为什么会自己接受这种东西……我不懂……完全不懂……」
+			CASE 2
+				PRINTFORML 「唔……进来了……震动……在身体最深处……」
+				PRINTFORML 萃香的呼吸变得粗重，双手死死抓着床单，指关节都发白了
+				PRINTFORML 「好奇怪……明明只是机器……为什么会有感觉……我的身体到底怎么了……」
+				PRINTFORMW 在这场和未知快感的战斗中，她显然正逐渐落入下风——臀部的肌肉已经开始不听话地收缩了
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ELSE
+	IF FLAG:時間停止
+		IF TALENT:恋慕
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的震动棒从萃香体内拔了出来
+			PRINTFORMDL 振动棒离开蜜穴的瞬间，被撑开的阴道口在静止的空气中一点点收缩，带出了细细的银丝
+			PRINTFORMDW 看着那颗小小的阴蒂在长时间的震动下已经变得充血发红，%CALLNAME:MASTER%忍不住轻轻吻了一下——反正她也不会知道
+		ELSE
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的震动棒从萃香体内拔了出来
+			PRINTFORMDL 正如插进去的时候一样，在振动棒拔出来的时候。萃香依旧没有什么反应
+			PRINTFORMDW 不过在振动棒拔出来的一瞬间，可以看见明显的银丝被拉了出来
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……振动棒，拔出来啦……」
+				PRINTFORMDL 扩展到振动棒形状的萃香阴道孔正在缓慢地收缩着
+				PRINTFORMW 「但是里面还在跳……明明振动棒已经不在了，里面还是在跳……」
+			CASE 1
+				PRINTFORML 「拔出来之后里面变得好空虚……虽然振动棒在里面的时候觉得太刺激了……」
+				PRINTFORML 萃香跪在床上，被扩张过的蜜穴一时间还合不拢，能看到里面粉嫩的内壁
+				PRINTFORMW 「%CALLNAME:MASTER%……能不能帮我堵住……用你的……什么都好……」
+			CASE 2
+				PRINTFORML 「每次拔出来的时候都像是在告别……总觉得有点恋恋不舍……」
+				PRINTFORML 萃香看着那根沾满自己爱液的振动棒，脸上浮现出复杂的表情
+				PRINTFORMW 「下次……下次换成%CALLNAME:MASTER%的那根好不好……比振动棒更暖和……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「终于拔出来了……身体一下子变轻了……」
+				PRINTFORML 萃香长长地呼出一口气，四肢放松地摊开在床上
+				PRINTFORMW 「但是下面还在收缩着……好像在找什么东西……明明振动棒已经没有了……」
+			CASE 1
+				PRINTFORML 「奇怪……在拔出来的瞬间……反而有点不想让它走了……」
+				PRINTFORML 萃香说着便捂住了自己的脸，显然觉得这种想法很不好意思
+				PRINTFORMW 「不是喜欢那个东西！就是……就是觉得有东西在里面的时候很安心……仅此而已！」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……振动棒，拔出来啦……」
+				PRINTFORMDL 扩展到振动棒形状的萃香阴道孔正在缓慢地收缩着
+				PRINTFORMW 「还不错，不过还是没有真人来得舒服……下次直接用真货吧？」
+			CASE 1
+				PRINTFORML 「拔出来的瞬间阴道还在吸……不想让它出来呢……」
+				PRINTFORML 萃香的蜜穴像是在挽留振动棒一样，拔出时发出了明显的阻力声
+				PRINTFORMW 「看，它都说还想要了……所以你得负责满足它——用什么都行……」
+			CASE 2
+				PRINTFORML 「啊……终于完了……感觉自己已经脱水了……」
+				PRINTFORML 萃香拿起那根被爱液浸得发亮的振动棒，在自己眼前晃了晃
+				PRINTFORMW 「战绩不错嘛。下次我们挑战更高记录？」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊，呼哈……终于拔出来了……」
+				PRINTFORMW 萃香似乎松了一口气，开始调整着呼吸。不过她的双手始终挡在腿间，不肯让人看到还在翕张着吐着蜜液的穴口
+			CASE 1
+				PRINTFORML 「结、结束了吗……我的腿已经完全动不了了……」
+				PRINTFORMW 萃香像被冲上岸的鱼一样瘫在床上，眼神涣散地盯着天花板，一时半会说不出第二句话
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;45,肛用振動棒
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_45
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「后面……那里也要用这种东西吗……」
+				PRINTFORML 萃香下意识地用手遮住了臀部，脸上的红晕一直蔓延到了脖子
+				PRINTFORML 「不是不喜欢……就是……那个地方连我自己都没碰过几次……」
+				PRINTFORMW 她紧张地吞了口唾沫，但还是诚实地趴下来，把小小的臀部抬到了%CALLNAME:MASTER%面前
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%……后面和前面不一样……会很痛的……」
+				PRINTFORML 萃香的声音里透着真实的恐惧，但眼角却含着一丝对%CALLNAME:MASTER%的信任
+				PRINTFORMW 「但是……你说过会让我舒服的……我相信你……所以……来吧……」
+			CASE 2
+				PRINTFORML 「那个地方……真的要吗……我还没准备好……」
+				PRINTFORML 萃香的声音几乎小到听不见，但她的身体已经诚实地在配合——她拿了一个枕头垫在小腹下面，让臀部更高地抬了起来
+				PRINTFORMW 「温柔一点……第一次后面被放进东西……%CALLNAME:MASTER%要负责到底……」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「后面……？连那里都要用道具了吗……」
+				PRINTFORML 萃香的脸涨得通红，但眼神中没有拒绝的意思，更多的是困惑和紧张
+				PRINTFORMW 「既然前面已经试过了……后面也……试试看好了……但你不许笑……」
+			CASE 1
+				PRINTFORML 「人类连后面都不放过吗……我真是越来越不懂你们了……」
+				PRINTFORML 萃香无奈地叹了口气，但还是乖乖地翻过了身趴好
+				PRINTFORMW 「不过……如果连那么脏的地方你都想碰的话……说明你对我的兴趣……算了当我没说！！」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「终于到后面了吗！我还在想你要等到什么时候呢~」
+				PRINTFORML 萃香非但没有紧张，反而兴奋地活动了一下腰
+				PRINTFORMW 「来来来，让我看看你的肛用振动棒有几成功力——别客气，直接上！」
+			CASE 1
+				PRINTFORML 「哦？这次是走后门？%CALLNAME:MASTER%的口味真是越来越刁了……」
+				PRINTFORML 萃香一边调侃一边顺手拿起旁边的润滑液，熟练地往自己后庭上抹了几下
+				PRINTFORMW 「准备工作我自己来就好。来吧，门已经开了——请进？」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「后后后后面！？你疯了吗！！人怎么能把东西放进那种地方！！」
+				PRINTFORML 萃香双手死死捂住屁股，整个人缩成了一团刺猬
+				PRINTFORMW 「不行不行不行！那个地方出来的是什么东西你不知道吗！！绝对不可以！！」
+			CASE 1
+				PRINTFORML 「前面也就算了……后面绝对不行……会坏掉的……」
+				PRINTFORML 萃香的声音里满是哀求，眼眶里甚至开始泛泪
+				PRINTFORMW 「为什么……为什么人类会对那种地方有兴趣……我不理解……也不想理解……」
+			CASE 2
+				PRINTFORML 「鬼的屁股到底有什么好玩的！！你是不是脑子出问题了！！」
+				PRINTFORML 萃香用枕头砸向%CALLNAME:MASTER%，但力道轻得像在挠痒痒——她终究还是没有真的想拒绝
+				PRINTFORMW 「好吧……但是你得先告诉我那个东西有多长多粗……我要做好心理准备……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+IF TEQUIP:45
+	IF FLAG:70
+		IF TALENT:恋慕
+			PRINTFORMDW 在时间停止的时候，将开到最大的振动棒插入她的后庭当中内
+			PRINTFORMDL 虽然萃香毫无知觉，但后庭括约肌在振动棒的刺激下本能地一张一合
+			PRINTFORMDW 这种静默中的生理反应有种无法言喻的美，%CALLNAME:MASTER%又多看了几秒才不舍地离开去寻找新的乐子
+		ELSEIF TALENT:思慕
+			PRINTFORMDL 在静止的时间中，%CALLNAME:MASTER%将振动棒缓缓推入萃香紧致的后庭
+			PRINTFORMDL 没有痛呼和抵抗，只有肛口被动地扩张接纳，以及内壁无意识的阵阵收缩
+			PRINTFORMDW 这种完全掌控的背德快感，让%CALLNAME:MASTER%在静止的世界里独自微笑了起来
+		ELSE
+			PRINTFORMDW 在时间停止的时候，将开到最大的振动棒插入她的后庭当中内
+			PRINTFORMDL 看着毫无反应的萃香，%CALLNAME:MASTER%试图抽弄振动棒来获得一些反应
+			PRINTFORMDW 很显然，这只是无用功，而现在%CALLNAME:MASTER%要将振动棒留在这里，去寻找新的乐子
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「又要用那个了么？相比之下，还是更想要%CALLNAME:MASTER%的肉棒啊！」
+				PRINTFORMDW 无视着萃香的抱怨，%CALLNAME:MASTER%将振动棒插入进去
+				PRINTFORML 「咿呼！嗯唔，这个…太厉害了！这样的话，马上，马上就要去了❤」
+				PRINTFORMDW 在震动棒的进攻下，萃香的理智被溶解了，身体本能的操纵后庭口紧紧地夹住振动棒的同时摇晃着腰……
+			CASE 1
+				PRINTFORML 「呼姆…%CALLNAME:MASTER%！变态、色鬼、虐待狂……」
+				PRINTFORMDW 没有理会萃香的挑衅，%CALLNAME:MASTER%让振动棒的尖端在后庭口上下摩擦着，用这样的方式挑逗着萃香
+				PRINTFORML 「%CALLNAME:MASTER%…%CALLNAME:MASTER%！轻点，拜托！呀啊……」
+				PRINTFORMDL 如果愿意叫几声好听的话，我就轻点放进去 %CALLNAME:MASTER%用调笑的语气说着的同时用振动棒轻轻地探入后庭内，仿佛会随时长驱直入
+				PRINTFORML 「请…请…请%CALLNAME:MASTER%好老公将振动棒插到我肮脏的菊花里……啊啊啊啊啊  啊啊，啾，进来了……啊啊啊！啊，这个、好啊…痛啊啊啊！」
+				PRINTFORMW 用振动棒贯穿萃香的屁股孔，萃香因为疼痛而悲鸣起来
+			CASE 2
+				PRINTFORML 「嗯……后面被撑开的感觉……和前面完全不一样……」
+				PRINTFORML 萃香趴在床上，臀部被振动棒支配着，整个人像在暴风中飘摇的小船
+				PRINTFORML 「里面被震得……连前面的小穴都开始湿了……好奇怪……明明不是前面在动……」
+				PRINTFORMW 她的手指抓紧了枕头，整个人在双重刺激下已经语无伦次
+			CASE 3
+				PRINTFORML 「后面……被振动棒打开的时候……有种把一切都交给了%CALLNAME:MASTER%的感觉……」
+				PRINTFORML 萃香的声音变得柔软而坦诚，平时逞强的面具在持续的刺激下完全脱落
+				PRINTFORML 「连这么脏的地方都由着%CALLNAME:MASTER%随意进出……我是不是太好说话了……」
+				PRINTFORMW 嘴上虽然这样说着，但她的后庭却把振动棒吸得更紧了，像是在无声地回答：我愿意
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……后面被放进东西的感觉……还是会有点痛……」
+				PRINTFORML 萃香咬着嘴唇忍受着最初的不适，但很快身体就开始适应了
+				PRINTFORML 「但是等身体习惯了之后……后面就自己开始吸了……这到底是什么机制……」
+				PRINTFORMW 她困惑地自言自语着，臀部的肌肉却诚实地在振动棒的节奏下一张一弛
+			CASE 1
+				PRINTFORML 「后面……比上次适应得快了……这是好事还是坏事……」
+				PRINTFORML 萃香的表情在纠结和舒服之间摇摆不定，最后那份纠结渐渐融化了
+				PRINTFORMW 「应该是好事……毕竟不舒服的话我就不会让你继续了……所以……继续吧……」
+			CASE 2
+				PRINTFORML 「奇怪……明明是和前面完全不同的感觉……为什么会觉得同样舒服……」
+				PRINTFORML 萃香把脸埋进枕头，不让%CALLNAME:MASTER%看到她现在到底有多舒服
+				PRINTFORMW 「身体是不是被你弄坏了……什么地方都会觉得舒服了……你要赔我……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「又是用那个了么？相比之下，我还是更想要%CALLNAME:MASTER%的大肉棒啊」
+				PRINTFORMDW 拍开萃香的伸向下面的手，%CALLNAME:MASTER%将振动棒完全送入其后庭当中
+				PRINTFORMDL 肛用振动棒完全收纳在萃香的肠内，偶尔从肛门可以隐约看到肛门的肛用振动棒的底面……
+				PRINTFORML 「啊，呀哈 屁股……好痛啊，但是也好舒服！！！！」
+				PRINTFORMDW 被在肠内狂暴的肛用振动棒玩弄，萃香沉浸在快感中喘息着……
+			CASE 1
+				PRINTFORML 「肛用振动棒的好处是什么你知道吗——它在里面震的时候会隔着那层薄薄的肉壁刺激到前面的小穴……」
+				PRINTFORML 萃香边说边示范，用手压了压小腹的位置，振动棒的震动立刻透过阴道壁传到了前穴
+				PRINTFORMW 「这样就是同时震两个地方了……性价比很高吧？——别问我为什么知道这些……」
+			CASE 2
+				PRINTFORML 「嗯……今天的振动棒好像比上次调得更高了……是我的错觉吗……」
+				PRINTFORML 萃香皱着眉头，但腰部的扭动幅度却越来越大
+				PRINTFORMW 「不是错觉——你就是故意的……不过算了……反正最后都会变得很舒服……随便你了……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「肛用振动棒……我最期待的环节……♡」
+				PRINTFORML 萃香的后庭甚至在振动棒还没碰到的时候就已经开始微微翕张了
+				PRINTFORML 「快……插进来……把我的后庭填满……让它在里面疯狂地震……♡」
+				PRINTFORMW 振动棒滑入的瞬间，萃香的腿就开始剧烈地颤抖，连带着前面的小穴也喷出了一小股蜜液
+			CASE 1
+				PRINTFORML 「啊哈……后面被撑开的感觉会上瘾的……比前面更紧……更刺激……♡」
+				PRINTFORML 萃香用手把自己的臀瓣掰得更开了，让振动棒能进到最深的位置
+				PRINTFORML 「看着……看着振动棒在我后面进进出出……不许移开视线……♡」
+				PRINTFORMW 她甚至开始用后庭主动去追逐振动棒，每一次拔出她都紧追不舍，每一次插入她都贪婪地吞到根部
+			CASE 2
+				PRINTFORML 「我现在……前后都想被填满……光震后面不够了……前面也要……♡」
+				PRINTFORML 萃香的眼神已经彻底迷乱，一只手伸向自己的蜜穴开始自慰
+				PRINTFORML 「%CALLNAME:MASTER%的手指……给我……手指插到前面来……后面有振动棒，前面有手指……一起……♡」
+				PRINTFORMW 在前后夹击下，萃香的意识断断续续地卡顿着，只能发出不成词的喘息和不间断的爱液
+		ENDSELECT
+		RETURN 1
+	ELSEIF (TALENT:愛欲 || TALENT:炮友 || TALENT:恋慕) && ABL:10:Ａ感覚 > 8
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼…%CALLNAME:MASTER%！%CALLNAME:MASTER%还真是个变态……」
+				PRINTFORMDW 在听到%CALLNAME:MASTER%的请求后，萃香毫不留情的嘲弄起来
+				PRINTFORML 「不过，我好像也不能说%CALLNAME:MASTER%什么呢，所以，把那个放进来吧……」
+				PRINTFORMDL 在确定萃香没有问题后，%CALLNAME:MASTER%将振动棒调到最大功率，将振动棒的前端塞入后庭口当中
+				PRINTFORML 「哈啊  呼，啾，进来了呢……有点……有点难呢……」
+				PRINTFORMDL 虽然只是振动棒的前端，但是高强度的震动频率还是无法承受么
+				PRINTFORML 「不  呼哈，没事，%CALLNAME:MASTER%看着就行了……哈啊……咿呀……」
+				PRINTFORMDL 萃香虽然看上去因为振动棒而有些失力，但是凭借着强大的腰部力量，振动棒肉眼可见的在被吞没
+				PRINTFORMDL 看来以后做爱尽量不要惹她生气，万一直接夹断了就得不偿失了
+				PRINTFORMDL 正当%CALLNAME:MASTER%胡思乱想的时候，萃香已经将整根振动棒吞了进去
+				PRINTFORMDL 肛用振动棒完全收纳在萃香的肠内，偶尔从肛门可以隐约看到肛门的肛用振动棒的圆底面……
+				PRINTFORML  「怎 怎么样，我，我厉害吧！嘿嘿……哈啊……呼姆……」
+			CASE 1
+				PRINTFORML 「又来？%CALLNAME:MASTER%是不是看我看上瘾了——每次都用绝活当借口……」
+				PRINTFORML 萃香嘴上嫌弃着，但实际上已经在做准备了。她把双腿盘成正坐的姿势，双手扶着膝盖
+				PRINTFORML 「这次换个花样……我不用躺，就这样坐着把它吞下去……」
+				PRINTFORMDL 萃香坐直了身体，让振动棒垂直对准了自己的后庭。她闭上眼睛，深呼吸，然后缓缓地坐了下去
+				PRINTFORMDL 这种姿势让振动棒进得比平时任何一次都深，她的表情渐渐从咬牙忍耐变成了无法抑制的享受
+				PRINTFORML 「进来了……到底了……坐着的时候感觉整根都在身体里……好像身体变成了振动棒的外壳……」
+				PRINTFORMDW 她伸手摸了摸自己微微鼓起的小腹，隔着肚皮都能感受到振动棒在里面震动的频率——然后她笑了，笑得又满足又得意
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊哈，要用那种东西？等等……！」
+				PRINTFORMW 在%CALLNAME:MASTER%表示萃香的反对无效后，将振动棒插入萃香的菊花当中
+				PRINTFORML 「哈呀……等，不！？那个，不可以……！！」
+				PRINTFORMW 打开震动棒的开关后，萃香因为过度刺激而让身体不自觉的弯曲……
+			CASE 1
+				PRINTFORML 「后面……后面真的不行……前面随便你怎么弄……但后面请饶了我……」
+				PRINTFORML 萃香的恳求里带着哭腔，但%CALLNAME:MASTER%还是坚持把振动棒的前端抵在了皱褶上
+				PRINTFORML 「唔……！进去了一点就浑身鸡皮疙瘩了……整个后背都在发麻……」
+				PRINTFORMW 尽管嘴上说着不行，但她的身体并没有真的抗拒——括约肌在最初的紧张后开始缓慢地接纳振动棒的进入
+			CASE 2
+				PRINTFORML 「连后面都要被开发……我觉得自己作为鬼的尊严正在一点点消失……」
+				PRINTFORML 萃香自嘲地笑了，但那笑声很快就被振动棒的嗡嗡声吞没
+				PRINTFORMW 「不过反正前面早就没有了……后面再多一个也无所谓了……随便你吧……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ELSE
+	IF FLAG:時間停止
+		IF TALENT:恋慕
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的震动棒从萃香体内拔了出来
+			PRINTFORMDL 后庭在振动棒离开后一时间还合不拢，在静止的空气中慢慢缩回原本的大小
+			PRINTFORMDW 看着那圈被撑开的粉嫩皱褶一点点收拢回去，%CALLNAME:MASTER%觉得自己理解了一些关于时间与自己之间的哲学命题
+		ELSE
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的震动棒从萃香体内拔了出来
+			PRINTFORMDL 正如插进去的时候一样，在振动棒拔出来的时候。萃香依旧没有什么反应
+			PRINTFORMDW 被扩张过的后庭在静止的时间中缓缓收缩，像个不知疲倦的小嘴在一开一合
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……振动棒，拔出来啦……」
+				PRINTFORMDL 扩展到振动棒形状的萃香后庭口正在缓慢地收缩着
+				PRINTFORMW 「后面和前面同时空掉了……感觉能塞进三根手指……不对我在想什么……」
+			CASE 1
+				PRINTFORML 「拔出来之后……后面总是有段时间收不回去……走路都觉得怪怪的……」
+				PRINTFORML 萃香捂着臀部，小心翼翼地换了个姿势
+				PRINTFORMW 「不过……那个感觉其实也不讨厌……就是会一直提醒我刚才做了什么……」
+			CASE 2
+				PRINTFORML 「每次结束之后照镜子……后面的小孔都红红的……像是被欺负过一样……」
+				PRINTFORML 萃香脸红到脖子的样子让%CALLNAME:MASTER%忍不住笑了一声，结果被她用枕头扔了个正着
+				PRINTFORMW 「笑什么笑！！是你自己造成的！！你要负起责任——至少帮我揉揉……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「终于结束了……后面感觉留下了一个洞……」
+				PRINTFORML 萃香伸手摸了摸自己的后庭，指尖被温热柔软的皱褶吓了一跳
+				PRINTFORMW 「还真的开了……收回去需要多久啊……你不会让我一直这样吧……」
+			CASE 1
+				PRINTFORML 「拔掉的时候整个人轻了十斤……然后空虚了二十斤……到底哪个更多……」
+				PRINTFORML 萃香趴在床上数着自己的矛盾，最后干脆放弃了思考
+				PRINTFORMW 「算了不想了……反正下次你又会上……我是个笨蛋才会在这里想这些无聊的问题……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……振动棒，拔出来啦……」
+				PRINTFORMDL 扩展到振动棒形状的萃香后庭口正在缓慢地收缩着
+				PRINTFORMW 「还不错，不过还是真人比较暖和。下次你亲自来好不好？」
+			CASE 1
+				PRINTFORML 「拔出来的瞬间感觉肠子都要跟着一起出去了……真是猛……」
+				PRINTFORML 萃香毫不扭捏地揉着自己的后庭，帮肌肉恢复原来的形状
+				PRINTFORMW 「喂别盯着看了，等下还要用的地方你看太仔细我反而紧张的——不是说要用真货替换吗？」
+			CASE 2
+				PRINTFORML 「论持久战还是振动棒比较强……毕竟人总有力竭的时候，机器不会……」
+				PRINTFORML 萃香对着拔出来的振动棒点了点头，像是在对值得尊敬的对手致意
+				PRINTFORMW 「不过论爽度还是真人赢——所以下次别偷懒了！」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊，呼哈……终于拔出来了……」
+				PRINTFORMW 萃香似乎松了一口气，开始调整着呼吸。她用手护着自己的后庭，连碰一下都觉得不行了
+			CASE 1
+				PRINTFORML 「感觉后面已经不是自己的了……还在自己动……明明已经没有东西了……」
+				PRINTFORMW 萃香趴在床上，手指抓紧了床单。每次后庭不自主地收缩一下时，她的肩膀就跟着抖一下
+		ENDSELECT
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;46,後庭拉珠（被封印了）
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_46
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF TEQUIP:46
+	IF TALENT:恋慕
+		PRINTFORML 
+		RETURN 1
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORML 
+		RETURN 1
+	ELSE
+		PRINTFORML 
+		RETURN 1
+	ENDIF
+ELSE
+	IF TALENT:恋慕
+		PRINTFORML 
+		RETURN 1
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORML 
+		RETURN 1
+	ELSE
+		PRINTFORML 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;47,乳頭夾
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_47
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「乳头夹……这是要夹在……那种地方的吗？」
+				PRINTFORML 萃香下意识地用手臂挡住了胸前的两枚小小的粉色突起
+				PRINTFORML 「我的胸部本来就不大……再夹这种东西……会不会变得更平……」
+				PRINTFORMW 虽然担心着莫名其妙的事情，她还是红着脸把手臂放了下来
+			CASE 1
+				PRINTFORML 「夹在乳头上……会痛吗……会留下印子吗……」
+				PRINTFORML 萃香用手指不安地碰了碰自己的乳头，那一碰之下它便微微挺立了起来
+				PRINTFORMW 「它自己站起来了……不是我的意思……好吧……夹就夹吧……」
+			CASE 2
+				PRINTFORML 「虽然我的胸部很小……但是被当成道具的支点应该够了……」
+				PRINTFORML 萃香低头看着自己平坦的胸口，语气里带着一点点自卑和自嘲
+				PRINTFORMW %CALLNAME:MASTER%捧着她的脸让她抬起头来，然后用嘴唇轻轻碰了一下她的锁骨——告诉她小胸也很可爱
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「乳头也要夹吗……你到底有多少关于我身体的计划啊……」
+				PRINTFORML 萃香嘴上抱怨着，但还是把衣领往下拉了拉，露出了小小的突起
+				PRINTFORMW 「说好了不许笑我……我知道很小……但你不能笑……」
+			CASE 1
+				PRINTFORML 「乳头夹……听名字就知道用在哪里……还挺直白的……」
+				PRINTFORML 萃香摸了摸自己的乳头，似乎在提前预习被夹住的感觉
+				PRINTFORMW 「来吧……反正迟早都要被你用上的……早一点晚一点都一样……」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「乳头夹？听说夹这个会很敏感……」
+				PRINTFORML 萃香歪着头打量着小夹子，嘴角逐渐上扬
+				PRINTFORMW 「来来来，让我亲身体验一下你说的敏感到底有多敏感——别手下留情哦~」
+			CASE 1
+				PRINTFORML 「这是乳用的夹子啊……你终于也对我的乳头感兴趣了~」
+				PRINTFORML 萃香用手指捏了捏自己的乳头，把它们弄得挺立起来以便夹子能准确命中
+				PRINTFORMW 「准备好了。夹吧——然后告诉我你看了有什么感想。」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「夹子！？夹在哪里！！」
+				PRINTFORML 萃香本能地双手抱胸，但%CALLNAME:MASTER%已经把夹子拿在了手里
+				PRINTFORMW 「那里不行！虽然不是下面但那里也很敏感的！！你是不是想把我的弱点全部开发一遍！！」
+			CASE 1
+				PRINTFORML 「下面也就罢了……为什么连上面都要……」
+				PRINTFORML 萃香无可奈何地捂着额头，但眼角却在偷看那枚小小的夹子
+				PRINTFORMW 「好吧……但是只有一次……以后……以后的事情以后再说……」
+			CASE 2
+				PRINTFORML 「这个！这个东西我见过！是用来——夹痛的！！对吧！！」
+				PRINTFORML 萃香的声音里满是确信，仿佛自己已经识破了一个惊天阴谋
+				PRINTFORMW 「不是用来夹痛的？……那夹在那种地方到底有什么意义啊人类！！太奇怪了你们！！」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+IF TEQUIP:47
+	IF FLAG:70
+		IF TALENT:恋慕
+			PRINTFORMDL 在时间停止的时候，将乳头夹夹在了她那小小的凸起上
+			PRINTFORMDL 虽然萃香没有任何回应，但那两枚粉色的乳头在夹子的作用下微微胀大
+			PRINTFORMDW 即使时间停止也无法阻止身体的生理反应——这让%CALLNAME:MASTER%在这份寂静中找到了某种诗意
+		ELSEIF TALENT:思慕
+			PRINTFORMDL 在静止的时间中，小小的夹子咬住了萃香同样小小的乳头
+			PRINTFORMDL 如果时间流动，她大概会先惊叫一声然后脸红到说不出话吧
+			PRINTFORMDW 可惜没有如果——%CALLNAME:MASTER%享受着这份只有自己知道的秘密构图
+		ELSE
+			PRINTFORMDL 在时间停止的时候，将乳头夹夹在了她那小小的凸起上
+			PRINTFORMDL 但是萃香并没有任何的回应，甚至哪怕只是一声呻吟都没有做到
+			PRINTFORMDW 趁着她毫无反应，%CALLNAME:MASTER%又轻轻拨弄了一下夹子，看它在静止的空气中微微晃动
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「又要用那个了么？%CALLNAME:MASTER%真是大变态！」
+				PRINTFORMDW 无视着萃香的抱怨，%CALLNAME:MASTER%将乳头夹夹了上去
+				PRINTFORML 「咿呼！嗯唔，这个…有点痛呢」
+				PRINTFORMDW 萃香晃动着身体，似乎是想要将乳头夹甩下去一样……
+			CASE 1
+				PRINTFORML 「呼姆…%CALLNAME:MASTER%！变态、色鬼、虐待狂……」
+				PRINTFORMDW 没有理会萃香的挑衅，%CALLNAME:MASTER%将乳头夹按了上去
+				PRINTFORML 「%CALLNAME:MASTER%！！！」
+				PRINTFORMDL %CALLNAME:MASTER%安慰着萃香的同时，用手揉搓着乳房
+				PRINTFORML 「变态………」
+				PRINTFORMW 嘴上虽然骂着，但萃香的身体却不再晃动，安静地接受了乳头夹的存在
+			CASE 2
+				PRINTFORML 「夹子夹在乳头上……然后你一揉乳房，夹子就跟着动……乳头被扯来扯去……」
+				PRINTFORML 萃香试图用分析物理原理来分散注意力，但声音却越来越软
+				PRINTFORML 「物理攻击和快感攻击的叠加……你是战术家吗……唔嗯……」
+				PRINTFORMW %CALLNAME:MASTER%没有回答，只是继续缓缓揉搓着，让夹子在乳头上来回拉扯
+			CASE 3
+				PRINTFORML 「两个乳头都被夹住的时候……即使衣服轻轻擦过都会浑身一颤……」
+				PRINTFORML 萃香小心翼翼地调整着姿势，但每一动夹子就跟着晃
+				PRINTFORML 「这个比我以为的还要猛……只是让它安静地夹着就已经用掉我半条命了……%CALLNAME:MASTER%不要揉……求你了……」
+				PRINTFORMW 但%CALLNAME:MASTER%的手还是伸向了她胸前——然后萃香的抗议全部化作了一声长长的颤音
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……夹上了……这次好像没有上次那么疼……」
+				PRINTFORML 萃香低头看着自己胸前多出来的两枚金属装饰，眼神里有困惑也有好奇
+				PRINTFORMW 「乳头自己变得硬硬的……和夹子配合得很好……这样就能站起来了呢……」
+			CASE 1
+				PRINTFORML 「乳头被夹着的滋味……现在好像能习惯了……」
+				PRINTFORML 萃香的语气里带着一丝隐隐的自豪，仿佛克服了什么了不得的困难
+				PRINTFORMW 「一开始只是痛……现在开始觉得痒痒的……这就是你说的会慢慢变舒服那个阶段吧……」
+			CASE 2
+				PRINTFORML 「夹着的时候……感觉比平时更容易注意到乳头的存在……」
+				PRINTFORML 萃香伸出脚尖轻轻碰了碰夹子的一端，立刻像被微小的电流打了一下似的抖了抖
+				PRINTFORMW 「身体是不是慢慢变得奇怪了……以前摸乳头都没有这么敏感的……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「又是用那个了么？相比之下，明明%CALLNAME:MASTER%的手更好啊」
+				PRINTFORMDW 拍开萃香的伸向下面的手，%CALLNAME:MASTER%将乳头夹安在了萃香身上
+				PRINTFORMDL 她那微弱的凸起被夹住后，身体因快感而颤抖起来
+				PRINTFORML 「呜呼，好、好舒服！」
+				PRINTFORMDW 萃香沉浸在快感中喘息着……
+			CASE 1
+				PRINTFORML 「乳头夹就是那种一开始没什么但取下来的时候会爆发的类型对吧~我懂的~」
+				PRINTFORML 萃香像个老练的鉴赏家一样对道具的效果了如指掌
+				PRINTFORMW 「所以趁它现在还在温和期多夹一会……养精蓄锐迎接后面的爆发……啊，你是不是嫌我说太多话了？」
+			CASE 2
+				PRINTFORML 「我的乳头本来就不大，夹子一夹就完全被夹子抢镜了好吗——都看不见乳头了只剩夹子……」
+				PRINTFORML 萃香低头端详着自己胸前的新装备，脸上写满了哭笑不得
+				PRINTFORMW 「好吧好吧别用那种眼神看我……我知道你盯着看了……看就看吧反正已经被你看了无数次了……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「乳头夹！！快夹上来！！我的乳头已经等不及要被人欺负了……♡」
+				PRINTFORML 萃香主动把自己的乳头捏得挺立，甚至还用手指弹了几下测试敏感度
+				PRINTFORML 「都已经这么硬了……夹上去一定很舒服的……快……♡」
+				PRINTFORMW 夹子合上的瞬间，一道细细的乳汁从她的乳头尖端被挤了出来，配合着她失声的尖叫，画面淫靡得让人移不开眼
+			CASE 1
+				PRINTFORML 「啊……夹上来的瞬间感觉全身都通了电……从乳头到下面连成了一条线……♡」
+				PRINTFORML 萃香用手指沿着自己身体的中线从胸口一路划到小腹，仿佛在画一张快感的地图
+				PRINTFORML 「你看……乳头一被夹……小穴就湿了……连碰都不用碰……乳头就是我的开关……♡」
+				PRINTFORMW 她拉着%CALLNAME:MASTER%的手放在自己湿润的大腿之间，让他亲手验证自己这坦诚到极点的生理反应
+			CASE 2
+				PRINTFORML 「乳头夹夹着的时候……如果能把下面的豆豆也夹上……上面和下面就会同时跳了……♡」
+				PRINTFORML 萃香一边享受着乳头上的压迫感，一边用眼神扫向%CALLNAME:MASTER%的道具箱
+				PRINTFORMW 「阴蒂夹也在里面对不对……一起给我戴上嘛……求你了……让我全身都变成夹子的玩具……♡」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊哈，要用那种东西？等等……！」
+				PRINTFORMW 在%CALLNAME:MASTER%表示萃香的反对无效后，将乳头夹按在了微有勃起的乳头上
+				PRINTFORML 「哈呀……等，不！？那个，不可以……！！」
+				PRINTFORMW 乳头被夹住的一瞬间，萃香浑身一颤，但很快就发现似乎也没有那么可怕
+			CASE 1
+				PRINTFORML 「夹在乳头上的话……以后会不会变得超级敏感啊……」
+				PRINTFORML 萃香担忧地皱起了眉头，但身体却在确认夹子不会太痛后放松了下来
+				PRINTFORMW 「算了……自己的身体会变成怎样就怎样吧……反正迟早都是你也控制不了我……大概……」
+			CASE 2
+				PRINTFORML 「唔……乳头被夹住之后，感觉胸部整个都变得不一样了……」
+				PRINTFORML 萃香用手指轻轻戳了戳另一边没被夹的乳头，然后若有所思地比较着两者的差异
+				PRINTFORMW 「被夹着的这边明显更……更有存在感。这不是在夸你道具好用哦，只是在陈述事实……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ELSE
+	IF FLAG:時間停止
+		IF TALENT:恋慕
+			PRINTFORMDL %CALLNAME:MASTER%将乳头夹从萃香身上放了下来
+			PRINTFORMDL 夹子取下的瞬间，被压迫的乳头在静止的空气中弹回了原状，颜色却比之前更红了一些
+			PRINTFORMDW 看着那两枚被夹出印子的可怜突起，%CALLNAME:MASTER%轻轻吻了一下，仿佛在为它们道歉
+		ELSE
+			PRINTFORMDL %CALLNAME:MASTER%将乳头夹从萃香身上放了下来
+			PRINTFORMDL 正如安上去的时候一样，在放下来的时候。萃香依旧没有什么反应
+			PRINTFORMDW 取下夹子后，乳头上的压痕清晰可见，像是两枚小小的勋章
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……放下来啦……」
+				PRINTFORML 萃香揉着自己被夹得发红的乳头，脸上露出如释重负的表情
+				PRINTFORMW 「但是取下来的瞬间……血流一下子就涌上来了……乳头变得超级敏感……你现在碰一下试试看……我肯定叫出来……」
+			CASE 1
+				PRINTFORML 「每次放下来的时候……乳头都会比平时挺立好几个小时……穿衣服都会看出来……」
+				PRINTFORML 萃香低头看着自己胸前那两枚还在微微颤抖的突起，叹了口气
+				PRINTFORMW 「你要负责……至少要帮我揉到消下去为止……反正都是你造成的……」
+			CASE 2
+				PRINTFORML 「终于取下来了……乳头都变红了……你看，还有印子……」
+				PRINTFORML 萃香指着自己被夹出痕迹的乳头，语气里带着可怜的成分，眼睛里却没有一丝埋怨
+				PRINTFORMW 「不过……在夹着的时候不小心叫得太大声了……隔壁房间……应该没听到吧……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「放下来了……但是乳头还在跳……自己就会跳……好奇怪……」
+				PRINTFORML 萃香用手指轻轻压了压还在自主搏动的乳头，立刻触电般缩回了手
+				PRINTFORMW 「太敏感了……碰不了……得让它自己慢慢安静下来……」
+			CASE 1
+				PRINTFORML 「终于放下来了……但总觉得少了点什么……」
+				PRINTFORML 萃香下意识地摸了摸自己刚刚被夹过的乳头，然后意识到自己做了什么，瞬间脸红
+				PRINTFORMW 「不是喜欢夹子！！只是摸了摸确认有没有事而已！！你不要想太多！！」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……放下来啦……」
+				PRINTFORML 萃香看着取下夹子后格外挺立的乳头，露出了满意的表情
+				PRINTFORMW 「效果不错——乳头现在站得很漂亮。下次要不要试试小铃铛那种？」
+			CASE 1
+				PRINTFORML 「取下来的一瞬间——感觉乳头自己高潮了。就只是取下来而已，太夸张了……」
+				PRINTFORML 萃香捂着自己的胸口，双腿不由自主地夹紧——乳头的高潮直接传导到了下半身
+				PRINTFORMW 「这个后劲儿太可怕了……但我可以非常肯定地告诉你我还会再用……」
+			CASE 2
+				PRINTFORML 「取下来之后帮忙舔一下呗……被夹了那么久乳头都凉了……」
+				PRINTFORML 萃香往前倾了倾身子，把被夹到挺立的乳头直直地送到%CALLNAME:MASTER%唇边
+				PRINTFORMW 「不用你说我也知道你在想什么……来吧……是你说要帮我取暖的……」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊，呼哈……终于放下来了……」
+				PRINTFORMW 萃香似乎松了一口气，但双手却仍然挡在胸前，不让%CALLNAME:MASTER%看到被夹器留下痕迹的乳头
+			CASE 1
+				PRINTFORML 「虽然不想承认……但夹着的时候又痛又有一种说不清的感觉……」
+				PRINTFORMW 萃香一边揉着被夹过的乳头一边嘟囔着，脸上写满了对自己身体反应的困惑
+		ENDSELECT
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;48,搾乳機
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_48
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「榨乳机……这个东西……是放在胸上的？」
+				PRINTFORML 萃香看着那对透明的罩杯和连接着的橡胶管，脸上写满了好奇和紧张
+				PRINTFORML 「可是……我的胸这么小……真的能榨出东西来吗……」
+				PRINTFORMW %CALLNAME:MASTER%微笑着把罩杯按上她小小的乳房——虽然不是很大，但刚好能吸住，完美密合
+			CASE 1
+				PRINTFORML 「这个机器好像有点吓人……管子什么的……像医院里的东西……」
+				PRINTFORML 萃香缩着肩膀，但%CALLNAME:MASTER%已经把第一个罩杯安了上去
+				PRINTFORML 「呜……吸住了……凉凉的……然后会怎样……为什么它开始动了！！」
+				PRINTFORMW 机器启动的嗡嗡声让她惊得坐直了身体，但吸力已经开始了，她逃不掉了
+			CASE 2
+				PRINTFORML 「这就是传说中的榨乳机……我在书里看到过……说人类的牧场里用的就是类似原理的东西……」
+				PRINTFORML 萃香的知识储备派上了用场，但理论知识和实际体验是两回事
+				PRINTFORMW 「我、我可以当你的实验对象……但你要是弄痛我了我就咬你……」
+		ENDSELECT
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「这个……是吸奶的机器……你不是认真的吧……」
+				PRINTFORML 萃香的表情由怀疑转为惊讶再转为认命，只花了短短三秒
+				PRINTFORMW 「我的确说过你想用什么都可以……但我当时没想到你会变出这种东西来……」
+			CASE 1
+				PRINTFORML 「机器吸住胸部的感觉……我完全没有概念……完全想象不出来……」
+				PRINTFORML 萃香闭上眼睛做了个深呼吸，像是准备潜水一样
+				PRINTFORMW 「好，来吧。不管是什么感觉，我都会挺过去——然后告诉你我的感想的。」
+		ENDSELECT
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「榨乳机！！我就知道你迟早会买这个！！」
+				PRINTFORML 萃香两眼放光地从%CALLNAME:MASTER%手中抢过罩杯，自己对着胸部比划了起来
+				PRINTFORMW 「来来来，你负责操作机器，我负责被榨——分工明确，开始吧！」
+			CASE 1
+				PRINTFORML 「啊，榨乳机啊……听说能同时刺激乳头和有节奏地拉扯胸部……」
+				PRINTFORML 萃香在听到机器启动的蜂鸣声时，眼睛眯成了一条邪魅的弧线
+				PRINTFORMW 「比我期待的还要有气势的声音……希望它的实力和它的嗓门一样强呢~」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「榨乳机！？你把我当成什么了！！我是鬼！！不是牛！！」
+				PRINTFORML 萃香像是被冒犯了一样大声抗议，双手交叉死死护住自己的胸部
+				PRINTFORMW 「再过来我就用角撞你！！鬼族的角很硬的！！破皮了我不赔！！」
+			CASE 1
+				PRINTFORML 「等等……这个东西是用来榨什么的……奶……？」
+				PRINTFORML 萃香低头看了看自己平坦的胸口，然后又看了看嗡嗡作响的榨乳机，脸上浮现出极度困惑的表情
+				PRINTFORMW 「从哪里榨？？你看这是有东西能榨出来的样子吗！？你数学是不是不及格！！」
+			CASE 2
+				PRINTFORML 「人类居然连这种东西都有……你们的科技树到底是怎么点的……」
+				PRINTFORML 萃香揉了揉太阳穴，仿佛在消化这个巨大的文化冲击
+				PRINTFORMW 「好吧……看在你是真的准备了这么精良的装备的份上……就体验一下……但真的有东西出来不许嘲笑我……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+IF TEQUIP:48
+	IF FLAG:70
+		IF TALENT:恋慕
+			PRINTFORMDW 在时间停止的时候，将榨乳器放在了萃香的乳房上
+			PRINTFORMDL 看着毫无反应的萃香，%CALLNAME:MASTER%打开了榨乳机的开关
+			PRINTFORMDL 虽然她不会知道发生了什么，但透明的罩杯中渐渐出现了一层薄薄的白雾——那是她的身体在无知觉中给出的馈赠
+			PRINTFORMDW 在静止的世界里，只有榨乳机规律的嗡嗡声和杯中越聚越多的乳汁，安静而美妙
+		ELSEIF TALENT:思慕
+			PRINTFORMDL 在静止的时间里，%CALLNAME:MASTER%将榨乳机仔细地安放在了萃香的胸部上
+			PRINTFORMDL 打开开关后，透明的罩杯里很快便弥漫起了一层薄薄的白色
+			PRINTFORMDW 虽然她毫不知情，但身体比意识更诚实——乳汁在规律的吸附节奏下一滴滴地汇聚了起来
+		ELSE
+			PRINTFORMDW 在时间停止的时候，将榨乳器放在了萃香的乳房上
+			PRINTFORMDL 看着毫无反应的萃香，%CALLNAME:MASTER%打开了榨乳机的开关
+			PRINTFORMDW 很显然，依旧是无用功，但%CALLNAME:MASTER%发现有乳汁被榨取出来，那就够了
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「又要用那个了么？真讨厌」
+				PRINTFORMDW 无视着萃香的抱怨，%CALLNAME:MASTER%将榨乳机安在了萃香的胸口
+				PRINTFORML 「咿呼！嗯唔，这个…太厉害了！这样的话，马上，马上就要去了❤」
+				PRINTFORMDW 在榨乳机的榨取下，白色的乳汁缓缓流了出来……
+			CASE 1
+				PRINTFORML 「呼姆…%CALLNAME:MASTER%！变态、色鬼、虐待狂……」
+				PRINTFORMDW 没有理会萃香的挑衅，%CALLNAME:MASTER%将榨乳机按了上去
+				PRINTFORML 「%CALLNAME:MASTER%…%CALLNAME:MASTER%等下，拜托！呀啊……」
+				PRINTFORMDL %CALLNAME:MASTER%用调笑的语气安慰着萃香，打开了榨乳机的开关
+				PRINTFORML 「啊啊啊啊啊！  哈啊，呀啊！啊，这个、有些…啊！」
+				PRINTFORMW 榨乳机全力工作下，萃香因为快感而悲鸣起来
+			CASE 2
+				PRINTFORML 「每次被榨的时候……都觉得自己像是%CALLNAME:MASTER%养的小宠物……」
+				PRINTFORML 萃香抬头看着%CALLNAME:MASTER%操作机器的专注表情，声音软得像化了一半的糖
+				PRINTFORML 「不过如果是%CALLNAME:MASTER%养的……那好像也不错……被榨出奶来给你喝……」
+				PRINTFORMW 她说话的时候，罩杯里已经集起了浅浅一层乳白色的液体，每一滴都闪着温润的光泽
+			CASE 3
+				PRINTFORML 「嗯……榨乳的节奏……比上次更熟练了呢……你背着我偷偷看说明书了？还是看了教学视频？」
+				PRINTFORML 萃香还能半开玩笑地说话，但声音已经开始发抖，手也抓紧了床单
+				PRINTFORML 「乳头在吸力下一伸一缩的……感觉像是在被你用嘴吸……但是更持久……更快……啊啊……」
+				PRINTFORMW 玩笑话到此为止——她的腰开始不自觉地挺起，身体完全投入到了被榨取的本能快感里
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……被机器吸住之后……完全动不了呢……」
+				PRINTFORML 萃香低头看着自己胸前嗡嗡作响的机器，脸上的表情渐渐从紧张变得柔和
+				PRINTFORML 「但是被这样吸着吸着……就感觉身体从乳头开始一点一点融化掉了……」
+				PRINTFORMW 她的声音越来越轻，最后几乎和榨乳机的声音融在了一起
+			CASE 1
+				PRINTFORML 「上次被榨的时候看到出来的奶还觉得好丢脸……现在好像已经习惯了……」
+				PRINTFORML 萃香看着罩杯里慢慢蓄起的白色乳汁，嘴角居然浮现了一个无奈的笑
+				PRINTFORMW 「习惯是好事吗……至少证明身体是健康的……对吧……能稳定量产了……呜我在说什么……」
+			CASE 2
+				PRINTFORML 「榨乳的时候……脑子会变得空空的……什么都不会想……」
+				PRINTFORML 萃香半闭着眼睛，任由榨乳机规律的节律把她带进一个半梦半醒的状态
+				PRINTFORMW 「很舒服……比你用手揉还要舒服……但是不能告诉你，不然你以后就不用手了……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「又是用那个了么？相比之下，还是更想要%CALLNAME:MASTER%亲自揉搓呢」
+				PRINTFORMDW 拍开萃香的伸向下面的手，%CALLNAME:MASTER%将榨乳机安在了萃香的胸口
+				PRINTFORMDL 将榨乳机的开关打开后，可以看见萃香正在勉强的压制着表情……
+				PRINTFORML 「啊，呀哈 唔姆……」
+				PRINTFORMDW 无法忍耐的萃香沉浸在快感中喘息着……
+			CASE 1
+				PRINTFORML 「榨乳机的好处就是不会手酸——所以可以一直榨一直榨直到一滴都不剩……」
+				PRINTFORML 萃香看着罩杯里逐渐积累的乳汁，像是在观察某种有趣的化学实验
+				PRINTFORMW 「今天的产量看起来不错……你要不要猜猜我能撑多久？猜对了有奖励哦。」
+			CASE 2
+				PRINTFORML 「奶牛游戏对吧……我知道我知道。你看着我这里出了多少奶然后在心里打分对吧~」
+				PRINTFORML 萃香的眼神锐利地扫了%CALLNAME:MASTER%一眼，然后立刻被一波强吸力打乱了节奏
+				PRINTFORMW 「唔……！刚想保持帅气的形象就被机器打脸了……好吧我认输……你想看多久看多久……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「榨乳机……只要被这个吸住乳头……下面就自己开始发大水了……♡」
+				PRINTFORML 萃香已经完全不需要前戏，光是听到机器启动的声音，内裤就已经湿透了
+				PRINTFORML 「快……吸上去……把里面所有的奶都吸出来给你……♡」
+				PRINTFORMW 当第一股乳汁被抽出时，萃香的身体猛地弓了起来，同时蜜穴也喷出了一道透明的爱液——双重分泌，同步抵达
+			CASE 1
+				PRINTFORML 「啊哈……看……看这个……乳头被吸得变长了……已经在罩杯里拉得像小指这么长……♡」
+				PRINTFORML 萃香用手指戳了戳透明的罩杯，乳汁在杯壁上滑出了漂亮的花纹
+				PRINTFORML 「这些奶……你想拿它做什么都可以……喝也行，抹在身上也行，收集起来以后浇花也行……♡」
+				PRINTFORMW 说话的时候又有好几滴乳液顺着罩杯的出口滴入了收集瓶，萃香看着那个情景，眼神里满是迷醉
+			CASE 2
+				PRINTFORML 「榨乳机教了我一件事……乳头高潮和下面高潮是分开的、可以同时来的……♡」
+				PRINTFORML 萃香的奶水已经被榨了半瓶，但她依然沉浸在乳头连绵不断的快乐里
+				PRINTFORML 「你看我现在……胸部在榨乳机里高潮……小穴被刚才那波高潮带到现在已经自慰起来了……你想看哪一个高潮就先看哪一个……♡」
+				PRINTFORMW 说完她便彻底放弃了对身体的控制权，在榨乳机的伴奏下弹奏着由乳房和蜜穴组成的双声部乐章
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊哈，要用那种东西？等等……！」
+				PRINTFORMW 在%CALLNAME:MASTER%表示萃香的反对无效后，将榨乳机安在了萃香的乳房上
+				PRINTFORML 「哈呀……等，不！？那个，不可以……！！」
+				PRINTFORMW 打开榨乳机的开关后，萃香因为过度刺激而让身体不自觉的弯曲……
+			CASE 1
+				PRINTFORML 「吸住了……胸口好奇怪……有东西在往外扯……」
+				PRINTFORML 萃香低头看着在罩杯里变形的乳尖，脸上写满了世界观被刷新的表情
+				PRINTFORMW 「人类的机器太可怕了……连鬼都顶不住……但比起这个更可怕的是——居然真的有东西出来了……我的身体到底怎么回事……」
+			CASE 2
+				PRINTFORML 「榨乳这件事的原理我懂了……但为什么被榨的时候会舒服这件事我完全不懂……」
+				PRINTFORML 萃香的抗议声在榨乳机的节奏下变得越来越小
+				PRINTFORMW 「等我搞懂了为什么再说服你……现在……先让它再吸一会……就一会儿……不是因为我喜欢……是为了研究……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ELSE
+	IF FLAG:時間停止
+		IF TALENT:恋慕
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的榨乳机从萃香身上放了下来
+			PRINTFORMDL 取下罩杯后，乳头还在微微地颤动着，上面残留着细小的乳滴
+			PRINTFORMDW 在将榨乳机放置好之后，%CALLNAME:MASTER%温柔地舔舐着乳房上残留的乳汁——虽然是偷来的吻，但有偷来的甜
+		ELSE
+			PRINTFORMDL %CALLNAME:MASTER%将还在工作的榨乳机从萃香身上放了下来
+			PRINTFORMDL 在将榨乳机放置好之后，舔掉了乳房上残留的乳汁
+			PRINTFORMDW 榨乳机收集瓶里的奶量意外地多——看来连时间停止也无法阻止身体的诚实产出
+		ENDIF
+		RETURN 1
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……解除了……」
+				PRINTFORMDL 萃香看着因榨乳器而变得有些红肿的胸部，嘟囔了起来
+				PRINTFORMW 「但是……被榨出来的那些……你想喝就喝吧……反正就是为你准备的……」
+			CASE 1
+				PRINTFORML 「每次解下来的时候奶头都变得大了一圈……而且比以前红好多……」
+				PRINTFORML 萃香用手托起自己小小的乳房仔细观察，语气里混合着担忧和一丝骄傲
+				PRINTFORMW 「虽然变红了……但是也变得更敏感了……感觉过一会再碰一下还是要叫出来……你可要负责到底……」
+			CASE 2
+				PRINTFORML 「今天的产量有多少？我看收集瓶里有不少……」
+				PRINTFORML 萃香拿起收集瓶，对着光看着里面乳白色的液体，嘴角浮现了一个温柔的微笑
+				PRINTFORMW 「虽然是被机器榨出来的……但也是我的东西……愿意喝的人只有你一个……所以要好好喝完，不许浪费。」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:思慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「终于结束了……胸部感觉被掏空了一样……但是空得挺舒服的……」
+				PRINTFORML 萃香揉了揉自己被榨过的乳房，指尖碰到乳头的时候还是忍不住轻微一颤
+				PRINTFORMW 「里面真的什么都没有了……但是等一会它自己又会长出来的样子……真是神奇的身体……」
+			CASE 1
+				PRINTFORML 「解下来之后胸部还是很敏感……先不要碰……让我自己缓缓……」
+				PRINTFORML 萃香用手轻轻覆住胸部，通过自己的体温来安抚被机器折腾过的肌肤
+				PRINTFORMW 「不过那个瓶子里的……你真的要喝吗……那好吧……喝了之后告诉我是什么味道……我自己不好意思喝……」
+		ENDSELECT
+		RETURN 1
+	ELSEIF TALENT:炮友 || TALENT:愛欲
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀！终于……解除了……」
+				PRINTFORMDL 萃香看着因榨乳器而变得有些红肿的胸部，嘟囔了起来
+				PRINTFORMW 「今天的成果——请享用。不接受退货，因为都是新鲜出炉的。」
+			CASE 1
+				PRINTFORML 「榨完之后的乳头看起来特别精神——这是唯一比用嘴更有效的美容术。」
+				PRINTFORML 萃香低头看着自己被吸到挺立得过分了的乳头，满意地点了点头
+				PRINTFORMW 「接下来你想用嘴接棒还是让它们再红一阵？我无所谓——反正爽的是我。」
+			CASE 2
+				PRINTFORML 「产量稳步提升，质量优良——可以上市了。当然唯一客户只有你一个所以经营模式是家族企业。」
+				PRINTFORML 萃香一边开着玩笑一边把收集瓶推到了%CALLNAME:MASTER%面前
+				PRINTFORMW 「来，股东。尝尝本季度的分红如何。」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊，呼哈……终于……」
+				PRINTFORMW 萃香似乎松了一口气，开始调整着呼吸。她偷偷瞟了一眼收集瓶里的液体，又飞快地移开了视线
+			CASE 1
+				PRINTFORML 「胸部的感觉从刚才开始就一直停不下来……明明已经解下来了……」
+				PRINTFORMW 萃香抱着膝盖坐着，把脸埋进手臂里，只露出已经红透的耳朵顶端
+		ENDSELECT
+	ENDIF
+ENDIF
+RETURN 0
+
+;==================================================
+;49,乳頭跳蛋
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_49
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF TALENT:恋慕
+	PRINTFORML 
+	RETURN 1
+ELSEIF MARK:不埒刻印 == 3
+	PRINTFORML 
+	RETURN 1
+ELSE
+	PRINTFORML 
+	RETURN 1
+ENDIF
+RETURN 0
+
+;==================================================
+;50,避孕套装备
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_50
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF FLAG:70
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF FIRSTTIME(SELECTCOM)
+	PRINTFORML 
+	RETURN 1
+ENDIF
+IF TALENT:恋慕
+	PRINTFORML 
+	RETURN 1
+ELSEIF MARK:不埒刻印 == 3
+	PRINTFORML 
+	RETURN 1
+ELSE
+	PRINTFORML 
+	RETURN 1
+ENDIF
+RETURN 0

@@ -1,0 +1,3284 @@
+﻿;-------------------------------------------------
+;指令系总览
+;-------------------------------------------------
+;
+;调用位置：绝大多数指令的剧本侧文本函数，仅在@SOURCE_CHECK中调用，受剧本文本统一管理接口@KOJO_MESSAGE_SEND控制；
+;
+;注释：TW本体的指令流程，以某种方式跳过了原生的指令打印，也不使用指令触发器（EVENTCOM）管理指令。实际的指令触发、数值结算和文本调用都在@SOURCE_CHECK数值结算函数中完成。@SOURCE_CHECK就是eraTW独特的指令触发流程统合函数。
+;*存在不进入@SOURCE_CHECK中调用的指令。这样的指令会通过@KOJO_MESSAGE_SEND的"DIRECT"接口直接调取文本函数体，跳过MESSAGE系的其他控制函数。
+;**存在指令失败导致无法调用对应文本的情况。这样的指令会通过@COM_KOJO_CALL直接调取文本函数体，跳过MESSAGE系的其他控制函数。
+;***COM_KOJO_CALL比"DIRECT"接口多一个功能，即它可以调用SCOM（派生指令）的文本，除此之外，两者行为大抵相同，均为跳过情景描写接口@TRAIN_MESSAGE和MESSAGE系的文本控制接口MESSAGECHECK。
+;
+;函数流：在@SOURCE_CHECK中，MESSAGE系的*相关*流程为
+;（1）调用剧本侧指令成否判定接口——"SUCCESS"(@M_KOJO_MOMO_SUCCESS_COM_K10_XX)，给予剧本侧判定指令是否成功的控制力。
+;（2）调用指令函数本体@COMXX(指令函数体)
+;（3）调用数值计算控制接口——"EXTRASOURCE"(@M_KOJO_MOMO_EXTRASOURCE_COM_K10_XX)，给予剧本侧修改指令数值的控制力。
+;*这两个接口给予剧本侧对指令行为交互的强大控制力。
+;（4）调用文本控制接口——"MESSAGECHECK"(@M_KOJO_MOMO_MESSAGE_MESSAGECHECK_COM_K10_XX)，用于控制何时需要略过通用的情景描写以及剧本台词
+;（5）调用文本函数体——@M_KOJO_MOMO_MESSAGE_COM_K10_XX
+;
+;*********************************************
+;返回值
+;*********************************************
+;
+;返回值：会逐层传递给剧本统一管理接口@KOJO_MESSAGE_SEND，作为调用自动喘息系统的依据。
+;MESSAGE_COM RETURN 0时，调用自动喘息系统,非0值不调用。自动喘息系统内部会适当判断什么情况输出什么文本。
+;设计意图为，当没有剧本侧台词时，调用系统通用的、函数化台词。
+;也就是说，文本函数的返回值应当遵循这一意图：当输出了有效文本时，在分支结构的最后RETURN 1；当没有输出有效文本时，不做任何处理，让函数返回默认值*0*。
+;
+;中级部分
+;*********************************************
+;指令成否判定函数
+;@M_KOJO_MOMO_SUCCESS_COM_K10_XX
+;*********************************************
+;成功、失败、中止是有关指令失败的混淆点，也是导致需要维护者以额外方法修复指令文本调用的原因。指令失败和指令中止是常出现在注释中的非常暧昧的两个说法。用维护者自己的话来说，指令失败与指令所代表的行动失败是两个概念，可以称为程序级失败与交互级失败。
+;
+;程序级失败是指指令未发生，或被规则完全阻断。
+;
+;·指令没有发生，比如进入有二级界面的指令如饮酒，玩家选择返回；又比如在指令函数体内才执行对象判定的指令（如与孩子互动），检索不到孩子而自动返回。
+;·执行前被中止，比如对反感刻印3的对象听牢骚、或者在关系不好的地主地盘采伐。
+;-通常，以上两种指令状态应当由指令函数体提示失败信息并返回-1，指令触发流程提前中止，不进入数值结算，直接返回交互界面@SHOW_STATUS。
+;
+;第二种情况是程序级失败的特殊形式。为何这么说？因为它非常类似交互级失败。
+;交互级失败是另一个概念，代表指令的行动在交互上导向某种拒绝交互的结果。
+;但是，它是被视为规则上的失败，游戏禁止玩家在某些场合发动某些指令，并通过文本提示这种规则。
+;而交互级失败并非如此，就好比接吻指令允许玩家试图去这么做，可能的交互有角色很高兴、角色很愤怒或难过、角色躲开了。
+;而且很明显，被拒绝交互本身就是一种交互，它不是程序上的禁止交互。
+;-通常，这种指令状态会在函数体内被数值骰子投出失败，并返回0。
+;
+;指令函数返回值的区别：
+;返回-1，@SOURCE_CHECK中止，指令触发流程结束。
+;返回 0，@SOURCE_CHECK跳过数值结算，直接进入文本交互处理。意义在于指令函数无需在交互失败这一特殊分歧中手动清除所提供的各种数值。
+;返回 1，@SOURCE_CHECK正常结算指令函数提供的各种数值。
+;
+;通过返回值可以看出，TW的指令触发流程框架清楚区分了什么是程序级失败，什么是交互级失败；可是，不是每一个指令的作者都完全理解框架的设计意图。
+;膝枕有一个特殊判定分歧：如果玩家与角色体型差距过大，会显示角色发出了被踩扁的青蛙般的叫声、玩家慌忙挪开的通用文本，并扣除体力气力和好感度，不更新时间，以RETURN -1结束分枝。
+;这就完全不合规范。
+;剧本侧既失去了以EXTRASOURCE调整数值的机会，也无法编写交互对话，因为指令触发流程提前结束了。
+;由于没有数值结算环节，体力和好感度也是隐性扣除的，玩家察觉不到。
+;更有甚至，这个分支的描述文本原本是写在描述文本函数@MESSAGE_COM305内的，可它也被跳过没能显示，直接返回交互界面，玩家无法理解发生了什么。
+;
+;介绍这些，是因为剧本统一管理接口为MOD作者设计了非常强大的指令干涉工具，能够干涉指令失败。在利用指令成否判定函数之前，作者必须搞清楚指令失败的含义：
+;不同的指令中设计了不同的剧本侧强制失败/中止接口，可无论注释是强制失败还是强制中止都不重要，关键在于接口提供的返回值到底是-1还是0，以及剧本需要的是定下一条新的禁止互动规则，还是想让互动被拒绝；
+;角色躲开并怒打了你一顿，比角色躲开是更大的失败，也许可以视作大失败，但是RETURN -1绝不是RETURN 0的大失败版本。如果剧本侧希望增加这样一个分支，是完全可以做到的，重点是需要知道流程在做什么，剧本侧需要做什么。
+;比如说指令20：接吻，没有提供任何交互分歧，是个纯粹的填数字并默认接吻成功的调教函数。没有分歧意味着剧本可以采用任何一种分歧框架而不必担心影响。
+;首先，在@M_KOJO_MOMO_SUCCESS_COM_K10_20设计一个特殊的TFLAG:SELECTCOM的分岐的值；
+;其次，在@M_KOJO_MOMO_EXTRASOURCE_COM_K10_20根据TFLAG:SELECTCOM的分岐为判断依据，重写所有数值；
+;借着，在@M_KOJO_MOMO_MESSAGE_MESSAGECHECK_COM_K10_20，有条件地禁用TRAIN_MESSAGE，并写出新的情景描述;
+;最后，在@M_KOJO_MOMO_MESSAGE_COM_K10_20
+;#LOCALSIZE 1
+;#LOCALSSIZE 1加入新的分支。
+;
+;*********************************************
+;数值计算控制函数
+;@M_KOJO_MOMO_EXTRASOURCE_COM_K10_XX
+;*********************************************
+;EXTRASOURCE_COM提供对COM设计的各类数值进行改动的时点。它实则与COMXX一致，可以做到任何事。只要你知道你需要修改那些数值。
+;推荐做法是直接参考对应COMXX本身的数值策划，多参考各种指令函数的写法。
+;
+;*********************************************
+;文本控制函数
+;@M_KOJO_MOMO_MESSAGE_MESSAGECHECK_COM_K10_XX
+;*********************************************
+;不同于以上两个指令控制接口，MESSAGECHECK是MESSAGE系最为常见的附件。除了指令的触发流程之外，各种有剧本接口的事件触发都配套判定函数，用于剧本侧控制何时需要拦截通用情景描写或是剧本侧台词。
+;
+;	略过通用描写和略过台词共同存储在本函数的返回值中，返回值RESULT 的位含义如下（从低位开始编号）：
+;	SKIP_MESSAGE = GETBIT(RESULT, 0)   ; 第0位：是否略过【通用情景描写】
+;	SKIP_KOJO    = GETBIT(RESULT, 1)   ; 第1位：是否略过【剧本台词文本】
+;
+; 返回值组合一览
+;────────────────────────────────────
+; RESULT 值 | 二进制    | 略过通用描写 | 略过台词    | 典型使用场景
+;────────────────────────────────────
+;     0     |  00       |  ×（显示）  |  ×（显示） | 正常显示所有文本
+;     1     |  01       |  ○（略过）  |  ×（显示） | 剧本侧希望重写行为描述
+;     2     |  10       |  ×（显示）  |  ○（略过） | 罕见
+;     3     |  11       |  ○（略过）  |  ○（略过） | 不推荐
+;────────────────────────────────────
+;用法简介：
+;正常显示所有文本（0）：绝大多数情况。通用描写交代动作情景，剧本台词补充角色反应互动。
+;重写描述（1）：这是本接口最核心的用法。当通用描述不符合角色性格或场景氛围时，剧本侧通过此返回值屏蔽通用描述，并重写全套动作与对白。
+;只略过台词（2）：几乎不存在这种用法。对于玩家而言，只会误以为剧本没有写该指令的文本。
+;取消所有文本显示（3）：玩家看得见指令所获得的数值，但却没有任何文本，体验极差。如需屏蔽互动指令，这是最糟糕的处置，应当移步  "SUCCESS" 与 "EXTRASOURCE" 接口；如需恶心玩家可以考虑。
+;
+;实践讨论与设计规范：
+;MESSAGECHECK 的本质是一个判定。但在实际创作中，作者往往不是为了"删掉"描述，而是为了"换掉"描述。
+;若要实现"TFLAG:194 == 5时替换通用描述"，在IF TFLAG:194 == 5中，先写替换的文本、再返回禁用描述，逻辑直观，维护上也最方便。
+;一旦设计者开始这样思考，便会发觉本接口的结构性冗余：禁用描述、重写描述、相关台词用的是同一个条件；再考虑到，如果不需要调用情景文本接口@TRAIN_MESSAGE的话，在其后调用的MESSAGE_COM的时点也失去意义，所有文本都写在MESSAGECHECK函数即可；唯一可能需要注意的问题便是，需要保留剧本文本函数本体来返回1，确保统一管理接口知晓剧本侧返回了内容。
+;
+;这听起来令人不适，因为这违反了代码规范：负责返回判定值的MESSAGECHECK变成MESSAGE系的主体，MESSAGE_COM反而只提供返回值。
+;
+;不要让偶然看到的进阶用法带歪了，在ERB这种轻量级开发中，规范永远比简洁重要。MESSAGECHECK 的本质是一个判定。剧本侧无法容忍不合剧本风格的通用文案，渴望屏蔽并接管文案，于是剧本统一管理将新的接口设计在调用情景文本接口@TRAIN_MESSAGE之前，以超轻量级的判定完成需求。MESSAGECHECK完美覆盖这一任务。
+;因此，对MESSAGECHECK的进阶用途应遵循金标准：任何时候都只在MESSAGE函数里写文本，在MESSAGECHECK函数里写判断。
+;一旦发现有需要使用MESSAGECHECK的进阶功能，说明剧本侧有很多的场景需要屏蔽系统文本，在这一事件上已经有了足够的主导权，这时该考虑的只有一件事：让判定直接 RETURN 1并在文本主函数里重构描述。
+;
+;这才是剧本需要的：
+;@M_KOJO_MOMO_MESSAGE_MESSAGECHECK_COM_K10_XX
+;#LOCALSIZE 1
+;#LOCALSSIZE 1
+;RETURN 1  <===  直接禁用描述。
+;
+;只有1%的指令和事件文本函数需要用到MESSAGE系的控制函数，因此模板只在这里放一份完整模板，按需使用。无需为剧本增加无意义的函数开销。
+;更有甚者，99.99%的文本函数不会用到MESSAGE_COM_K10_XX的主接口。需要设计子嵌套的文本函数的作者也各显神通，没有人在乎模板中设计的子嵌套。除了直接将剧本的函数内存开销直接翻倍，嵌套接口的设计没有意义，现已删除。
+
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;爱抚系指令
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;-------------------------------------------------
+;总览
+;-------------------------------------------------
+;维护人：萃香个人口上
+;基于狂气刘俊海模板迁移
+;
+;编号0~19号的爱抚系指令
+;20~39号的交流系指令
+;*均为诶嘿嘿中指令
+;
+;如果不知道指令的含义，或不知道如何设计差分，金标准是参照该指令的情景描写文本。
+;本系列的情景描写在EVENT_MESSAGE_COM.ERB
+;==================================================
+;0,愛撫  爱抚（用手抚摸角色全身各处）
+;常用差分变量：
+; TEQUIP:50 == PLAYER → V插入中（正在阴道性交，爱抚为辅助动作）
+; TEQUIP:51 == PLAYER → A插入中（正在肛交，爱抚为辅助动作）
+; NOWEX:PLAYER:11 → 本回合玩家已射精
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_0
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「哎，想要抚摸吗？可以哦……」
+				PRINTFORMDL 萃香看起来稍微有些紧张，缓缓褪去身上的衣物
+				PRINTFORMDL 娇小却匀称的身体渐渐展现在%CALLNAME:MASTER%眼前，她的手指攥着衣角又松开，指尖微微发着抖
+				PRINTFORMDL %CALLNAME:MASTER%握住了萃香微凉的小手，拇指在她手背上轻轻画着圈
+				PRINTFORML 「好的…………」
+				PRINTFORMDL 感受到%CALLNAME:MASTER%手心传来的温度，萃香紧绷的肩膀终于放松了下来
+				PRINTFORMW 「请……摸吧……%CALLNAME:MASTER%的手……很温柔呢……」
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%……真的可以吗？我这样小的身体……」
+				PRINTFORMDL 萃香有些不安地低头看着自己，%CALLNAME:MASTER%没有回答，只是用手指轻轻抬起了她的下巴
+				PRINTFORMDL 指尖从下巴滑到耳后，顺着她纤细的脖子一路向下，最后停留在锁骨凹陷处打着转
+				PRINTFORMW 「唔……好痒……但是……好舒服……」
+			CASE 2
+				PRINTFORML 「……只是抚摸而已吧？」
+				PRINTFORMDL 萃香主动坐到了%CALLNAME:MASTER%的腿上，背靠着%CALLNAME:MASTER%的胸膛
+				PRINTFORMDL %CALLNAME:MASTER%的双臂环住这具小小的身体，手掌从她的肩头开始，缓慢而仔细地向下摩挲
+				PRINTFORMW 掌心滑过肩胛骨之间那道浅浅的凹陷时，萃香发出了舒适的叹息，整个人向后靠了靠
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「要来吗？那就让我看看你的手能不能让我舒服吧」
+				PRINTFORMDL %CALLNAME:MASTER%的手顺着萃香的后颈一路向下，沿着脊椎一节一节地按过去
+				PRINTFORMDL 萃香趴在床上，发出满足的哼声，小小的臀部不自觉地在%CALLNAME:MASTER%手下游移
+				PRINTFORMW 「嗯……就是那里……腰窝……再用点力……」
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%的手……手感真好……」
+				PRINTFORMDL 萃香转过身面向%CALLNAME:MASTER%，将对方的手按在自己平坦的小腹上
+				PRINTFORML 「从这里……往上一路摸……」
+				PRINTFORMW 手指划过腹部时萃香微微吸气，划过肋骨时她浑身一颤，待指尖停在乳下时——她已经湿了
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……你在摸……咿！」
+				PRINTFORMDL %CALLNAME:MASTER%的手指刚碰到萃香后腰，她便像被烫到一样弹了起来
+				PRINTFORMW 「不、不是……不是讨厌……只是太突然了……你……你再轻一点……」
+			CASE 1
+				PRINTFORML 「那个……可以先从……手开始吗……」
+				PRINTFORMDL 萃香红着脸，主动把自己小小的手搭在了%CALLNAME:MASTER%的掌心
+				PRINTFORMW %CALLNAME:MASTER%握住那只手，另一只手轻轻覆上她的手背，手指从指缝间穿过，缓缓摩挲
+			CASE 2
+				PRINTFORML 「呜……被人类摸遍全身什么的……」
+				PRINTFORMDL 萃香嘴上嘟囔着，却没有躲开%CALLNAME:MASTER%靠近的手
+				PRINTFORMW %CALLNAME:MASTER%的手指试探性地抚过她小腿内侧，萃香的脚趾立刻蜷了起来
+		ENDSELECT
+	ENDIF
+	RETURN 1
+;V插入中
+ELSEIF TEQUIP:50 == PLAYER
+	;本回合射精
+	IF NOWEX:PLAYER:11
+		RETURN 1
+	;上回合V中出
+	ELSEIF TCVAR:V被中出FLAG
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「唔……里面还留着之前的东西呢……黏糊糊的……」
+				PRINTFORMDL %CALLNAME:MASTER%的手指在萃香微微鼓起的小腹上画着圈，掌心的温度透过皮肤传递到仍旧敏感的花径深处
+				PRINTFORMW 「别摸了……里面还没消化掉你的东西……一摸就更热了……」
+			CASE 1
+				PRINTFORML 「嗯……上次的还在里面……你就又开始摸起来了……」
+				PRINTFORMW 萃香嘴上抱怨着，却没有躲开。%CALLNAME:MASTER%的手从她的小腹一路滑到了大腿根，指尖在湿润的入口处轻轻打转
+				PRINTFORMDW 「那里……还在往外流呢……别摸了……再摸又要……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哦？今天要视察后面？你真是越来越重口了……」
+			PRINTFORMDL 萃香倒也不扭捏，干脆利落地翻过身趴好，还顺手把臀瓣往两边分开
+			PRINTFORMW 「来吧，老规矩——看可以，不许动手，动手要加钱……开玩笑的，动吧」
+		CASE 1
+			PRINTFORML 「每次被你视奸后面的时候……都会想你到底在看什么想什么……」
+			PRINTFORMDL 萃香趴在床上侧过头看着%CALLNAME:MASTER%专注的表情
+			PRINTFORMW 「不过看你这表情我也懒得问了……反正答案写在你脸上了……」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「你这个变态！居然真的要我……唔……」
+			PRINTFORMDL 话说到一半，%CALLNAME:MASTER%便将肉棒塞进了萃香的嘴里
+			PRINTFORMW 萃香瞪大了眼睛想要抗议，但嘴里满满的触感和味道让她连一句完整的话都说不出来
+		CASE 1
+			PRINTFORML 「唔……不要……太大了……」
+			PRINTFORMDL 萃香想要推开%CALLNAME:MASTER%，却被按住了头。小小的口腔被撑得满满的
+			PRINTFORMW 她皱着眉头，但舌头却不听话地在肉棒上滑来滑去
+		CASE 2
+			PRINTFORML 「呼……你这家伙……真的是无药可救了……」
+			PRINTFORMDL 虽然嘴上骂着，萃香还是勉强地张开了嘴，只是故意把牙齿亮了出来以示威胁
+			PRINTFORMW 「……放心啦，鬼说不会咬就是不会咬。快点弄完……」
+		CASE 3
+			PRINTFORML 「你知不知道……让鬼做这种事意味着什么……」
+			PRINTFORMDL 萃香红着脸握着%CALLNAME:MASTER%的肉棒，犹豫了一下最终还是含了进去
+			PRINTFORMW 「咕……意味着……我承认你是可以和我对等相处的人了……所以……给我感激一点……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;1,クンニ（舔阴）
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	IF TALENT:恋慕
+		PRINTFORMDL 在停止的时间中，%CALLNAME:MASTER%俯身埋入萃香的腿间
+		PRINTFORMDL 舌尖仔细地描着那两片小小花瓣的外缘，从上方那颗微微凸起的阴蒂到下方紧闭的入口
+		PRINTFORMDW 虽然她毫无反应，但蜜穴却在舌头的刺激下本能地分泌出了透明的黏液——身体远比意识诚实
+	ELSEIF TALENT:思慕
+		PRINTFORMDL 静止的世界里，%CALLNAME:MASTER%的舌头在萃香的花瓣间细细游走
+		PRINTFORMDL 如果能听到她害羞的惊叫声就好了，但这份寂静也有寂静的趣味
+		PRINTFORMDW 舌尖拨开小小的花唇，探到那颗微硬的阴蒂时，%CALLNAME:MASTER%轻轻舔弄了起来
+	ELSE
+		PRINTFORMDL 趁时间停止，%CALLNAME:MASTER%将脸埋入她的双腿之间
+		PRINTFORMDL 毫无抵抗的她任由%CALLNAME:MASTER%随意地用舌头翻弄花瓣和阴蒂，每一寸湿润的黏膜都逃不过舌尖的探索
+		PRINTFORMDW 这种完全占有的支配感，让%CALLNAME:MASTER%在静止的世界里心跳加速
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTFORMDL 夜深人静时分，%CALLNAME:MASTER%轻轻掀开被子，看着萃香安静的睡颜
+	PRINTFORMDL 慢慢分开她毫无防备的双腿，对着那朵还在沉睡中的小花蕾舔了下去
+	PRINTFORML 「……唔……嗯……」
+	PRINTFORMDL 睡梦中的萃香发出了含糊的呻吟，蜜穴本能地分泌出透明的爱液，仿佛在迎接%CALLNAME:MASTER%的造访
+	PRINTFORMDW 这种在自己不知道的时候被做了这种事的感觉——她大概在梦里也想不到吧
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔嘿嘿……%CALLNAME:MASTER%又要舔我了……」
+			PRINTFORMDL 烂醉的萃香非但没有抵抗，反而主动把腿分开了些，蜜穴在酒精的作用下比平时颜色更深
+			PRINTFORMW 「来吧……反正醉了也不会害羞……舔到你满意为止……」
+		CASE 1
+			PRINTFORML 「嗝……舌头……暖呼呼的……」
+			PRINTFORMDL 萃香半醉半醒间用手按着%CALLNAME:MASTER%的头，不是要推开，而是轻轻地摩挲着
+			PRINTFORMW 「好舒服……醉了之后感觉更强烈了……别停……嗝……」
+		CASE 2
+			PRINTFORML 「唔……喝醉的时候被舔……感觉整个人都要融化了……」
+			PRINTFORMDL 烂醉的萃香仰面躺着，葫芦从手中滑落滚到了一旁，爱液混合着汗水浸湿了身下的床单
+			PRINTFORMW 「嘿嘿……明天醒来的时候……肯定会因为现在的坦诚而后悔……但现在就让我享受吧……」
+	ENDSELECT
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	PRINTFORMW 「唔……变态……好讨厌……」
+	PRINTFORMDL 虽然嘴上那样说着，萃香还是将自己的私处展露在%CALLNAME:MASTER%的面前
+	PRINTFORMDL 两瓣粉嫩的阴唇暴露在%CALLNAME:MASTER%的面前，透明的丝线从中流出
+	PRINTFORMDL %CALLNAME:MASTER%将头埋了下去，伸出舌头舔舐起来
+	PRINTFORMDL 在舌头伸进去之后，就可以感觉到阴道在蠕动着，仿佛在催促着%CALLNAME:MASTER%的舌头向内深入
+	PRINTFORMDW 有点咸，还以为是甜的呢
+	RETURN 1
+;膣内射精直後
+ELSEIF TCVAR:100 == PLAYER
+	IF TCVAR:102
+		IF FLAG:70
+			PRINTL
+		ELSEIF TALENT:恋慕
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「呼啊…唔…咕……」
+					PRINTFORMDL 因为刚被中出，萃香正躺在那里休息
+					PRINTFORMDL %CALLNAME:MASTER%看着缓缓流出精液的小穴，忍不住舔了起来
+					PRINTFORMW 「呀？呜呜，变态……好恶心……」
+					PRINTFORMDL 虽然萃香极力反抗，但是因为体力不支和奇怪的原因，并没有拦住%CALLNAME:MASTER%的袭击
+				CASE 1
+					PRINTFORMW 「舔……呀啊……变态……好恶心……讨厌……」
+					PRINTFORMDL %CALLNAME:MASTER%舔舐着刚刚被中出过的小穴
+					PRINTFORMDL 萃香娇小的身体容不下如此多量的精液，溢出来的精液与爱液相混合，被%CALLNAME:MASTER%的舌头搅拌着
+					PRINTFORML 「呼……呀嗯……呜呜……坏蛋……咿……」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「呼……呀嗯……呜呜……坏蛋……咿……唔」
+					PRINTFORMDL %CALLNAME:MASTER%舔舐着刚被中出的蜜穴，引得萃香一阵呻吟
+					PRINTFORMDL 在%CALLNAME:MASTER%的吸吮下，从蜜穴流出的精液与爱液的混合物都被一收而尽
+				CASE 1
+					PRINTFORMDL %CALLNAME:MASTER%舔舐着刚刚才被中出过的蜜穴
+			ENDSELECT
+		ENDIF
+	ENDIF
+	RETURN 1
+;絶頂した
+ELSEIF NOWEX:0
+	IF FLAG:70
+		PRINTFORMW 
+	ELSEIF TALENT:恋慕
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 在萃香将要高潮的时候， %CALLNAME:MASTER%舌头探了进去，使劲吮吸着
+				PRINTFORML 在萃香颤抖着强忍着不发出声的时候，爱液从蜜穴中流淌了出来，随即滑进了%CALLNAME:MASTER%的口中
+			CASE 1
+				PRINTFORML 在%CALLNAME:MASTER%的舔舐下，萃香忍不住的高潮了
+				PRINTFORML 「咕唔……呜啊……好爽……再……再快一点……噫呀……」
+				PRINTFORML 从蜜穴流出的爱液被%CALLNAME:MASTER%照单全收了
+			CASE 2
+				PRINTFORML %CALLNAME:MASTER%蠕动着将舌头伸入其私处，用力搅弄起来
+				PRINTFORML 「咕唔……呜啊……好爽……呼啊……呜·……噫呀……」
+				PRINTFORML 萃香因为快感而止不住呻吟
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「不要再看了……呜……好讨厌……」
+				PRINTFORML %CALLNAME:MASTER%直接掰开了萃香两条光滑的大腿，看向那一无遮拦的私处
+				PRINTFORMW 原本紧闭的密缝微微张开，透明的淫液从缝隙中溢了出来……
+			CASE 1
+				PRINTFORML 「呜呜……讨厌……放开啊……」
+				PRINTFORMDL %CALLNAME:MASTER%抓着萃香的大腿，用力一抬，将私处暴露了出来
+				PRINTFORMDL 旋即用舌头开始攻击阴蒂
+				PRINTFORMDL 萃香因为无法忍受如此猛烈的攻击，爱液溢了出来
+		ENDSELECT
+	ENDIF
+	;人体乐器
+	IF ABL:MASTER:舌 > 4 && EXP:MASTER:演奏経験 > 5000
+		IF FIRSTTIME("人体乐器",0,10)
+			PRINTFORMDL 随着和萃香这些日的交往，%CALLNAME:MASTER%发现了一个连她自己都不知道的秘密
+			PRINTFORMDL 每次在舔弄她蜜穴的时候，她都会发出不同的音声
+			PRINTFORMDL 这是因为，她在每次呻吟的时候，都会不自觉的发动能力。改变附近空气的疏密后，发出不同的声色
+			PRINTFORMDL 在经过长时间的练习之后，%CALLNAME:MASTER%终于彻底掌握了每一个音色发声的规律
+			PRINTFORMDL 在知晓这个秘密后，%CALLNAME:MASTER%一直在谋划着做一特别疯狂的事
+			PRINTFORMDL 一直到现在，所有的准备工作已经完成，终于可以做那件即使冒着被萃香讨厌的风险也想做的事
+			PRINTFORMDL 用她的蜜穴演奏出一首完整的《碎月》
+			PRINTFORMDL 只要能做完这件事，即使被萃香所讨厌，但是人生也圆满了
+			PRINTFORMDL 怀抱着这样的心情，将萃香裙子掀起来后，用充满敬意的双手将她的内裤缓缓褪下，叠好之后放在了另一边
+			PRINTFORMDL 在用漱口水清洗完口腔后，将提前买好的食用级润滑液涂满其蜜穴内外
+			PRINTFORMDL 在萃香的催促下，%CALLNAME:MASTER%满怀敬意的将嘴靠了上去，开始了演奏
+			PRINTFORMDL 开始时，应当是轻轻的啜吸，萃香的声色也会发出缓而悠长的感觉
+			PRINTFORMDL 这样保持一段时间之后，%CALLNAME:MASTER%突然用舌头挑弄起萃香的阴蒂，并轻轻的吸吮起蜜穴
+			PRINTFORMDL 这时候的萃香音色逐渐变得急促起来，整体节奏则是变得如同柳风起舞般悠扬
+			PRINTFORMDL 在把控节奏之后，突然将舌头探入蜜穴当中，对着最敏感之处发起猛攻
+			PRINTFORMDL 萃香在受到如此强烈刺激后，双手用力按压着%CALLNAME:MASTER%脑袋
+			PRINTFORMDL 而在整张脸都贴上去之后，%CALLNAME:MASTER%开始用牙左右摩擦起阴唇,以此来提高其音色
+			PRINTFORMDL 感受着萃香将要高潮之后，%CALLNAME:MASTER%并没有松开嘴。而是等待着此曲的终结
+			PRINTFORMDL 一首曲毕
+			PRINTL
+			PRINTL
+		ENDIF
+	ENDIF
+	RETURN 1
+;通常
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:3
+		CASE 0 TO 1
+			PRINTFORML 「呜呜……呜嗯……呼啊……呀……」
+			PRINTFORMDL 随着%CALLNAME:MASTER%舌头滑动的刺激，萃香的身体一阵一阵地颤抖着
+			PRINTFORMDL 私处的液体也不断的渗出，顺着%CALLNAME:MASTER%的嘴角和萃香大腿根部流了下来
+			PRINTFORMDL 舌尖稍稍用力，舔舐硬起来的阴蒂，舌头能感受到阴部明显地收缩
+			PRINTFORML 「这里……呜啊……喜欢……嗯嗯……」
+			PRINTFORMDL 看来这里非常敏感
+		CASE 2
+			PRINTFORMDL 双手轻轻扒开两侧的门户，让舌头深入深处
+			PRINTFORMDL 萃香全身明显跳动了一下
+			PRINTFORML 「啊！这个……呼呜……咿呀……不行啊……」
+			PRINTFORMDL 但%CALLNAME:MASTER%并没有停下的意思，伸进去的舌头在穴口不断蠕动，感受着被液体润滑的内部的温润
+			PRINTFORMDL 在不断的刺激下，萃香的胸口的起伏愈发急促，身体也渐渐酥软下去了
+			PRINTFORML 「这个……好厉害呀……呜呜……」
+	ENDSELECT
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「嗯嗯……好奇怪的感觉……哈啊……」
+			PRINTFORML 「你真的喜欢这个吗……」
+			PRINTFORMDL 没有直接回答萃香的话语，而是继续地用舌头温柔的舔弄
+			PRINTFORML 「真拿你没办法……」
+		CASE 1
+			PRINTFORML 「呜嗯……嗯嗯……」
+			PRINTFORMDL 随着%CALLNAME:MASTER%舌头的爱抚，萃香的嘴中传出了沉闷的声音
+			PRINTFORMDL 萃香用双手捂住了自己的嘴，似乎在尝试抵抗下身传来的触感
+			PRINTFORMDL %CALLNAME:MASTER%稍稍增加了舌头摩擦的力度
+			PRINTFORML 「嗯啊……你这家伙……」
+			PRINTFORMDL 收到了萃香略带幽怨的目光
+	ENDSELECT
+ELSEIF TALENT:愛欲
+	PRINTFORML 「哈啊……哈啊……再来……呜哦……这个……好舒服呀……」
+	PRINTFORMDL 萃香完全沉浸在求爱的欲望中，用自己的手将穴口掰开，让%CALLNAME:MASTER%的舌头能轻松伸入阴部深处
+	PRINTFORMDL 每当%CALLNAME:MASTER%的舌头稍微用力摩擦穴内，大量的爱液从腔壁渗透出来，浸润了整个腔壁和%CALLNAME:MASTER%的口腔
+	PRINTFORML 「%CALLNAME:MASTER%……%CALLNAME:MASTER%……喜欢……」
+	PRINTFORML 「太舒服了……这个……咿呀……呼啊……」
+	PRINTFORMDL 已经完全沉没在快感的世界了
+	PRINTFORMDL %CALLNAME:MASTER%也回应着萃香的呼唤，用舌头反复蹂躏着萃香各种敏感的地方
+ELSEIF TALENT:炮友
+	PRINTFORML 「哈啊……%CALLNAME:MASTER%的舌头……喜欢……」
+	PRINTFORMDL 萃香感受着%CALLNAME:MASTER%的侍奉，感受着一阵又一阵从下面传到全身各处的快感电流
+	PRINTFORMDL 随着%CALLNAME:MASTER%舌头与萃香私处的交融，萃香的私处不断渗出着透明的爱液
+	PRINTFORML 「呜呜……我也要变成……%CALLNAME:MASTER%这样的变态了……」
+ELSE
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「呀！不可以！这样的……」
+			PRINTFORMDL 萃香惊讶于%CALLNAME:MASTER%的行为，双手抵着%CALLNAME:MASTER%的头抵抗着
+			PRINTFORMDL 明明是鬼却没有用相应的力气呢，%CALLNAME:MASTER%继续着自己温柔的侍奉
+			PRINTFORML 「你这个……变态……嗯啊……不可以……嗯嗯……」
+		CASE 1
+			PRINTFORML 「你可真是个超级变态啊……」
+			PRINTFORMDL 萃香用略显无奈的眼神看着%CALLNAME:MASTER%
+			PRINTFORML 「嗯！不可以这样舔那个……好奇怪……」
+			PRINTFORMDL 看起来身体是不会说谎的
+	ENDSELECT
+ENDIF
+
+RETURN 0
+
+
+;==================================================
+;2,フェラする 给对方口交
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_2
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+RETURN 0
+
+;==================================================
+;3,指挿入れ
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_3
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	IF TALENT:恋慕
+		PRINTFORMDL 在停止的时间中，%CALLNAME:MASTER%的手指轻柔地探入萃香的体内
+		PRINTFORMDL 一根、两根……手指在温热的穴道中缓缓抽送
+		PRINTFORMDW 即使时间停止，萃香的身体依然诚实地做出了反应——爱液浸湿了%CALLNAME:MASTER%的手指
+	ELSE
+		PRINTFORMDL 趁着时间停止，%CALLNAME:MASTER%将手指插入了萃香毫无防备的蜜穴
+		PRINTFORMDW 在静止的时间中，可以清晰地感受到阴道内壁的每一处褶皱
+	ENDIF
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		PRINTFORML 「用手指……吗？」
+		PRINTFORML 「嗯，真的有点不好意思啊♥」
+		PRINTFORML 「不过……是你的话……轻轻地……」
+		PRINTFORMW 萃香红着脸，缓缓地张开了双腿
+	ELSEIF TALENT:炮友
+		PRINTFORML 「手指？要来吗？」
+		PRINTFORMW 「好啊……我也想知道%CALLNAME:MASTER%的手指有多厉害呢」
+	ELSE
+		PRINTFORML 「什……手指？」
+		PRINTFORML 「用那个插进来……太羞耻了……」
+		PRINTFORMW 萃香紧张地抓住了%CALLNAME:MASTER%的手腕
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的手指悄悄滑入了她的大腿之间
+	PRINTFORML 「……唔嗯……」
+	PRINTFORMDL 睡梦中的萃香微微皱眉，但身体本能地接纳了%CALLNAME:MASTER%的手指
+	PRINTFORMDW 在安静的夜晚，只听得见手指在蜜穴中搅动带出的细微水声
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……%CALLNAME:MASTER%的手指……进去了……」
+			PRINTFORMW 「嘿嘿……好舒服……再多动一动……」
+			PRINTFORMDW 烂醉的萃香没有任何抵抗，蜜穴早已湿滑不堪，%CALLNAME:MASTER%的手指轻松地就插入了深处
+		CASE 1
+			PRINTFORML 「啊哈……手指……在里面动起来了……」
+			PRINTFORMW 「好棒……%CALLNAME:MASTER%的手指……再多一根……」
+			PRINTFORMDW 醉酒后的萃香变得格外坦诚，主动张开双腿迎接%CALLNAME:MASTER%的手指
+		CASE 2
+			PRINTFORML 「唔嗯……那里……对……就是那里……」
+			PRINTFORMW 「喝醉之后……里面变得好敏感……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔……%CALLNAME:MASTER%的手指……在动……」
+			PRINTFORMDL 萃香的身体随着%CALLNAME:MASTER%手指的抽送轻轻颤抖
+			PRINTFORML 「里面……被碰到了……啊……」
+			PRINTFORMW %CALLNAME:MASTER%的手指在萃香紧致的蜜穴中探索着，找到了那块略微粗糙的区域
+		CASE 1
+			PRINTFORML 「呼啊……手指……好舒服……」
+			PRINTFORMDL 萃香的双腿不自觉地夹紧了%CALLNAME:MASTER%的手
+			PRINTFORMW 「不要停……就这样……一直动下去……」
+		CASE 2
+			PRINTFORML 「嗯……%CALLNAME:MASTER%知道我最敏感的地方呢……」
+			PRINTFORMDL 萃香咬着嘴唇，努力忍住越来越大的呻吟
+			PRINTFORMW 「那里……一直按的话……会……会高潮的……」
+		CASE 3
+			PRINTFORML 「啊……手指……比平时进去得更深了……」
+			PRINTFORML 「%CALLNAME:MASTER%……慢一点……太刺激了……」
+			PRINTFORMW 萃香的蜜穴紧紧地缠绕着%CALLNAME:MASTER%的手指，爱液顺着手指流到了手腕
+	ENDSELECT
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……手指……进来了……」
+			PRINTFORMDL 萃香闭上眼睛，睫毛微微颤动着，似乎在努力接受这种陌生的触感
+			PRINTFORMW 「……其实比想象中要……温柔一点呢……你的手指……」
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%……你的手指……」
+			PRINTFORMDL 萃香的声音带着困惑，蜜穴却不自觉地随着手指的节奏一张一合
+			PRINTFORMW 「为什么每次都能让我这么舒服……真是搞不懂你……也搞不懂我自己……」
+		CASE 2
+			PRINTFORML 「嗯……手指……在动……」
+			PRINTFORMDL 萃香用一只手捂着脸，另一只手却悄悄地覆在了%CALLNAME:MASTER%伸入她腿间的手腕上
+			PRINTFORMW 「不是要推开你……只是……稍微慢一点……我想好好感受……」
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「哈啊……%CALLNAME:MASTER%的手指……真会找地方呢……」
+			PRINTFORMDL 萃香毫不掩饰地呻吟着，腰也随着手指进出的节奏微微抬起又放下
+			PRINTFORMW 「就是这样……那里再用力一点……别停……」
+		CASE 1
+			PRINTFORML 「唔嗯……能感觉到手指在里面的形状……每一节指节弯曲的角度……」
+			PRINTFORMDL 萃香闭着眼睛，专注地感受着%CALLNAME:MASTER%手指在花径中的每一次动作
+			PRINTFORMW 「再快一点……在我里面……尽情地搅动吧……不用手下留情……」
+		CASE 2
+			PRINTFORML 「嗯……你的手指……比上次又灵巧了……是不是偷偷练过……」
+			PRINTFORMW 萃香半开玩笑地说着，双腿却又往两边分开了些，给%CALLNAME:MASTER%更多施展的空间
+	ENDSELECT
+	RETURN 1
+;愛欲
+ELSEIF TALENT:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！手指！手指进来了！」
+			PRINTFORMDL 萃香的蜜穴贪婪地吸住了%CALLNAME:MASTER%的手指，内壁一圈一圈地缠上来
+			PRINTFORMW 「再多一点……不够……两根不够！还要更多！把我里面填满！」
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%的手指……正在我的里面……」
+			PRINTFORML 「好好感受一下……我里面的每一个角落……这里是粗糙的……这里是光滑的……」
+			PRINTFORMW 萃香扭动着腰，主动让%CALLNAME:MASTER%的手指探入更深处，引导着指腹按压每一处敏感的褶皱
+		CASE 2
+			PRINTFORML 「啊……在里面弯曲手指……太狡猾了……」
+			PRINTFORMDL 萃香的双腿像蛇一样缠上了%CALLNAME:MASTER%的腰，将他整个人拉向自己
+			PRINTFORMW 「别想逃……今天不让我高潮就别想把手抽出去……♡」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「呜……手指……不要……」
+			PRINTFORMDL 萃香咬着嘴唇，用尽全力不让自己发出声音，但鼻息却越来越重
+			PRINTFORMW 「唔……为什么……只是手指而已……为什么会有这种感觉……」
+		CASE 1
+			PRINTFORML 「你这个变态……居然真的……用手指……」
+			PRINTFORMDL 虽然嘴上骂着，萃香的蜜穴却诚实地分泌出了更多的爱液，抽出手指时都能看到黏连的丝线
+			PRINTFORMW 「别……别用那种眼神看我……我知道下面湿了……但这不是我愿意的……」
+		CASE 2
+			PRINTFORML 「唔……等……等一下……太突然了……」
+			PRINTFORMDL 萃香抓住%CALLNAME:MASTER%的手腕却没有推开，只是紧紧地握着，指甲都快掐进皮肤里了
+			PRINTFORMW 「不是让你停……就是……慢一点……让我先适应一下……」
+		CASE 3
+			PRINTFORML 「咕……我不承认……我绝对不会承认的……」
+			PRINTFORMDL 萃香把脸埋进枕头里，声音闷闷的，但腰却不由自主地挺了起来去迎合%CALLNAME:MASTER%的手指
+			PRINTFORMW 「不承认……就是很舒服而已……仅此而已……唔……♡」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;4,アナル舐め 舔菊
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_4
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	IF TALENT:恋慕
+		PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%仔细地舔舐着萃香肛门周围的每一处褶皱
+		PRINTFORMDL 舌尖顺着菊蕾的纹路一圈一圈地描过去，从外缘到中央那个微微凹陷的小孔
+		PRINTFORMDL 虽然萃香毫不知情，但菊穴却在舌头的刺激下一次又一次地收缩舒张
+		PRINTFORMDW 如果能让她知道的话——光是想象她那张通红的脸就让%CALLNAME:MASTER%停不下舌头
+	ELSE
+		PRINTFORMDL 趁着时间停止，%CALLNAME:MASTER%将舌头探向了萃香最私密的地方
+		PRINTFORMDL 没有了羞耻心的阻碍，可以尽情地欣赏这处连她自己都不曾细看过的隐秘之地
+		PRINTFORMDW 这个秘密的趣味，只有%CALLNAME:MASTER%自己知道
+	ENDIF
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哎！那里……那里不行！太羞耻了……」
+				PRINTFORMDL 萃香满脸通红地想要阻止%CALLNAME:MASTER%，却被轻易地按住了腰，小小的臀部被迫抬高
+				PRINTFORMW 「那里很脏……而且……连我自己都没仔细看过……♥」
+				PRINTFORMDW %CALLNAME:MASTER%没有理会她的抗议，舌尖已经触到了那圈粉嫩的褶皱
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%……真的要舔那种地方吗……」
+				PRINTFORMDL 萃香的声音小得几乎听不见，她把脸深深地埋进交叠的双臂里，只露出一对彻底红透的耳朵
+				PRINTFORMW 「……好吧。如果是你的话……但是你保证……不许笑话我……」
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「喂喂，连那种地方都要舔吗？」
+				PRINTFORML 「你真的是……没救了……不过随你高兴吧」
+				PRINTFORMW 萃香无奈地叹了口气，趴了下来，还顺手将臀部垫高了一些
+			CASE 1
+				PRINTFORML 「哦？%CALLNAME:MASTER%的口味真是越来越重了呢……」
+				PRINTFORMW 「来吧，让我看看你的舌头有多厉害……光是前面可不够证明你的实力哦」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「绝对不行！！那里！！！太脏了！！！」
+				PRINTFORML 「你在想什么啊！！那里不可以！！」
+				PRINTFORMDL 萃香的反应比预想的还要激烈，尽管连耳尖都泛起了红晕。但%CALLNAME:MASTER%并没有轻易放弃
+				PRINTFORMW 「别靠近！！我说了不行就是不行！！」
+			CASE 1
+				PRINTFORML 「你……你是不是脑子坏掉了！鬼的屁股有什么好舔的！！」
+				PRINTFORMDL 萃香拼命地把身体往后缩，直到后背抵住了墙壁。但%CALLNAME:MASTER%已经把她堵在了墙角，无处可退
+				PRINTFORMW 「别……别再靠近了……我真的会揍你的……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+;被口交中（六九式）
+ELSEIF TEQUIP:口接触部位 == 接触_P
+	;本回合射精
+	IF NOWEX:PLAYER:11
+		PRINTFORML 「唔……嘴里还含着……你却在舔那种地方……」
+		PRINTFORMW 萃香嘴上抱怨的同时，舌头却依然在%CALLNAME:MASTER%的肉棒上打着转——只是下身传来的快感让她的动作变得断断续续
+		PRINTFORMW 「别……舔那么深……我会不小心咬到你的……」
+		RETURN 1
+	;通常六九式
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呜呜……一边含着一遍还被舔后面……脑子要乱掉了……」
+				PRINTFORMW 萃香趴在%CALLNAME:MASTER%身上，舌头忙得顾此失彼——%CALLNAME:MASTER%舔弄她肛门的动作总是让她忘记嘴上该做什么，好几次肉棒都从嘴里滑了出来
+			CASE 1
+				PRINTFORML 「嗯……你舔我后面的时候……我就忍不住想……也让你更舒服……」
+				PRINTFORMW 萃香说着便将肉棒吞得更深了些，小小的鼻尖几乎碰到了%CALLNAME:MASTER%的小腹。作为回应，%CALLNAME:MASTER%的舌头也更加卖力地在她的菊蕾上画着圈
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ENDIF
+
+;上回合是A插入
+IF TCVAR:A挿入管理FLAG == PLAYER
+	;上回合A中出
+	IF TCVAR:A被中出FLAG
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「后面……之前的东西还有一些没弄干净呢……」
+				PRINTFORMDL 萃香的菊穴还微微张着，残留的白浊让%CALLNAME:MASTER%的舌头舔起来别有一番滋味
+				PRINTFORMW 「别……别把那些东西又舔进去啊……」
+			CASE 1
+				PRINTFORML 「唔……刚才被弄得乱七八糟的后面……你现在还要舔干净吗……」
+				PRINTFORMW 萃香趴在枕头上，菊穴还泛着使用后的嫩红色。%CALLNAME:MASTER%的舌头温柔地抚过每一道褶皱，她发出了介于羞耻和舒服之间的呻吟
+		ENDSELECT
+		RETURN 1
+	;其他
+	ELSE
+		PRINTFORML 「唔嗯……刚才才被那么粗的东西插过后面……现在又换舌头了……」
+		PRINTFORMW 「粗细差了那么多……感觉好奇怪……但是舌头暖暖的……不讨厌……」
+		RETURN 1
+	ENDIF
+ENDIF
+
+;睡奸中
+IF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 夜深人静时分，%CALLNAME:MASTER%掀开被子，看着萃香安静的睡颜
+	PRINTFORMDL 慢慢地将她小小的臀部抬起，对着那圈在月光下泛着淡粉色的褶皱舔了下去
+	PRINTFORML 「……唔……嗯嗯……」
+	PRINTFORMDL 睡梦中的萃香发出了含糊的呻吟，菊穴本能地收缩了一下，仿佛在和%CALLNAME:MASTER%的舌尖打着招呼
+	PRINTFORMDW 这种在自己不知道的时候被做了这种事的感觉——她大概在梦里也想不到吧
+	RETURN 1
+ENDIF
+
+;烂醉
+IF TCVAR:10:烂醉 == 1
+	;A経験
+	IF ABL:Ａ感覚 >= 2
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「呼啊……那里……舌头在舔……」
+				PRINTFORMDL 烂醉的萃香非但没有抵抗，反而微微抬起臀部让%CALLNAME:MASTER%更方便地舔舐
+				PRINTFORMW 「嘿嘿……好痒……但是好舒服……舌尖钻进去的时候感觉整个人都酥了……」
+			CASE 1
+				PRINTFORML 「唔……%CALLNAME:MASTER%……连那里都……」
+				PRINTFORMDL 萃香拿起葫芦又灌了一口，酒液顺着嘴角流下来，她也懒得擦
+				PRINTFORMW 「喝醉了之后……感觉比平时更有感觉呢……再深一点也没关系哦……」
+			CASE 2
+				PRINTFORML 「啊哈……舌头在肛门那里打转……」
+				PRINTFORMDL 萃香趴在床上，一只手拿着葫芦，一只手反过来按住%CALLNAME:MASTER%的后脑勺
+				PRINTFORMW 「好舒服……%CALLNAME:MASTER%……再多舔舔……酒都喝不出味道了……」
+			CASE 3
+				PRINTFORML 「嗝……你知道吗……鬼说喜欢就是真的喜欢……」
+				PRINTFORMW 「我现在就喜欢你舔我后面……所以……继续舔……不准停……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「呜……咯咯……那里好痒……」
+				PRINTFORMW 「%CALLNAME:MASTER%……你在做什么啊……嘿嘿……」
+			CASE 1
+				PRINTFORML 「嗝……那里……不是用来舔的啦……」
+				PRINTFORMW 「……不过随便啦……反正我喝醉了……明天就忘了……」
+			CASE 2
+				PRINTFORML 「唔……好奇怪……舌头在那里……」
+				PRINTFORMW 「感觉像在蹲茅房的时候反过来了一样……但是好舒服……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;恋慕
+IF TALENT:恋慕
+	IF ABL:Ａ感覚 >= 3
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「唔……%CALLNAME:MASTER%……那里……已经习惯了……」
+				PRINTFORMDL 萃香趴在床上，将脸埋进枕头里，但却没有像以前那样死死捂着了
+				PRINTFORMW 「不要那么用力舔……会变得奇怪的……」
+				PRINTFORMDW 话虽如此，%CALLNAME:MASTER%的舌头明显感觉到了肛门正微微地舒张着迎接自己——她已经学会享受了
+			CASE 1
+				PRINTFORML 「嗯……舌头……又进来了……」
+				PRINTFORML 「虽然还是很羞耻……但是因为是你……」
+				PRINTFORMW 萃香的声音闷在枕头里，但菊穴却诚实地放松了下来，让%CALLNAME:MASTER%的舌头能更顺利地探入
+			CASE 2
+				PRINTFORML 「啊……又是那里……%CALLNAME:MASTER%真的很喜欢呢……」
+				PRINTFORMDL 萃香从枕头里转过头，露出的半张脸上嘴角带着一丝无奈的微笑
+				PRINTFORMW 「好吧……今天就随你喜欢好了……不过轻一点……」
+			CASE 3
+				PRINTFORML 「嗯……%CALLNAME:MASTER%……其实……」
+				PRINTFORML 「被你舔习惯了之后……如果哪天你不舔了……我可能会觉得少了点什么……」
+				PRINTFORMW 「……很害羞所以不许继续问了！专心舔你的！」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「呜呜……为什么连那种地方都……」
+				PRINTFORML 「太羞耻了……%CALLNAME:MASTER%这个变态……」
+				PRINTFORMW 萃香用枕头死死地捂住自己的脸，但从耳根到脖子的皮肤全都变得通红
+			CASE 1
+				PRINTFORML 「啊……不要……那里……」
+				PRINTFORMDL 萃香想要挣脱，但又不想用鬼的力量伤害%CALLNAME:MASTER%，只能红着脸忍受
+				PRINTFORMW 菊穴却不受控制地一张一合，仿佛在主动亲吻着%CALLNAME:MASTER%的舌尖
+			CASE 2
+				PRINTFORML 「唔……这种地方……除了你以外绝对不会给第二个人舔了……」
+				PRINTFORMDL 萃香声音小得像是自言自语，但%CALLNAME:MASTER%听得很清楚
+				PRINTFORMW 「……所以……给我负起责任来……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「你……你这个人……怎么连那里都舔……」
+			PRINTFORML 「真是的……%CALLNAME:MASTER%的兴趣太奇怪了……」
+			PRINTFORMW 萃香嘴上抱怨着，身体却没有躲开——她甚至发现自己不自觉地把臀部往%CALLNAME:MASTER%的方向挪了挪
+		CASE 1
+			PRINTFORML 「唔……舌头碰到那里的感觉……好奇怪……」
+			PRINTFORMDL 萃香的手指揪紧了床单，关节都泛了白。但嘴里漏出的却是越来越急促的喘息
+			PRINTFORMW 「但是……也没有想象中那么讨厌……所以……你不要得意……这只是真拿你没办法而已……」
+		CASE 2
+			PRINTFORML 「那个……%CALLNAME:MASTER%……」
+			PRINTFORML 「你是第一个……也是唯一一个会舔我这种地方的人……」
+			PRINTFORMW 「……所以我才容忍你的。不是因为你舔得特别舒服什么的……绝对不是……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+IF ABL:Ａ感覚 >= 2
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……已经……无所谓了……你想舔就舔吧……」
+			PRINTFORMDL 萃香放弃了抵抗，软绵绵地趴在那里，但菊穴却在本能的支配下迎合着%CALLNAME:MASTER%的舌头
+			PRINTFORMW 「……别说我没警告你，鬼的那个地方可不保证干净……」
+		CASE 1
+			PRINTFORML 「呼……反正反抗也反抗不了了……」
+			PRINTFORMW 「随便你怎么弄吧……变态……」
+			PRINTFORMDW 嘴上骂着变态，她却在%CALLNAME:MASTER%的舌尖探入时发出了一声明显的呻吟
+		CASE 2
+			PRINTFORML 「你这样……天天舔那里……」
+			PRINTFORMW 「总有一天我会真的习惯的……到时候后悔的可是你……」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「不要……不行……那里不可以……！！！」
+			PRINTFORMDL 萃香拼命挣扎着，双腿使劲地乱蹬，但%CALLNAME:MASTER%已经牢牢地固定住了她小小的腰
+			PRINTFORMW 「唔！！别……别真的把舌头放上去……求你……」
+		CASE 1
+			PRINTFORML 「你疯了吗！！那里是……」
+			PRINTFORMDL 萃香的声音在%CALLNAME:MASTER%的舌尖碰到菊蕾的瞬间戛然而止，变成了颤抖的吸气声
+			PRINTFORMW 「唔！！舌头不要伸进来啊！！……为……为什么会有感觉……」
+		CASE 2
+			PRINTFORML 「我警告过你的……鬼真的生气了……」
+			PRINTFORMDL 萃香的声音很凶狠，但她全身都在发抖，而且并没有使用鬼的力量——只是嘴上在放狠话
+			PRINTFORMW 「……算了……反正就算我用蛮力推开你……你这家伙下次还是会来舔的……对吧……」
+	ENDSELECT
+ENDIF
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;5,アナル愛撫 屁穴爱抚
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_5
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%的手指仔细地描摹着萃香肛门周围的每一处细节
+	PRINTFORMDL 指尖沿着那圈粉嫩的褶皱一圈一圈地滑过，感受着菊蕾在即使静止的时间中依然微不可察地翕动着
+	PRINTFORMDW 这种独占了连她自己都不知道的秘密的感觉，比任何实际的刺激都更加令人满足
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的手指悄悄地滑到了她的臀缝之间
+	PRINTFORML 「……呼……唔……」
+	PRINTFORMDL 睡梦中的萃香似乎感觉到了什么，臀部的肌肉轻轻收缩了一下，但并没有醒来
+	PRINTFORMDW 指尖沾上润滑液，在那圈紧闭的褶皱上缓缓地画着圈——即使在梦中，她也无法隐藏身体的反应
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		PRINTFORML 「唔哎……呀啊……不行！！！」
+		PRINTFORMDL %CALLNAME:MASTER%的手刚触碰到萃香的肛门，她的身体就像触电一样弹了起来
+		PRINTFORML 「后面！！！绝对！！！不行！！！」
+		PRINTFORMW 「就算是%CALLNAME:MASTER%……那里也太……太羞耻了……！」
+	ELSEIF TALENT:炮友
+		PRINTFORML 「哎？手指……要进后面吗？」
+		PRINTFORMDL 萃香露出了一个"你真会玩"的表情，但还是乖乖趴好了
+		PRINTFORMW 「轻一点哦……那里可是比前面娇气多了……」
+	ELSE
+		PRINTFORML 「你……你是认真的吗！那里怎么可能……！」
+		PRINTFORMW 萃香的脸瞬间涨得通红，双手死死地护住身后，眼神里满是不可置信
+	ENDIF
+	RETURN 1
+;V插入中
+ELSEIF TEQUIP:50 == PLAYER
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔嗯……前面塞着你的东西……后面还要用手指……」
+			PRINTFORMDL %CALLNAME:MASTER%一边在蜜穴中缓缓抽送，一边用沾着爱液的指尖在萃香的菊蕾上打着圈
+			PRINTFORMW 「啊♡……前后都……不行……这样会两根一起感觉到……」
+			PRINTFORMDW 被双重刺激的萃香全身软了下来，就连前面也绞得比刚才更紧了
+		CASE 1
+			PRINTFORML 「别……别在里面的时候碰后面……」
+			PRINTFORMDL 萃香嘴上抗拒着，菊穴却在指尖的抚摸下一张一合，甚至开始主动往手指上蹭
+			PRINTFORMW 「唔……这是身体自己动的……不是我的意思……」
+		CASE 2
+			PRINTFORML 「呼啊……前面后面一起进攻……太狡猾了……」
+			PRINTFORMDL %CALLNAME:MASTER%的中指已经浅浅地探入了萃香的菊蕾，指尖感受着隔着薄薄一层肉壁传递过来的、自己肉棒进出的节奏
+			PRINTFORMW 「能感觉到……你的东西在里面的样子……透过手指传过来了……♡」
+	ENDSELECT
+	RETURN 1
+;A插入中
+ELSEIF TEQUIP:51 == PLAYER
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「呜……已经在里面了……还要用手指再撑开外面吗……」
+			PRINTFORMDL %CALLNAME:MASTER%的手指在肉棒和菊穴的交界处轻轻按摩着，帮助被撑开的褶皱适应这个粗度
+			PRINTFORMW 「嗯……这样在外面按着……好像没那么难受了……」
+		CASE 1
+			PRINTFORML 「里面是你的东西……外面是你的手指……」
+			PRINTFORMW 「全部都被你占满了……后面这一块……没有一处不在被你摆弄……」
+	ENDSELECT
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	IF ABL:Ａ感覚 >= 2
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔嘿嘿……手指在钻我的屁股……」
+				PRINTFORMDL 烂醉的萃香非但没有抗拒，反而主动撅起了小小的臀部
+				PRINTFORMW 「好玩……钻进来又退出去……嘿嘿……再多玩一会……」
+			CASE 1
+				PRINTFORML 「嗝……你知道吗……清醒的时候我不敢说的……」
+				PRINTFORMW 「其实后面比前面……更舒服……嘘……这是秘密……」
+			CASE 2
+				PRINTFORML 「手指又凉又滑……涂了什么进去……」
+				PRINTFORMW 「唔……暖暖的……在里面化开了……好神奇……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呜……那里……不是用来玩的啦……」
+				PRINTFORMW 「不过……%CALLNAME:MASTER%想玩的话……随便你……」
+			CASE 1
+				PRINTFORML 「唔……好奇怪……手指在那种地方……」
+				PRINTFORMW 「……算了我醉了……你爱怎么弄怎么弄……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	IF ABL:Ａ感覚 >= 3
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「嗯……%CALLNAME:MASTER%的手指……已经很习惯了呢……」
+				PRINTFORMDL 萃香趴在床上放松了全身的力气，菊穴在手指探入时自然而然地舒张开来
+				PRINTFORMW 「刚开始的时候明明那么讨厌的……现在光是手指放在上面就觉得安心……」
+			CASE 1
+				PRINTFORML 「唔……手指在里面的感觉……像在按摩一样……」
+				PRINTFORMDL %CALLNAME:MASTER%的食指在萃香的菊穴中缓缓进出，指腹沿着内壁有节奏地按压
+				PRINTFORMW 「啊……那里……再往左边一点……对……就是那里……♡」
+			CASE 2
+				PRINTFORML 「你知道吗……%CALLNAME:MASTER%……」
+				PRINTFORML 「现在光是手指碰一下后面……前面就会跟着湿……」
+				PRINTFORMW 「……都是你把我变成这样的……所以你要负责……继续……♡」
+			CASE 3
+				PRINTFORML 「嗯……你的手指……比任何玩具都好……」
+				PRINTFORMDL 萃香将脸埋在枕头里，声音闷闷的，但菊穴却在手指的安抚下温顺地一张一合
+				PRINTFORMW 「因为……是%CALLNAME:MASTER%的手指……里面有感情……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔……还是感觉好奇怪……」
+				PRINTFORMDL 萃香趴在床上，双手揪着枕头角，脸红得发烫
+				PRINTFORMW 「但是……是%CALLNAME:MASTER%的手指……所以我会忍着的……」
+			CASE 1
+				PRINTFORML 「手指……在外面画圈就好……先别进去……」
+				PRINTFORMDL %CALLNAME:MASTER%按照她说的，只是在菊蕾外围轻轻摩挲着
+				PRINTFORMW 「嗯……这样……好像也不是很难受了……再试一点点……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……我真的能慢慢习惯这个吗……」
+				PRINTFORMW 「……如果是和你一起的话……我觉得应该可以……再试一次……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……手指……在那里动了……」
+			PRINTFORMDL 萃香把脸埋在枕头里，声音闷闷的，但臀部却没有躲开
+			PRINTFORMW 「……不是说要你停……就是……有点害羞……」
+		CASE 1
+			PRINTFORML 「这种事情……我只让%CALLNAME:MASTER%做过……」
+			PRINTFORMW 「所以你要珍惜……不许弄疼我……也不许告诉别人……」
+		CASE 2
+			PRINTFORML 「嗯……手指在里面……感觉和前面完全不一样……」
+			PRINTFORMW 「说不上舒不舒服……但是……是你的手指所以没关系……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「哈啊……%CALLNAME:MASTER%的手艺真的没话说……连后面都能弄爽……」
+			PRINTFORMDL 萃香趴在床上，手指在自己腿间揉着，享受着前后同时被照顾的快感
+			PRINTFORMW 「对……前后一起来……就是我想要的感觉……♡」
+		CASE 1
+			PRINTFORML 「后面和前面不一样……那种被撑开的压迫感……」
+			PRINTFORMW 「一旦习惯了就上瘾呢……再深一点……」
+		CASE 2
+			PRINTFORML 「你知道吗……前后同时弄的话……」
+			PRINTFORMW 「高潮的时候会比平时强烈一倍……要不要试试看……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！手指……快把后面也塞满……」
+			PRINTFORMDL 萃香主动把臀部往%CALLNAME:MASTER%的手上送，菊穴贪婪地吞入了两根手指
+			PRINTFORMW 「还不够……再多一根……我要%CALLNAME:MASTER%的每一根手指都在里面……」
+		CASE 1
+			PRINTFORML 「嗯……后面在吸你的手指……感觉到了吗……」
+			PRINTFORMW 「它在自己动……不是我控制的……是它在想要你……」
+		CASE 2
+			PRINTFORML 「用手指在后面的感觉……和前面完全不同……」
+			PRINTFORMW 「前面是舒服……后面是……全身都在颤的那种……快要疯掉的舒服……♡」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+IF ABL:Ａ感覚 >= 2
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……呀哈……继续吧……我能忍受住……」
+			PRINTFORMDL 萃香嘴上说着能忍，喉咙里溢出的声音却越来越像满足的叹息
+			PRINTFORMW 「……这不是在叫……只是……深呼吸而已……」
+		CASE 1
+			PRINTFORML 「唔……不要看呀……讨厌……呜呜……」
+			PRINTFORMDL 萃香用手遮住自己的脸，却在指缝间偷偷看着%CALLNAME:MASTER%的手指在自己身后进出的样子
+			PRINTFORMW 「……看就算了……不要评论……」
+		CASE 2
+			PRINTFORML 「呼……反正都已经这样了……」
+			PRINTFORMW 「你想用手指就手指吧……反正我都习惯你的变态了……」
+	ENDSELECT
+ELSEIF TEQUIP:肛用振動棒
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「唔……手指就算了……那个东西太凉了……还有点麻……」
+			PRINTFORMW 「拔出去吧……拜托了……用手指就好……」
+		CASE 1
+			PRINTFORML 「不行不行不行！那种会嗡嗡叫的东西绝对不能塞进那种地方！」
+			PRINTFORMW 「用手！你想怎么用手指都行！就是别用那个！」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……有点痛……你轻一点好不好……」
+			PRINTFORMDL 萃香的菊蕾紧紧闭合着，%CALLNAME:MASTER%的手指只能在外围轻轻打转
+			PRINTFORMW 「不是不让你碰……就是……先让我习惯一下……」
+		CASE 1
+			PRINTFORML 「唔！……好痛！」
+			PRINTFORMDL 萃香的身体猛地一缩，但这次她没有推开%CALLNAME:MASTER%
+			PRINTFORMW 「……再试一次……手指上多沾一点那个滑滑的东西……应该会好一点……」
+		CASE 2
+			PRINTFORML 「鬼说会痛那真的是会痛……不是在跟你开玩笑……」
+			PRINTFORMDL 萃香皱着眉头忍受着手指在后穴的试探，如果鬼有尾巴的话，此刻一定是僵直的
+			PRINTFORMW 「轻一点……对……就是这样……慢慢地……」
+	ENDSELECT
+ENDIF
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;6,胸愛撫 胸爱抚
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_6
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%的双手覆上了萃香小小的乳房
+	PRINTFORMDL 拇指在那对粉嫩的乳尖上缓缓画着圈，感受着它们在自己掌心下一点点变硬
+	PRINTFORMDW 即使时间停止了，身体的本能反应依旧诚实地记录着被爱抚的证据
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的手指悄悄挑开了她的衣襟
+	PRINTFORMDL 月光下那对小小的隆起随着呼吸微微起伏着，乳尖在微凉的空气中悄然挺立
+	PRINTFORMW 「……唔……」
+	PRINTFORMDL 指尖轻轻拨过乳尖的瞬间，睡梦中的萃香发出了一声含糊的呢喃
+	PRINTFORMDW 这种毫无防备的样子，让%CALLNAME:MASTER%更加不舍得停手了
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哎……想摸胸部吗？可以的哦……」
+				PRINTFORMDL 萃香有些不好意思地解开了衣襟，露出那对精致小巧的乳房
+				PRINTFORMW 「虽然很小……但是%CALLNAME:MASTER%不介意的话……请轻一点……」
+			CASE 1
+				PRINTFORML 「那个……我的胸比华扇和勇仪她们小很多……」
+				PRINTFORMDL 萃香红着脸低头看着自己的胸口，声音越来越小
+				PRINTFORMW 「但你如果想摸的话……是你的话……我愿意……」
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		PRINTFORML 「想摸胸？我的胸部可不大哦……」
+		PRINTFORMDL 萃香倒是很坦然地脱掉了上衣，还顺手挺了挺胸
+		PRINTFORMW 「来吧，让我看看你的手能不能从这么小的胸上找到乐趣」
+	ELSE
+		PRINTFORML 「胸部有什么好摸的……我的胸又不大……」
+		PRINTFORMW 萃香嘴上这么说，却没有躲开%CALLNAME:MASTER%伸过来的手
+	ENDIF
+	RETURN 1
+;V插入中
+ELSEIF TEQUIP:50 == PLAYER
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔嗯……下面塞着……上面还被揉……」
+			PRINTFORMDL %CALLNAME:MASTER%一边缓缓抽送，一边用掌心托着那对小小的乳房，拇指在乳尖上来回轻拨
+			PRINTFORMW 「啊♡ 别同时碰两个地方……感觉太集中了……」
+		CASE 1
+			PRINTFORML 「呼啊……从背后被插着……手还绕过来摸胸……」
+			PRINTFORMDL 萃香小小的乳房刚好能被%CALLNAME:MASTER%的大手整个包住，乳尖从指缝间挤出来
+			PRINTFORMW 「唔……被摸着胸的时候……下面的感觉也更强烈了……」
+		CASE 2
+			PRINTFORML 「嗯……%CALLNAME:MASTER%的手……好热……」
+			PRINTFORMDL %CALLNAME:MASTER%用掌心同时研磨着两颗硬挺的乳尖，萃香随着这个节奏连腰都软了
+			PRINTFORMW 「胸……胸部……会比你先去的……♡」
+	ENDSELECT
+	RETURN 1
+;A插入中
+ELSEIF TEQUIP:51 == PLAYER
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「后面被占着……前面也不放过……」
+			PRINTFORMW %CALLNAME:MASTER%从背后伸手揉着萃香的胸部，指尖夹着乳尖轻轻地捻动
+			PRINTFORMDW 「唔……只是被揉胸而已……为什么连后面都收紧了……」
+		CASE 1
+			PRINTFORML 「后面的感觉传过来的时候……胸部就变得特别想被摸……」
+			PRINTFORMW 「好奇怪……明明是分开的两个地方……」
+	ENDSELECT
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔嘿嘿……%CALLNAME:MASTER%在想我的胸对不对……」
+			PRINTFORMDL 烂醉的萃香主动解开了衣襟，抓着%CALLNAME:MASTER%的手按在自己胸口上
+			PRINTFORMW 「来……不用客气……虽然很小但手感不错的……大家都这么说……嘿嘿……」
+		CASE 1
+			PRINTFORML 「呼啊……%CALLNAME:MASTER%的手好大……一个手掌就能盖住……」
+			PRINTFORMW 「这样……显得我的胸更小了……不过好暖和……再多放一会……」
+		CASE 2
+			PRINTFORML 「你知道吗……鬼喝醉的时候……乳尖会特别特别敏感……」
+			PRINTFORMW 「不信你试试……就用指头尖……轻轻戳一下……啊♡ 你看……」
+		CASE 3
+			PRINTFORML 「嗝……%CALLNAME:MASTER%……喜欢我的胸吗……说实话……」
+			PRINTFORMW 「……喜欢啊？太好了……嘿嘿……那你随便摸……摸到我不省人事为止……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	IF ABL:Ｂ感覚 >= 3
+		SELECTCASE RAND:5
+			CASE 0
+				PRINTFORML 「唔……讨厌……啊……」
+				PRINTFORMDL %CALLNAME:MASTER%的双手有规律地上下逗弄着，掌心的温度透过皮肤传递到乳尖
+				PRINTFORMW 「只是被摸胸而已……为什么连下面都开始有感觉了……♡」
+			CASE 1
+				PRINTFORML 「唔……呀啊……坏蛋……」
+				PRINTFORMDL %CALLNAME:MASTER%的双手握在那对小巧的乳房上，指尖沿着乳晕的边缘缓缓画着圈
+				PRINTFORMW 「呼啊……别光是绕着圈……也碰一下中间……」
+			CASE 2
+				PRINTFORML 「胸……胸部……唔嗯……」
+				PRINTFORMDL %CALLNAME:MASTER%将左手握在那小巧的乳房上，逗弄起那小小的凸起
+				PRINTFORMDL 同时没有放过另外一边，嘴凑了上去。在吮吸的同时，舌头也在挑逗着乳头
+				PRINTFORML 「不要……两边一起的话……♡」
+				PRINTFORMDW 萃香的抗议越来越小，最后变成了断断续续的呻吟
+			CASE 3
+				PRINTFORML 「……胸部……呼嗯……呀哈……」
+				PRINTFORMDL %CALLNAME:MASTER%的双手从乳房的下缘缓缓向上推，像在托起什么珍贵的宝物
+				PRINTFORMW 「讨厌……摸得这么仔细……每一寸都被你摸遍了……」
+			CASE 4
+				PRINTFORML 「%CALLNAME:MASTER%……你知道吗……」
+				PRINTFORML 「虽然我的胸很小……但是被你摸得多了之后……感觉好像比以前大了一点点……」
+				PRINTFORMW 「……这是你的功劳哦……所以你要继续……负起责任来……♡」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「哎……没……可以的哦」
+				PRINTFORML 「不过，稍微轻一点……可以么？因为虽然很小但也很敏感……」
+				PRINTFORMW %CALLNAME:MASTER%听了之后放轻了力道，萃香发出了舒适的叹息
+			CASE 1
+				PRINTFORML 「胸部……这样子……真的可以么？」
+				PRINTFORML 「毕竟也没有像华扇和勇仪那么大……你不会觉得不够吧……」
+				PRINTFORMW 「哎？喜欢？……那就随你喜欢吧……」
+			CASE 2
+				PRINTFORML 「哎嘿，只要你高兴的话……」
+				PRINTFORMDL 萃香拉着%CALLNAME:MASTER%的手放在自己小小的胸口上
+				PRINTFORMW 「虽然不大……但是里面装的都是%CALLNAME:MASTER%的事情哦」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……胸部被这样揉……」
+			PRINTFORMDL 萃香的耳朵尖泛着红色，呼吸也比刚才急促了一些
+			PRINTFORMW 「让我想起了一句话……鬼的角是给人看的，胸是给……算了不说了……」
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%是不是真的很喜欢小胸部啊……」
+			PRINTFORMW 「每次摸的时候都特别认真的样子……让我有点不好意思……」
+		CASE 2
+			PRINTFORML 「嗯……虽然不想承认……但是被摸胸还挺舒服的……」
+			PRINTFORMW 「不过这种话只在这里说……出了这个房间就不算了……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「哈啊……%CALLNAME:MASTER%的手法还是这么好……」
+			PRINTFORMDL 萃香的腰随着揉胸的节奏轻轻摆动着，小小的乳尖在掌心里越来越硬
+			PRINTFORMW 「对……就是这个力度……再多揉一会我就快要去了……♡」
+		CASE 1
+			PRINTFORML 「唔……用指缝夹着乳尖往外拉……谁教你的这招……」
+			PRINTFORMW 「好痛……但是又有点舒服……再来一次……」
+		CASE 2
+			PRINTFORML 「你知道吗……虽然我的胸很小……」
+			PRINTFORMW 「但是小有小的好处——整个都能被%CALLNAME:MASTER%的嘴含住哦……来试试？」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！用力揉！不用管小不小的问题！」
+			PRINTFORMW 萃香挺着小小的胸脯往%CALLNAME:MASTER%手心里蹭，乳浪虽然只有浅浅一层却无比主动
+			PRINTFORMDW 「揉到乳尖都肿起来也没关系……反正明天就消了……♡」
+		CASE 1
+			PRINTFORML 「唔嗯……%CALLNAME:MASTER%的手在我胸上……」
+			PRINTFORMW 「光是看着你揉我胸的样子……我下面就湿了……你说奇怪不奇怪……」
+		CASE 2
+			PRINTFORML 「听说一直揉的话……胸会变大……」
+			PRINTFORMDL 萃香拉着%CALLNAME:MASTER%的双手从两侧往中间挤，挤出浅浅的乳沟
+			PRINTFORMW 「虽然可能是骗人的……但是如果是%CALLNAME:MASTER%来揉的话……我愿意天天试试看……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+SELECTCASE RAND:4
+	CASE 0
+		PRINTFORML 「哎……没……可以的哦」
+		PRINTFORML 「不过，稍微轻一点……可以么？因为虽然很小但也很敏感……」
+		PRINTFORMW %CALLNAME:MASTER%放轻了力道后，萃香紧绷的肩膀慢慢放松了下来
+	CASE 1
+		PRINTFORML 「胸部……这样子……真的可以么？」
+		PRINTFORML 「毕竟也没有像华扇和勇仪那么大……你不会觉得不够吧……」
+		PRINTFORMW 「哎？那就随你喜欢吧……反正也不差这几下……」
+	CASE 2
+		PRINTFORML 「哎嘿，只要你高兴的话……」
+		PRINTFORMDL 萃香虽然嘴上说得轻巧，但耳根却悄悄地红了
+		PRINTFORMW 「其实……也不是讨厌啦……就是有点痒……」
+	CASE 3
+		PRINTFORML 「我的胸……真的有让人想摸的价值吗……」
+		PRINTFORMDL 萃香低头看着自己平坦的胸口，语气里带着一丝不自信
+		PRINTFORMW 「不过你都主动伸手了……那就……随你吧……」
+ENDSELECT
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;7,乳首責め
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_7
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在停止的时间中，%CALLNAME:MASTER%的指尖轻轻拨弄着萃香胸前那对小小的乳头
+	PRINTFORMDL 在没有任何知觉干扰的情况下，可以清晰地看到乳尖从柔软到硬挺的整个过程
+	PRINTFORMDL 每一次指腹擦过顶端，那粒小小的凸起就会微微反弹一下，仿佛在主动回应着%CALLNAME:MASTER%的触碰
+	PRINTFORMDW 这种被静止的时间放大了的细节，让每一次触碰都变得无比珍贵
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的指尖悄悄地爬上了她胸前那粒小小的突起
+	PRINTFORMDL 轻轻一碰，睡梦中的萃香就发出了一声含糊的呜咽，眉头微微皱起
+	PRINTFORMDL %CALLNAME:MASTER%用指腹绕着乳晕缓缓地画了几个圈，那粒乳尖便在睡梦中诚实地挺立了起来
+	PRINTFORMDW 即使意识还在沉睡，身体却已经为%CALLNAME:MASTER%的触碰做好了准备
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		PRINTFORML 「不要……那里……很敏感的……唔呀……讨厌……」
+		PRINTFORMDL %CALLNAME:MASTER%的指尖刚碰到那粒小小的凸起，萃香整个人就轻颤了一下
+		PRINTFORML 「才碰了一下就会有这么大的反应……果然不该让你碰这里的……」
+		PRINTFORMDL 嘴上这么说，萃香却并没有真的推开%CALLNAME:MASTER%的手
+		PRINTFORMW 「变态……光摸乳头有什么意思……明明吸不出来的……呜……」
+	ELSEIF TALENT:炮友
+		PRINTFORML 「哦？想玩乳头？你还真是找到了好地方呢……」
+		PRINTFORMDL 萃香低头看了看自己的胸，然后用手指点了点那粒小小的突起
+		PRINTFORMW 「虽然不大，但是这里的敏感度我可以保证——来吧，试试看」
+	ELSE
+		PRINTFORML 「你……你干什么！那是乳头啊！乳头！」
+		PRINTFORMW 「别用手指去弹它！……而且为什么被弹了还会有感觉……太奇怪了……」
+	ENDIF
+	RETURN 1
+;V插入中
+ELSEIF TEQUIP:50 == PLAYER
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「啊♡ 下面在动的时候……不要用指头捏乳头……」
+			PRINTFORMDL %CALLNAME:MASTER%一边缓缓抽送，一边用拇指和食指轻轻捻动着萃香胸前那粒早已硬挺的乳尖
+			PRINTFORMW 「这样下面的感觉和上面的感觉会缠在一起……分不清是哪边在舒服了……」
+		CASE 1
+			PRINTFORML 「唔……你用指甲轻轻刮乳头的话……」
+			PRINTFORMW 「我下面就会跟着绞紧……感觉到了吗……就是这样……刮一下……紧一下……♡」
+	ENDSELECT
+	RETURN 1
+;A插入中
+ELSEIF TEQUIP:51 == PLAYER
+	PRINTFORML 「后面塞着你的东西……乳头还会被玩……」
+	PRINTFORMW 「这两边明明离得最远……感觉却最先连到一起……好奇怪的身体……」
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔嘿嘿……你在玩我的乳头对不对……」
+			PRINTFORMDL 烂醉的萃香低头看着%CALLNAME:MASTER%的手指在自己胸口作恶，不但不躲反而挺了挺胸
+			PRINTFORMW 「好玩吗？小小的……圆圆的……像葫芦盖子一样……嘿嘿……」
+		CASE 1
+			PRINTFORML 「嗝……我跟你说……鬼的乳头喝醉之后会变大一点点……」
+			PRINTFORMW 「你现在摸的话……应该能感觉到吧……比平时更突出对不对……」
+		CASE 2
+			PRINTFORML 「啊♡ 别……别用指甲尖掐……醉的时候乳头是平时的三倍敏感……」
+			PRINTFORMW 「我不骗你……是真的……现在哪怕吹一口气都能让我全身发抖……不信你试试……」
+		CASE 3
+			PRINTFORML 「唔……%CALLNAME:MASTER%的手指在乳头上面……」
+			PRINTFORMW 「我醉了所以很诚实地说——就这样一直摸到明天早上也可以……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	IF ABL:Ｂ感覚 >= 3
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「不要……那里……好敏感的……唔唔……好舒服……」
+				PRINTFORMDL %CALLNAME:MASTER%用指腹轻轻按着那粒硬挺的乳头，以画圈的方式缓缓研磨
+				PRINTFORMW 「咿……太……太舒服了……只是乳头而已……为什么感觉会传遍全身……」
+			CASE 1
+				PRINTFORML 「不要……好敏感的……唔唔……」
+				PRINTFORMDL %CALLNAME:MASTER%用拇指和食指捏住那小小的凸起，小心翼翼地向上提拉了一下
+				PRINTFORMDL 萃香发出了一声介于疼痛和快感之间的呻吟，脚趾都蜷了起来
+				PRINTFORMW 「哎……不……不要拉……但是放了之后又觉得少了什么……再捏一下……」
+			CASE 2
+				PRINTFORML 「嗯……左右两边被同时进攻的时候……」
+				PRINTFORMDL %CALLNAME:MASTER%的左手用指腹快速拨弄着左边的乳头，右手则用指甲轻轻刮着右边
+				PRINTFORMW 「两边感觉不一样……脑子要短路了……到底应该关注哪边……♡」
+			CASE 3
+				PRINTFORML 「你知道吗……说真的……」
+				PRINTFORML 「以前我觉得胸小是个缺点……但是被你的手指玩乳头的时候……」
+				PRINTFORMW 「因为小，所以乳头的每一寸都能被你照顾到……这是大胸没有的优点呢……♡」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「不要……那里……很敏感的……讨厌……」
+				PRINTFORMDL %CALLNAME:MASTER%的手指轻轻触碰着那粒小巧的乳头，每一次碰到顶端萃香都会倒吸一口气
+				PRINTFORMW 「让你碰是让你碰了……但是不许掐……只能摸……温柔地摸……」
+			CASE 1
+				PRINTFORML 「唔……%CALLNAME:MASTER%的手指……在绕着乳头画圈……」
+				PRINTFORMW 「这样确实不会太刺激……但是……反而让人更加在意了……一直在等下一圈什么时候到……」
+			CASE 2
+				PRINTFORML 「乳头……变硬了……被你的手指发现了……」
+				PRINTFORMW 「不许笑话我……这是正常的生理反应……跟喜不喜欢没关系……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……乳头被这样专门盯着玩……」
+			PRINTFORMW 「总觉得比被摸整个胸还要让人害羞……因为乳头只有一个点……」
+			PRINTFORMDL 萃香用一只手臂遮住自己的眼睛，但另一只手却诚实地没有去阻拦%CALLNAME:MASTER%的手指
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%……你是不是特别喜欢我的乳头……」
+			PRINTFORMW 「问我是怎么知道的……因为你每次揉这里的时候表情都特别专注……」
+		CASE 2
+			PRINTFORML 「唔……被捏着乳头拉起来的时候……」
+			PRINTFORMW 「感觉好像整个人都被你提起来了……明明只是这么小的一点……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈……手指在弹乳头……我喜欢这个……」
+			PRINTFORMW 「力道刚刚好……太轻了没感觉……太重了会痛……%CALLNAME:MASTER%这个分寸抓得真好……」
+		CASE 1
+			PRINTFORML 「唔嗯……两只手指像捏葡萄一样地捻乳头……」
+			PRINTFORMW 「这个节奏……不会太慢……也不会太快……你是不是真的数过我最舒服的节拍……」
+		CASE 2
+			PRINTFORML 「来吧……今天乳头就交给你了……」
+			PRINTFORMW 「你想怎么玩就怎么玩……捏也好弹也好拉也好……把我玩到高潮为止……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！用力捏！不用管我会不会疼！」
+			PRINTFORMW 「乳头就是要被玩到红肿才有意义……你觉得呢……%CALLNAME:MASTER%……」
+			PRINTFORMDW 萃香眼睛里满是期待，挺着小小的胸脯等待着%CALLNAME:MASTER%的手指
+		CASE 1
+			PRINTFORML 「唔……%CALLNAME:MASTER%在用舌头舔乳头……」
+			PRINTFORML 「别光是舔……也吸一下……对……用力吸……像婴儿一样……」
+			PRINTFORMW 「啊♡ 对……就是这样……吸得我脑子都要融化了……」
+		CASE 2
+			PRINTFORML 「嗯……被%CALLNAME:MASTER%用手指玩乳头的时连下面都会跟着湿……」
+			PRINTFORMW 「我下面已经可以滴出水了……你猜是为什么……答案都写在你手上了……♡」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+IF ABL:Ｂ感覚 >= 3
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……乳头已经……已经习惯被摸了……」
+			PRINTFORML 「这都怪你……每次每次每次都只盯着这一个地方……」
+			PRINTFORMW 「现在就算用手指弹一下都会舒服……我真的是鬼的耻辱……」
+		CASE 1
+			PRINTFORML 「呼啊……乳头被捏成扁的了……」
+			PRINTFORMW 「捏完之后放开的时候……血一下子冲回来的感觉……」
+			PRINTFORMDW 萃香话说到一半就咬住了嘴唇，不想让%CALLNAME:MASTER%看到自己被玩乳头就会失态的样子
+		CASE 2
+			PRINTFORML 「不要……好敏感的……」
+			PRINTFORMDL %CALLNAME:MASTER%无视了她的抗议，继续用手指绕着乳晕不紧不慢地画圈
+			PRINTFORMW 「唔……就是这种……不痛不痒的折磨……最让人受不了了……」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「呼啊，%CALLNAME:MASTER%是变态……」
+			PRINTFORMDL 萃香嘴上骂着，但乳头却在%CALLNAME:MASTER%的指尖下诚实地硬了起来
+			PRINTFORMW 「知道了……我就是嘴上说说……又不是真不让你碰……」
+		CASE 1
+			PRINTFORML 「咿呀！指甲刮到了！跟你说不要太用力……」
+			PRINTFORMDL 萃香嘴上抗议得很大声，但身体却完全没有后退的意思
+			PRINTFORMW 「……再试一次……这次用手指肚……不许用指甲……」
+		CASE 2
+			PRINTFORML 「呼嗯，%CALLNAME:MASTER%是色狼……」
+			PRINTFORMDL 萃香一边嘟囔着一边偷偷看着%CALLNAME:MASTER%玩弄自己乳头的动作
+			PRINTFORMW 「……刚才是不是不小心发出声音了……都怪你……」
+	ENDSELECT
+ENDIF
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;8,秘貝開帳 掰开小穴
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_8
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在时间停止的时候，%CALLNAME:MASTER%扒开了萃香的双腿，对着私密部位尽情视奸
+	PRINTFORMDL 淡粉色的肉瓣紧紧闭合着，只在缝隙间隐约可见一点湿润的光泽
+	PRINTFORMDL 伸出手指，小心地拨开那两瓣娇嫩的小阴唇——藏在里面的阴蒂像一粒小小的珍珠，在静止的时间中依然微微颤抖着
+	PRINTFORMDL 花径的入口随着呼吸的节奏一张一合，粉色的内壁在光线下泛着湿润的水光
+	PRINTFORMDW 既然是在时停……那稍微仔细一点也没关系吧。%CALLNAME:MASTER%俯下身，连每一处褶皱的纹理都不放过
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	;中出后
+	IF TCVAR:102
+		PRINTFORMDL 在你中出结束后，好奇心催使着你去观察刚刚被中出的小穴
+		PRINTFORMDL 伸出手去分开那两瓣阴唇，眼前淫靡的景象让呼吸都为之一窒
+		PRINTFORMDL 白色的浊液正从微微红肿的花径口缓缓溢出，顺着会阴一直淌到菊蕾
+		PRINTFORMDW 除去散落在外面的精液、膣内还留有\@ TALENT:MASTER:濃厚精液 ? 黏稠浓厚的 # 刚刚被中出所留下的 \@精液……在里面缓缓地蠕动着
+	ELSE
+		PRINTFORMDL 既然要做恶作剧，那就一定要看看下面
+		PRINTFORMDL %CALLNAME:MASTER%这样想着，小心地打开了熟睡中萃香的秘缝
+		PRINTFORMDL 花径内壁是健康的粉红色，一层叠一层的褶皱安安静静地闭合着
+		PRINTFORMDW \@ PALAM:10:潤滑 >= PALAMLV:3 ? 萃香那小小的淫穴里正在分泌着爱液——即使在梦中，身体也做好了准备 # 干燥而温暖，还没有什么特别的反应 \@
+	ENDIF
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORMDL 在她喝醉的时候做恶作剧，真是玩不腻呢
+			PRINTFORMDL %CALLNAME:MASTER%伸出手去打开那两瓣阴唇，打算近距离观察一下情况
+			PRINTFORML 「………嗯……想干什么呀？」
+			PRINTFORMDL 在你仔细观察的时候，头部突然被萃香用腿夹住了
+			PRINTFORMW 「那么想看的话……就好好看看吧……别漏掉什么地方哦……」
+		CASE 1
+			PRINTFORMDL 趁着萃香喝得迷迷糊糊，%CALLNAME:MASTER%分开了她毫无防备的大腿
+			PRINTFORMDL 花瓣在酒精的作用下比平时颜色更深一些，泛着一种慵懒的粉色
+			PRINTFORML 「唔……%CALLNAME:MASTER%……在看什么呢……」
+			PRINTFORMW 「看我的……那个地方……？嘿嘿……好看吗……」
+		CASE 2
+			PRINTFORMDL 烂醉的萃香四仰八叉地躺在那里，%CALLNAME:MASTER%坐下来慢慢欣赏这难得的景象
+			PRINTFORMDL 轻轻拨开两侧的花瓣，藏在里面的阴核已经微微挺了起来——即使是醉了，身体也诚实得不可思议
+			PRINTFORMW 「呼……别光是看……也摸摸……不然不公平……」
+	ENDSELECT
+	RETURN 1
+;恋慕or恋人or愛欲
+ELSEIF TALENT:10:恋人 || TALENT:10:恋慕 || TALENT:10:愛欲
+	;中出后
+	IF TCVAR:102
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「唔，出来了好多呢………\@ TALENT:MASTER:濃厚精液 ? 有点，太过于浓厚了吧………… # 看到这个会很兴奋吗………？ \@」
+				PRINTFORML 「\@ BASE:MASTER:勃起 >= 1000 ? 哎呀，看起来还是很有精神呢…… # 还这么坚挺啊…… \@哎，还没有射干净么？……」
+				PRINTFORMDL 萃香把玩着之前才插入她体内的肉棒，看着你的眼神也变得迷离起来
+				PRINTFORMW 「呐……再继续吧……我想……再更多地感受你的存在……」
+			CASE 1
+				PRINTFORML 「真是的……射了那么多还在盯着那里看……」
+				PRINTFORMDL 萃香嘴上抱怨着，手却配合地分开了自己的花瓣，让%CALLNAME:MASTER%看得更清楚
+				PRINTFORMW 「怎么样……你的东西正在从我的里面往外流呢……自豪吗……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+	;露出癖2以下
+	IF ABL:10:露出癖 < 3 && !TALENT:10:淫乱
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「唔、呀啊……坏蛋……欺负我……唔啊……」
+				PRINTFORML 「唔……不要再看了……」
+				PRINTFORMDL 萃香用一只手捂住眼睛，另一只手不停地挥动着
+				PRINTFORMDL 但是你注意到，从她的小穴里流出黏滑的爱液——嘴上说着不要，身体却在期待着你的视线
+				PRINTFORMDW 真是心口不一的家伙……
+			CASE 1
+				PRINTFORML 「笨蛋！在那里能看到什么啊……」
+				PRINTFORML 「不就是普通的洞吗……和其他女的没什么区别……」
+				PRINTFORMDW 虽然嘴上这么说，萃香却悄悄地把腿又分开了一点
+			CASE 2
+				PRINTFORML 「唔……不要……不要盯着看……」
+				PRINTFORMDL 萃香的脸红得能滴出血来，双手捂着脸，从指缝间露出了一只偷看的眼睛
+				PRINTFORMW 「你在对我这样的时候……下面会……会有反应的……你自己看……」
+		ENDSELECT
+		RETURN 1
+	;それ以外
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「就……这么想看么？」
+				PRINTFORMW 「唔…………我知道了」
+				PRINTFORMDL 萃香点了点头，自己用双手分开了两瓣粉嫩的花瓣
+				PRINTFORMW 「看吧……反正都已经是你的了……想看多久就看多久……」
+			CASE 1
+				PRINTFORML 「唔嗯………」
+				PRINTFORMDL 萃香摆出诱人的姿势，一只手撑着身体，另一只手自己把阴唇往两边拉开
+				PRINTFORMW 「快看……唔啊……别光是看……看那么仔细的话我也会不好意思的……」
+			CASE 2
+				PRINTFORML 「今天想看多久？」
+				PRINTFORMDL 萃香躺在床上，主动把双腿抬起抱在胸前，将整个私处毫无保留地展现在%CALLNAME:MASTER%面前
+				PRINTFORMW 「嗯……就这样看吧。被你这样看着的话……我会觉得自己很特别……♡」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+;其他情况
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「就……这么想看么？」
+			PRINTFORML 「唔…………我知道了」
+			PRINTFORMDL 萃香自暴自弃地张开了腿，但视线却飘向了别处
+			PRINTFORMW 「看完了就快点合上……不许一直看……」
+		CASE 1
+			PRINTFORML 「哎……想，想要看么？」
+			PRINTFORML 「唔…………请自便吧」
+			PRINTFORMDL 萃香勉强同意了，但全身都在诉说着害羞——从发红的耳尖到蜷起的脚趾
+			PRINTFORMW 「但是我先声明……随便你怎么看……可不许笑话……」
+		CASE 2
+			PRINTFORML 「这种地方有什么好看的……」
+			PRINTFORMDL 萃香嘟囔着，但还是挪开了挡在腿间的手
+			PRINTFORMW 「……好丢人……看完了请告诉我看完了……别一直盯着……」
+		CASE 3
+			PRINTFORML 「你是不是觉得鬼的下面和人类的不一样……」
+			PRINTFORML 「所以想打开看看确认一下？……你这是什么表情，真的只是想看看？」
+			PRINTFORMW 「……算了……反正说了你也不会停下来……让你看一眼就是了……」
+	ENDSELECT
+	PRINTFORMDW 因为见到了萃香害羞的样子，%CALLNAME:MASTER%忍不住想再多逗弄她一会儿
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;9,自慰
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_9
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在停止的时间中，%CALLNAME:MASTER%握着萃香的手指，引导着她触摸自己的私处
+	PRINTFORMDL 指尖拨开花瓣，在那粒硬挺的阴核上缓缓画着圈——哪怕是在时停中，她的身体也已经湿润了
+	PRINTFORMDW 醒着的时候绝对不会让你这样做的……所以才选在时停。这就叫善用时间
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「就……想看我自慰么？」
+				PRINTFORML 「唔…………我知道了啦……虽然很害羞……」
+				PRINTFORMDL 萃香红着脸，手指犹豫地伸到了自己的腿间
+				PRINTFORMW 「被看着做这种事……比想象中还要让人心跳加快呢……」
+			CASE 1
+				PRINTFORML 「%CALLNAME:MASTER%……你想看我……自己摸自己……？」
+				PRINTFORMDL 萃香的声音越来越小，但手指已经隔着内裤开始缓缓地移动了
+				PRINTFORMW 「别看那么仔细……第一次在你面前做这种事……我还不太习惯……」
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		PRINTFORML 「哦？想看我自慰？这个要求还真是直接呢」
+		PRINTFORMDL 萃香倒是没有太多扭捏，大大方方地把手伸到了腿间
+		PRINTFORMW 「好吧，既然你想看，那就让你看看鬼是怎么让自己舒服的」
+	ELSE
+		PRINTFORML 「什么！你想让我在你面前做这种事？……变态、人渣……」
+		PRINTFORMDL 萃香骂了一会之后发现%CALLNAME:MASTER%完全没有收回要求的意思
+		PRINTFORMW 「……我知道了……但是不许一直盯着看……用余光那种程度的话……」
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%握着她的手，引导她的指尖在自己的私处上来回滑动
+	PRINTFORML 「……唔……嗯……」
+	PRINTFORMDL 睡梦中的萃香发出了含糊的呻吟，手指在本能的驱使下开始自己动了起来
+	PRINTFORMDW 她在做着什么样的梦呢——%CALLNAME:MASTER%饶有兴致地看着面前的景象
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORMDL 烂醉的萃香半靠着墙壁，手指隔着内裤在自己的秘缝上来回揉着
+			PRINTFORML 「唔……%CALLNAME:MASTER%在看我吗……嘿嘿……」
+			PRINTFORMDL 她迷迷糊糊地睁开眼睛确认了一下%CALLNAME:MASTER%的位置，然后把手伸进了内裤里面
+			PRINTFORMW 「那你要看好了哦……我平时一个人的时候……就是这么弄的……」
+		CASE 1
+			PRINTFORMDL 萃香拿起葫芦又灌了一口，酒液顺着嘴角一直流到锁骨
+			PRINTFORMDL 然后她就这样一手拿着葫芦，另一只手伸到腿间，指尖在花缝间熟练地上下滑动
+			PRINTFORMW 「一边喝酒一边自己来……是鬼最古老的娱乐方式了……在酒鬼里代代相传……咿……」
+		CASE 2
+			PRINTFORML 「嗝……想看我自己弄啊……好啊……不过你要答应我一件事……」
+			PRINTFORMDL 萃香醉眼朦胧地竖起一根手指，随即又伸出另一只手探到了腿间
+			PRINTFORMW 「我在弄的时候……你要一直看着我……不准移开视线……不然我就不弄了……」
+		CASE 3
+			PRINTFORML 「唔嘿嘿……%CALLNAME:MASTER%想看我自己来……对吧……」
+			PRINTFORMDL 萃香自言自语着，两根手指已经在蜜穴中缓缓进出，带出晶莹的丝线
+			PRINTFORMW 「幻想对象当然是你啦……不然还能是谁……醉了所以我很诚实哦……」
+	ENDSELECT
+	RETURN 1
+;恋慕or恋人
+ELSEIF TALENT:10:恋人 || TALENT:10:恋慕
+	IF ABL:自慰中毒 >= 3
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「嗯……%CALLNAME:MASTER%在看我的时候……」
+				PRINTFORMDL 萃香的指尖在花缝间熟练地游走，另一只手则揉着自己的乳房
+				PRINTFORMW 「比一个人弄的时候舒服好多……有观众果然不一样呢……♡」
+			CASE 1
+				PRINTFORML 「呼啊……手指……已经在里面了……两根……」
+				PRINTFORMDL 萃香的手指在自己的蜜穴中进出着，带出一阵阵淫靡的水声
+				PRINTFORMW 「%CALLNAME:MASTER%……说点什么……你的声音会让我更有感觉……」
+			CASE 2
+				PRINTFORML 「唔……在你面前自慰……已经变成习惯了呢……」
+				PRINTFORMW 「以前想都不敢想的事情……现在却觉得不给你看反而少了点什么……♡」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「就……想看我自慰么？」
+				PRINTFORML 「唔…………我知道了……不过你也要看着我哦……」
+				PRINTFORMDL 萃香的手指有些笨拙地学着%CALLNAME:MASTER%平时抚摸她的方式，在自己的阴核上画着圈
+				PRINTFORMW 「唔……这样对吗……你来教教我……」
+			CASE 1
+				PRINTFORML 「讨厌……在你面前这么做真的好害羞……」
+				PRINTFORMDL 萃香用手臂遮着自己的眼睛，但另一只手却在腿间动得越来越快
+				PRINTFORMW 「不要评论我的动作……我自己来就行……唔……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……可以……看着我的脸吗……」
+				PRINTFORMDL 萃香的手指在私处动着，但眼睛却一直注视着%CALLNAME:MASTER%
+				PRINTFORMW 「我想让你看着我的表情……这样就好像是你在帮我弄一样……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「真不知道你为什么想看这种东西……」
+			PRINTFORMDL 萃香嘴上抱怨着，手指却已经在花缝间笨拙地滑动了
+			PRINTFORMW 「……既然要我做……那你就好好看……不准一边看一边做别的……」
+		CASE 1
+			PRINTFORML 「唔……在自己喜欢的人面前做这种事……」
+			PRINTFORMDL 萃香小声嘟囔了一句，马上意识到自己说漏了嘴——脸瞬间红透
+			PRINTFORMW 「刚才的不算！你什么都没听到！……继续是吗……哼……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「哦？想看我表演？好啊，今天的节目是——鬼之自慰」
+			PRINTFORMDL 萃香像是在做演出报幕一样说道，然后手指便毫无顾忌地深入了自己的蜜穴
+			PRINTFORMW 「怎么样……鬼的手法……还不错吧……从这里开始会加速……」
+		CASE 1
+			PRINTFORML 「哈啊……看着你的时候自己弄……比一个人弄的时候湿得快多了……」
+			PRINTFORMW 「你要好好当观众……不然就浪费我这么投入的表演了……♡」
+		CASE 2
+			PRINTFORML 「其实……有一个小秘密……」
+			PRINTFORML 「我一个人的时候都是用你的形象当配菜的……今天就不用了，因为本尊就在面前……」
+			PRINTFORMW 「来吧……看着你自慰的效果……让我展示给你看……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:10:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！想看我自己来？好啊好啊！」
+			PRINTFORMDL 萃香兴奋地把手指伸到腿间，几乎是迫不及待地拨开了早已湿透的花瓣
+			PRINTFORMW 「我一个人的时候就总是想着%CALLNAME:MASTER%自己弄……今天终于可以在你面前了……♡」
+		CASE 1
+			PRINTFORML 「唔……手指在里面的感觉……和%CALLNAME:MASTER%的比起来还是差了很多……」
+			PRINTFORMW 「但是只要看着你的脸……就好像你在帮我弄一样……啊……快要到了……♡」
+		CASE 2
+			PRINTFORML 「今天想在你面前挑战一件事——」
+			PRINTFORML 「只靠手指、不动用鬼的特殊能力，看看能不能在你面前高潮……」
+			PRINTFORMW 「如果到了的话……你要帮我舔干净手指上的东西哦……♡」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+SELECTCASE RAND:4
+	CASE 0
+		PRINTFORML 「哈呀！你，你想让我干什么？变态……好恶心……讨厌……」
+		PRINTFORMDL 萃香骂骂咧咧了半天，但最后还是把手伸到了自己的腿间
+		PRINTFORMW 「我就随便弄几下……不是因为你……只是因为想要……」
+	CASE 1
+		PRINTFORML 「什么！你想让我在你面前做这种事！……变态、人渣、垃圾……！」
+		PRINTFORML 「什……………我知道了……变态……」
+		PRINTFORMDL 萃香在责骂%CALLNAME:MASTER%之后，迫于无奈同意了请求
+		PRINTFORMW 「呼……先……先说好……只能看哦……不许碰……碰了就咬你……」
+	CASE 2
+		PRINTFORML 「你这人真是……得寸进尺到了令人发指的地步……」
+		PRINTFORMDL 萃香一边骂着，一边把手指伸进了内裤里，但动作却很生疏——显然平时很少自己做这种事
+		PRINTFORMW 「唔……这样对吗……不对的话也不要告诉我……我自己摸索……」
+	CASE 3
+		PRINTFORML 「让鬼做这种事……你是不是有什么恶趣味……」
+		PRINTFORMDL 萃香的手在腿间不情不愿地动着，但闭着眼睛的时候嘴唇已经发出了微弱的呻吟
+		PRINTFORMW 「……不许说出去……如果你敢跟勇仪或者华扇说……我就把你扔出幻想乡……」
+ENDSELECT
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;11,乳首吸い 吸乳头
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_11
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		PRINTFORMDL 在缓缓抽送的同时，%CALLNAME:MASTER%吮吸起胸前那粒粉嫩的乳头
+		PRINTFORMDL 舌尖绕着乳晕一圈一圈地画着，然后猛地一吸——整个小小的乳尖连同一小片乳晕都被含进了嘴里
+		PRINTFORMDL 舌头在口腔中来回拨弄着那粒硬挺的凸起，淡淡的乳香在舌尖上化开
+		PRINTFORMDW 时停中欺负她的身体，这份隐秘的快乐只有%CALLNAME:MASTER%自己知道
+	ELSE
+		PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%将萃香抱起，整张脸埋进了她小小的胸口
+		PRINTFORMDL 嘴唇含住那粒柔软的乳头，用婴儿般的节奏一下一下地吮吸着
+		PRINTFORMDL 静止的时间中没有任何人会发现这份秘密——%CALLNAME:MASTER%尽情地品味着舌尖上的触感
+		PRINTFORMDW 即使吸不出任何东西，光是这个动作本身就已经令人满足了
+	ENDIF
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		PRINTFORML 「哎……想……想吸乳头吗……」
+		PRINTFORMDL 萃香的脸一下子红了，手指不自觉地揪住了衣角
+		PRINTFORMW 「明明吸不出来的……但是如果你真的想的话……试试看吧……」
+	ELSEIF TALENT:炮友
+		PRINTFORML 「想吸？你这个人真的是越来越会玩了……」
+		PRINTFORMDL 萃香低头看了看自己的胸，然后主动挺了挺——
+		PRINTFORMW 「来吧，别客气……」
+	ELSE
+		PRINTFORML 「你……你是婴儿吗！那种地方有什么好吸的！」
+		PRINTFORMW 萃香嘴上骂着，但%CALLNAME:MASTER%的嘴唇已经碰到了那粒小小的凸起——她的抗议声瞬间变成了颤抖的吸气
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		PRINTFORMDL 在缓慢抽送的同时吮吸那粉嫩的突起，已然成为%CALLNAME:MASTER%的乐趣来源之一
+		PRINTFORML 「……咿……呜呜……」
+		PRINTFORMDL 尤其是看着她虽毫无意识却依旧十分配合的身体——每次吸的时候，她的腰都会轻轻向上抬起
+		PRINTFORMDL 平日里以捉弄%CALLNAME:MASTER%为乐趣的萃香，此刻却毫无防备地暴露着最柔软的一面
+		PRINTFORMDW %CALLNAME:MASTER%自然不会放过这种机会，一边吸着乳头一边感受着睡梦中她的蜜穴一下下收紧
+	ELSE
+		PRINTFORMDL 对着萃香那小小的凸起，%CALLNAME:MASTER%轻柔地含了上去
+		PRINTFORML 「……唔……嗯……」
+		PRINTFORMDL 睡梦中的萃香发出了含糊的呢喃，手臂无意识地环住了%CALLNAME:MASTER%的脖子
+		PRINTFORMDW 在毫无防备的睡梦中被吸着乳头——如果她知道自己会做这种反应，一定会害羞得把自己灌醉三天的
+	ENDIF
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 保持着腰上的动作同时吸住萃香的乳头，她如同蜘蛛一样手脚并用地缠了上来
+				PRINTFORML 「咿、呼啊、好舒服啊……唔……呼呼……嘿嘿……」
+				PRINTFORMDL 醉酒后的萃香毫无保留地表达着自己的感受，乳尖在%CALLNAME:MASTER%的唇间愈发硬挺
+				PRINTFORMW 「就这样吸着……然后继续动……不要停……酒和快感混在一起了……♡」
+			CASE 1
+				PRINTFORMDL 一边抽送一边含着乳头，醉了酒的萃香毫不掩饰地大声呻吟着
+				PRINTFORML 「嗝……%CALLNAME:MASTER%是小婴儿吗……一直在吸……」
+				PRINTFORMW 「不过好舒服……想吸多久就吸多久……鬼妈妈今天就满足你……嘿嘿……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL %CALLNAME:MASTER%对着萃香那粉嫩的乳头，不受控制地吸吮了上去
+				PRINTFORMW 「……哈啊……是渴了么？……吸不出来的哦……呜……嘿嘿……想吸的话就尽情吸吧……」
+			CASE 1
+				PRINTFORMDL 烂醉的萃香低头看着%CALLNAME:MASTER%含着自己的乳头，咯咯地笑了出来
+				PRINTFORML 「好像回到了很久很久以前……被当成小婴儿照顾的时候……」
+				PRINTFORMW 「唔……别用牙轻轻咬乳头……那里很敏感的……呀……♡」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+;恋慕or恋人
+ELSEIF TALENT:恋慕
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「……哈啊……一边动着一边吸……太犯规了……」
+				PRINTFORMDL %CALLNAME:MASTER%含住一边的乳头，用舌尖快速拨弄着顶端，下身的节奏也随之加快
+				PRINTFORMW 「吸……吸得那么用力的话……下面也会跟着一起绞紧的……感觉到了吗……♡」
+			CASE 1
+				PRINTFORML 「唔……别光是吸……也用舌头舔一下乳晕……」
+				PRINTFORMDL 萃香小声指导着%CALLNAME:MASTER%，手指轻轻插入了对方的发间
+				PRINTFORMW 「对……就是这样……绕着周围舔一圈再回到中间……太聪明了……♡」
+			CASE 2
+				PRINTFORML 「嗯……%CALLNAME:MASTER%在吸我乳头的时候……」
+				PRINTFORMW 「感觉就好像你同时在用两个地方疼我一样……下面那个地方和上面这个地方……都在一起舒服……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORMDL 对着萃香那小小的凸起，%CALLNAME:MASTER%温柔地含了上去
+				PRINTFORML 「……唔……嗯……讨厌……」
+				PRINTFORMDL 在用舌头逗弄那颗渐渐硬起来的乳头的同时，萃香的手臂突然环住了%CALLNAME:MASTER%的脑袋
+				PRINTFORMW 她嘴上说着讨厌，但抱得比任何时候都紧
+			CASE 1
+				PRINTFORML 「哎呀……唔！笨蛋！吸的声音再大……也吸不出来的……讨厌……」
+				PRINTFORMDL 萃香的抗议越来越无力，呼吸却越来越急促。乳头在%CALLNAME:MASTER%的唇间已经硬得像颗小石子
+				PRINTFORMW 「……不过……只是让你吸一会儿的话……也不是不行……」
+			CASE 2
+				PRINTFORML 「哎……额……是渴了么？」
+				PRINTFORMDL 萃香低头看着%CALLNAME:MASTER%埋在自己胸口忙碌的样子，表情渐渐从惊讶变成了温柔
+				PRINTFORMDL 她伸出小小的手，轻轻拍着%CALLNAME:MASTER%的后背——就像在哄一个婴儿
+				PRINTFORMW 「好了好了……想吸多久都可以……我就在这里不动……」
+			CASE 3
+				PRINTFORML 「唔……其实被吸乳头的时候……」
+				PRINTFORMW 「会有一种……被%CALLNAME:MASTER%需要的感觉……很幸福……」
+				PRINTFORMDW 萃香的声音越来越小，最后只是安静地抱着%CALLNAME:MASTER%的头，享受着嘴唇在乳首上的每一次触碰
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「你……你是小孩子吗……居然还要吸乳头……」
+			PRINTFORMDL 萃香嘴上说着，却还是把胸挺了挺，让%CALLNAME:MASTER%更容易含住
+			PRINTFORMW 「不过……你的头发蹭到我的胸口……有点痒……但是不讨厌……」
+		CASE 1
+			PRINTFORML 「唔……别吸那么大声……让人听了多不好意思……」
+			PRINTFORMDL 萃香用手遮着自己的嘴，但耳朵却红得能滴出血来
+			PRINTFORMW 「……其实偷偷说一句……挺舒服的……不许告诉任何人……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……吸乳头这种事情你真是越来越熟练了……」
+			PRINTFORMDL 萃香仰着头舒服地呻吟着，手指在%CALLNAME:MASTER%的头发里揉来揉去
+			PRINTFORMW 「对……就是这样……含住了用舌尖弹……你是不是专门练过……」
+		CASE 1
+			PRINTFORML 「你知道吗……虽然吸不出奶……但是被吸乳头的时候……」
+			PRINTFORMW 「子宫会一缩一缩的……好像在期待什么一样……你说奇妙不奇妙……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:10:愛欲
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊哈！用力吸！像要把我整个人都吸进嘴里一样！」
+			PRINTFORMW 萃香挺着小小的胸脯压在%CALLNAME:MASTER%的脸上，能感觉到乳头在对方口腔中被舌头翻搅的每一个细节
+			PRINTFORMDW 「对……就是这样……吸得我连脚趾都酥了……♡」
+		CASE 1
+			PRINTFORML 「两边……两边都要……不要偏心左边……」
+			PRINTFORMDL 萃香急切地把%CALLNAME:MASTER%的头按向另一侧的乳房
+			PRINTFORMW 「唔……右边也要一样的待遇……含进去……吸……对……就是这种感觉……♡」
+		CASE 2
+			PRINTFORML 「今天想试试一个游戏——」
+			PRINTFORML 「你吸我的乳头……我用手帮你……看谁先忍不住发出声音……」
+			PRINTFORMW 「虽然我觉的我会输……但是我想听%CALLNAME:MASTER%一边吸一边发出的那种……唔啾声……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「唔……咿……慢……慢点……」
+			PRINTFORMDL %CALLNAME:MASTER%在抽送的同时突然含住了萃香的乳尖，舌头快速地拨弄着
+			PRINTFORMW 「啊♡上面和下面同时被进攻……脑子要短路了……」
+		CASE 1
+			PRINTFORML 「胸……胸部……唔嗯……不要同时动……」
+			PRINTFORMDL 抗议无效。%CALLNAME:MASTER%的嘴唇和下半身的节奏完美配合，每次吸乳头的时候下面就顶到最深处
+			PRINTFORMW 「不行……这样配合着的话……马上就会高潮的……♡」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔呀……唔！笨蛋、讨厌死了……明明吸不出来的……好难为情……」
+			PRINTFORMW 萃香象征性地推着%CALLNAME:MASTER%的脑袋，但力气小得几乎可以忽略不计
+		CASE 1
+			PRINTFORML 「哈呀……！唔、你这家伙真的是……太讨厌了！」
+			PRINTFORMDL 萃香满脸通红地叫着，但乳头在%CALLNAME:MASTER%的嘴里已经硬成了一个小球——身体从来不会配合她的嘴硬
+			PRINTFORMW 「呜呜……！你这家伙真的是……无药可救了！」
+			PRINTFORMDW 完全无视萃香的抗议，%CALLNAME:MASTER%继续沉浸在吮吸乳头的触感中
+		CASE 2
+			PRINTFORML 「变态……色狼……吸乳头魔……」
+			PRINTFORMDL 萃香给%CALLNAME:MASTER%取了一连串的绰号，但每一个都因为中途的吸气声而变得毫无威慑力
+			PRINTFORMW 「别吸那么用力……会留下印子的……等下洗澡的时候被别人看到怎么办……」
+		CASE 3
+			PRINTFORML 「我是不是应该觉得幸运……至少你吸的是上面的乳头……」
+			PRINTFORMW 「而不是下面还有什么能被你吸的地方……等等，刚才那一瞬间你在看哪里？不许看下面！」
+	ENDSELECT
+ENDIF
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;12,胸もみ 揉胸
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_12
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%的手掌覆上了萃香小小的乳房
+	PRINTFORMDL 掌心的温度缓缓渗透进去，手指像揉面团一样有节奏地一张一合
+	PRINTFORMDW 即使萃香毫无知觉，这对小小的柔软在手掌中的触感依然真实得无法替代
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的手悄悄从衣襟下摆伸了进去
+	PRINTFORML 「……嗯……」
+	PRINTFORMDL 手指触到那柔软隆起的一瞬间，睡梦中的萃香发出了一声轻哼
+	PRINTFORMDW 她的身体在梦中也认得这只手——乳尖在自己的掌心下已经悄悄挺了起来
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「呼呼，连揉胸都要专门来做一次吗……♥」
+				PRINTFORMDL 萃香嘴上笑着，但还是把衣襟拉了拉，让那对小小的乳房露出更多
+				PRINTFORMW 「来吧……反正也都给你看过了……想揉就揉吧……」
+			CASE 1
+				PRINTFORML 「哎……揉胸这种事情还要专门跟我说一声……」
+				PRINTFORML 「搞得好像是正经事一样……虽然确实挺正经的……」
+				PRINTFORMW 萃香红着脸把%CALLNAME:MASTER%的手拉到自己胸口
+		ENDSELECT
+	ELSEIF TALENT:炮友
+		PRINTFORML 「专门来揉胸？你还真是兴致勃勃呢」
+		PRINTFORML 萃香甚至主动挺了挺胸，「虽然不大但手感我可以保证」
+		PRINTFORMW 「来吧，随便揉……」
+	ELSE
+		PRINTFORML 「揉、揉胸？你是小孩子吗非要揉这个……」
+		PRINTFORMW 萃香嘴上嫌弃着，但身体却停在原地没有躲开
+	ENDIF
+	RETURN 1
+;V/A插入中
+ELSEIF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……一边动一边揉胸……」
+			PRINTFORMDL %CALLNAME:MASTER%的双手包住那对小巧的乳房，一边揉一边缓缓抽送
+			PRINTFORMW 「胸被揉的时候……下面就会不自觉收紧……你感觉到了吧……」
+		CASE 1
+			PRINTFORML 「啊……从后面进来的时候被揉胸……」
+			PRINTFORMDL 萃香趴在床上，%CALLNAME:MASTER%的手从她腋下穿过握住那对小小的乳房
+			PRINTFORMW 「这个姿势……胸部会完全被你掌控……想怎么揉就怎么揉……♡」
+		CASE 2
+			PRINTFORML 「嗯……%CALLNAME:MASTER%揉胸的节奏和下面不一样……」
+			PRINTFORMW 「上面快下面慢……上面慢下面又快了……这种交错的感觉好奇怪……但是舒服……」
+	ENDSELECT
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔嘿嘿……揉揉捏捏……像在揉团子一样……」
+			PRINTFORMDL 烂醉的萃香低头看着%CALLNAME:MASTER%的双手在自己胸口忙碌
+			PRINTFORMW 「好玩……胸在你的手里面变形了……捏起来是什么手感……」
+		CASE 1
+			PRINTFORML 「嗝……我跟你说实话……我其实挺喜欢被揉胸的……」
+			PRINTFORMW 「因为被揉的时候……总觉得你是在确认我的存在……像在检查我还活着一样……」
+		CASE 2
+			PRINTFORML 「嘿嘿……%CALLNAME:MASTER%的手好大……一只手就能盖住一整边……」
+			PRINTFORMW 「这样显得我的超小的……不过反正你喜欢就好……再揉一会……」
+		CASE 3
+			PRINTFORML 「你知道吗……鬼喝醉了之后胸会变热……」
+			PRINTFORMW 「不信你摸摸……是不是比平时烫……这是鬼血的温度……只给你一个人摸……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:5
+		CASE 0
+			PRINTFORML 「这样子揉的话，真的会变大么？」
+			PRINTFORMDL 萃香低头看着%CALLNAME:MASTER%的双手在自己小小的胸口上揉弄
+			PRINTFORMW 「……如果会的话你就天天揉吧……我陪你……反正也是你的事……」
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%，很喜欢胸部么？」
+			PRINTFORML 「每次你揉胸的时候表情都特别认真……像个在鉴定的专家一样」
+			PRINTFORMW 「那么专家的鉴定结果是……？」
+		CASE 2
+			PRINTFORML 「讨厌……呜呜……不要……不要再揉了……」
+			PRINTFORMDL 萃香嘴上喊着不要，呼吸却越来越急促，小小的胸脯在%CALLNAME:MASTER%的掌中起伏得越来越快
+			PRINTFORMW 「……骗你的，其实你可以继续……」
+		CASE 3
+			PRINTFORML 「嗯……%CALLNAME:MASTER%手心的茧子……」
+			PRINTFORML 「每次揉胸的时候粗糙的地方蹭到乳头……那个感觉真的会上瘾……」
+			PRINTFORMW 「你是不是故意用茧子去磨的……好狡猾……♡」
+		CASE 4
+			PRINTFORML 「揉吧揉吧……反正我的胸就这点大了……」
+			PRINTFORMW 「但是里面的感情比谁的都多……不信你多揉几下试试……一定能传达到……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「唔……这样专心致志地揉胸……感觉比随便摸摸更害羞……」
+			PRINTFORMW 「因为你会注意到每一寸的变化……我都不敢动……怕你觉得奇怪……」
+		CASE 1
+			PRINTFORML 「我是不是应该庆幸自己胸小……所以能被你的手完全包住……」
+			PRINTFORMW 「……这样的话每一处都不会被漏掉。大胸才没有这种待遇呢……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……专门空出时间来揉胸……今天的服务真周到……」
+			PRINTFORMDL 萃香享受着%CALLNAME:MASTER%双手在自己胸口的按摩
+			PRINTFORMW 「对……就是那个力道……从下往上推……你真的很懂嘛……」
+		CASE 1
+			PRINTFORML 「你揉胸的时候那种专注的眼神……是装不出来的……」
+			PRINTFORMW 「虽然胸小……但是能被%CALLNAME:MASTER%这么认真地对待……也是我的荣幸……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:10:愛欲
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「啊哈！把两边同时往中间挤！快！」
+			PRINTFORMW 「虽然只有一点点但是还是能挤出沟的……你看……是不是……♡」
+		CASE 1
+			PRINTFORML 「这样子揉的话……我的脑子会变成一团浆糊的……」
+			PRINTFORMW 「但是没关系……反正我也不想思考什么……今晚就让你揉个够……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+SELECTCASE RAND:4
+	CASE 0
+		PRINTFORML 「这样子揉的话，真的会变大么？」
+		PRINTFORMDL 萃香半信半疑地任由%CALLNAME:MASTER%揉着自己的胸
+		PRINTFORMW 「……算了反正你说会就会吧……今天先揉到这……明天看结果……」
+	CASE 1
+		PRINTFORML 「%CALLNAME:MASTER%，很喜欢胸部么？」
+		PRINTFORML 「每次你揉的时候都一副很享受的样子……虽然胸的主人是挺难缠的……」
+		PRINTFORMW 「……不过你喜欢就行……」
+	CASE 2
+		PRINTFORML 「讨厌……呜呜……不要……不要再揉了……」
+		PRINTFORMDL 萃香用双手挡在胸前，但手指间的缝隙足够%CALLNAME:MASTER%继续动作
+		PRINTFORMW 「我挡了……是你自己找缝钻进来的……不能怪我继续骂你……」
+	CASE 3
+		PRINTFORML 「你揉我胸的时候在想什么呀……」
+		PRINTFORMW 「是不是在想华扇或者勇仪的？……没有？那就好……继续揉你的……」
+ENDSELECT
+RETURN 1
+
+RETURN 0
+
+;==================================================
+;13,アナル開帳 张开菊穴
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_13
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 一般而言，这里应该是绝对不可视之处吧
+	PRINTFORMDL 但是现在，完全被%CALLNAME:MASTER%所视奸——每一圈褶皱、每一个微小的细节都被仔细地收入眼中
+	PRINTFORMDW 一想到独占了这样的地方，仅仅只是看着就充满了支配欲。更何况她还完全不知道
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡的时候，%CALLNAME:MASTER%轻轻地分开了她的臀瓣
+	PRINTFORML 「……呼……唔嗯……」
+	PRINTFORMDL 睡梦中的萃香微微皱了皱眉，菊蕾本能地收缩了一下
+	PRINTFORMDL 淡粉色的褶皱在月光下显得格外干净——她一定是个爱干净的人，连这种地方都打理得一丝不苟
+	PRINTFORMDW 这种在完全无意识状态下暴露最隐秘之处的景象，比任何色情画面都令人着迷
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORMDL 肆意的摆弄着醉酒的萃香，将她的臀部摆成最便于观察的姿势
+			PRINTFORMDL 打开后面猥亵的尻穴，每一圈褶皱都被%CALLNAME:MASTER%人仔细地看在眼里
+			PRINTFORMW 「……唔……嗯？……怎么了么？」
+			PRINTFORMDW 她迷迷糊糊地问道，却完全没有意识到自己正在被怎么样地视奸着
+		CASE 1
+			PRINTFORML 「嗝……又要看后面啊……」
+			PRINTFORMDL 烂醉的萃香自己用手分开了臀瓣——这个动作她已经在自己没注意的时候做过好几次了
+			PRINTFORMW 「看吧看吧……反正我喝醉了明天就忘了……你看多少次都等于没看……嘿嘿……」
+		CASE 2
+			PRINTFORMDL 烂醉的萃香趴在床上，%CALLNAME:MASTER%掰开她的臀瓣近距离观察着
+			PRINTFORML 「唔……你在盯着我的屁股看对不对……」
+			PRINTFORMW 「看吧……鬼的屁股……值得一看……我自己是这么觉得的……」
+	ENDSELECT
+	RETURN 1
+;恋慕or恋人or愛欲
+ELSEIF TALENT:10:恋人 || TALENT:10:恋慕 || TALENT:10:愛欲
+	;中出后
+	IF TCVAR:104
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哈啊……后面、不行的……讨厌……」
+				PRINTFORMDL 萃香因为刚刚的中出而在喘息着，%CALLNAME:MASTER%趁着这个时间观察了起来
+				PRINTFORMDW 白色的液体缓缓从后面溢了出来——那是刚才的过程中不小心流到那里的
+			CASE 1
+				PRINTFORML 「唔……刚弄完里面……又来视奸后面……」
+				PRINTFORMDL 萃香把脸埋进枕头里，身体却保持不动——这是默许的标志
+				PRINTFORMW 「快看……看完了要帮我擦干净……这是交换条件……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+	;露出癖2以下
+	IF ABL:10:露出癖 < 3 && !TALENT:10:淫乱
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「哎……想看这种地方么……真的是，不可救药的变态呢……」
+				PRINTFORMDL 面对%CALLNAME:MASTER%的请求，萃香无奈地答应了——但还是用一只手遮着自己的脸
+				PRINTFORMW 「看就好……不要发表感想……每一句感想都是对我的刑罚……」
+			CASE 1
+				PRINTFORML 「咦……你还真的是……变态……」
+				PRINTFORMDL 萃香一边骂一边自己趴好，把臀部对着%CALLNAME:MASTER%
+				PRINTFORMW 「快点看……别一直盯着……这个姿势坚持久了腰会酸的……」
+			CASE 2
+				PRINTFORML 「真不知道你在这种事上为什么这么执着……」
+				PRINTFORMW 「好吧好吧……就三秒……一……二……三秒过了你怎么还在看！」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊呀，居然想看这种地方么……」
+				PRINTFORMDL 萃香自己用手分开了臀瓣，把那圈粉色的小褶皱完全暴露在%CALLNAME:MASTER%眼前
+				PRINTFORMW 「来吧……好好欣赏……这可是只属于你的风景哦……」
+			CASE 1
+				PRINTFORML 「嘿嘿，这么想看的话，那就看个够吧……」
+				PRINTFORMDL 萃香趴在床上，甚至还主动把臀部抬了抬以便%CALLNAME:MASTER%看得更清楚
+				PRINTFORMW 「反正都已经是你的了……想怎么看就怎么看……」
+			CASE 2
+				PRINTFORML 「要我给你解说一下吗……这是我后面的洞……」
+				PRINTFORML 「自从认识你之后……这里被开发了不少呢……你满意吗……」
+				PRINTFORMW 「……笑什么笑……还不都是因为你……你得负责……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「这种地方你也要看……真的是……」
+			PRINTFORMDL 萃香嘴上抱怨着，却还是乖乖趴了下来——这是她也没想到自己会做的事
+			PRINTFORMW 「看在你这么想看的份上……就这一次哦……」
+		CASE 1
+			PRINTFORML 「我大概是鬼里面最没出息的一个了……被人类看后面还乖乖配合……」
+			PRINTFORMW 「但这都要怪你……是你先把我变成这样的……所以你要负责到底……」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	;露出癖2以下
+	IF ABL:10:露出癖 < 3 && !TALENT:10:淫乱
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「不……不行！！……讨厌……变态啊啊啊啊啊啊啊！」
+				PRINTFORMW 「要是你敢，我就再也不让你碰我了！」
+				PRINTFORMDW 因为内心无法接受，萃香进行了严重的警告。%CALLNAME:MASTER%只能勉强中断了
+			CASE 1
+				PRINTFORML 「你是不是搞错了什么……我是鬼，不是你什么都可以看的玩具！」
+				PRINTFORMW 「那种地方……连我自己都……总之不行！想都别想！」
+			CASE 2
+				PRINTFORML 「你要是敢动我后面……」
+				PRINTFORMW 「我就把你的头按进葫芦里腌三天三夜……等下我这威胁是在说真的！」
+		ENDSELECT
+		RETURN 1
+	ELSE
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「哎……想看啊……反正也不是第一次了……」
+				PRINTFORMW 萃香叹了口气趴好后回头看着你，「速度快点……看太久我也会不好意思的……」
+			CASE 1
+				PRINTFORML 「我都不知道你看了多少次了……现在喊不要也太晚了……」
+				PRINTFORMW 「随便看吧……反正我都习惯了……鬼的尊严什么的早就没了……」
+		ENDSELECT
+		RETURN 1
+	ENDIF
+ENDIF
+
+RETURN 0
+
+;==================================================
+;15,クリ愛撫 阴蒂爱抚
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_15
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在时间停止中，%CALLNAME:MASTER%的指尖轻轻拨开了那层小小的包皮
+	PRINTFORMDL 藏在下面的阴核像一粒小小的珍珠，在静止的时间中泛着湿润的光泽
+	PRINTFORMDL 指尖刚碰到那粒挺立的小豆子的瞬间——即使时间停滞了，它依然微微地颤动了一下
+	PRINTFORMDW 这种在时停中独享她最敏感之处的感觉，比任何实际的性爱都更让人心跳
+	RETURN 1
+;初次
+ELSEIF FIRSTTIME(SELECTCOM)
+	IF TALENT:恋慕
+		PRINTFORML 「哎……要……要碰阴蒂吗……」
+		PRINTFORMDL 萃香下意识地夹紧了双腿，脸上浮现出混合了紧张和期待的表情
+		PRINTFORML 「那里……比任何地方都敏感……所以请轻一点……」
+		PRINTFORMW 话刚说完，她自己就因为说出了"轻一点"这种话而把脸埋进了枕头里
+	ELSEIF TALENT:炮友
+		PRINTFORML 「阴蒂？直接上手？你这人真是不拐弯抹角……」
+		PRINTFORMDL 萃香倒也不扭捏，把腿往两边分开了些
+		PRINTFORMW 「来吧，让我看看你的手指功力……这里可是最后的王牌哦」
+	ELSE
+		PRINTFORML 「你……你要碰那里！？那是阴蒂啊！你知道碰那里意味着什么吗！」
+		PRINTFORMW 萃香的脸以肉眼可见的速度变红了——但%CALLNAME:MASTER%的手指已经在路上了
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%的手指悄悄滑进了她的腿间
+	PRINTFORMDL 指尖在花缝间摸索着，找到了那粒还在沉睡中的小豆子
+	PRINTFORML 「……唔……嗯……」
+	PRINTFORMDL 轻轻一碰，睡梦中的萃香就发出了含糊的呻吟，双腿本能地向内夹了夹
+	PRINTFORMDW 即使意识还在沉睡，这个地方却已经诚实地醒了过来——在%CALLNAME:MASTER%的指尖下变得硬挺而滚烫
+	RETURN 1
+;V/A插入中
+ELSEIF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「啊♡ 别……别在插着的时候碰阴蒂……」
+			PRINTFORMDL %CALLNAME:MASTER%的手指在结合处上方找到了那粒充血挺立的阴核，指尖轻轻一弹
+			PRINTFORMW 「咿——！这样会……里面把肉棒绞得紧紧的……你感觉到了吧……♡」
+		CASE 1
+			PRINTFORML 「唔……在动的时候用手指按着阴蒂……」
+			PRINTFORMW 「感觉好像……所有的神经都集中到那一颗小豆子上了……其他的感觉都变得模糊了……♡」
+		CASE 2
+			PRINTFORML 「等一下……阴蒂被揉着的时候……」
+			PRINTFORMW 「连菊穴都会有感觉……明明离得那么远……这身体是不是被你改造了……♡」
+	ENDSELECT
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔嘿嘿……你在按那个小豆子对不对……」
+			PRINTFORMDL 烂醉的萃香低头看着%CALLNAME:MASTER%的手指在自己的腿间忙碌
+			PRINTFORMW 「好玩……一碰它我全身就会跳一下……你看……又跳了……嘿嘿……」
+		CASE 1
+			PRINTFORML 「嗝……我跟你说一个秘密……鬼的阴蒂比人类的要敏感……」
+			PRINTFORMW 「因为密度不一样……都浓缩在这一颗豆子上了……你赚大了知道吗……」
+		CASE 2
+			PRINTFORML 「啊啊♡ 别用指甲刮那里……会直接高潮的……」
+			PRINTFORMW 「我喝醉了控制不住……真的会漏出来的……到时候床单脏了你洗……」
+		CASE 3
+			PRINTFORML 「嘿嘿……你知道阴蒂摸了多久会高潮吗……」
+			PRINTFORMW 「我帮你计时……现在开始……一……二……啊♡ 还没数完呢你怎么就加速了……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	IF ABL:Ｃ感覚 >= 4
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「嗯♡ 那里……已经比刚开始的时候敏感一百倍了……」
+				PRINTFORMDL 萃香的双腿在%CALLNAME:MASTER%的手指下微微发颤，膝盖不受控制地向内夹紧又松开
+				PRINTFORMW 「都是你天天摸的……把一颗普通的阴蒂变成了这么不得了的东西……」
+			CASE 1
+				PRINTFORML 「呼啊……手指在按着阴蒂的根部打转……」
+				PRINTFORMDL %CALLNAME:MASTER%的指腹压住那粒硬挺的小核根部，以研磨的方式缓缓地画着圈
+				PRINTFORMW 「这种方法……是你自己研究出来的吗……太犯规了……脑子要融化了……♡」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……你知道吗……」
+				PRINTFORML 「光是想象你的手指在上面……我下面就自己湿了……」
+				PRINTFORMW 「然后真的被摸的时候……比想象中还要舒服一百倍……你说这公平吗……♡」
+			CASE 3
+				PRINTFORML 「唔……阴蒂被摸的时候……」
+				PRINTFORMW 「有一种……所有的感觉都从全身流到这一点上的错觉……」
+				PRINTFORMDW 「然后从这一点扩散到全身……像爆炸一样……♡」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「啊♡ 那里……第一次被这样专门弄……」
+				PRINTFORMDL 萃香紧咬着嘴唇，眼睛也闭得紧紧的，但身体却在一阵一阵地轻颤
+				PRINTFORMW 「好像身体里有一根弦……被你用手指一直在弹……」
+			CASE 1
+				PRINTFORML 「唔……直接摸阴蒂和隔着包皮摸……感觉完全不一样……」
+				PRINTFORMW 「直接把包皮翻开来摸的话……感觉太强烈了……但是又有一种停不下来的魔力……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%……我好像知道为什么有人说阴蒂是女人的开关了……」
+				PRINTFORMW 「你每按一下那里……我就觉得下面有什么东西要涌出来了……」
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;思慕
+IF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「你……你研究过我哪里最敏感对不对……」
+			PRINTFORMW 「不然怎么可能第一次就这样准确地……唔……别按得那么准……想反驳都没法反驳了……」
+		CASE 1
+			PRINTFORML 「这个位置平常我自己都不会去碰的……」
+			PRINTFORMW 「但是你碰的话……感觉就完全不一样……太狡猾了……这不是身体的问题……是人的问题……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;炮友
+IF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「啊哈……%CALLNAME:MASTER%果然是行家……直接攻阴蒂……」
+			PRINTFORMW 「对……就是那个节奏……每次碰到外围的时候再往中间划一下……我快要不行了……♡」
+		CASE 1
+			PRINTFORML 「嗯……用手指弹阴蒂这招……是谁教的你还是你自己悟出来的……」
+			PRINTFORMW 「算了……你还是……还是继续吧……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;愛欲
+IF TALENT:10:愛欲
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「啊哈！对！就是阴蒂！直接对着它来！」
+			PRINTFORMW 「不用管其他地方……不要绕路……就一直摩擦它……一直摩擦到它肿起来为止……♡」
+		CASE 1
+			PRINTFORML 「阴蒂是我的弱点……也是我最强的武器……」
+			PRINTFORMW 「因为只要你一碰这里……我就什么都想不了了……完全变成%CALLNAME:MASTER%的俘虏……♡」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+;其他情况
+IF ABL:Ｃ感覚 >= 3
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔……已经不记得第一次被摸阴蒂是什么时候了……」
+			PRINTFORMW 「现在想想真是不可思议……以前碰都不敢碰的地方现在被你天天摸……」
+		CASE 1
+			PRINTFORML 「你摸阴蒂的手法……是不是偷偷练过……」
+			PRINTFORMW 「每次都会恰好避开最敏感的那个点……然后在我放松的时候突然来一下……变态……♡」
+		CASE 2
+			PRINTFORML 「呼啊……已经……已经舒服到不知道自己在说什么了……」
+			PRINTFORMW 「我只知道你的手指在上面……其他的都变模糊了……」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「唔！不要直接碰那里……太刺激了……」
+			PRINTFORMW 「隔着包皮轻轻揉我还行……直接碰的话感觉太强了……」
+		CASE 1
+			PRINTFORML 「你这个人……为什么总是能找到最要命的地方……」
+			PRINTFORMW 「隔着裤子都能找到阴蒂在哪……你是装了雷达吗……」
+		CASE 2
+			PRINTFORML 「啊♡……那里不行……真的不行……」
+			PRINTFORMW 「碰了我就会发出奇怪的声音……你看……就是这样……啊……♡」
+	ENDSELECT
+ENDIF
+RETURN 1
+
+RETURN 0
+
+
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;软系指令
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+;19,キスする 接吻
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_19
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	IF TALENT:恋慕 || TALENT:10:愛欲
+		PRINTFORMDL 在停止的时间中近距离观察她的脸庞——每一根睫毛、每一道唇纹都清晰可见
+		PRINTFORMDL 要亲上去吗？%CALLNAME:MASTER%只是稍微思考了一下便吻了上去
+		PRINTFORMDL 舌尖轻易地滑进了她半开的唇间，在静止的世界里独自品尝着温热的口腔
+		PRINTFORMDL 舌头与舌头相触的瞬间——虽然她毫无知觉，但那柔软的触感真实得让人心跳加速
+		PRINTFORMDW 短暂的休息之后又是一轮长吻。时停中的吻就像偷来的宝物，每一秒都格外珍贵
+	ELSE
+		PRINTFORMDL 在时间停止的时候，无视萃香的意志而强行接吻
+		PRINTFORMDL 静止的嘴唇带着微凉的触感，但口腔内的温度与平时无异——这是时停也停不住的东西
+		PRINTFORMDL 你真的觉得这样很好玩么？……答案是肯定的
+		PRINTFORMDW 但现在必须停下了——因为即使在时停中，%CALLNAME:MASTER%自己也需要呼吸
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		PRINTFORMDL 在抽送的同时，%CALLNAME:MASTER%俯身吻上了萃香安静的睡颜
+		PRINTFORML 「呼……咻噜、嗯啾……唔……嗯嗯……」
+		PRINTFORMDL 萃香虽然在睡着，嘴唇却本能地回应着——微微张开、舌头轻轻地迎了上来
+		PRINTFORMDW 这种毫无抵抗的深吻，比清醒时的任何接吻都更加令人沉溺
+	ELSE
+		PRINTFORMDL 与萃香进行了长吻之后，%CALLNAME:MASTER%在休息的空档仔细观察着她
+		PRINTFORML 「……嗯……呜哈……呜嗯……」
+		PRINTFORMDL 此时的萃香看起来就像一个普通的少女，睫毛微微颤动着，安静地等待着什么
+		PRINTFORMDW 睡梦中的她大概不知道，刚才自己被怎样深情地吻过——但她的嘴唇是知道的
+	ENDIF
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORMDL 在交合的同时亲吻着萃香的嘴唇，她如同蜘蛛一样手脚并用地缠了上来
+				PRINTFORML 「……嗯……唔啾……嘿嘿……」
+				PRINTFORMDL 在接吻的时候，萃香将充满酒味的唾液毫不吝啬地送了过来
+				PRINTFORMDW 醉酒的萃香像撒娇般的少女一样，不愿松开紧紧抱着你的双手。每一次唇瓣的触碰都带着酒香
+			CASE 1
+				PRINTFORMDL 一边抽送一边接吻，烂醉的萃香主动把舌头伸进了%CALLNAME:MASTER%的嘴里
+				PRINTFORML 「嗝……酒的味道……传过去了吗……」
+				PRINTFORMW 「给……你也尝尝……这样算是间接接吻的加强版吧……嘿嘿……♡」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMDL 与喝醉的萃香接吻，她的脸上已经完全变成了红色
+				PRINTFORML 「呜呜呜、唔哈……唔、啾……嗯……呜呜……！哈啊」
+				PRINTFORML 「嘞噜……啾噜噜，笨蛋、喜欢……哈～嗯啾……嗯……嗞呜……」
+				PRINTFORMDW 这次的她是真的醉了。萃香比任何时候都主动地吻了过来
+			CASE 1
+				PRINTFORMDL 烂醉的萃香捧着%CALLNAME:MASTER%的脸，额头抵着额头
+				PRINTFORML 「我跟你说……鬼的初吻……是很久很久以前没的……」
+				PRINTFORML 「但是和%CALLNAME:MASTER%的吻……感觉才像是真正的第一次……嘿嘿……」
+				PRINTFORMW 说完她就用力地亲了上来，酒气和温热的气息混在了一起
+			CASE 2
+				PRINTFORMDL 萃香醉眼朦胧地用手指点了点%CALLNAME:MASTER%的嘴唇
+				PRINTFORML 「这里……是我的……每天都要来打卡……知道吗……」
+				PRINTFORMW 话没说完她就自己吻了上来——舌头笨拙但热情地在%CALLNAME:MASTER%的口腔中扫荡
+		ENDSELECT
+	ENDIF
+	RETURN 1
+;初接吻
+ELSEIF EXP:10:接吻経験 == 1
+	IF TALENT:恋慕
+		PRINTFORML 「……嗯哈！？这、这是第一次哦……」
+		PRINTFORMDL 萃香瞪大了眼睛，嘴唇上还残留着刚才短暂触碰的温度
+		PRINTFORMW 「你……你要负起责任哦……鬼的第一次接吻……是很重的……」
+	ELSEIF TALENT:炮友
+		PRINTFORML 「咦？第一次接吻啊……没想到对象是你……」
+		PRINTFORMDL 萃香摸了摸自己的嘴唇，上面还留着你刚刚印上去的温度
+		PRINTFORMW 「好吧……既然都发生了……我就坦然接受。反正感觉不坏……」
+	ELSE
+		PRINTFORML 「你……你做了什么！那可是我的初吻啊！」
+		PRINTFORMDL 萃香的脸红得连角都染上了颜色，双手捂着嘴退到了墙边
+		PRINTFORMW 「回……回去的时候至少要告诉我一声！突然就亲上来是犯规的啊！」
+	ENDIF
+	RETURN 1
+;恋慕or恋人or愛欲
+ELSEIF TALENT:10:恋人 || TALENT:10:恋慕 || TALENT:10:愛欲
+	;V挿入orA挿入中
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「嗯……啾噜……咕……」
+				PRINTFORMDL %CALLNAME:MASTER%在缓缓抽送的同时吻住了萃香的嘴唇，舌头与舌头在温热的口腔中互相缠绕
+				PRINTFORMW 「嗞呜……唔嗯……呼……一边接吻一边做……好像所有感官同时被填满了……♡」
+			CASE 1
+				PRINTFORML 「嗯……啾噜……咕嗯……」
+				PRINTFORMDL %CALLNAME:MASTER%和萃香交换着唾液，下身的节奏与舌头的动作渐渐同步
+				PRINTFORMW 「稍微有点沉迷于其中了呢……就这样……不要停……」
+			CASE 2
+				PRINTFORML 「呼……等一下……嘴唇都要被你亲肿了……」
+				PRINTFORMDL 萃香在吻的间隙喘着粗气，眼睛湿漉漉地看着%CALLNAME:MASTER%
+				PRINTFORMW 「但是我不会停的……只是说了要等一下……没说不让你继续……」
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORMDL %CALLNAME:MASTER%捧起萃香小小的脸，温柔地吻了上去
+				PRINTFORMDL 萃香闭上了眼睛，睫毛轻轻扫过%CALLNAME:MASTER%的脸颊
+				PRINTFORMW 「……嗯……呼呜……哈……」
+				PRINTFORML 「那个……还想要呢，可以再来一次么？」
+				PRINTFORMW 不等回答，这一次是萃香踮起脚尖主动凑了上来
+			CASE 1
+				PRINTFORML 「嗯……啾噜……咕嗯……」
+				PRINTFORMDL %CALLNAME:MASTER%和萃香交换着唾液，舌尖在彼此的口腔中描绘着每一寸的柔软
+				PRINTFORMW 「呼啊……呜呜……哈啊……再来……」
+			CASE 2
+				PRINTFORML 「%CALLNAME:MASTER%的嘴唇……好软……」
+				PRINTFORMDL 萃香在接吻的间隙喃喃自语，手指不自觉地抓紧了%CALLNAME:MASTER%的衣襟
+				PRINTFORMW 「每次和%CALLNAME:MASTER%接吻的时候……时间好像变得特别慢……想让每一秒都更久一点……」
+			CASE 3
+				PRINTFORML 「唔……你知道接吻的时候我在想什么吗……」
+				PRINTFORML 「我在数你的心跳……嘴唇贴着的时候能感觉到……在脖子上跳的那个脉搏……」
+				PRINTFORMW 「扑通扑通的……和我跳得一样快……原来你也在紧张……♡」
+		ENDSELECT
+		PRINTFORMDW %CALLNAME:MASTER%和萃香进行了激烈的长吻，萃香看起来完全沉浸在其中
+	ENDIF
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「唔……接吻这种事情……」
+			PRINTFORMDL 萃香的话还没说完就被%CALLNAME:MASTER%吻住了，她愣了一下之后缓缓闭上了眼睛
+			PRINTFORMW 「……没有推开你……不代表我承认什么……只是因为你亲得太突然了……」
+		CASE 1
+			PRINTFORML 「今天的吻……和上次的感觉不一样……」
+			PRINTFORMW 「比上次更甜一点……你是不是吃了什么……还是说这是我自己的错觉……」
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……接吻技术越来越好了呢……」
+			PRINTFORMDL 萃香舔了舔嘴唇上残留的触感，露出了一个满意的微笑
+			PRINTFORMW 「看来平时没少练……嗯……虽然不知道你的练习对象是谁……不过反正获益的是我……就当不知道吧……」
+		CASE 1
+			PRINTFORML 「你知道吗……接吻对我来说甚至比做爱更亲密……」
+			PRINTFORMW 「因为做爱可以是纯粹的生理需求……但接吻一定是带着感情的……哪怕是炮友……」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	;V挿入orA挿入中
+	IF TEQUIP:50 == PLAYER || TEQUIP:51 == PLAYER
+		SELECTCASE RAND:2
+			CASE 0
+				PRINTFORML 「嗯……啾噜……咕……」
+				PRINTFORML 「什么……要出来了？……外面……嗯啊……」
+				PRINTFORMDL %CALLNAME:MASTER%在即将到达顶点的时候吻住了萃香，能感觉到下身瞬间被夹得更紧了
+				PRINTFORMW 「唔……接吻让下面变得更敏感了……快停下来……呼吸不过来了……」
+			CASE 1
+				PRINTFORML 「呀，哈，呼！呼！太激烈了……！」
+				PRINTFORMDL %CALLNAME:MASTER%堵住了正在发出娇喘的萃香的嘴，舌头侵入她温热的口腔
+				PRINTFORMW 「咿，呼～嗯～……咻噜、嗯啾……嗯……唔唔……」
+				PRINTFORMDW 被堵住了嘴的她只能靠着下身来回应——%CALLNAME:MASTER%能清楚地感受到包裹着自己的蜜穴正在一阵阵收缩
+		ENDSELECT
+	ELSE
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORML 「唔……不要……这样的，这样子接吻的话……」
+				PRINTFORMW 虽然萃香眉头微皱，但却没有推开%CALLNAME:MASTER%——只是闭着眼睛，睫毛轻颤着
+			CASE 1
+				PRINTFORML 「唔……！你……讨厌……呜呜……坏蛋……」
+				PRINTFORMDL 萃香嘴上骂着，嘴唇却在%CALLNAME:MASTER%的吻下渐渐变得柔软
+				PRINTFORMW 「我只是没反应过来……不是默许……也不代表喜欢……明白了没……」
+			CASE 2
+				PRINTFORML 「你这个人……为什么每次接吻都这么用力……」
+				PRINTFORMW 「好像想把我的灵魂从嘴里吸出来一样……温柔一点不行吗……」
+			CASE 3
+				PRINTFORMDL 没有说话，%CALLNAME:MASTER%直接吻了上去
+				PRINTFORMDL 萃香愣了一秒之后开始用力推开，但推着推着手指就从推变成了抓——抓紧了%CALLNAME:MASTER%的衣领
+				PRINTFORMW 松开嘴唇的时候，萃香的呼吸已经彻底乱了，「……下次至少说一声……」
+		ENDSELECT
+		PRINTFORMDW %CALLNAME:MASTER%与萃香接吻着，感受着她唇内的一切——温热、潮湿、以及她竭力掩饰却还是传过来的心跳
+	ENDIF
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;20,キスする 继续接吻
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_20
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	IF TALENT:恋慕 || TALENT:10:愛欲
+		PRINTFORMDL 继续在静止的时间中吻着她——反正没人会发现
+		PRINTFORMDL 舌尖又一次滑过她柔软的唇瓣，探入口腔中缓缓搅动
+		PRINTFORMDW 偷来的时间里，每一吻都像是最后一吻一样被反复确认和珍藏
+	ELSE
+		PRINTFORMDL 时间还未流动，%CALLNAME:MASTER%又一次吻了上去
+		PRINTFORMDL 反正她也无法拒绝——但这种单方面的亲吻做多了确实会让人产生奇怪的罪恶感
+		PRINTFORMDW 算了，再来最后一次。真的是最后一次……
+	ENDIF
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 又一次吻上萃香安静的睡颜——她的嘴唇在梦中微微张开，方便了%CALLNAME:MASTER%的舌头滑进去
+	PRINTFORML 「……嗯……啾……」
+	PRINTFORMDL 睡梦中的她发出了黏腻的水声，无意识中吮吸着%CALLNAME:MASTER%的舌尖
+	PRINTFORMDW 这种全无防备的回应比任何清醒的接吻都更能让人上瘾
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「唔……又亲过来了……你今天是要亲够本吗……」
+			PRINTFORMDL 烂醉的萃香嘴上抱怨着，嘴唇却已经主动迎了上来
+			PRINTFORMW 「算了……反正我也喜欢……你想亲多少次就亲多少次……」
+		CASE 1
+			PRINTFORML 「再来……刚才那个还没过瘾……」
+			PRINTFORMDL 萃香醉眼朦胧地拽着%CALLNAME:MASTER%的领口往自己这边拉
+			PRINTFORMW 「这已经是第几次了？你数了吗？我也没数……那就再数一次……唔……」
+	ENDSELECT
+	RETURN 1
+;恋慕or恋人or愛欲
+ELSEIF TALENT:10:恋人 || TALENT:10:恋慕 || TALENT:10:愛欲
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「嗯……又来……今天第几次了？」
+			PRINTFORMDL 萃香嘴上这样问着，却在%CALLNAME:MASTER%还没回答之前自己踮起脚把嘴唇送了上去
+			PRINTFORMW 「答案是无论第几次都一样……每一次都很开心……♡」
+		CASE 1
+			PRINTFORML 「啾……咕嗯……呼啊……」
+			PRINTFORMDL 分开的时候，两人的嘴唇之间拉出了一道透明的丝线
+			PRINTFORMW 「真是的……每次都亲得这么认真……我的嘴唇都快被你磨薄了……」
+			PRINTFORMDL 萃香用指尖轻轻碰了碰自己微微发红的嘴唇，但还是忍不住笑了出来
+		CASE 2
+			PRINTFORML 「你知道吗……你亲我的时候，鼻子会顶着我的鼻子……」
+			PRINTFORML 「因为角度刚好……我们的鼻子差不多高……虽然我整体比你矮那么多……」
+			PRINTFORMW 「是不是因为接吻的时候我踮着脚的原因……每次都会觉得和你一样高……」
+		CASE 3
+			PRINTFORML 「嗯……啾……再来……这次换上面一点……」
+			PRINTFORMDL 萃香开始反过来引导接吻的节奏——手指轻托着%CALLNAME:MASTER%的下巴，微微偏过头调整角度
+			PRINTFORMW 「怎么样……鬼的学习速度是不是很快……这种角度最舒服对不对……」
+	ENDSELECT
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「是不是亲得太频繁了……别人看到怎么办……」
+			PRINTFORMDL 萃香嘴上这么说，却在%CALLNAME:MASTER%的嘴唇凑上来的时候乖乖地闭上了眼睛
+			PRINTFORMW 「算了反正现在没人看到……再亲一下就一下……」
+		CASE 1
+			PRINTFORML 「今天已经亲了几次了你心里有数吗……」
+			PRINTFORML 「……其实我数了，这是第五次了……别问为什么我会数这个……」
+			PRINTFORMW 说完她自己都觉得太明显了，把通红的脸埋进了%CALLNAME:MASTER%的胸口
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……你接吻瘾头还挺大的……」
+			PRINTFORMDL 萃香擦了擦嘴边的湿润，露出了一个促狭的笑容
+			PRINTFORMW 「不过我也有瘾……继续继续……」
+		CASE 1
+			PRINTFORML 「刚换气完你就又来了……你是因为缺氧才停的不是因为亲够了吧……」
+			PRINTFORMW 「好吧……给你十秒钟深呼吸……然后继续……我也还没亲够呢……」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「唔……怎么又亲过来……刚才不是才亲完……」
+			PRINTFORMDL 萃香皱着眉头，但在嘴唇被触碰的瞬间表情就不自觉放松了下来
+			PRINTFORMW 「……我不是说可以……只是正好没躲开……不要把这两件事搞混……」
+		CASE 1
+			PRINTFORML 「你这个人接吻的间隔越来越短了……上次停是因为你喘不过气对吧……」
+			PRINTFORMW 「这次我要紧咬着牙齿让你碰壁——开什么玩笑当然是假的啊，快亲亲我……」
+		CASE 2
+			PRINTFORML 「呼……今天第几次了……你的嘴唇不酸吗……」
+			PRINTFORMDL 萃香用手背擦了擦自己也被吻得发红的嘴唇
+			PRINTFORMW 「……我的倒是有点酸了……不过没说不让你继续……只说有点酸而已……」
+		CASE 3
+			PRINTFORML 「你是不是觉得吻多了我就会习惯了……」
+			PRINTFORMDL 萃香盯着%CALLNAME:MASTER%的眼睛看了一会儿，然后叹了口气
+			PRINTFORMW 「……好吧，来吧……反正都到这个份上了……」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;21,何もしない 什么都不做
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_21
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 时间还停着。%CALLNAME:MASTER%停下来看着静止的萃香——她的表情定格在上一秒，眼睛还半闭着
+	PRINTFORMDL 伸出手把她额前的一缕头发拨到耳后，指尖在她脸颊上多停留了片刻
+	PRINTFORMDW 在静止的时间里看着她——不需要做任何事，光是这个画面就足够了
+	BASE:10:体力 += 300
+	BASE:10:気力 += 300
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 放下所有的小动作，安静地躺在萃香身旁
+	PRINTFORMDL 她均匀的呼吸声像是最温和的潮汐，将%CALLNAME:MASTER%的意识也带入了一片宁静
+	PRINTFORMDW 就这样在她的睡颜旁休息一会——今晚的恶作剧到此为止
+	BASE:10:体力 += 300
+	BASE:10:気力 += 300
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「……呜呜……再喝酒……」
+			PRINTFORMDW 萃香看起来喝得有点多，连说话都含糊不清了。%CALLNAME:MASTER%把她往被子里塞了塞，让她好好躺下休息
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「唔……为什么停下来了……不继续了吗……」
+			PRINTFORMDL 烂醉的萃香迷迷糊糊地抬起头，然后又重重地倒回枕头上
+			PRINTFORMW 「算了……正好我也困了……一起睡……呼……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 2
+			PRINTFORML 「嗝……中场休息对吧……我懂的……」
+			PRINTFORMDW 萃香自己翻了个身，把葫芦抱在怀里当抱枕——看来这场醉酒还需要一段时间才能缓缓
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;恋人
+ELSEIF TALENT:恋人
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「怎么了么……为什么……要停下来」
+			PRINTFORMDL 萃香抬头看着%CALLNAME:MASTER%，眼神里没有责备只有关心
+			PRINTFORMW 「是累了么……那就休息一会吧……我在这里陪你……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「累了么……」
+			PRINTFORMDL 萃香张开小小的双臂，在空气中划了一个弧
+			PRINTFORMW 「可以躺在我的怀里哦……虽然不大但是还是能装下你的头的……大概……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 2
+			PRINTFORML 「怎么了么……突然停下来……」
+			PRINTFORMDL 萃香坐到了%CALLNAME:MASTER%旁边，肩膀轻轻靠在他的身上
+			PRINTFORMW 「偶尔什么都不做也挺好的……就这样……听听窗外的风声……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 3
+			PRINTFORML 「休息一下也好……」
+			PRINTFORMDL 萃香从葫芦里倒了一小杯酒递到%CALLNAME:MASTER%面前
+			PRINTFORMW 「来……喝一口缓缓……然后又可以继续……不管是做什么……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「累了的话，就喝酒吧」
+			PRINTFORML 萃香摇了摇从不离手的葫芦，「虽然酒不能解决所有问题……但至少可以让休息变得更有趣」
+			PRINTFORMW 说着她自己先喝了一口，然后把葫芦递了过来
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「呼呼……累了的话就休息吧……」
+			PRINTFORMDL 萃香盘腿坐在%CALLNAME:MASTER%旁边，手指在地板上轻轻敲着不知名的节拍
+			PRINTFORMW 这份沉默并不尴尬——反而像是他们之间不需要言语的默契
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 2
+			PRINTFORML 「突然间什么都不做了……是在蓄力吗？」
+			PRINTFORMDL 萃香歪着头看着%CALLNAME:MASTER%，然后笑了出来
+			PRINTFORMW 「好吧……那我也趁机休息一下……免得到时候跟不上你的节奏……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 3
+			PRINTFORML 「你知道吗……人有时候不需要做什么……」
+			PRINTFORML 「光是和重要的人待在一个房间里……就已经很满足了……」
+			PRINTFORMW 萃香说着这句话的时候，眼睛没有看%CALLNAME:MASTER%——但她知道他在听
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「停下来了啊……也好……」
+			PRINTFORMDL 萃香在%CALLNAME:MASTER%旁边找了个位置坐下，故意坐得稍微远了一点——但也没有太远
+			PRINTFORMW 「偶尔这样安静待着也不错……虽然不知道要待多久……但好像也无所谓……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「突然不动了……怎么了……」
+			PRINTFORMDL 萃香观察了%CALLNAME:MASTER%几秒钟，确认他不是在开玩笑之后，自己也放松了下来
+			PRINTFORMW 「原来你也会累啊……我还以为你是什么永动机呢……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「中场休息？明智的选择——不管是体力还是注意力都需要回复」
+			PRINTFORMDL 萃香大大咧咧地在%CALLNAME:MASTER%旁边躺下
+			PRINTFORMW 「正好我也歇一会……等下再继续的时候我们两边的状态都在同一水平线上，这才公平……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「呼……休息一下也好。刚才那个频率我自己都觉得有点猛……」
+			PRINTFORMDL 萃香拿起葫芦喝了一小口，然后递给了%CALLNAME:MASTER%
+			PRINTFORMW 「来……喝一口。补充体力。待会还有下一场呢……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;愛欲
+ELSEIF TALENT:10:愛欲
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「啊……停下来了啊……也好……」
+			PRINTFORMDL 萃香趴在床上喘着气，刚才的兴奋还残留在泛红的皮肤上
+			PRINTFORMW 「休息一分钟……然后继续……一分钟后没开始的话我就自己动手了……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORML 「唔……中场休息……我可以靠着你吗……」
+			PRINTFORMDL 萃香主动把小小的身体靠进了%CALLNAME:MASTER%的怀里，拉起他的手环在自己腰上
+			PRINTFORMW 「这样休息效率更高……充电五分钟就可以继续下一轮……」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORMDL 萃香看了你一眼，似乎在确认你是不是真的打算什么都不做
+			PRINTFORMDW 确认了之后她耸了耸肩，开始在房间角落里翻起了不知道什么时候藏起来的酒
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 1
+			PRINTFORMDL 萃香自顾自地放松了起来——取出葫芦，拧开盖子，灌了一大口
+			PRINTFORMW 看起来即使你什么都不做，她也总能找到让自己舒适的方式
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 2
+			PRINTFORMDL 萃香趁机休息了一下——盘腿坐下，闭上眼睛开始打盹
+			PRINTFORMW 你不动她也不动。整个房间里只剩下两个人均匀的呼吸声
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+		CASE 3
+			PRINTFORML 「不做了？那我去喝酒了。」
+			PRINTFORMDL 萃香毫不客气地从枕头下面抽出葫芦，像终于等到这个时机一样
+			PRINTFORMW 「不用管我……你休息你的，我喝我的。大家各取所需——这才是理想的相处方式吧」
+			BASE:10:体力 += 300
+			BASE:10:気力 += 300
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;22,誘い受ける 引诱对方主动
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_22
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;时奸中
+IF FLAG:70
+	PRINTL
+	PRINTFORMDL 在静止的时间中，%CALLNAME:MASTER%把萃香的衣襟往下拉了拉，露出更多的锁骨
+	PRINTFORMDL 然后将她的手搭在自己肩上，摆出了一个诱惑的姿势——虽然她本人毫不知情
+	RETURN 1
+;睡奸中
+ELSEIF CFLAG:MASTER:恶作剧 == 2
+	PRINTL
+	PRINTFORMDL 趁着萃香熟睡，%CALLNAME:MASTER%轻轻地摆弄着她的姿势
+	PRINTFORMDL 把被子拉下来露出白皙的肩头，手指放在她的衣襟边缘上犹豫了一会——最后还是没解下去
+	PRINTFORMDW 光是看着睡梦中的她无意识的"诱惑"，就已经足够了
+	RETURN 1
+;烂醉
+ELSEIF TCVAR:10:烂醉 == 1
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「嗝……你又想让我干什么……」
+			PRINTFORMDL 烂醉的萃香眯着眼睛看着%CALLNAME:MASTER%，然后自己主动把衣襟往下拉了拉
+			PRINTFORMW 「这样？还是再低一点？反正我醉了……你想看多少就看多少……」
+		CASE 1
+			PRINTFORML 「诱……诱惑？这种事情不用你说我也会做……」
+			PRINTFORMDL 萃香摇摇晃晃地站起来，走了两步就栽进了%CALLNAME:MASTER%怀里
+			PRINTFORMW 「……你看，这不就诱惑到了吗……你自己接住的……不能怪我……」
+		CASE 2
+			PRINTFORML 「嘿嘿……想被我诱惑对吧……那你要当好观众……」
+			PRINTFORMDL 烂醉的萃香努力做出妩媚的表情，但酒精让她的动作变得笨拙又可爱
+			PRINTFORMW 「怎么样……鬼的诱惑……比人类的刺激多了吧……虽然我看不太清你的反应……」
+	ENDSELECT
+	RETURN 1
+;恋人
+ELSEIF TALENT:恋人
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORMDL 萃香听了%CALLNAME:MASTER%的要求后，脸微微红了一下
+			PRINTFORMDL 她慢慢地解开自己衣襟的第一个扣子——动作并不熟练，但正是因为不熟练才格外动人
+			PRINTFORMW 「这样可以吗……我其实不太会诱惑人……但只要是你的话……我什么都愿意试试……」
+		CASE 1
+			PRINTFORML 「想被我诱惑？好啊……不过你要告诉我希望我怎么做……」
+			PRINTFORMDL 萃香坐在床上，拍了拍自己旁边的位置
+			PRINTFORMW 「坐过来……然后告诉我……你想被我怎样诱惑……今天你是导演，我是演员……」
+		CASE 2
+			PRINTFORMDL 萃香站起来转了个圈——然后被自己的衣摆绊了一下
+			PRINTFORMDL 她稳住身形后不好意思地笑了
+			PRINTFORMW 「果然华丽的不适合我……我还是用我最擅长的方式吧——直接告诉你我喜欢你就够了。这算诱惑吗？」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「诱……诱惑？你是说像话本里那种？」
+			PRINTFORMDL 萃香有些困惑地歪了歪头，然后尝试着把衣襟往下拉了一点——虽然露出的只是更多的锁骨
+			PRINTFORMW 「这样可以吗……我知道我没什么资本……但我会努力的……」
+		CASE 1
+			PRINTFORML 「嗯……虽然不太懂诱惑是什么……但如果是%CALLNAME:MASTER%想看的话……」
+			PRINTFORMDL 萃香把葫芦放到一边，认认真真地站好，然后用她觉得最妩媚的姿势对你眨了眨眼
+			PRINTFORMW 「……不行了太羞耻了！这样够不够！够了我要喝酒了！」
+		CASE 2
+			PRINTFORML 「诱惑……是像这样的东西吗？」
+			PRINTFORMDL 萃香小声嘟囔着，把身体靠过来了一点——因为身高差，她的额头刚好碰到%CALLNAME:MASTER%的下巴
+			PRINTFORMW 这个角度从%CALLNAME:MASTER%的视角正好能看到她领口里若隐若现的起伏。她抬头问道：「这样……算吗……」
+	ENDSELECT
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「诱惑你？我有什么资本诱惑你啊……」
+			PRINTFORMDL 萃香低头看着自己——然后又抬起头看着%CALLNAME:MASTER%
+			PRINTFORMDW 她什么都没做，只是这样直直地看着。但被那双眼睛注视着的时候，意外地让人心跳加速
+			PRINTFORMW 「……你刚才是不是心跳快了一拍。这就是我的诱惑方式——用眼神。怎么样……」
+		CASE 1
+			PRINTFORML 「你要求还挺多的……诱惑这种事……」
+			PRINTFORMDL 萃香嘴上抱怨着，却拿起葫芦喝了一口，然后故意让一滴酒从嘴角淌下来，沿着脖子一路流到锁骨
+			PRINTFORMW 「……刚才你是不是盯着那滴酒看了。这还是勇仪教我的……说是什么鬼的传统艺能……」
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「诱惑？这种事本来就是我擅长的领域——好吧不吹牛了，我尽力」
+			PRINTFORMDL 萃香把衣襟往下拉了拉，用一种故作神秘的目光看着你
+			PRINTFORMW 「怎么样？看不出来是第一次做这种事吧。我练习过了——在镜子前面」
+		CASE 1
+			PRINTFORML 「想要什么样的？清纯派？魅惑派？还是懒得分类的即兴表演？」
+			PRINTFORMDL 萃香歪着头，嘴角带着促狭的笑
+			PRINTFORMW 「就即兴的好了……反正就算是即兴的也能让你目不转睛——我有这个自信」
+	ENDSELECT
+	RETURN 1
+;愛欲
+ELSEIF TALENT:10:愛欲
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「诱惑？早就在做着了——从刚才开始我每一个动作都是在诱惑你」
+			PRINTFORMDL 萃香用手指卷着自己的一缕头发，眼神慵懒地看着%CALLNAME:MASTER%
+			PRINTFORMW 「你现在才发现吗……看来我的功力还不够深，还是你反应太迟钝呢……」
+		CASE 1
+			PRINTFORML 「主动要我诱惑……%CALLNAME:MASTER%今天真有兴致呢……」
+			PRINTFORMDL 萃香缓缓地走近，手指轻轻点在%CALLNAME:MASTER%胸口——没有用力，只是恰好碰到
+			PRINTFORMW 「不用我做任何事……你的心跳已经告诉我答案了。但我还是要做——因为诱惑你就是我的乐趣……♡」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「哈？诱惑？你在找谁？我？」
+			PRINTFORMDL 萃香露出了"你在开玩笑吧"的表情，但还是在%CALLNAME:MASTER%的目光下站直了身体
+			PRINTFORMW 「好吧，既然你觉得我能诱惑你……那我试试看。不过失败了不许笑！」
+		CASE 1
+			PRINTFORML 「诱……惑……你到底想让我怎么诱惑？」
+			PRINTFORMDL 萃香用手指戳着自己的下巴思考了片刻，然后放弃了思考
+			PRINTFORMW 「我直接把葫芦给你吧——鬼的宝贝葫芦……这还不够诱惑吗？」
+		CASE 2
+			PRINTFORML 「你是被打得太多导致眼睛出问题了？居然要我诱惑你……」
+			PRINTFORMDL 萃香嘴硬了一会，但还是从葫芦上解下缎带，把它系在了自己的角上
+			PRINTFORMW 「……这样可以吗。我实在想不出别的了。缎带酒葫芦角——这就是我的全部装备」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+
+;==================================================
+;23,ピロートーク 枕边话
+;==================================================
+
+@M_KOJO_MOMO_MESSAGE_COM_K10_23
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;失敗
+IF TFLAG:193
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORMDL 萃香没有搭理你——她正专注于手边的葫芦，显然酒的优先级比你高
+			PRINTFORMW 「嗯？什么？你说什么？我刚才不小心把耳朵关上了——酒好喝的时候会自动关闭听觉系统」
+		CASE 1
+			PRINTFORMDL 萃香正在和她的葫芦进行某种深层次的交流——就是那种只有鬼和酒之间才能理解的对话
+			PRINTFORMW 「……等下，这个酒的回味有点不对……是不是掺了水……等下再跟你说话……」
+	ENDSELECT
+	RETURN 1
+;恋人
+ELSEIF TALENT:恋人
+	SELECTCASE RAND:4
+		CASE 0
+			PRINTFORML 「我也，爱着你」
+			PRINTFORMDL 萃香说这句话的时候没有看你——她看着窗外，看着月光洒在地板上的形状
+			PRINTFORMW 然后她转过头看着你，把刚才的话又说了一遍：「我也爱你——刚才怕看着你的时候说不出来……所以先试了一次」
+		CASE 1
+			PRINTFORML 「每天晚上和你在一起……然后白天想起来的时候……」
+			PRINTFORMDL 萃香躺下来把脸埋进枕头里，声音闷闷的
+			PRINTFORMW 「都会觉得自己大概是全幻想乡最幸福的鬼了……虽然说出来很羞耻，但这是我的真心话哦」
+		CASE 2
+			PRINTFORML 「呐……%CALLNAME:MASTER%……你有没有想过将来？」
+			PRINTFORML 「比如几十年后几百年后……我肯定还是这个样子……因为不会变老。但是你会……」
+			PRINTFORMW 「不过没关系的——不管你变成什么样子，只要还是你，我就会一直待在你枕边的这个位置」
+		CASE 3
+			PRINTFORML 「……虽然每天都在一起，但我还是想说——谢谢你选择了我」
+			PRINTFORMDL 萃香翻了个身把手轻轻搭在%CALLNAME:MASTER%的手背上
+			PRINTFORMW 「鬼的爱是很重的——这是你的幸运也是你的负担。所以从今往后也请多多关照了……」
+	ENDSELECT
+	RETURN 1
+;恋慕
+ELSEIF TALENT:恋慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「嘿嘿……其实每次和你躺在一起的时候……」
+			PRINTFORML 「我都会想起第一次见面的时候——那时候完全想不到后来会变成这样……」
+			PRINTFORMW 「命运真是有趣。鬼和人类躺在一张床上聊天什么的——故事都不敢这么写」
+		CASE 1
+			PRINTFORML 「%CALLNAME:MASTER%……你知道吗，我每次在酒宴上喝醉的时候……」
+			PRINTFORMW 「都会在迷迷糊糊中希望是你把我带回家的。因为你的肩膀靠着睡着最舒服……比任何枕头都舒服……」
+		CASE 2
+			PRINTFORML 「今天也辛苦啦……不管是打架还是别的事……」
+			PRINTFORMDL 萃香轻轻拍了拍你的头——明明她比你矮，这个动作却意外地自然
+			PRINTFORMW 「好好休息吧。明天也要一起——不管是喝酒还是打架还是别的什么……」
+	ENDSELECT
+	RETURN 1
+;思慕
+ELSEIF TALENT:思慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「嘿嘿………」
+			PRINTFORMDL 萃香躺在床上，盯着天花板看了很久，房间里只有两个人的呼吸
+			PRINTFORMW 「……能这样和你躺在一起……感觉真好啊。虽然不知道以后会怎么样……但今天这样就够了」
+		CASE 1
+			PRINTFORML 「呐……你困了吗？没困的话再聊一会……」
+			PRINTFORML 「不用说什么特别的……就说说今天发生了什么小事也好……我想听你的声音……」
+			PRINTFORMW 萃香把手枕在脑后，侧过脸看着你——黑暗中她的眼睛在微微发亮
+		CASE 2
+			PRINTFORML 「有时候我会想……如果你不在的话会是什么样子……」
+			PRINTFORMDL 萃香沉默了一会，然后把被子往上拉了拉——把自己的半张脸藏了起来
+			PRINTFORMW 「……还是别想了。光是假设一下就觉得酒都变苦了。所以你要一直在这里——就这么说定了」
+	ENDSELECT
+	RETURN 1
+;炮友
+ELSEIF TALENT:炮友
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……每次做完之后这种枕边聊天的环节……」
+			PRINTFORML 「虽然一开始觉得有点尴尬——毕竟我们又不是那种关系……但现在倒是习惯了」
+			PRINTFORMW 「习惯真可怕。居然会觉得这样也挺好的……你别笑……」
+		CASE 1
+			PRINTFORML 「你知道吗……枕边话这种东西，对炮友来说有种奇妙的感觉」
+			PRINTFORMW 「不像恋人说情话那么甜……也不像陌生人那么冷……刚刚好的温度。就像这杯微凉的酒……」
+	ENDSELECT
+	RETURN 1
+;愛欲
+ELSEIF TALENT:10:愛欲
+	SELECTCASE RAND:2
+		CASE 0
+			PRINTFORML 「哈啊……刚才的事你还满意吗……」
+			PRINTFORMDL 萃香躺在床上一只手还缠着%CALLNAME:MASTER%的手臂
+			PRINTFORMW 「我啊……只要是和你在一起不管做什么都是满分的体验……你应该也差不多吧……♡」
+		CASE 1
+			PRINTFORML 「唔……聊着聊着我就又想碰你了……」
+			PRINTFORMW 「枕边话的威力真大……光是你对着我说话的声音就让我浑身发热……我这样是不是太容易有反应了……」
+	ENDSELECT
+	RETURN 1
+;其他情况
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORML 「……」
+			PRINTFORMDL 萃香没有说话，只是安静地躺在那里。你也不说话
+			PRINTFORMW 沉默持续了很久——但这份沉默并不尴尬。就只是两个人共享一个枕头，各自想着各自的事
+		CASE 1
+			PRINTFORML 「你今天话还挺多的……平时不是闷葫芦吗……」
+			PRINTFORML 「不过我倒是不讨厌。鬼本来就喜欢热闹——哪怕只是两个人也算热闹」
+			PRINTFORMW 「所以继续说吧……我会听的……一边喝一边听……」
+		CASE 2
+			PRINTFORML 「枕边话啊……在鬼的习俗里，愿意和对方在枕边聊天意味着信任」
+			PRINTFORMW 「所以你到底有没有意识到自己现在在做什么——你在和鬼建立信任关系。这可是一件很重的事哦？」
+	ENDSELECT
+	RETURN 1
+ENDIF
+
+RETURN 0
+

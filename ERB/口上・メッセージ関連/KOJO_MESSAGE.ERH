@@ -1,0 +1,7 @@
+﻿;口上标识符缓存，用于在#FUNCTION函数中构造口上侧函数名
+;由@KOJO_ACTIVE_INFO填充，按运行时角色编号索引
+#DIMS KOJO_ACTIVE_NAME, 人物数量上限
+;KOJO_FUNCCHECK返回值语义控制/参数数组
+;下标含义由具体接口定义；在酒类口味接口中:0=0加算/1覆写
+;由@KOJO_FUNCCHECK调用前重置，口上侧#FUNCTION可读写
+#DIM KOJO_FUNCCHECK_OP, 10

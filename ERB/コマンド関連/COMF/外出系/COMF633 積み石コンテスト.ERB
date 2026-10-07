@@ -1,0 +1,2263 @@
+﻿;**************************************************************
+;积石竞赛ver2.1です
+;作者が書いてる分は改変自由で作者への連絡も不要です
+;作者:サイネリア
+;**************************************************************
+@COM633
+#DIM WIN_P
+#DIM STONE_ENTER ;本日コンテスト来了回数
+
+;名付けイベントを見てないとき、受付水子への地の文の名前呼びは受付水子になる
+SIF STONE_PLAYCOUNT:4 == 0
+	STONE_UKETSUKENAME = 受付水子
+
+
+IF FLAG:周回数 && STONE_BITE_A_DUST < FLAG:周回数
+	STONE_BITE_A_DUST = FLAG:周回数
+	SETCOLOR C_RED
+	PRINTFORML 由于败者·食尘的影响，除了获得的技能之外，所有积石竞赛的进度都已被重置。
+	PRINTFORMW
+	RESETCOLOR
+	CALL MIZUKO_BITE_A_DUST
+	VARSET STONE_PLAYCOUNT
+	VARSET STONE_TUTORIAL
+	VARSET STONE_BATTLECOUNT
+	VARSET STONE_ITEM
+	VARSET STONE_COMBI_WIN
+	VARSET STONE_COMBI_COMBI
+	VARSET STONE_COMBI_CHARA
+	VARSET STONE_COMBI_TROPHY
+	VARSET STONE_FIRSTSEX
+	STONE_UKETSUKEDAY = 0
+	;名付けのみ周回引継ぎ可に変更しました
+	IF RESULT && STONE_UKETSUKENAME != "受付水子"
+		STONE_PLAYCOUNT:4 = 2
+	ELSE
+		STONE_UKETSUKENAME = 受付水子
+	ENDIF
+ENDIF
+
+CALL MIZUKO_SETUP
+;はじめてコンテストに行った
+IF STONE_PLAYCOUNT:0 == 0
+	IF TALENT:MASTER:積み石ランカー > 0
+		IF STONE_BITE_A_DUST > 0
+			IF CHK_DATENOW(CFLAG:MASTER:约会中) && TARGET == FLAG:约会的对象 && !TARGET == MASTER
+				PRINTFORMW %CALLNAME:MASTER%带着%CALLNAME:TARGET%前往积石竞赛的会场一探究竟
+			ELSE
+				PRINTFORMW %CALLNAME:MASTER%前往积石竞赛的会场一探究竟
+			ENDIF
+			PRINTFORML 「你好！初次见面！这里是积石竞赛的会场！嗯...？」
+			PRINTFORML
+			PRINTFORMW 「......？虽然没有参赛记录，但你却拥有积石排行榜的称号？这是怎么回事？」
+			PRINTFORMW 「嗯...嗯...那没关系！参加是可以的！你可以保留那个称号」
+			PRINTFORML
+			PRINTFORMW 「当然，你也可以选择不继承那个神秘的积石竞赛称号并将其删除」
+			PRINTFORMW 「无论你选择继承还是不继承，都没有任何不利影响，只是可能会被当作新人对待」
+			PRINTFORMW 「另外，无论你选择继承还是不继承，之前的比赛次数和胜利次数都会被重置」
+			PRINTFORML
+			PRINTFORML 「要继续传承积石排名吗？（※如果选择不传承，积石排名将从0重新开始）」
+				CALL ASK_YN("传承称号","不传承称号")
+				IF !RESULT
+					
+				ELSE
+					PRINTFORML %CALLNAME:MASTER%失去了积石排名的称号...
+					TALENT:MASTER:積み石ランカー = 0
+				ENDIF
+			PRINTFORML
+			PRINTFORML 「那么，请重新介绍一下......」
+		ELSE
+			IF CHK_DATENOW(CFLAG:MASTER:约会中) && TARGET == FLAG:约会的对象 && !TARGET == MASTER
+				PRINTFORML 「你好！初次见面！这里是积石竞赛的场地哦！咦...？」
+				PRINTFORMW %CALLNAME:MASTER%带着%CALLNAME:TARGET%来到了之前参加过的积石竞赛场地
+				PRINTFORML
+				PRINTFORML 「非常抱歉！%CALLNAME:MASTER%先生之前参加过积石竞赛对吧」
+				PRINTFORMW 「但是...积石竞赛进行了全新的版本升级，焕然一新！」
+				PRINTFORMW 「亮点是新增的情侣组！你可以和%CALLNAME:TARGET%一起挑战哦！」
+				PRINTFORMW 「请详细查看HELP了解更多信息！」
+				PRINTFORML
+				PRINTFORML 「所以...你想继承旧积石竞赛的称号吗？」
+				PRINTFORMW 「继承也没有任何不利之处，但是可能会被当作新人对待，尽管你已经是老手了」
+				PRINTFORMW 「另外，无论继承还是不继承，之前的比赛次数和胜利次数都会被重置（因为之前没有计数）」
+				PRINTFORML
+				PRINTFORML 「要继续传承积石排名吗？（※如果选择不传承，积石排名将从0重新开始）」
+					CALL ASK_YN("传承称号","不传承称号")
+					IF !RESULT
+						
+					ELSE
+						PRINTFORML %CALLNAME:MASTER%失去了积石排名的称号...
+						TALENT:MASTER:積み石ランカー = 0
+					ENDIF
+				PRINTFORML
+				PRINTFORML 「那么，请重新介绍一下…」
+			ELSE
+				PRINTFORML 「你好！初次见面！这里是积石比赛的场地！咦...？」
+				PRINTFORMW %CALLNAME:MASTER%来到了曾经参加过的赛河原举办的积石竞赛场地
+				PRINTFORML
+				PRINTFORML 「非常抱歉！%CALLNAME:MASTER%先生之前参加过积石竞赛对吧」
+				PRINTFORMW 「但是...积石竞赛经过了全新的升级和改版！」
+				PRINTFORMW 「最大的亮点是新增的情侣项目！请查看帮助以获取更多信息！」
+				PRINTFORML 「所以...你想要继承旧积石的称号吗？」
+				PRINTFORMW 「继承与否都没有任何不利影响，但是可能会被视为新人尽管是老手」
+				PRINTFORMW 「另外，无论继承与否，之前的比赛次数和胜利次数都会被重置（因为之前没有进行统计）」
+				PRINTFORML
+				PRINTFORML 「要继续传承积石排名吗？（※如果选择不传承，积石排名将从0重新开始）」
+					CALL ASK_YN("传承称号","不传承称号")
+					IF !RESULT
+						
+					ELSE
+						PRINTFORML %CALLNAME:MASTER%失去了积石排名的称号...
+						TALENT:MASTER:積み石ランカー = 0
+					ENDIF
+				PRINTFORML
+				PRINTFORML 「那么，请重新介绍一下…」
+			ENDIF
+		ENDIF
+	ELSE
+		IF CHK_DATENOW(CFLAG:MASTER:约会中) && TARGET == FLAG:约会的对象 && !TARGET == MASTER
+			PRINTFORML 「你好！初次见面！这里是积石竞赛的场地！」
+			PRINTFORMW %CALLNAME:MASTER%和%CALLNAME:TARGET%在约会时来到了赛河原举办的神秘比赛场地
+			PRINTFORML
+			PRINTFORML 「顾名思义，这是一个评判积石技巧的比赛！」
+			PRINTFORMW 「无需预约，随时都可以参加，随意来吧！」
+			PRINTFORMW 「作为一对情侣，我推荐你们参加情侣项目的比赛！」
+			PRINTFORMW 「请查看帮助以获取更多信息！」
+			PRINTFORML
+			PRINTFORML 「那么，请重新介绍一下......」
+		ELSE
+			PRINTFORML 「你好！初次见面！这里是积石竞赛的场地！」
+			PRINTFORMW %CALLNAME:MASTER%无意中来到了赛河原举办的神秘比赛场地
+			PRINTFORML 「顾名思义，这是一个评判积石技巧的比赛！」
+			PRINTFORMW 「无需预约，随时都可以参加，随意来吧！」
+			PRINTFORMW 「如果你是新手，我建议你先挑战积石级别，然后逐步提升！」
+			PRINTFORMW 「请查看帮助以获取更多信息！」
+			PRINTFORML
+			PRINTFORML 「那么，请重新介绍一下......」
+		ENDIF
+	ENDIF
+	SELECTCASE TALENT:MASTER:積み石ランカー
+		CASE 0
+		CASE 1
+			STONE_PLAYCOUNT:1 += 7
+		CASE 2
+			STONE_PLAYCOUNT:1 += 15
+		CASE 3
+			STONE_PLAYCOUNT:1 += 24
+		CASE 4
+			STONE_PLAYCOUNT:1 += 34
+		CASE 5
+			STONE_PLAYCOUNT:1 += 50
+		CASEELSE
+	ENDSELECT
+ENDIF
+
+;受付水子妊娠後
+IF STONE_PLAYCOUNT:2 == 16 && (DAY:0 >= STONE_UKETSUKEDAY + 14)
+	PRINTFORML 「啊...好久不见了」
+	PRINTFORMW 「顺利地生下了」
+	PRINTFORML
+	PRINTFORMW 「呵呵呵...嘿嘿嘿...」
+	PRINTFORMW 「哎呀！还要继续工作呢！...忘记的东西...请来取吧」
+	STONE_PLAYCOUNT:2 = 17
+ELSEIF STONE_PLAYCOUNT:2 == 16 && !(DAY:0 >= STONE_UKETSUKEDAY + 14)
+	PRINTFORMW 『目前积石竞赛休息中，{STONE_UKETSUKEDAY + 14 - DAY:0}天后重新开放』
+	RETURN 0
+ENDIF
+
+;積み石王
+IF STONE_COMBI_TROPHY:31 == 1 && TALENT:MASTER:積み石ランカー == 5
+	PRINTFORMW 「哇！太厉害了！！！」
+	PRINTFORMW 「在积石竞赛中击败了认真的璎花小姐，情侣项目全面制霸！？」
+	PRINTFORMW 「这已经超越了积石大师的境地，应该称之为积石王了！」
+	PRINTFORMW 「%CALLNAME:MASTER%先生以后可以免费参加任意比赛！」
+	PRINTFORMW 「虽然可能没有什么可做的了...但是如果你能再来玩就太高兴了！」
+	TALENT:MASTER:積み石ランカー = 6
+ENDIF
+
+;今日はじめて来たときの判定
+IF STONE_ENTER < DAY
+	STONE_ENTER = DAY
+	SIF STONE_PLAYCOUNT:2 > 0
+		PRINTFORML 「啊，%CALLNAME:MASTER%先生！」
+	STONE_PLAYCOUNT:1 += 7
+	;受付水子と友達になるとデイリー好感度が増加
+	SIF STONE_PLAYCOUNT:2 > 5
+		STONE_PLAYCOUNT:1 += 3
+	STONE_PLAYCOUNT:0 += 1
+ENDIF
+
+
+IF CHK_DATENOW(CFLAG:MASTER:约会中) && TARGET == FLAG:约会的对象 && !TARGET == MASTER
+	CALL STONECouple
+;拠点が三途之川～冥界の場合連れ出しているだけでもOK(ただし好感度1000が最低条件)
+ELSEIF MAIN_MAP == 6 && CFLAG:TARGET:同行 && CFLAG:MASTER:同行 
+	IF CFLAG:TARGET:好感度 < 1000
+		PRINTFORMW 「情侣项目有点...被%CALLNAME:TARGET%拒绝了...」
+		PRINTFORMW 「没办法...我们去参加个人项目吧...」
+	ELSE
+		CALL STONECouple
+	ENDIF
+ELSE
+	CALL MIZUKO_FACE, "笑顔", "服", "通常"
+	IF TALENT:MASTER:積み石ランカー == 6
+		PRINTFORML 「欢迎来到积石竞赛！你要挑战哪个级别？作为积石王，你可以免费参加哦」
+		ELSE
+		PRINTFORML 「欢迎来到积石竞赛！你要挑战哪个级别？参赛费是统一的%金額表示(3000)%，你可以参加比赛哦」
+		ENDIF
+	$LOOP1
+	DRAWLINE
+	{
+	CALL ASK_M("EASY-积木级-(易于堆叠的难易度)",1,
+	"NORMAL-积石级-(一不小心就会倒塌的难易度)", TALENT:MASTER:積み石ランカー >= 1,
+	"HARD-纸牌塔级-(积起第一块也会紧张的难易度)",TALENT:MASTER:積み石ランカー >= 2,
+	"LUNATIC-金字塔级-(不扔起石头就根本够不到)", TALENT:MASTER:積み石ランカー >= 3,
+	"PHANTASM-巴别塔级-(扔起石头也够不到)", TALENT:MASTER:積み石ランカー >= 4,
+	"今天的主题是？",1, "战绩",1, "HELP",1, "放弃",1)
+	}
+	IF RESULT == 0
+		PRINTFORMW 「挑战积木级啊！只要连续胜出两次就能夺冠了！」
+		CALL Stone_Entry(0, 2, 5000)
+	ELSEIF RESULT == 1
+		PRINTFORMW 「挑战积石级啊！已经熟悉了堆砌积石了吗？只要连续胜出三次就能夺冠了！」
+		CALL Stone_Entry(1, 3, 7000)
+	ELSEIF RESULT == 2
+		PRINTFORMW 「挑战纸牌塔级啊！大家都在关注着你呢！只要连续胜出四次就能夺冠了！」
+		CALL Stone_Entry(2, 4, 10000)
+	ELSEIF RESULT == 3
+		PRINTFORMW 「挑战金字塔级别啊！你终于来到这一步了！只要连续胜出五次就能夺冠了！」
+		CALL Stone_Entry_EX(3, 5, 15000)
+	ELSEIF RESULT == 4
+		PRINTFORMW 「竟然要挑战巴别塔级别！？挑战被称为幻影的这个级别...请加油！只要连续胜出五次就能夺冠了！」
+		CALL Stone_Entry_EX(4, 5, 30000)
+	ELSEIF RESULT == 5
+		CALL StoneTheme_Intro
+		GOTO LOOP1
+	ELSEIF RESULT == 6
+		CALL StoneBattle_record
+		GOTO LOOP1
+	ELSEIF RESULT == 7
+		CALL Stone_Help
+		GOTO LOOP1
+	ELSEIF RESULT == 8
+		RETURN -1
+	ENDIF
+	RETURN 1
+ENDIF
+
+
+
+;-------------------------------------------------
+;実行可能判定
+;-------------------------------------------------
+;积石竞赛
+@COM_ABLE633
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;一括管理
+SIF GLOBAL_COMABLE(633)
+	RETURN RESULT
+SIF !INRANGE(TIME, 480, 1080)
+	RETURN 0
+
+IF !AT_HOME(MASTER)
+	SIF CFLAG:MASTER:現在位置 != 三途之川
+		RETURN 0
+ELSE
+	;冥界が拠点の場合は、賽の河原
+	SIF CFLAG:MASTER:現在位置 != 602
+		RETURN 0
+ENDIF
+
+;约会中は约会的对象と一緒じゃないとダメ
+SIF CHK_DATENOW(CFLAG:12) && TARGET != FLAG:约会的对象
+	RETURN 0
+
+;睡眠中
+SIF CFLAG:睡眠
+	RETURN 0
+;時間停止中
+SIF FLAG:70
+	RETURN 0
+RETURN 1
+
+;-------------------------------------------------
+;积石竞赛実行
+;-------------------------------------------------
+
+@Stone_Entry(Rank, MaxBattle, Prize)
+#DIM Rank
+#DIM MaxBattle
+#DIM Prize
+#DIM WIN_P
+#DIM difficulty
+WIN_P = 0
+difficulty = Rank
+IF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	PRINTFORMW 「那个……好像钱不够了呢……」
+	STONE_PLAYCOUNT:1 -= 50
+	IF STONE_PLAYCOUNT:2 >= 14
+		PRINTFORMW 「唉，真是没办法的人呢 ❤ 我来替你付款吧 ❤」
+	ELSEIF STONE_PLAYCOUNT:2 >= 5
+		PRINTFORMW 「......真是没办法的人呢。作为朋友，我来替你付款吧」
+	ELSE
+		PRINTFORMW 「唉......这次就特别让你一次吧，但只限这次哦？」
+	ENDIF
+ENDIF
+
+SIF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	MONEY -= 3000
+
+	
+;持ち込み道具
+CALL STONE_MOCHIKOMI
+
+FOR WIN_P, 0, MaxBattle
+	IF WIN_P > 0
+		STONE_PLAYCOUNT:1 += 1
+		STONE_BATTLECOUNT:0 += 1
+		STONE_BATTLECOUNT:1 += 1
+		PRINTFORMW
+		IF TALENT:MASTER:積み石ランカー == 6
+			PRINTFORMW 「恭喜你在第{WIN_P}场战斗中取得胜利！你可以选择结束战斗...你打算怎么做？」
+		ELSE
+			PRINTFORMW 「恭喜你在第{WIN_P}场战斗中取得胜利！你可以选择结束战斗...你打算怎么做？参赛费将会返还...」
+		ENDIF
+		CALL ASK_YN("继续","结束")
+		IF RESULT
+			PRINTFORMW 「好的...我们期待你的再次参与！」
+			SIF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+			MONEY += 3000
+			CALL STONE_UKETSUKE
+			TIME += 50
+			RETURN -1
+		ELSE
+			PRINTFORMW 「那就这样吧！」
+		ENDIF
+	ENDIF
+	PRINTFORMW 「那么...第{WIN_P + 1}回合的对手是...」
+	CALL STONELEVEL(difficulty)
+	IF RESULT == 1
+		PRINTFORMW 「你输了，比赛到此结束......辛苦了...我们期待你的再次参与！」
+		STONE_BATTLECOUNT:0 += 1
+		CALL STONE_UKETSUKE
+		TIME += 50
+		RETURN 0
+	ELSE
+		difficulty ++
+	ENDIF
+NEXT
+
+PRINTFORMW 「恭喜夺冠！请领取奖金%金額表示(Prize)%！」
+STONE_PLAYCOUNT:1 += 3
+STONE_BATTLECOUNT:0 += 1
+STONE_BATTLECOUNT:1 += 1
+IF TALENT:MASTER:積み石ランカー > Rank
+	PRINTFORML 「你的水平应该能够胜任更高级别的比赛吧？」
+ELSE
+	IF TALENT:MASTER:積み石ランカー == 0
+		PRINTFORML 「作为积木级别的首次夺冠者...你真称得上是积石新手！」
+		PRINTFORML 「你获得了挑战积石比赛积石级别的资格！」
+		PRINTFORML 「期待你在这里开始你的积石传奇！」
+	ELSEIF TALENT:MASTER:積み石ランカー == 1
+		PRINTFORML 「作为积木级别的首次夺冠者...你真称得上是积石新秀！」
+		PRINTFORML 「你获得了挑战积石比赛纸牌塔别的资格！」
+		PRINTFORML 「你已经成为积石界的新星，备受关注！」
+	ELSEIF TALENT:MASTER:積み石ランカー == 2
+		PRINTFORML 「作为积木级别的首次夺冠者...你真称得上是积石精英！」
+		PRINTFORML 「你获得了挑战积石比赛金字塔级别的资格！」
+		PRINTFORML 「你的职业生涯正在稳步发展！就像积石一样！」
+	ENDIF
+	TALENT:MASTER:積み石ランカー = Rank + 1
+	STONE_PLAYCOUNT:1 += 7 + RANK
+ENDIF
+PRINTFORMW 「期待您再次的参与！」
+IF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	MONEY += (Prize - 3000)
+ELSE
+	MONEY += Prize
+ENDIF
+
+SIF STONE_PLAYCOUNT:2 > 2
+	ITEM:滑石 += 1
+CALL STONE_UKETSUKE
+TIME += 60
+RETURN 0
+
+@Stone_Entry_EX(Rank, MaxBattle, Prize)
+#DIM Rank
+#DIM MaxBattle
+#DIM Prize
+#DIM WIN_P
+#DIM difficulty
+WIN_P = 0
+IF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	PRINTFORMW 「那个...好像钱不够了...」
+	STONE_PLAYCOUNT:1 -= 50
+	IF STONE_PLAYCOUNT:2 >= 14
+		PRINTFORMW 「唉...真是没办法的人❤我来替你付钱吧❤」
+	ELSEIF STONE_PLAYCOUNT:2 >= 5
+		PRINTFORMW 「......真是没办法的人呢。作为朋友，我来替你付钱吧」
+	ELSE
+		PRINTFORMW 「唉...这次就特别让你过了，但只限这次哦？」
+	ENDIF
+ENDIF
+SIF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	MONEY -= 3000
+
+;持ち込み道具
+CALL STONE_MOCHIKOMI
+
+IF Rank == 3
+	difficulty = 5
+ELSEIF Rank == 4
+	difficulty = 6
+ENDIF
+
+FOR WIN_P, 0, MaxBattle
+	IF WIN_P > 0
+		STONE_PLAYCOUNT:1 += 1
+		STONE_BATTLECOUNT:0 += 1
+		STONE_BATTLECOUNT:1 += 1
+		PRINTFORMW
+		;決勝前
+		IF WIN_P == MaxBattle - 1
+			IF TALENT:MASTER:積み石ランカー == 6
+				PRINTFORMW 「恭喜你在第四场获胜！下一个对手是爱子，但是%CALLNAME:MASTER%先生你一定没问题的！」
+			ELSE
+				PRINTFORMW 「恭喜你在第四场获胜！下一个对手是最强的，所以请紧绷神经！你可以选择在这里停下来，你要怎么做？」
+			ENDIF
+		ELSE
+			IF TALENT:MASTER:積み石ランカー == 6
+				PRINTFORMW 「恭喜你在第{WIN_P}场获胜！你可以选择在这里停下来，你要怎么做？」
+			ELSE
+				PRINTFORMW 「恭喜你在第{WIN_P}场获胜！你可以选择在这里停下来，你要怎么做？参赛费将会退还...」
+			ENDIF
+		ENDIF
+		CALL ASK_YN("继续","停止")
+		IF RESULT
+			PRINTFORMW 「好的...我们期待你的再次参与！」
+			SIF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+				MONEY += 3000
+			CALL STONE_UKETSUKE
+			TIME += 50
+			RETURN -1
+		ELSE
+			PRINTFORMW 「那就这样吧！」
+		ENDIF
+	ENDIF
+	IF WIN_P == MaxBattle - 1
+		PRINTFORMW 「好了，最终战终于开始了...你准备好了吗？最终战的对手是...没错！」
+		CALL STONELEVEL(Rank + 4)
+	ELSE
+		PRINTFORMW 「那么…第{WIN_P + 1}回戦的对手是…」
+		CALL STONELEVEL(difficulty)
+	ENDIF
+	IF RESULT == 1
+		IF WIN_P == MaxBattle - 1
+			PRINTFORML
+			PRINTFORMW 「哇，你能与对手激烈对决到那个地步，真是太厉害了！...请再次挑战吧！」
+			STONE_PLAYCOUNT:1 += 1
+		ELSE
+			PRINTFORML
+			PRINTFORMW 「辛苦了！感谢你的参与，期待下次再见！」
+		ENDIF
+		STONE_BATTLECOUNT:0 += 1
+		CALL STONE_UKETSUKE
+		TIME += 50
+		RETURN 0
+	ELSE
+		difficulty = MIN(difficulty + 1, 6)
+	ENDIF
+NEXT
+PRINTFORMW 「恭喜你获得冠军！这是奖金的%金額表示(Prize)%！」
+;金字塔级别
+IF Rank == 3
+	IF TALENT:MASTER:積み石ランカー > Rank
+		PRINTFORML 「似乎你的技术在更高级别也能游刃有余呢...」
+	ELSE
+		PRINTFORMW 「而且作为金字塔级别的首次获胜者...我将赠予你积石老手的称号！」
+		PRINTFORMW 「顺便说一下...」
+		PRINTFORMW 「你以为LUNATIC就结束了吗？...实际上，据说还有一个更高的幻影级别，可以与拿出真本事的璎花进行战斗」
+		PRINTFORMW 「非常强大...但是%CALLNAME:MASTER%先生的话，也许可以应对！」
+		TALENT:MASTER:積み石ランカー = Rank + 1
+		STONE_PLAYCOUNT:1 += 10
+	ENDIF
+;巴别塔级别
+ELSEIF Rank == 4
+	IF TALENT:MASTER:積み石ランカー >= 5
+		PRINTFORML 「再次战胜拿出真本事的璎花...太厉害了！」
+		STONE_PLAYCOUNT:1 += 7
+	ELSE
+		PRINTFORML 「而作为巴别塔级别的首次获胜者%CALLNAME:MASTER%先生...虽然被璎花抢先说了，但我要赠予你积石大师的称号！太棒了！」
+		TALENT:MASTER:積み石ランカー = 5
+		STONE_PLAYCOUNT:1 += 15
+	ENDIF
+	SIF STONE_PLAYCOUNT:2 == 13
+		CALL STONE_UKETSUKE_H
+ENDIF
+STONE_PLAYCOUNT:1 += 1
+STONE_BATTLECOUNT:0 += 1
+STONE_BATTLECOUNT:1 += 1
+PRINTFORMW 「请再次参加吧！期待与您再次相见！」
+IF !TALENT:MASTER:積み石ランカー == 6 && MONEY < 3000
+	MONEY += (Prize - 3000)
+ELSE
+	MONEY += Prize
+ENDIF
+SIF STONE_PLAYCOUNT:2 > 2
+	ITEM:滑石 += 1
+IF STONE_PLAYCOUNT:2 == 9 || STONE_PLAYCOUNT:2 == 11
+	CALL STONE_UKETSUKE_H
+ELSE
+	CALL STONE_UKETSUKE
+ENDIF
+TIME += 60
+RETURN 0
+
+
+;-------------------------------------------------
+;积石竞赛カップル部門関数
+;-------------------------------------------------
+@STONECouple
+	CALL MIZUKO_FACE, "笑顔", "服", "通常"
+	IF TALENT:MASTER:積み石ランカー == 6
+		PRINTL 「欢迎来到积石竞赛！你要挑战哪个级别？因为我是积石王，所以是免费的」
+	ELSE
+		PRINTFORML 「欢迎来到积石竞赛！情侣项目的参赛费用是%金額表示(3000)%哦！」
+	ENDIF
+$LOOP2
+DRAWLINE
+{
+CALL ASK_M("参加情侣项目",1, "今天的主题是什么？",1, "战绩",1, "帮助",1, "退出",1)
+}
+IF RESULT == 0
+	PRINTFORMW 「你要挑战情侣项目吗？那就来这边吧！」
+	SIF MONEY < 3000
+		PRINTFORMW 因为没有3000日元的参赛费，所以让%CALLNAME:TARGET%代替支付了...
+		CFLAG:TARGET:好感度 -= 50
+	CALL STONECombiBattle
+ELSEIF RESULT == 1
+	CALL StoneTheme_Intro
+	GOTO LOOP2
+ELSEIF RESULT == 2
+	CALL StoneBattle_record
+	GOTO LOOP2
+ELSEIF RESULT == 3
+	CALL StoneCombi_Help
+	GOTO LOOP2
+ELSEIF RESULT == 4
+	RETURN -1
+ENDIF
+RETURN 1
+
+;-------------------------------------------------
+;积石竞赛の戦績を呼び出す関数
+;-------------------------------------------------
+@StoneBattle_record
+SETCOLOR C_GREEN
+PRINTFORML ◆%CALLNAME:MASTER%的积石战绩◆
+RESETCOLOR
+PRINTFORML
+PRINTFORML
+PRINTFORML 竞速项目已进行了 {STONE_BATTLECOUNT:0} 场比赛，取得了 {STONE_BATTLECOUNT:1} 场胜利。
+PRINTFORML 情侣项目已进行了 {STONE_BATTLECOUNT:2} 场比赛，取得了 {STONE_BATTLECOUNT:3} 场胜利。
+;デバッグ用
+;PRINTFORML 通った日数{STONE_PLAYCOUNT:0}受付水子好感度{STONE_PLAYCOUNT:1}進行度{STONE_PLAYCOUNT:2}
+PRINTFORML
+IF TALENT:MASTER:積み石ランカー == 6
+	SETCOLOR C_RED
+	PRINTFORML ★%GET_TALENTNAME(274,TALENT:MASTER:274)%
+	RESETCOLOR
+ELSEIF !TALENT:MASTER:積み石ランカー == 0
+	SETCOLOR C_YELLOW
+	PRINTFORML ★%GET_TALENTNAME(274,TALENT:MASTER:274)%
+	RESETCOLOR
+ELSE
+	SETCOLOR C_L_GRAY
+	PRINTFORML ●你在竞速项目还没有建立起成就
+	RESETCOLOR
+ENDIF
+PRINTFORML
+IF TALENT:MASTER:積み石ランカー == 4
+	SETCOLOR C_YELLOW
+	PRINTFORML ★已经战胜了璎花
+	RESETCOLOR
+ELSEIF TALENT:MASTER:積み石ランカー > 4
+	SETCOLOR C_RED
+	PRINTFORML ★已经战胜了拿出真本事的璎花
+ELSE
+	SETCOLOR C_L_GRAY
+	PRINTFORML ●你还没有战胜过???？
+ENDIF
+
+PRINTFORML
+IF STONE_PLAYCOUNT:3 == 0
+	SETCOLOR C_L_GRAY
+	PRINTFORML ●你在情侣项目还没有建立起成就
+	RESETCOLOR
+ELSEIF STONE_COMBI_TROPHY:31 == 1
+	SETCOLOR C_RED
+	PRINTFORML ★征服了所有情侣项目的主题
+	RESETCOLOR
+ELSE
+	SETCOLOR C_YELLOW
+	PRINTFORML ★在{STONE_PLAYCOUNT:3}个主题中获得了胜利
+	RESETCOLOR 
+ENDIF
+PRINTFORML
+IF STONE_PLAYCOUNT:2 < 14
+	SETCOLOR C_L_GRAY
+	PRINTFORML ●？？？？？
+	RESETCOLOR
+ELSEIF STONE_PLAYCOUNT:2 > 15
+	SETCOLOR C_RED
+	PRINTFORML ★%STONE_UKETSUKENAME% 已怀孕。
+	RESETCOLOR
+ELSE
+	SETCOLOR C_YELLOW
+	PRINTFORML ★%STONE_UKETSUKENAME% 与我关系非常好！
+	RESETCOLOR 
+ENDIF
+PRINTFORML
+PRINTFORML
+IF DAY:3 == 31
+	PRINTFORML 今天是无限制日
+ELSE
+	PRINTFORML 今日主题：%STONECombiDAY(DAY:3)%中%CALLNAME:MASTER%的最高得分
+	IF STONE_COMBI_WIN:(DAY:3) == 0
+		SETCOLOR C_L_GRAY
+		PRINTFORML ●你还没有参加过这个主题的比赛
+		RESETCOLOR
+	ELSE
+		PRINTFORML 得分：{STONE_COMBI_WIN:(DAY:3)}，搭档：%CALLNAME:(STONE_COMBI_COMBI:(DAY:3))%
+	ENDIF
+	PRINTFORML
+	IF (MAIN_MAP == 6 && CFLAG:TARGET:同行) || CHK_DATENOW(CFLAG:12)
+		PRINTFORML 今日主题：%STONECombiDAY(DAY:3)%中%CALLNAME:TARGET%的最高得分
+		IF STONE_COMBI_WIN:(DAY:3) == 0
+			SETCOLOR C_L_GRAY
+			PRINTFORML ●%CALLNAME:TARGET%还没有参加过这个主题的比赛
+			RESETCOLOR
+		ELSE
+			PRINTFORML {STONE_COMBI_CHARA:TARGET:(DAY:3)}点 
+		ENDIF
+	ENDIF
+ENDIF
+PRINTFORML
+
+{
+CALL ASK_M("我想查看更详细的关于自己的信息",1,
+			"我想查看更详细的关于我的伴侣的信息", (MAIN_MAP == 6 && CFLAG:TARGET:同行) || (CHK_DATENOW(CFLAG:MASTER:约会中) && TARGET == FLAG:约会的对象 && !TARGET == MASTER) ,
+			"放弃",1)
+}
+SELECTCASE RESULT
+	CASE 0
+		PRINTFORML 【想要查看更详细的个人数据】
+		SETCOLOR C_YELLOW
+		PRINTFORML 已获胜的主题将以黄色显示
+		RESETCOLOR
+		DRAWLINE
+		FOR LOCAL, 1, 31
+			SIF STONE_COMBI_WIN:LOCAL == 0
+				CONTINUE
+			SIF STONE_COMBI_WIN:LOCAL > 79
+				SETCOLOR C_YELLOW
+			PRINTFORML %STONECombiDAY(LOCAL)% 最高得分为{STONE_COMBI_WIN:LOCAL}分 搭档是：%CALLNAME:(STONE_COMBI_COMBI:LOCAL)%"
+			SIF STONE_COMBI_WIN:LOCAL > 79
+				RESETCOLOR
+		NEXT
+		PRINTFORMW
+	CASE 1
+		PRINTFORML 【想要查看更详细的搭档数据】
+		SETCOLOR C_YELLOW
+		PRINTFORML 已获胜的主题将以黄色显示
+		RESETCOLOR
+		DRAWLINE
+		FOR LOCAL, 1, 31
+			SIF STONE_COMBI_CHARA:TARGET:LOCAL == 0
+				CONTINUE
+			SIF STONE_COMBI_CHARA:TARGET:LOCAL > 79
+				SETCOLOR C_YELLOW
+			PRINTFORML %STONECombiDAY(LOCAL)% 最高得分为{STONE_COMBI_CHARA:TARGET:LOCAL}分"
+			SIF STONE_COMBI_CHARA:TARGET:LOCAL >79
+				RESETCOLOR
+		NEXT
+		PRINTFORMW
+	CASE 2
+		RETURN 0
+ENDSELECT
+RESTART
+
+;-------------------------------------------------
+;积石竞赛のヘルプを呼び出す関数
+;-------------------------------------------------
+@Stone_Help
+{
+IF STONE_TUTORIAL:0 == 1 && STONE_TUTORIAL:1 == 1 && STONE_TUTORIAL:2 == 1 && STONE_TUTORIAL:3 == 1
+&& STONE_TUTORIAL:4 == 1 && STONE_TUTORIAL:5 == 1 && STONE_TUTORIAL:6 == 1 && STONE_TUTORIAL:9 == 0
+}
+	PRINTFORML 「啊，你都听完了啊！可能有点麻烦，不过...」
+	PRINTFORMW 「如果你能听地开心，我也非常高兴」
+	PRINTFORMW %STONE_UKETSUKENAME%的好感度提升了30点！
+	PRINTFORMW 
+	STONE_PLAYCOUNT:1 += 30
+	STONE_TUTORIAL:9 = 1
+ENDIF
+
+PRINTFORMW
+IF STONE_WASUREMONO < DAY
+	PRINTL 「请随时向我提问！」
+ELSE
+	PRINTL 「我将回到原来的工作中！有什么问题要问吗？」
+ENDIF
+{
+CALL ASK_M("积石比赛是什么？",1, "关于难度",1, "能告诉我一些关于冠军奖金的信息吗？",1, "我无法获胜。应该训练什么？",1,
+"这个比赛是什么时候举行的？",1, "主题是什么？",1, "关于成就",1,
+"对不起，我忘记了一些东西...",(STONE_PLAYCOUNT:2 >= 12) && STONE_WASUREMONO < DAY, "返回",1)
+}
+SELECTCASE RESULT
+	CASE 0
+		PRINTFORML 【积石比赛是什么？】
+		PRINTFORML 积石比赛是由戎璎花主办的竞技活动，参赛者会在各种各样的项目中竞争。
+		PRINTFORML 虽然有多个不同的项目...但你只能参加竞速项目的比赛。
+		PRINTFORML 如果你是在约会中，你可以参加情侣项目的比赛。
+		PRINTFORML 竞速项目是在限定时间内竞争所堆叠的石块数量的项目。请加油哦！
+		PRINTFORML 另外，规定不能使用自己拥有的能力。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:0 == 0
+			STONE_TUTORIAL:0 = 1
+	CASE 1
+		PRINTFORML 【难度相关】
+		PRINTFORML 竞速项目有很多参赛者，根据他们的技能水平分为不同的等级。
+		PRINTFORML 最初只能参加EASY难度，但如果获胜，就可以挑战下一个难度。
+		PRINTFORML 随着难度的增加，需要战斗的次数也会增加，非常具有挑战性，但奖金也会更加丰厚。
+		PRINTFORML 参赛费是统一的%金額表示(3000)%。请积极参与！
+		SIF STONE_TUTORIAL:1 == 0
+			STONE_TUTORIAL:1 = 1
+	CASE 2
+		PRINTFORML 【请告知优胜赏金】
+		PRINTFORML EASY    - %金額表示(5000), 6, RIGHT%
+		PRINTFORML NORMAL  - %金額表示(7000), 6, RIGHT%
+		PRINTFORML HARD    - %金額表示(10000), 6, RIGHT%
+		PRINTFORML LUNATIC - %金額表示(15000), 6, RIGHT%
+		PRINTFORML ?????   - %金額表示(30000), 6, RIGHT%
+		PRINTFORMW
+		SIF STONE_TUTORIAL:2 == 0
+			STONE_TUTORIAL:2 = 1
+	CASE 3
+		PRINTFORML 【无法获胜。应该锻炼什么？】
+		PRINTFORML 手指灵巧的人可以堆叠更多的石块。
+		PRINTFORML 除了技巧和手指技术之外，锻炼使用手指的混合等技能也可以增加堆叠的数量。
+		PRINTFORML 另外，一些天赋也会对你有利。
+		PRINTFORML 顺便说一下，欲望数值高的话会稍微不利。堆积石块这项工作并不需要欲望。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:3 == 0
+			STONE_TUTORIAL:3 = 1
+	CASE 4
+		PRINTFORML 【什么时间才能参加比赛？】
+		PRINTFORML 是从0:00到24:00。
+		PRINTFORML 明明有些孩子应该在这个时间段有工作才对，却还是参加了比赛……
+		PRINTFORML 请不要太担心
+		PRINTFORMW
+		SIF STONE_TUTORIAL:4 == 0
+			STONE_TUTORIAL:4 = 1
+	CASE 5
+		PRINTFORML 【主题是什么？】
+		PRINTFORML 这是只有在约会中才能参加的人类金字塔级情侣项目专用指标。
+		PRINTFORML 情侣项目不是竞速比赛，而是通过一对情侣一起堆砌石块作品，并进行评分的系统。
+		PRINTFORML 每天都会有一个主题作为评分的要素，符合主题的作品容易获得高分。
+		PRINTFORML 是否符合主题取决于情侣中女孩子的喜好是否与主题相符。
+		PRINTFORML 除了情侣项目，主题对其他人没有影响，所以单人参赛者不需要担心。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:5 == 0
+			STONE_TUTORIAL:5 = 1
+	CASE 6
+		PRINTFORML 【成就相关】
+		PRINTFORML 显示与积石比赛相关的成就。
+		PRINTFORML 在竞速项目中，目标是成为积石大师，在情侣项目中，目标是征服所有的主题。
+		PRINTFORML 当目标完全达成时，会变成红色（※如果妊娠开关关闭，则只有一个目标无法完全达成）。
+		PRINTFORML 如果你的成就列表中有未填满的"？？？？？"，那么...在没有约会的时候多次参加积石比赛就可以填满了。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:6 == 0
+			STONE_TUTORIAL:6 = 1
+	CASE 7
+		PRINTFORML 【对不起，我忘记了...】
+		CALL STONE_UKETSUKESEX(1)
+	CASE 8
+		RETURN 0
+ENDSELECT
+RESTART
+
+;-------------------------------------------------
+;积石竞赛のカップル部門のヘルプを呼び出す関数
+;-------------------------------------------------
+@StoneCombi_Help
+
+{
+IF STONE_TUTORIAL:10 == 1 && STONE_TUTORIAL:11 == 1 && STONE_TUTORIAL:12 == 1 && STONE_TUTORIAL:13 == 1
+&& STONE_TUTORIAL:14 == 1 && STONE_TUTORIAL:15 == 1 && STONE_TUTORIAL:16 == 1 && STONE_TUTORIAL:20 == 0
+}
+	PRINTFORML 「哇，你都听完了！我觉得可能有点麻烦...」
+	PRINTFORMW 「如果你听得开心，我也非常高兴！」
+	PRINTFORMW %STONE_UKETSUKENAME%的好感度提升了30！
+	PRINTFORMW 
+	STONE_PLAYCOUNT:1 += 30
+	STONE_TUTORIAL:20 = 1
+ELSE
+ENDIF
+PRINTFORMW
+IF STONE_WASUREMONO < DAY
+	PRINTL 「请随便问我任何问题哦！」
+ELSE
+	PRINTL （尽量不要显得不自然...不能被发现...）
+ENDIF
+{
+CALL ASK_M("积石比赛是什么？",1,"如何评价",1,"技术得分是如何评价的？",1,"合作得分是如何评价的？",1,
+"主题得分是如何评价的？",1, "关于成就",1, "我无法获胜。应该锻炼什么？",1, 
+"对不起，我忘记了一些东西...",(STONE_PLAYCOUNT:2 >= 12) && STONE_WASUREMONO < DAY, "返回",1)
+}
+SELECTCASE RESULT
+	CASE 0
+		PRINTFORML 【积石比赛是什么？】
+		PRINTFORML 是由戎璎花主办的关于堆砌石块的各种竞赛。
+		PRINTFORML 被分为不同的项目...在约会中只能参加情侣项目。
+		PRINTFORML 情侣项目不是竞争堆砌石块的数量，而是评价由两个人共同创作的作品的艺术性。
+		PRINTFORML 另外，规则规定不能使用自己拥有的能力。
+		PRINTFORML 顺便说一下，如果单人参赛，可以参加竞速项目。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:10 == 0
+			STONE_TUTORIAL:10 = 1
+	CASE 1
+		PRINTFORML 【评价方式】
+		PRINTFORML 在情侣项目中，有三个评价指标。
+		PRINTFORML 第一个是评估两个人堆砌石块的技术得分。
+		PRINTFORML 第二个是评估两个人的恩爱度...咳咳，合作度的合作得分。
+		PRINTFORML 第三个是评估与主题的符合程度的主题得分。
+		PRINTFORML 这三个得分的平均值将作为最终得分。
+		PRINTFORML 最高分为100分（如果总分超过100，则视为100分）。
+		PRINTFORML 如果能获得80分就可以获得冠军。
+		PRINTFORML 冠军奖金为30,000日元，亚军奖金为5,000日元。
+		PRINTFORML 如果在所有主题中都获得冠军，还可以额外获得豪华奖品。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:11 == 0
+			STONE_TUTORIAL:11 = 1
+	CASE 2
+		PRINTFORML 【技术得分评价的是什么？】
+		PRINTFORML 两个人的堆砌石块的技术力将直接相加。
+		PRINTFORML 手巧的人可以堆砌更多的石块。
+		PRINTFORML 不仅仅是技巧和手指技术，培养使用手指进行混合等技能也可以增加堆砌数量。
+		PRINTFORML 另外，一些特质拥有的人也具有优势。
+		PRINTFORML 顺便提一下，欲望数值高的人会稍微处于劣势。堆砌石块的工作并不需要欲望。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:12 == 0
+			STONE_TUTORIAL:12 = 1
+	CASE 3
+		PRINTFORML 【合作得分评价的是什么？】
+		PRINTFORML 评估的是两个人的亲密程度。
+		PRINTFORML 具体来说，评估的对象包括亲密度和是否是情侣之类的因素。
+		PRINTFORML 相反，如果存在反抗印记或者是傲娇属性的话，会有扣分。
+		PRINTFORML 这个得分相对容易受到当时的状态影响，即使条件相同，每次得分也会有一定的变化。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:13 == 0
+			STONE_TUTORIAL:13 = 1
+	CASE 4
+		PRINTFORML 【主题得分评价的是什么？】
+		PRINTFORML 按照每天确定的主题进行堆砌，容易获得高分。
+		PRINTFORML 能否符合主题取决于配对少女的喜好是否与主题相符。
+		PRINTFORML 喜欢与主题相符的人会得到加分。
+		PRINTFORML 相反，不擅长与主题相符的人或者不擅长与主题相反的人会得到负分...
+		PRINTFORML 这个得分无法通过训练来提高，所以请诚实地选择符合主题的日子参加比赛。
+		PRINTFORML 如果想知道今天的主题是什么，我可以告诉你。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:14 == 0
+			STONE_TUTORIAL:14 = 1
+	CASE 5
+		PRINTFORML 【成就相关】
+		PRINTFORML 显示了与堆砌石块比赛相关的成就。
+		PRINTFORML 在竞速项目中，目标是成为堆砌石块大师，在情侣项目中，目标是征服所有主题。
+		PRINTFORML 当该目标完全达成时，将变为红色（※如果未启用怀孕标志，只有一个目标无法完全达成）。
+		PRINTFORML 如果成就无法填满？那就......在没有约会的时候多次参加堆砌石块比赛吧。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:15 == 0
+			STONE_TUTORIAL:15 = 1
+	CASE 6
+		PRINTFORML 【无法获胜。应该锻炼什么？】
+		PRINTFORML 选择合适的伴侣非常重要。邀请与你关系良好且喜欢共同主题的人进行约会可以增加获胜的机会。
+		PRINTFORML 因为你的能力几乎只考虑技术点。
+		PRINTFORML 不过，如果你坚持选择特定的伴侣并放弃题目点数，那么技术点和亲密度就变得更加重要。
+		PRINTFORML 技术点会根据竞速项目时的技能使用情况进行两人的评定，而竞速项目的得分计算中实际上会加上积石称号的加分。
+		PRINTFORML 技术点也会根据积石称号进行加分，所以实际上竞速项目的获胜对你的总分也有关系。
+		PRINTFORMW
+		SIF STONE_TUTORIAL:16 == 0
+			STONE_TUTORIAL:16 = 1
+	CASE 7
+		PRINTFORML 【对不起，我忘记了...】
+		CALL STONE_UKETSUKESEX(2)
+	CASE 8
+		RETURN 0
+ENDSELECT
+RESTART
+
+
+;-------------------------------------------------
+;积石竞赛の忘れ物イベント用
+;-------------------------------------------------
+@STONE_UKETSUKESEX(ARG)
+#DIM STONE_SEXTIME
+#DIM STONE_COUPLECHECK
+#DIM 気力回復量
+#DIM 体力回復量
+
+STONE_COUPLECHECK = ARG
+
+SETCOLOR C_PINK
+PRINTFORMW 「……好的！我明白了！那么请你来这里确认一下！」
+PRINTFORML ……………
+PRINTFORML ………
+PRINTFORMW …
+
+IF STONE_COUPLECHECK == 2
+	PRINTFORML 「在约会中溜走真是太差劲了❤你真是没办法的人」
+	STONE_PLAYCOUNT:1 += 2
+ELSE
+	PRINTFORML 「真是各种借口溜走真是麻烦啊！」
+	SIF STONE_PLAYCOUNT:2 == 17
+		PRINTFORML 「真是个糟糕的人啊❤」
+ENDIF
+PRINTFORMW
+
+IF STONE_COUPLECHECK == 2
+	SELECTCASE RAND:3
+		CASE 0
+			STONE_SEXTIME = 60
+			PRINTFORMW 「%CALLNAME:TARGET%小姐...被一直以怀疑的眼光看着我呢❤」
+			PRINTFORMW 「所以我在这里能待的时间大概是{STONE_SEXTIME}分钟吧」
+			PRINTFORMW 「如果待得太久可能会被发现？」
+			PRINTFORMW 「我被发现了也没关系...但是%CALLNAME:MASTER%先生会为难吧❤」
+		CASE 1
+			STONE_SEXTIME = 120
+			PRINTFORMW 「%CALLNAME:TARGET%小姐....被有点怀疑的眼神看着我呢❤」
+			PRINTFORMW 「所以我在这里能待的时间大概是{STONE_SEXTIME}分钟吧」
+			PRINTFORMW 「如果待得太久可能会被发现？」
+			PRINTFORMW 「我被发现了也没关系...但是%CALLNAME:MASTER%先生会为难吧❤」
+		CASE 2
+			STONE_SEXTIME = 160
+			PRINTFORMW 「%CALLNAME:TARGET%小姐....似乎完全没有怀疑过我呢？真是信任我呢❤」
+			PRINTFORMW 「所以能待在这里的时间大概是{STONE_SEXTIME}分钟左右吧」
+			PRINTFORMW 「如果待太久可能会被发现哦……」
+			PRINTFORMW 「明明被信任到就算多待二三十分钟也不会被发现，却要背叛人家呢❤」
+	ENDSELECT
+ELSE
+	SELECTCASE RAND:3
+		CASE 0
+			STONE_SEXTIME = 100
+			PRINTFORMW 「今天呢...我有点忙」
+			PRINTFORMW 「所以我能在这里待的时间大概是{STONE_SEXTIME}分钟吧...」
+			PRINTFORMW 「其实我很想和你一起待更久...但是工作嘛...」
+			PRINTFORMW 「说这些话的时间有点可惜呢」
+		CASE 1
+			STONE_SEXTIME = 160
+			PRINTFORMW 「嗯...今天我还算比较闲」
+			PRINTFORMW 「所以我能在这里待的时间大概是{STONE_SEXTIME}分钟吧...」
+			PRINTFORMW 「如果太偷懒的话会被发现的哦」
+		CASE 2
+			STONE_SEXTIME = 220
+			PRINTFORMW 「嗯...今天挺闲的」
+			PRINTFORMW 「所以我能在这里待的时间大概是{STONE_SEXTIME}分钟左右...」
+			PRINTFORMW 「不过如果一直偷懒的话会被发现的啦...」
+	ENDSELECT
+ENDIF
+
+STONE_WASUREMONO = DAY
+$LOOP_SEX
+
+IF STONE_SEXTIME < 2
+	PRINTFORML
+	PRINTFORML 「啊，时间差不多不妙了！我们快点回去吧！」
+	RESETCOLOR
+	PRINTFORMW %CALLNAME:MASTER%和%STONE_UKETSUKENAME%小心翼翼地回到了接待处，以免被发现他们的关系...
+	PRINTFORML
+	RETURN 0
+ELSE
+	PRINTFORML
+	PRINTFORML 「那么，还剩下{STONE_SEXTIME}分钟...你想做些什么呢？」
+ENDIF
+RESETCOLOR
+{
+CALL ASK_M("想要亲吻(消耗2分钟)",1,
+"让我摸胸部(消耗2分钟)",STONE_SEXTIME >= 2,
+"想要手淫(消耗2分钟)",STONE_SEXTIME >= 2 && (TALENT:MASTER:性別 & 2),
+"想要口交(消耗2分钟)",STONE_SEXTIME >= 2 && (TALENT:MASTER:性別 & 2),
+"想要做爱(消耗2分钟)",STONE_PLAYCOUNT:2 >= 14 && STONE_SEXTIME >= 2 && (TALENT:MASTER:性別 & 2),
+"一起吃便当(消耗2分钟)",STONE_PLAYCOUNT:2 >= 14 && TIME_PROGRESS(TCVAR:312) && STONE_SEXTIME >= 0,
+"想给我起个名字(无消耗)",STONE_PLAYCOUNT:4 > 0, "停止",1)
+}
+SETCOLOR C_PINK
+PRINTFORML
+SELECTCASE RESULT
+	CASE 0
+		IF STONE_FIRSTSEX:0 == 0
+			PRINTFORMW 「啊……说起来，亲吻...我只在脸颊上尝试过」
+			PRINTFORMW 「你来主动一点...拜托了...」
+			PRINTFORMW 「嗯...❤」
+			PRINTFORML
+			PRINTFORMW 「%CALLNAME:MASTER%先生的嘴唇...好温暖啊」
+			EXP:MASTER:接吻経験 += 1
+			PRINTFORMDL 接吻经验 +1(%CALLNAME:MASTER%)
+			STONE_FIRSTSEX:0 = 1
+			STONE_PLAYCOUNT:1 += 5
+			CALL SET_FIRSTKISS_MASTER("在积石比赛场地外偷偷与水子少女接吻")
+			TIME += 2
+			STONE_SEXTIME -= 2
+			GOTO LOOP_SEX
+		ELSE
+			PRINTFORMW 「亲吻？这样可以吗？……看啊……嗯❤」
+			SELECTCASE RAND:6
+				CASE 0
+					PRINTFORMW 「啾……❤啾啪……❤」
+					PRINTFORMW 「嘿嘿嘿……再多亲吻一下❤」
+					PRINTFORMW 「嗯❤啾❤亲吻……❤」
+				CASE 1
+					PRINTFORMW 「嗯……❤舔舔……❤啾……❤」
+					PRINTFORMW 「噗哈……舌头纠缠在一起……好厉害……很色情呢……❤」
+				CASE 2
+					PRINTFORMW 「嗯……❤啾啪……❤啾……❤」
+					PRINTFORMW 「喜欢……非常喜欢……❤」
+				CASE 3
+					PRINTFORMW 「………………哈热？」
+					PRINTFORMDL 对着闭上眼睛等待的%STONE_UKETSUKENAME%，我亲了一下额头
+					PRINTFORMW 「喂！明明闭上眼睛等着，为什么亲了额头啊……」
+					PRINTFORMW 「嗯❤啾❤亲吻……❤」
+					PRINTFORMW 「这种打击……太卑鄙了……❤❤」
+				CASE 4
+					PRINTFORMW 「啾……❤啾……❤啾……❤啾……❤」
+					PRINTFORMW 「这种只是互相叠着嘴唇的方式……也喜欢……啾……❤」
+				CASE 5
+					PRINTFORMW 「舔舔……❤啾……❤舔舔……❤」
+					PRINTFORMW 「再多一点……❤再多一点……❤」」
+			ENDSELECT
+			EXP:MASTER:接吻経験 += 1
+			PRINTFORMDL 接吻经验 +1(%CALLNAME:MASTER%)
+			STONE_PLAYCOUNT:1 += 5
+			TIME += 2
+			STONE_SEXTIME -= 2
+			GOTO LOOP_SEX
+		ENDIF
+	CASE 1
+		PRINTFORMW 「我想摸胸部...知道了 ❤ 这是奖励 ❤」
+		PRINTFORMW %STONE_UKETSUKENAME% 脱下了破旧的布料，露出了泥土色的皮肤
+		PRINTFORMW 「请拿走 ❤」
+		PRINTFORML
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「嗯... ❤ 嗯嗯... ❤」
+				PRINTFORMW %CALLNAME:MASTER% 揉捏着 %STONE_UKETSUKENAME% 小巧的胸部
+				PRINTFORMW 少女的胸部是冰冷的，带着死者特有的凉意，感觉很舒服
+				PRINTFORMW 「%CALLNAME:MASTER% 的手...好热...」
+				EXP:MASTER:手淫経験 += 1
+				PRINTFORMDL 手淫经验 +1(%CALLNAME:MASTER%)
+			CASE 1
+				PRINTFORMW 「嗯... ❤ 不要只顾着那里... ❤」
+				PRINTFORMW %CALLNAME:MASTER% 在泥土色的皮肤中专注地摆弄着醒目的粉红色突起
+				PRINTFORMW 「呀呜... ❤ 唔呜... ❤」
+				PRINTFORMW 当用手指弹动乳头时，少女发出撩人的呻吟声，%CALLNAME:MASTER% 玩弄了一会儿...
+				EXP:MASTER:手淫経験 += 1
+				PRINTFORMDL 手淫经验 +1(%CALLNAME:MASTER%)
+			CASE 2
+				PRINTFORML 「嗯... ❤ 不是摸，是舔... ❤」
+				PRINTFORMW %CALLNAME:MASTER% 将露出泥土色的皮肤中醒目的粉红色突起含入口中
+				PRINTFORMW 「虽然我也想要舔乳房... ❤」
+				EXP:MASTER:口淫経験 += 1
+				PRINTFORMDL 口淫经验 +1(%CALLNAME:MASTER%)
+		ENDSELECT
+			IF STONE_PLAYCOUNT:2 == 17
+				PRINTFORML
+				PRINTFORMW 乳汁滴落………
+				PRINTFORML
+				PRINTFORMW %CALLNAME:MASTER%轻轻抚摸着%STONE_UKETSUKENAME%的胸部，从她的乳头中滴出了为婴儿准备的液体......
+				SELECTCASE RAND:3
+					CASE 0
+						PRINTFORMW 「呀❤」
+						PRINTFORMW 「这是给宝宝的东西❤不要擅自吸啊❤」
+						PRINTFORMW %CALLNAME:MASTER%享受着一个无法成为乳婴的少女的乳房......
+					CASE 1
+						PRINTFORMW 「啊……❤」
+						PRINTFORMW 「其实是不行的，但是…………要喝一点吗，爸爸❤」
+						PRINTFORMW %CALLNAME:MASTER%享受着一个无法成为乳婴的少女的乳房......
+					CASE 2
+						PRINTFORMW 「呀❤」
+						PRINTFORMW 「嘿❤我是个大宝宝了...❤」
+						PRINTFORMW %CALLNAME:MASTER%享受着一个无法成为乳婴的少女的乳房......
+				ENDSELECT
+				EXP:MASTER:口淫経験 += 1
+				CALL COLORMESSAGE(@"喝了%STONE_UKETSUKENAME%的母乳，稍微恢复了一些体力和精力",C_GREEN,1,1)
+				BASE:MASTER:体力 += 50
+				BASE:MASTER:気力 += 50
+				PRINTFORMDL 口淫经验 +1(%CALLNAME:MASTER%)
+			ENDIF
+		PRINTFORML …………………
+		PRINTFORML ……………
+		PRINTFORMW ………
+		TIME += 4
+		STONE_SEXTIME -= 2
+		GOTO LOOP_SEX
+	CASE 2
+		IF STONE_FIRSTSEX:1 == 0
+			PRINTFORML 「我知道了...因为是第一次，所以请不要期望太高...」
+			PRINTFORMW 少女战战兢兢地触摸了%CALLNAME:MASTER%的竿
+			PRINTFORML
+			PRINTFORML 「啊...好厉害...好热...❤」
+			PRINTFORMW 少女特有的凉爽之手包裹着，男性器官更加坚硬起来
+			PRINTFORML
+			PRINTFORML 「嗯...这样上下摩擦......」
+			PRINTFORMW 少女笨拙地移动着手。稍微有些不够满足的快感袭击着%CALLNAME:MASTER%
+			PRINTFORML 「嗯...是不是要更加刺激才行呢...？」
+			PRINTFORMW 少女一旦松开男性器官的手，确认周围没有人后便脱光了衣服
+			PRINTFORML
+			PRINTFORML 「好...好害羞...但这样就可以了！」
+			PRINTFORMW 正如她所计划的那样，%CALLNAME:MASTER%凝视着微微泛红的光滑肌肤，感到兴奋
+			PRINTFORMW 原本有些软化的男性器官再次变得坚硬
+			PRINTFORML 「我已经掌握了一些窍门，这次就可以了！」
+			PRINTFORMW 经过积石锻炼的手指终于发挥出真正的能力。迅速地给予快感，引导着%CALLNAME:MASTER%达到高潮...
+			PRINTFORML
+			PRINTFORMW 噗呦❤噗噗噗❤❤
+			PRINTFORML
+			PRINTFORMW 「哇！好多出来了......」
+			PRINTFORMW 「头发都沾上了❤！哈哈哈哈哈！」
+			STONE_FIRSTSEX:1 = 1
+		ELSE
+			PRINTFORMW 「用手？好的❤」
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「好热啊...%CALLNAME:MASTER%先生的...」
+					PRINTFORMW %STONE_UKETSUKENAME%像是在享受着%CALLNAME:MASTER%的竿的触感，紧紧握着...
+					PRINTFORML 「这样的动作也很舒服吧？那么再来一点点...」
+					PRINTFORMW 少女像是发现了新的玩具一样，玩弄着%CALLNAME:MASTER%的竿一段时间
+				CASE 1
+					PRINTFORML 「怎么样？感觉舒服吗？」
+					PRINTFORMW 灵巧的手指上下摩擦着竿，%CALLNAME:MASTER%发出快感的声音
+					PRINTFORMW 「呵呵呵...看起来很舒服呢...」
+				CASE 2
+					PRINTFORML 「呵呵呵...这样的动作很舒服吧」
+					PRINTFORMW %STONE_UKETSUKENAME%在简单的上下手势中加入了变化，折磨着%CALLNAME:MASTER%
+					PRINTFORMW 「嘿嘿嘿...这是奖励...请更加享受吧❤」
+			ENDSELECT
+			PRINTFORML
+			PRINTFORMW 噗呦❤噗噗噗❤
+			PRINTFORML
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「哇❤」
+					PRINTFORMW 迸发而出的%CALLNAME:MASTER%的精液溅到了%STONE_UKETSUKENAME%的头发上
+					PRINTFORML 「真是的！真麻烦❤会有味道的❤」
+					PRINTFORMW %STONE_UKETSUKENAME%笑得哈哈大笑，吮吸着竿上残留的精液
+				CASE 1
+					PRINTFORMW 「哇❤好多啊...❤」
+					PRINTFORMW %CALLNAME:MASTER%射出的精液着陆在%STONE_UKETSUKENAME%的手掌上
+					PRINTFORMW 「好多啊...这就是孩子的素材...」
+					PRINTFORMW %STONE_UKETSUKENAME%充满兴趣地，带着深深的爱意凝视着%CALLNAME:MASTER%的精液
+				CASE 2
+					PRINTFORMW 「哇❤好、好颤抖啊...」
+					PRINTFORMW %CALLNAME:MASTER%的竿在%STONE_UKETSUKENAME%的手掌中变得炽热，引导着射精的到来
+					PRINTFORMW 「奖励完成了❤」
+			ENDSELECT
+		ENDIF
+		PRINTFORML …………………
+		PRINTFORML ……………
+		PRINTFORMW ………
+		EXP:MASTER:射精経験 += 1
+		EXP:MASTER:絶頂経験 += 1
+		PRINTFORMDL 绝顶经验 +1(%CALLNAME:MASTER%)
+		PRINTFORMDL 射精经验 +1(%CALLNAME:MASTER%)
+		TIME += 6
+		STONE_SEXTIME -= 2
+		GOTO LOOP_SEX
+	CASE 3
+		IF STONE_FIRSTSEX:2 == 0
+			PRINTFORML 「我知道了...因为是第一次，所以请不要期望太高...」
+			PRINTFORMW 少女战战兢兢地触摸了%CALLNAME:MASTER%的竿，并含入口中
+			PRINTFORML
+			PRINTFORML 「啊...好厉害...好热...❤」
+			PRINTFORMW 少女特有的凉爽口腔包裹着，男性器官更加坚硬起来
+			PRINTFORML
+			PRINTFORML 「呼呼，好舒服...」
+			PRINTFORMW 少女笨拙地移动着口腔。稍微有些不够满足的快感袭击着%CALLNAME:MASTER%
+			PRINTFORML 「噗哈！嗯...是不是要更加刺激才行呢...？」
+			PRINTFORMW 少女一旦松开男性器官的口腔，确认周围没有人后便脱光了衣服
+			PRINTFORML
+			PRINTFORML 「好...好害羞...但这样就可以了！」
+			PRINTFORMW 正如她所计划的那样，%CALLNAME:MASTER%凝视着微微泛红的光滑肌肤，感到兴奋
+			PRINTFORMW 原本有些软化的男性器官再次变得坚硬
+			PRINTFORML 「嘘嘘嘻嘻哈哈，哇哈哈哈哈...」
+			PRINTFORMW 少女似乎渐渐掌握了技巧，舌头的动作变得更加熟练。%CALLNAME:MASTER%逐渐被带入快感的巅峰...
+			PRINTFORML
+			PRINTFORMW 噗呜❤滴答❤❤
+			PRINTFORML
+			PRINTFORMW 「啦嘿嘻...好...好棒！......嗯嗯嗯！」
+			PRINTFORMW 「..........咕噗！咕噗！真是...超级难吃的！哈哈哈哈哈！」
+			STONE_FIRSTSEX:2 = 1
+		ELSE
+			PRINTFORMW 「用口吗？没问题的❤」
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「嗯...啊呼...」
+					PRINTFORMW 少女含住了%CALLNAME:MASTER%充满热度的竿
+					PRINTFORML 「吸噗❤啪...❤」
+					PRINTFORMW %CALLNAME:MASTER%的男性器官征服了%STONE_UKETSUKENAME%冰冷的口腔...
+				CASE 1
+					PRINTFORML 「%CALLNAME:MASTER%先生的...好浓郁的气味...」
+					PRINTFORMW 将男性器官暴露在外界空气中，%STONE_UKETSUKENAME%仿佛被迷住般停止了动作
+					PRINTFORMW 「...这是奖励，所以我不会主动动的」
+					PRINTFORMW 少女尽力张开小小的嘴巴，将先前吸引她目光的男性器官塞入口中，开始奉献的动作
+					PRINTFORMW 「吸噜...舔舐...啪❤...嗯啾...」
+				CASE 2
+					PRINTFORML 「吸噗、吸噗噗、吸噗呜...舔舐...啪❤❤」
+					PRINTFORMW 「啪❤...做得舒服吗？」
+					PRINTFORML %CALLNAME:MASTER%没有用肯定的言语，而是温柔地抚摸着她的头
+					PRINTFORMW 「呵呵呵...喜欢...啪❤舔舐...啰啰❤」
+			ENDSELECT
+			PRINTFORML
+			PRINTFORMW 嘟噗❤噗噗噗❤❤
+			PRINTFORML
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORMW 「呀❤」
+					PRINTFORMW %CALLNAME:MASTER%的精液迸发而出，溅在%STONE_UKETSUKENAME%的脸上
+					PRINTFORML 「真是的！你的下半身怎么会有这么大的力量...❤太粗暴了！」
+					PRINTFORMW %STONE_UKETSUKENAME%笑个不停，还吸干了竿上剩下的精液
+				CASE 1
+					PRINTFORMW 「哇❤嗯❤咕咕咕」
+					PRINTFORMW %CALLNAME:MASTER%的精液从男性器官中喷射而出，填满了冰冷的死人口腔
+					PRINTFORMW 「虽然苦...但这就是%CALLNAME:MASTER%先生的...」
+					PRINTFORMW %STONE_UKETSUKENAME%目光中充满了对这生命之源的宠爱，凝视着眼前的人类...
+				CASE 2
+					PRINTFORMW 「哇❤嗯嗯嗯嗯～～！！」
+					PRINTFORMW 从%CALLNAME:MASTER%的男性器官喷射出的精液，蹂躏着%STONE_UKETSUKENAME%的口腔
+					PRINTFORMW 「呜哇哇...苦...不好...」
+					PRINTFORMW 尽管%STONE_UKETSUKENAME%皱起了眉头，但她还是设法将所喜爱的人类精液喝完了
+			ENDSELECT
+		ENDIF
+		PRINTFORML …………………
+		PRINTFORML ……………
+		PRINTFORMW ………
+		EXP:MASTER:射精経験 += 1
+		EXP:MASTER:絶頂経験 += 1
+		PRINTFORMDL 绝顶经验 +1(%CALLNAME:MASTER%)
+		PRINTFORMDL 射精经验 +1(%CALLNAME:MASTER%)
+		TIME += 6
+		STONE_SEXTIME -= 2
+		GOTO LOOP_SEX
+		
+	CASE 4
+		IF STONE_FIRSTSEX:3 == 0
+			PRINTFORMW 「上次...失败了...这次一定...对吧」
+			PRINTFORMW 「首先要放松一下吗？我明白了...嗯❤」
+			PRINTFORMW 「哎呀...❤嗯嗯❤手指...好厉害...❤」
+			PRINTFORMW 「不愧是...积石大师...好舒服啊...❤」
+			PRINTFORMW 「已经...❤够了...❤嗯❤嗯❤」
+			PRINTFORMW 使用了相当多的润滑剂，让小小的阴道变得湿滑，放松了起来
+			PRINTFORML
+			PRINTFORMW 「差不多了...可以插入了...❤」
+			PRINTFORMW 「啊...❤嗯❤好厉害...❤」
+			PRINTFORMW 「有点疼...但很舒服...❤」
+			PRINTFORMW 「嗯❤啊❤嗯❤」
+			PRINTFORMW 「啊❤已经要出来了❤没关系❤射出来❤」
+			PRINTFORMW %STONE_UKETSUKENAME%没有意识到可能会怀孕的可能性，还是故意忽视了呢...无论如何，她已经准备好接受阴道射精了...
+			PRINTFORML
+			PRINTFORMW 嘟噗❤噗噗噗❤
+			PRINTFORML
+			PRINTFORML 「哈啊…哈啊…❤以惊人的势头喷涌而出…❤」
+			PRINTFORMW 「……我爱你❤」
+			STONE_FIRSTSEX:3 = 1
+		ELSE
+			SELECTCASE RAND:5
+				CASE 0
+					PRINTFORMW 「你想让我躺下吗？我知道了！」
+					PRINTFORMW %STONE_UKETSUKENAME%躺在背后，采用了所谓的正常位体位，将男性器官插入到已经湿润的阴道中
+					PRINTFORMW 「嗯❤进来了...❤」
+					PRINTFORML
+					PRINTFORMW 「嗯嗯❤啊❤哎呀❤」
+					PRINTFORMW 「嘿❤不要摸胸部...有点...」
+					PRINTFORMW %CALLNAME:MASTER%触摸着少女相对身材小巧的胸部，玩弄着乳头
+					PRINTFORMW 「嘿❤胸部❤不要这么乱摸❤」
+					PRINTFORML
+					PRINTFORMW 「啊❤啊啊❤差不多了...❤」
+					PRINTFORMW 听到%STONE_UKETSUKENAME%的话，%CALLNAME:MASTER%加快了腰部的摆动速度，进入了最后的冲刺阶段
+					PRINTFORMW 「呀啊啊啊❤❤❤❤」
+					PRINTFORML
+					PRINTFORMW 噗呦❤噗噗噗❤❤
+					PRINTFORML
+					PRINTFORMW %CALLNAME:MASTER%将自己的种子充分撒在%STONE_UKETSUKENAME%的阴道中...
+					PRINTFORMW 尽管被%CALLNAME:MASTER%压着处于被打桩的姿势，但%STONE_UKETSUKENAME%看起来很幸福地低语着
+				CASE 1
+					PRINTFORMW 「你想让我趴下吗？我知道了！」
+					PRINTFORMW %STONE_UKETSUKENAME%趴下后，我将我的男性器官插入她已经充分湿润的阴道中，采用了所谓的后背位体位
+					PRINTFORMW 「嗯❤从后面...进来了...❤」
+					PRINTFORML
+					PRINTFORMW 「嗯嗯❤啊❤啊呀❤」
+					PRINTFORMW 「嗯❤这个体势...好刺激❤」
+					PRINTFORMW 我猛烈地抽动着腰部，蹂躏着%STONE_UKETSUKENAME%纤细小巧的身体
+					PRINTFORML
+					PRINTFORMW 「啊❤呀❤啊啊❤要到了❤❤要到了❤❤」
+					PRINTFORMW 听到%STONE_UKETSUKENAME%的话，我加快了腰部的抽动速度，像是最后的冲刺
+					PRINTFORMW 「啊啊啊啊❤❤❤❤」
+					PRINTFORML
+					PRINTFORMW 「噗哧❤喷射❤噗噜噜❤❤」
+					PRINTFORML
+					PRINTFORMW %CALLNAME:MASTER%将自己的精液充满了%STONE_UKETSUKENAME%的阴道...
+					PRINTFORMW 尽管腰部虚弱无力，但%STONE_UKETSUKENAME%满怀幸福地低语着。
+				CASE 2
+					PRINTFORMW 「你想让我坐上去吗？我明白了！」
+					PRINTFORMW %CALLNAME:MASTER%躺下，让%STONE_UKETSUKENAME%骑在上面，以所谓的骑乘位的姿势，将它插入到湿润的阴道中
+					PRINTFORMW 「嗯❤进来了……❤」
+					PRINTFORML
+					PRINTFORMW 「嗯嗯❤啊❤啊❤」
+					PRINTFORMW %CALLNAME:MASTER%几乎不动，只是静静地欣赏着%STONE_UKETSUKENAME%纵欲的样子…
+					PRINTFORMW 「啊❤平时没有这样俯视的机会…感觉新鲜…呼❤」
+					PRINTFORMW 「嗯嗯嗯❤这样的动作…太厉害了……❤」
+					PRINTFORMW 「虽然很累❤但是差不多要…❤」
+					PRINTFORML
+					PRINTFORMW 「啊！不要动❤啊❤❤❤」
+					PRINTFORMW 听到%STONE_UKETSUKENAME%的话，%CALLNAME:MASTER%开始加快腰部的动作
+					PRINTFORMW 「呀啊啊啊❤❤❤❤」
+					PRINTFORML
+					PRINTFORMW 噗噜❤滋滋❤❤
+					PRINTFORML
+					PRINTFORMW %CALLNAME:MASTER%充满决心地将种子洒在%STONE_UKETSUKENAME%的阴道里…
+					PRINTFORMW 少女倒在%CALLNAME:MASTER%的胸口上
+					PRINTFORMW %STONE_UKETSUKENAME%在感受着%CALLNAME:MASTER%胸口的温暖和触感时，幸福地低语道
+				CASE 3
+					PRINTFORMW %CALLNAME:MASTER%坐下来，拍了拍膝盖
+					PRINTFORMW 「你想坐在我腿上吗？我知道了！」
+					PRINTFORMW %STONE_UKETSUKENAME%坐在他的膝盖上，采取了所谓的面对面坐姿，他的阴道已经湿润得足够了，他开始插入
+					PRINTFORMW 「嗯❤进来了…❤」
+					PRINTFORML
+					PRINTFORMW 「嗯嗯❤啊❤哎呀❤」
+					PRINTFORMW %CALLNAME:MASTER%没有太多动作，只是注视着%STONE_UKETSUKENAME%尽情享受快感的样子…
+					PRINTFORMW 「啊❤就在眼前…%CALLNAME:MASTER%在…❤」
+					PRINTFORMW 「嗯嗯嗯❤这么近…好紧张…❤」
+					PRINTFORMW 「虽然很累❤但是差不多要…❤」
+					PRINTFORML
+					PRINTFORMW 「啊！不要动❤啊❤❤❤」
+					PRINTFORMW 无法忍受的%CALLNAME:MASTER%温柔地将%STONE_UKETSUKENAME%推倒，像是最后的冲刺一样扭动着腰部
+					PRINTFORMW 「啊啊啊啊❤❤❤❤」
+					PRINTFORML
+					PRINTFORMW 噗噜❤噗噜噜❤❤
+					PRINTFORML
+					PRINTFORMW %CALLNAME:MASTER%在%STONE_UKETSUKENAME%的阴道里尽情地撒下了他的种子…
+					PRINTFORMW 尽管被%CALLNAME:MASTER%压着处于被打桩的姿势，但%STONE_UKETSUKENAME%看起来很幸福地低语着
+				CASE 4
+					PRINTFORMW 「我知道了❤我也想做❤」
+					PRINTFORMW %STONE_UKETSUKENAME%似乎迫不及待地想要进行性行为，立刻脱掉衣服，完全暴露出水子特有的土色皮肤
+					PRINTFORMW 少女结合着苍白的身体，散发出一种背离道德的色情气息，把屁股伸了出来，展示自己的诱惑
+					PRINTFORMW 「快点！快点做吧❤❤」
+					PRINTFORMW %CALLNAME:MASTER%将坚硬的男性器官插入%STONE_UKETSUKENAME%挺动的腰部
+					PRINTFORMW 「嗯❤进来了...❤」
+					PRINTFORML
+					PRINTFORMW 「嗯嗯❤啊❤呀❤」
+					PRINTFORMW 「对不起❤我太粗鲁了❤」
+					PRINTFORMW %CALLNAME:MASTER%用力地抽送着%STONE_UKETSUKENAME%纤细小巧的身体
+					PRINTFORMW 这不再是温柔的性交，而是应该称之为交尾的行为
+					PRINTFORML
+					PRINTFORMW 「啊❤呀❤啊啊❤要来了❤❤要来了❤❤」
+					PRINTFORMW 听到%STONE_UKETSUKENAME%的话，%CALLNAME:MASTER%加快了腰部的速度，进入最后的冲刺
+					PRINTFORMW 「呀啊啊啊❤❤❤❤」
+					PRINTFORML
+					PRINTFORMW 噗呦❤噗噗噗❤❤噗噗噗❤❤
+					PRINTFORML
+					PRINTFORMW %CALLNAME:MASTER%将自己的种子充分地撒在%STONE_UKETSUKENAME%的阴道中，以怀孕她...
+					PRINTFORMW 虽然腰部已经无力，但%STONE_UKETSUKENAME%却幸福地低语着
+			ENDSELECT
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORMW 「......我爱你❤」
+			CASE 1
+				PRINTFORMW 「即使不是第一，如果能成为第三我也会很开心❤」
+			CASE 2
+				IF STONE_PLAYCOUNT:2 == 17
+					PRINTFORMW 「请更加...爱我吧❤爸爸❤」
+				ELSE
+					PRINTFORMW 「请更加...爱我吧❤」
+				ENDIF
+			CASE 3
+				IF STONE_PLAYCOUNT:2 == 17
+					PRINTFORMW 「第二个...可能会怀孕......❤」
+				ELSE
+					PRINTFORMW 「孩子...可能会怀孕......❤」
+				ENDIF
+		ENDSELECT
+		ENDIF
+		IF STONE_PLAYCOUNT:2 == 14 && FLAG:妊娠開关
+			IF STONE_PLAYCOUNT:1 > 1200
+				SELECTCASE RAND:3
+					CASE 0
+						STONE_PLAYCOUNT:2 = 15
+					CASEELSE
+				ENDSELECT
+			ELSEIF STONE_PLAYCOUNT:1 > 900
+				SELECTCASE RAND:7
+					CASE 0
+						STONE_PLAYCOUNT:2 = 15
+					CASEELSE
+				ENDSELECT
+			ELSEIF STONE_PLAYCOUNT:1 > 600
+				SELECTCASE RAND:10
+					CASE 0
+						STONE_PLAYCOUNT:2 = 15
+					CASEELSE
+				ENDSELECT
+			ELSE
+				SELECTCASE RAND:12
+					CASE 0
+						STONE_PLAYCOUNT:2 = 15
+					CASEELSE
+				ENDSELECT
+			ENDIF
+		ENDIF
+		PRINTFORML …………………
+		PRINTFORML ……………
+		PRINTFORMW ………
+		STONE_PLAYCOUNT:1 += 5
+		EXP:MASTER:挿入経験 += 1
+		EXP:MASTER:射精経験 += 1
+		EXP:MASTER:絶頂経験 += 1
+		PRINTFORMDL 插入经验 +1(%CALLNAME:MASTER%)
+		PRINTFORMDL 绝顶经验 +1(%CALLNAME:MASTER%)
+		PRINTFORMDL 射精经验 +1(%CALLNAME:MASTER%)
+		TIME += 10
+		STONE_SEXTIME -= 2
+		GOTO LOOP_SEX
+	CASE 5
+		PRINTFORMW 「诶！？虽然不多，但您给我带来了便当吗？」
+		PRINTFORMW 「非常感谢！我们一起吃吧！」
+		IF STONE_COUPLECHECK == 2
+			PRINTFORMW 「嗯...？说起来我们是在约会中的吧……」
+			PRINTFORMW 「…………算了吧！」
+		ENDIF
+		SELECTCASE ABL:MASTER:料理技能
+			CASE 0, 1
+				;作为一个没怎么吃过好东西的水子，即使不擅长料理也有相应的反应
+				PRINTFORML 「咔嚓咔嚓...咕咚」
+				PRINTFORMW 「好好吃！谢谢款待！」
+				PRINTFORML %STONE_UKETSUKENAME%很高兴，但实际上味道一般...
+				PRINTFORMW 我需要多练习料理...
+				STONE_PLAYCOUNT:1 += 5
+				体力回復量 = 1000
+				気力回復量 = 3000
+			CASE 2, 3, 4
+				PRINTFORML 「咔嚓咔嚓...咕咚」
+				PRINTFORMW 「好好吃！真不愧是%CALLNAME:MASTER%先生！」
+				STONE_PLAYCOUNT:1 += 8
+				体力回復量 = 1500
+				気力回復量 = 4000
+			CASE 5, 6
+				PRINTFORML 「咔嚓咔嚓...咕咚」
+				PRINTFORMW 「好、好好吃！这是迄今为止最好吃的！」
+				STONE_PLAYCOUNT:1 += 10
+				体力回復量 = 3000
+				気力回復量 = 5000
+		ENDSELECT
+		PRINTFORMW  %CALLNAME:MASTER% 和 %STONE_UKETSUKENAME% 填饱了肚子。
+		CALL RECOVER(MASTER, 体力回復量, "体力")
+		CALL RECOVER(MASTER, 気力回復量, "気力")
+		CALL 満腹度上昇(MASTER, "軽食")
+		EXP:MASTER:料理経験 += 1
+		TIME += 10
+		STONE_SEXTIME -= 2
+		GOTO LOOP_SEX
+	CASE 6
+		IF STONE_PLAYCOUNT:4 == 2
+			PRINTFORMW 「诶，你想要改名字？」
+			PRINTFORMW 「我还挺喜欢现在的名字的...」
+			PRINTFORMW 「但没关系啦。毕竟只有%CALLNAME:MASTER%一个人会叫我的名字...」
+		ELSE
+			PRINTFORMW 「终于决定名字了？」
+			PRINTFORMW 「快告诉我吧！」
+			PRINTFORMW 「会是什么样的名字呢♪」
+		ENDIF
+		CALL STONE_NAMESET
+		GOTO LOOP_SEX
+	CASE 7
+		PRINTFORMW 「诶，已经要走了？」
+		PRINTFORMW 「虽然考虑到会被发现，早点回去是对的......」
+		PRINTFORMW 「有点舍不得呢......」
+		RESETCOLOR
+		PRINTFORML
+		PRINTFORMDL 引着一脸舍不得的%STONE_UKETSUKENAME%，回到了接待处......
+ENDSELECT
+RESETCOLOR
+
+
+;-------------------------------------------------
+;积石竞赛カップル部門のテーマ説明を呼び出す関数
+;-------------------------------------------------
+@StoneTheme_Intro
+SIF !CHK_DATENOW(CFLAG:12)
+	PRINTFORML 「嗯嗯...现在好像不是在约会中...参加需要有伴侣，所以请注意！」
+	PRINTFORML
+SELECTCASE DAY:3
+	CASE 1
+		PRINTFORMW 「今天的比赛主题是『堆石与春风同行』...以春天为主题」
+		PRINTFORML
+		PRINTFORML 「擅长春天的孩子表现得很好！相反，喜欢夏天、秋天和冬天的孩子似乎不太擅长...」
+		PRINTFORMW 「喜欢与春天有强烈关联的花的孩子也可能表现得很好」
+		PRINTFORMW 「四季主题的比赛我们会定期举办，所以即使不擅长这个季节，也有其他季节的机会哦！」
+	CASE 2
+		PRINTFORMW 「今天的比赛主题是『缺少一只叠盘』...以盘子为主题」
+		PRINTFORML
+		PRINTFORML 「我们水子不吃饭，所以餐具只是用来叠盘子的工具」
+		PRINTFORMW 「喜欢餐具和盘子的孩子表现得很好。喜欢刀具和其他餐具的孩子似乎不会受到影响」
+		PRINTFORMW 「还有会做饭的人或经常使用盘子的女仆也有优势呢」
+	CASE 3
+		PRINTFORMW 「今天的比赛主题是『这次的堆石很可怕』...以恐怖为主题...」
+		PRINTFORML
+		PRINTFORML 「嗯...从某种意义上说，我们也算是恐怖的...」
+		PRINTFORMW 「嗯，很明显喜欢血腥、黑暗之类的东西的孩子似乎表现得很好」
+		PRINTFORMW 「顺便说一下，有一次有个伞妖怪参加了比赛，但他并没有得到主题加分」
+	CASE 4
+		PRINTFORMW 「今天的比赛主题是『没有标题的堆石比赛』...以音乐为主题」
+		PRINTFORML
+		PRINTFORML 「边堆石边唱歌或演奏乐器」
+		PRINTFORMW 「所以当然擅长音乐和乐器的人会得到更高的评价」
+		PRINTFORMW 「顺便说一下，艾卡酱是我们的偶像，所以不可避免地会有偏袒的评分，请提前谅解」
+	CASE 5
+		PRINTFORMW 「今天的比赛主题是『梦幻童话堆石』...以童话为主题」
+		PRINTFORML
+		PRINTFORML 「喜欢可爱的东西的人似乎会更加努力。相反，喜欢帅气或恐怖的东西的人似乎有点不擅长？」
+		PRINTFORML 「我喜欢可爱的东西！粉色啦...心形啦！」
+		PRINTFORMW 「我也可爱吗？嘿嘿...谢谢你的夸奖...」
+	CASE 6
+		PRINTFORMW 「今天的比赛主题是『给水子穿上服装』...以布饰为主题」
+		PRINTFORML
+		PRINTFORML 「利用布料来装饰积石的装饰大赛呢」
+		PRINTFORMW 「喜欢毛绒玩具和人偶的我在这个主题下表现得很好」
+		PRINTFORMW 「可以看到很多可爱的作品，我非常喜欢这个主题！」
+	CASE 7
+		PRINTFORMW 「今天的比赛主题是『彩虹堆叠』......以多彩色彩为主题呢」
+		PRINTFORML
+		PRINTFORML 「不仅限于特定的颜色，多彩色彩是条件！」
+		PRINTFORMW 「所以即使有喜欢的颜色，也可能因为讨厌的颜色而感到困扰哦」
+	CASE 8
+		PRINTFORMW 「今天的比赛主题是『石块与夏风共舞』......以夏天为主题」
+		PRINTFORML
+		PRINTFORML 「擅长夏天的孩子才行！相反，喜欢春天、秋天、冬天的孩子可能不擅长...」
+		PRINTFORMW 「喜欢夏天的印象较深的花朵也可能擅长呢」
+		PRINTFORMW 「四季主题会定期进行，所以即使不擅长这个季节，其他季节的时候也有机会哦！」
+	CASE 9
+		PRINTFORMW 「今天的比赛主题是『大陆风石块』......就是大陆风格的主题呢」
+		PRINTFORML
+		PRINTFORML 「当然，如果喜欢和风或洋风，可能不擅长呢」
+		PRINTFORMW 「呜呜呜...一提到大陆风...就会想到那个可怕的邪仙的形象...」
+	CASE 10
+		PRINTFORMW 「今天的比赛主题是『石块动物园』......以动物为主题呢」
+		PRINTFORML
+		PRINTFORML 「制作类似动物的石块作品非常直观和受欢迎的主题哦」
+		PRINTFORMW 「因为我也非常喜欢可爱的动物，所以我非常喜欢这个主题！」
+		PRINTFORMW 「鸟儿和蛇也是动物...但我还是更喜欢兽类的主题，觉得它们更可爱呢」
+	CASE 11
+		PRINTFORMW 「今天的比赛主题是『石块战斗！！』......以战斗为主题呢」
+		PRINTFORML
+		PRINTFORML 「因为是战斗为主题...擅长战斗、刀剑和枪械的人通常很擅长呢！」
+		PRINTFORMW 「相反，对于我们水子来说，刀剑、子弹和血腥的东西并不擅长呢...」
+		PRINTFORMW 「虽然是不擅长的主题，但我们也会认真完成工作的！」
+	CASE 12
+		PRINTFORMW 「今天的比赛主题是『ROCK TO THE FUTURE』......以未来为主题呢」
+		PRINTFORML
+		PRINTFORML 「嗯，对于我们水子来说，未来几乎不存在...」
+		PRINTFORMW 「喜欢机械装置和能感受到未来气息的人擅长这个主题，相反，喜欢复古风格的人可能会遇到困难呢」
+		PRINTFORMW 「嗯，对于我们水子来说，过去几乎不存在...」
+	CASE 13
+		PRINTFORMW 「今天的比赛主题是『石块随秋风』......以秋天为主题呢」
+		PRINTFORML
+		PRINTFORML 「擅长秋天的孩子才行！相反，喜欢春天、夏天、冬天的孩子可能不擅长...」
+		PRINTFORMW 「喜欢秋天印象较深的叶子也可能擅长呢」
+		PRINTFORMW 「四季主题会定期进行，所以即使不擅长这个季节，其他季节的时候也有机会哦！」
+	CASE 14
+		PRINTFORMW 「今天的比赛主题是『ONCE UPON TSUMIISHI』......以复古为主题呢」
+		PRINTFORML
+		PRINTFORML 「嗯，对于我们水子来说，过去几乎不存在...」
+		PRINTFORMW 「喜欢失落感或感受到过去的人擅长这个主题，相反，喜欢未来的人可能会遇到困难呢」
+		PRINTFORMW 「嗯，对于我们水子来说，未来几乎不存在...」
+	CASE 15
+		PRINTFORMW 「今天的比赛主题是『石块市场』......以高级为主题呢」
+		PRINTFORML
+		PRINTFORML 「石块作品的收藏家们将担任评分工作，选择愿意以高价购买的作品」
+		PRINTFORMW 「果然，平时喜欢昂贵物品的人更擅长制作呢」
+		PRINTFORMW 「啊！虽然喜欢昂贵物品也没关系，但还是不要招惹穷神比较好...」
+	CASE 16
+		PRINTFORMW 「今天的比赛主题是『超级豪华石块』......以华丽为主题呢」
+		PRINTFORML
+		PRINTFORMW 「喜欢华丽的人擅长这个主题，相反，喜欢简约和精致的人可能不擅长哦」
+		PRINTFORMW 「另外，喜欢黑白灰这种简约色彩的人也可能不擅长哦」
+	CASE 17
+		PRINTFORMW 「今天的比赛主题是『和风石块』......就是和风的主题呢」
+		PRINTFORML
+		PRINTFORML 「当然，喜欢大陆风或洋风的人可能不擅长哦」
+		PRINTFORMW 「石块本身就是和风的，对于『石块到底算不算和风』这个问题，我们不接受讨论哦」
+	CASE 18
+		PRINTFORMW 「今天的比赛主题是『与石头友好相处』......就是以矿石为主题呢」
+		PRINTFORML
+		PRINTFORML 「不仅仅是普通的石块，还可以使用各种各样的石头来进行堆砌！」
+		PRINTFORMW 「宝石之类的也可以用来堆砌石块，但请不要偷盗哦」
+	CASE 19
+		PRINTFORMW 「今天的比赛主题是『逻辑石块系统』......以智慧为主题呢」
+		PRINTFORML
+		PRINTFORML 「如果聪明的人认真制作，会创造出怎样的石块呢...这是从这种思考中诞生的主题呢」
+		PRINTFORMW 「聪明的人当然擅长，而且喜欢阅读书籍的人也可能擅长哦」
+	CASE 20
+		PRINTFORMW 「今天的比赛主题是『石块伴随着冬风』......以冬天为主题呢」
+		PRINTFORML
+		PRINTFORML 「喜欢冬天的人擅长这个主题！相反，喜欢春夏秋的人可能不太擅长哦」
+		PRINTFORMW 「喜欢冬天的孩子们也可能擅长堆砌与冰雪相关的石块呢」
+		PRINTFORMW 「四季主题的比赛我们会定期举办，所以即使对这个季节不擅长，其他季节也有机会参加哦！」
+	CASE 21
+		PRINTFORMW 「今天的比赛主题是『混沌石块』......以混乱为主题呢」
+		PRINTFORML
+		PRINTFORML 「喜欢混沌感觉的人擅长，相反，喜欢秩序感觉的人可能不太擅长哦」
+		PRINTFORMW 「明天是秩序主题，如果对这种主题不擅长的话，请明天再来参加吧！我会等着你哦！」
+	CASE 22
+		PRINTFORMW 「今天的比赛主题是『石块比赛情侣项目』......以秩序为主题呢」
+		PRINTFORML
+		PRINTFORML 「喜欢秩序感觉的人擅长，相反，喜欢混沌感觉的人可能不太擅长哦」
+		PRINTFORMW 「喜欢混沌感觉的人，抱歉...昨天是为什么下次比赛要等到31天后呢...」
+	CASE 23
+		PRINTFORMW 「今天的比赛主题是『洋风石块』......就是以洋风为主题呢」
+		PRINTFORML
+		PRINTFORML 「当然，喜欢大陆风或和风的人可能不太擅长哦」
+		PRINTFORMW 「洋风是指WelcomeHell那种感觉吧？咦，不是吗？」
+	CASE 24
+		PRINTFORMW 「今天的比赛主题是『成为石块之星』......以天体为主题呢」
+		PRINTFORML
+		PRINTFORML 「虽然以星空为主题，但喜欢太阳的人也可以活跃哦」
+		PRINTFORMW 「不过黑暗也与天体有关联，但不会加分也不会扣分，所以请注意哦」
+	CASE 25
+		PRINTFORMW 「今天的比赛主题是『水之子比赛』......以水为主题呢」
+		PRINTFORML
+		PRINTFORML 「从某种意义上说，水是最亲近的存在呢」
+		PRINTFORMW 「可能是因为喜欢水生生物吧？」
+		PRINTFORMW 「顺便说一下，最好不要潜入三途之河。那样很危险的哦」
+	CASE 26
+		PRINTFORMW 「今天的比赛主题是『守矢呈现石块比赛』......以守矢为主题呢」
+		PRINTFORML
+		PRINTFORML 「今天是由守矢们赞助的特别回合...所以会场上有很多广告！」
+		PRINTFORMW 「喜欢巫女、神灵、大地、风、青蛙和蛇的人也可能擅长哦」
+	CASE 27
+		PRINTFORMW 「今天的比赛主题是『魔法石平衡』......以魔法师为主题呢」
+		PRINTFORML
+		PRINTFORML 「顾名思义，对魔法和女巫很精通的人当然很强...」
+		PRINTFORMW 「评价的是我们水子，所以只要像女巫一样就可以通过了」
+		PRINTFORMW 「说不定连书本都会判定为魔法师呢」
+	CASE 28
+		PRINTFORMW 「今天的比赛主题是『兔子日』......顾名思义，以兔子为主题呢」
+		PRINTFORML
+		PRINTFORML 「每个月的28日是兔子日！所以根据这个来安排的活动呢」
+		PRINTFORMW 「不过说实话，到底什么是兔子日呢......」
+		PRINTFORMW 「嗯...总之喜欢与兔子相关的兔子和硬币之类的人会有优势哦！」
+		PRINTFORMW 「相反，不擅长这些或者有羞怯感的人可能会有点困难呢」
+	CASE 29
+		PRINTFORMW 「今天的比赛主题是『大自然的婚姻，石头与植物的和谐』......以植物为主题呢」
+		PRINTFORML
+		PRINTFORML 「喜欢植物本身的人会非常擅长，不喜欢植物但喜欢花朵和植物的人也可以参加呢」
+		PRINTFORMW 「顺便说一下，蘑菇并不属于植物！真可惜！」
+	CASE 30
+		PRINTFORMW 「今天的比赛主题是『大自然的婚姻，天空与风的和谐』......以风为主题呢」
+		PRINTFORML
+		PRINTFORML 「喜欢风本身或者喜欢飞翔的生物会有优势哦！」
+		PRINTFORMW 「不仅仅是风，天空也很重要，所以喜欢地底的人可能会有些困难」
+	CASE 31
+		PRINTFORMW 「今天是无限可能的特别日！」
+		PRINTFORML 「从其他日子的主题中选择一个，用那个主题来堆石头！」
+		PRINTFORML
+		PRINTFORMW 「如果获胜，就算是在指定的那一天的主题下获胜了哦！」
+		PRINTFORMW 「为了避免不小心忘记，这是为了避免下一次是在31天后的救济措施呢！」
+ENDSELECT
+
+SIF STONE_TUTORIAL:(DAY:3 + 20) == 0
+	STONE_TUTORIAL:(DAY:3 + 20) = 1
+
+IF MINARRAY(STONE_TUTORIAL, 21, 52) == 1 && STONE_TUTORIAL:52 == 0
+	PRINTFORML 「你今天...完成了从我这里听完所有主题解说的伟业！」
+	PRINTFORMW 「没想到会有人能听完全部内容...」
+	PRINTFORMW 「我只能表达我的感激之情...」
+	PRINTFORMW 「今后的积石竞赛...请多多关照！」
+	STONE_PLAYCOUNT:1 += 100
+	STONE_TUTORIAL:52 = 1
+ENDIF
+
+;-------------------------------------------------
+;受付水子関係のイベント呼び出し
+;-------------------------------------------------
+@STONE_UKETSUKE
+SETCOLOR C_PINK
+PRINTFORML
+PRINTFORML
+IF STONE_PLAYCOUNT:2 == 0 && STONE_BATTLECOUNT:0 > 0
+	PRINTFORMW
+	PRINTFORML %CALLNAME:MASTER%在堆石比赛结束后，坐在离会场不远的悬崖下休息着。
+	PRINTFORMW 「啊，这里有人呢...好久不见了」
+	PRINTFORML 一个皮肤土黄色、比璎花还小的水子出现在%CALLNAME:MASTER%面前，开始说话。
+	PRINTFORMW 正如刚才说的那样，她是刚刚还在接待台和解说员那边一直交谈的堆石比赛的工作人员。
+	PRINTFORML
+	PRINTFORMW 「我现在是休息时间，并不是在偷懒」
+	PRINTFORML 「那个…………………………」
+	PRINTFORMW 「………………堆石比赛怎么样？很有趣吗？」
+	{
+	CALL ASK_M("非常有趣",1,"很简单",1,"很好但还有改进的地方",1,)
+	}
+	SELECTCASE RESULT
+		CASE 0
+			PRINTFORMW 「太好了！那真是太好了！」
+			PRINTFORML 「堆石比赛刚刚进行了改版，我其实有些不安......」
+			PRINTFORMW 「哎呀，作为运营方的我不能发出这样的弱音呢...」
+		CASE 1
+			PRINTFORMW 「很简单吗！嗯嗯...这样的意见我很感激...」
+			PRINTFORML 「考虑到休闲玩家，我也在考虑稍微简化一下...」
+			PRINTFORMW 「毕竟也有些人喜欢有挑战性的东西嘛...」
+		CASE 2
+			PRINTFORMW 「改进点...在哪里呢？」
+			PRINTFORML 「游戏单调？嗯，毕竟是堆石头，没办法...」
+			PRINTFORMW 「不过，作为运营方的我这样找借口是不好的呢...」
+			PRINTFORMW 「嗯...该怎么办呢...」
+		ENDSELECT
+	PRINTFORML 「啊！对了！下次也请告诉我各种感想啊！」
+	PRINTFORMW 少女像是突然想到了一个好主意，露出了笑容
+	PRINTFORMW 「如果你有任何意见，我们也可以进行各种改善或者反而加强！」
+	PRINTFORMW 「下次再来参加堆石比赛的时候，请告诉我！」
+	PRINTFORMW 「我会担任接待员的！就是专属的那种！」
+	PRINTFORML 少女把手放在%CALLNAME:MASTER%的肩膀上，兴奋地说个不停
+	PRINTFORMW %CALLNAME:MASTER%只是被她推动着，答应了她的提议...
+	PRINTFORML
+	PRINTFORMW 「太好了！…………对不起！我有点太兴奋了...」
+	PRINTFORMW 「首先是名字对吧...你的名字是...%CALLNAME:MASTER%先生对吧！我记住了！」
+	PRINTFORMW 「嗯？我的名字？…………我没有名字。因为在得到名字之前就已经死了」
+	PRINTFORMW 「所以请叫我接待水子之类的名字吧！」
+	PRINTFORML
+	PRINTFORMW 「那么，下次再见！」
+	STONE_PLAYCOUNT:2 = 1
+ELSEIF STONE_PLAYCOUNT:2 == 1 && STONE_PLAYCOUNT:0 > 1 && STONE_PLAYCOUNT:1 > 20
+	PRINTFORML %CALLNAME:MASTER%在堆石比赛结束后，在离会场不远的地方找了块石头坐下来休息。
+	PRINTFORML 「好久不见啦！」
+	PRINTFORMW 逃离休息的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前。
+	PRINTFORML
+	PRINTFORMW 「嘿嘿！这个备忘录是从奈留小姐那里拿到的哦！」
+	PRINTFORMW 「她说你一直很努力呢，嘿嘿……」
+	PRINTFORMW 少女似乎想起了当时的情景，脸上带着害羞的表情...
+	PRINTFORMW 「咳咳，好了，请给我一些反馈意见吧！我会做记录的，用奈留小姐给我的备忘录！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORMW 「嗯嗯……因为是堆石头，改善单调性确实有些困难呢...」
+	PRINTFORMW 「要想到其他什么事情来做才好呢？嗯...怎么办呢...」
+	PRINTFORMW 忽略了预算范围内这句小声的嘀咕，%CALLNAME:MASTER%和接待水子聊了一会儿，玩了一会儿堆石头，度过了一段时间。
+	STONE_PLAYCOUNT:2 = 2
+ELSEIF STONE_PLAYCOUNT:2 == 2 && STONE_PLAYCOUNT:0 > 3 && STONE_PLAYCOUNT:1 > 50 && STONE_BATTLECOUNT:1 > 1
+	PRINTFORML %CALLNAME:MASTER%在堆石比赛结束后，坐在离会场不远的地方的一块石头上休息着。
+	PRINTFORML 「好久不见了！」
+	PRINTFORMW 逃离休息的接待水子拿着一块石头出现在%CALLNAME:MASTER%面前。
+	PRINTFORML
+	PRINTFORMW 「今天就和我来一场堆石头比赛吧！」
+	PRINTFORMW 「不容置疑！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORMW 「我...输了...」
+	PRINTFORMW 「但是下次我有信心！再来一次吧！」
+	PRINTFORMW %CALLNAME:MASTER%和接待水子一起玩了一段时间的堆石头游戏，享受着胜利和失败的乐趣...
+	STONE_PLAYCOUNT:2 = 3
+ELSEIF STONE_PLAYCOUNT:2 == 3 && STONE_PLAYCOUNT:0 > 5 && STONE_PLAYCOUNT:1 > 80
+	PRINTFORML %CALLNAME:MASTER%在堆石比赛结束后，坐在离会场不远的地方的石头上休息着。
+	PRINTFORML 「你好啊！好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子带着备忘录出现在%CALLNAME:MASTER%面前。
+	PRINTFORML
+	PRINTFORMW 「今天也请你提出各种想法！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML 「话说回来...嘿嘿，我们关系变得相当好了呢。」
+	PRINTFORML 「我们已经是朋友了吧？」
+	PRINTFORML 「你早就觉得我们是朋友了吗？我也是！」
+	PRINTFORML 「这是我第一次和人类做朋友呢！」
+	PRINTFORMW %CALLNAME:MASTER%和接待水子作为朋友，一起聊天、一起玩堆石度过了一段时间...
+	STONE_PLAYCOUNT:2 = 4
+ELSEIF STONE_PLAYCOUNT:2 == 4 && STONE_PLAYCOUNT:1 > 100 && STONE_BATTLECOUNT:1 > 20 && TALENT:MASTER:積み石ランカー >= 2
+	PRINTFORML 「%CALLNAME:MASTER%先生在积石比赛结束后，坐在离会场不远的地方休息」
+	PRINTFORML 「好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前
+	PRINTFORML
+	PRINTFORMW 「你知道吗？最近%CALLNAME:MASTER%先生很有话题呢！」
+	PRINTFORMW 「有个很厉害的新秀一直在赢呢」
+	SIF TALENT:積み石ランカー >= 5
+	PRINTFORMW 「已经是积石大师了，消息传得真慢」
+	PRINTFORML 「嘛！最开始发现%CALLNAME:MASTER%先生的人是我呢！从第一场比赛开始，我就看出了他的闪光之处...」
+	PRINTFORMW 和自鸣得意的少女聊了一会儿，一起玩了一会儿积石，度过了愉快的时光...
+	STONE_PLAYCOUNT:2 = 5
+ELSEIF STONE_PLAYCOUNT:2 == 5 && STONE_PLAYCOUNT:0 > 7 && STONE_PLAYCOUNT:1 > 130
+	PRINTFORML %CALLNAME:MASTER%完成了堆石比赛，坐在离会场不远的地方休息着。
+	PRINTFORML 「你好呀！好久不见！」
+	PRINTFORMW 逃离休息的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前。
+	PRINTFORML
+	PRINTFORMW 「今天也请您提出各种提案！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORMW 「明白了。我明白了。」
+	PRINTFORMW 「只有金钱作为报酬有点寂寞......我会考虑改进的方案！」
+	PRINTFORMW 尽量在预算范围内......%CALLNAME:MASTER%故意忽略了低声嘟囔的话，与接待水子聊天、玩堆石游戏度过了一段时间...
+	STONE_PLAYCOUNT:2 = 6
+ELSEIF STONE_PLAYCOUNT:2 == 6 && STONE_PLAYCOUNT:0 > 8 && STONE_PLAYCOUNT:1 > 160
+	PRINTFORML %CALLNAME:MASTER%完成了堆石比赛后，在离会场不远的地方找了块石头坐下来休息
+	PRINTFORML 「您好！好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前
+	PRINTFORML
+	PRINTFORMW 「我有个消息要告诉您！」
+	PRINTFORMW 「您知道吗...从现在开始，比赛的奖品中还会有滑石呢！」
+	PRINTFORML 「………………………」
+	PRINTFORMW 「啊哈哈...果然有点差劲呢...但作为水子，各种物资的调配也很困难，这已经是极限了...」
+	PRINTFORMW 「有没有什么其他的办法呢...」
+	STONE_PLAYCOUNT:2 = 7
+ELSEIF STONE_PLAYCOUNT:2 == 7 && TALENT:MASTER:積み石ランカー >= 3
+	PRINTFORML %CALLNAME:MASTER%完成了堆石比赛后，在离会场不远的地方找了块石头坐下来休息
+	PRINTFORML 「您好！好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子出现在%CALLNAME:MASTER%面前
+	PRINTFORML
+	PRINTFORMW 「%CALLNAME:MASTER%先生变得越来越强了呢！」
+	PRINTFORMW 「我非常崇拜和喜欢擅长堆石的人，所以一直在为您加油呢！」
+	PRINTFORMW 「嗯，关于%CALLNAME:MASTER%先生的事情...不，没什么」
+	PRINTFORMW 少女有些结巴地说着，%CALLNAME:MASTER%和她聊了一会儿，一起玩了堆石游戏，度过了一段时间...
+	STONE_PLAYCOUNT:2 = 8
+ELSEIF STONE_PLAYCOUNT:2 == 8 && STONE_PLAYCOUNT:1 > 200
+	PRINTFORML %CALLNAME:MASTER%完成了堆石比赛后，在离会场不远的地方找了块石头坐下来休息
+	PRINTFORML 「您好！好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前
+	PRINTFORML
+	PRINTFORMW 「今天也请您提出各种改进的建议！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORMW 「果然如果奖品没有太大吸引力的话...」
+	PRINTFORMW 「嗯...我虽然考虑了各种改进的方案，但总是遇到困难...」
+	PRINTFORML %CALLNAME:MASTER%坦率地说，如果继续这样下去，他自己也会减少参加的次数...
+	PRINTFORMW 「嗯？这、这怎么会！！我、我本来还以为能够和人类的朋友一直相处下去呢」
+	PRINTFORML 面前的少女脸色变得更加苍白，语气结巴，似乎受到了很大的打击...
+	PRINTFORMW %CALLNAME:MASTER%急忙想要安慰她，但在他开口之前，接待水子似乎下定了决心，开口说道
+	PRINTFORML
+	PRINTFORMW 「好吧！下次如果在金字塔级别以上获得冠军，我会给予奖励！」
+	STONE_PLAYCOUNT:2 = 9
+ELSEIF STONE_PLAYCOUNT:2 == 10 && STONE_PLAYCOUNT:1 > 250
+	PRINTFORMW %CALLNAME:MASTER%完成了堆石比赛后，在离会场不远的地方找了块石头坐下来休息
+	PRINTFORML 「您好！好久不见了！」
+	PRINTFORMW 一个趁着休息溜出来的接待水子拿着备忘录出现在%CALLNAME:MASTER%面前
+	PRINTFORML
+	PRINTFORMW 「今天也请您提出各种改进的建议！」
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORMW 「所以呢！」
+	PRINTFORMW 他们聊了一会儿，但接待水子的举止看起来完全不记得上次的事情了
+	PRINTFORMW %CALLNAME:MASTER%开始怀疑自己是不是梦见了她亲他的脸颊？于是直截了当地提出了关于奖励的问题
+	PRINTFORMW 「嗯？你想要下一次的奖励吗...？」
+	PRINTFORML
+	PRINTFORMW 「我、我明白了。下次如果在金字塔级别以上获得冠军，我会给予奖励！」
+	PRINTFORMW 之后，%CALLNAME:MASTER%和有些不安的接待水子继续交谈了一段时间...
+	STONE_PLAYCOUNT:2 = 11
+ELSEIF STONE_PLAYCOUNT:2 == 12 && STONE_PLAYCOUNT:1 > 350
+	PRINTFORMW %CALLNAME:MASTER%在积石比赛结束后，坐在离会场不远的地方的石头上休息着。
+	PRINTFORML 「好久没有在这里聊天了呢」
+	PRINTFORML
+	PRINTFORMW 在这个荒凉的地方，除了石头几乎什么都没有，我们曾经在这里交谈过很多次。我们一起提出各种意见，玩积石，也谈过河原之外的话题。
+	PRINTFORMW 这也是我们亲吻、互相脱衣服但没有进行插入的地方，有点色情的地方。
+	PRINTFORML 她那看起来随时都会折断的纤细身体，已经死去的人所表现出的苍白肌肤，在河原上吹来的不祥之风中摇曳的半长白发，
+	PRINTFORMW 她以迄今为止最认真的表情，出现在%CALLNAME:MASTER%的面前，存在于这个地方。
+	PRINTFORML
+	PRINTFORMW 「我，喜欢%CALLNAME:MASTER%先生」
+	PRINTFORMW 「你是我第一个人类朋友，擅长积石，宠着我的任性，经常来这里...这样的%CALLNAME:MASTER%...」
+	PRINTFORMW 「但是我已经死了，所以无法像艾咖那样出去，也无法成为%CALLNAME:MASTER%先生的第一位」
+	IF TALENT:127:恋人
+		PRINTFORMW 「嗯，你和璎花是恋人关系吧？我知道的哦，偶尔会听到她撒娇的样子」
+	ELSEIF TALENT:127:恋慕
+		PRINTFORMW 「嗯，璎花似乎也喜欢你%CALLNAME:MASTER%先生呢...」
+	ELSE
+		PRINTFORMW 「因为是关于你%CALLNAME:MASTER%先生的，肯定积累了很多女孩子的好感度呢」
+	ENDIF
+	PRINTFORMW 「哎呀！其他女孩子的事情根本无所谓。不是第一也没关系。因为我知道我成不了第一。」
+	PRINTFORMW 「.........至今为止最棒的奖励......想要吗？」
+	PRINTFORML
+	PRINTFORML
+	PRINTFORML ※选择想要奖励的话，最终会发生性行为
+	PRINTFORML ※ 因此，建议进行童贞PLAY或专情于特定角色的玩家选择“否”。
+	CALL ASK_M("想要奖励",1,"不需要奖励※清除接待水子事件标志",1)
+	SELECTCASE RESULT
+		CASE 0
+			PRINTFORMW 「是啊，当然想要呢。我也想给予%CALLNAME:MASTER%先生奖励」
+			PRINTFORMW 「但是作为水子，对于生育孩子这件事情总是有些困难...」
+			PRINTFORMW 「我非常讨厌那些为了一时的快乐而生育孩子然后让他们不幸的坏男人和坏女人」
+			PRINTFORMW 「但是......我也想超越那个，给予奖励的想法...」
+			PRINTFORMW 「我也是...一个那样的坏女人呢...」
+			PRINTFORML
+			PRINTFORMW 「............下次，如果在巴别塔级别的比赛中获胜...我会给予奖励」
+			PRINTFORMW 「......请加油。就是这样」
+			STONE_PLAYCOUNT:2 = 13
+		CASE 1
+			PRINTFORMW 「是的......真是个无能之辈」
+			PRINTFORMW 「嗯？没什么！那么，让我们回到今天的堆石大赛的感想战吧！」
+			PRINTFORMW 接着，在一段时间内，受付的水子和我仿佛什么都没发生过一样聊了起来...
+			STONE_PLAYCOUNT:2 = 18
+	ENDSELECT
+ELSEIF STONE_PLAYCOUNT:2 == 15 && STONE_PLAYCOUNT:1 > 550
+	PRINTFORMW 「%CALLNAME:MASTER%先生在积石比赛结束后，在离会场不远的地方坐在石头上休息」
+	PRINTFORML 「最近我们经常在会场后面偷偷见面，好久不见了呢」
+	PRINTFORMW %STONE_UKETSUKENAME%穿着比平时更宽松的破布走到这里
+	PRINTFORMW 「今天来是为了告诉你一件事」
+	PRINTFORML
+	PRINTFORMW 「那个事情是......我成为妈妈了」
+	PRINTFORML
+	PRINTFORMW 「唉...没想到我竟然被卷入做孩子的父母这个角色中...」
+	PRINTFORMW 「但是...我心里充满了幸福的感觉...我稍微能够理解一点了」
+	PRINTFORML
+	PRINTFORMW 「我们的孩子......正好在河边的沙滩上，有个母亲一直悲痛地为失去孩子而哀叹，她偶尔会来这里」
+	PRINTFORMW 「因为我无法离开这里好好抚养孩子，所以想要拜托那个人」
+	PRINTFORMW 「......所以我要请产假，暂时停一段时间的积石比赛」
+	PRINTFORMW 「我是水子，所以产假时间会比较短......大概休息两周左右吧」
+	STONE_PLAYCOUNT:2 = 16
+	FLAG:路人孕ませ数 += 1
+	;本当は讓幽霊懷孕も加算したいがそれだと孕ませ埋めが稍微楽すぎる気がするのでとりあえず無し
+	STONE_UKETSUKEDAY = DAY:0
+ENDIF
+
+;道具獲得
+IF STONE_ITEM:0 == 0 && STONE_PLAYCOUNT:2 >= 3 && STONE_BATTLECOUNT:1 > 15
+	PRINTFORML
+	PRINTFORML
+	PRINTFORML 「哦，对了！%CALLNAME:MASTER%先生的一个提案被采纳了」
+	PRINTFORMW 接待的水子似乎在说话期间忘记了，急忙拿出备忘录
+	PRINTFORMW 「从下次开始将实装积石装备系统！」
+	PRINTFORMW 啪啪啪...%STONE_UKETSUKENAME%一个人鼓掌
+	PRINTFORML
+	PRINTFORMW 「这个是！%CALLNAME:MASTER%先生在参赛时选择的东西！」
+	PRINTFORMW 「在比赛连战中可以享受这个装备的效果！」
+	PRINTFORMW 「使用这个列表中的四种装备进行积石战斗！」
+	PRINTFORMW 「嗯，虽然只开发出了一种...」
+	PRINTFORMW 「而且还在实验阶段，所以只有一个...哈哈...」
+	PRINTFORMW 「所以拜托了...%CALLNAME:MASTER%先生可以用其中一种来参加比赛吗？」
+	PRINTFORMW 「就是所谓的测试玩家！」
+	PRINTFORMW 「拜托了！」
+	PRINTFORMW %CALLNAME:MASTER%被%STONE_UKETSUKENAME%的势头压倒，只能点头答应...
+	STONE_ITEM:0 = 1
+ELSEIF STONE_ITEM:0 == 1 && STONE_BATTLECOUNT:1 > 30
+	PRINTFORML 
+	PRINTFORML 
+	PRINTFORML 「哦，说起来！我制作了新的装备道具！」
+	PRINTFORMW %STONE_UKETSUKENAME%似乎在说话时忘记了，急忙拿出备忘录
+	PRINTFORMW 「它的名字叫做『身体强化地藏』！」
+	PRINTFORMW 拍拍拍...%CALLNAME:MASTER%为之鼓掌
+	PRINTFORML
+	PRINTFORMW 「这个道具非常简单明了！它会根据最初可以堆放的石头数量进行修正！」
+	PRINTFORMW 「因此，%CALLNAME:MASTER%先生请再次担任测试玩家！」
+	PRINTFORMW 「拜托了！」
+	STONE_ITEM:0 = 2
+ELSEIF STONE_ITEM:0 == 2 && STONE_BATTLECOUNT:1 > 50
+	PRINTFORML 
+	PRINTFORML 
+	PRINTFORML 「哦，说起来！我又增加了一个新的装备道具！」
+	PRINTFORMW %STONE_UKETSUKENAME%似乎在说话时忘记了，急忙拿出备忘录
+	PRINTFORMW 「它的名字叫做『随心堆石』！」
+	PRINTFORMW 拍拍拍...%CALLNAME:MASTER%和%STONE_UKETSUKENAME%一起鼓掌
+	PRINTFORML
+	PRINTFORMW 「这个道具非常神奇！它会释放出一种让对手想随心堆石的气场」
+	PRINTFORMW 「然后，对手会随意堆石，有时会出现意外！」
+	PRINTFORMW 「无论对手多么强大，只要出现意外，就能获胜！可以说是针对强敌的道具！」
+	PRINTFORMW 「因此，%CALLNAME:MASTER%先生请再次担任测试玩家！」
+	PRINTFORMW 「拜托了！」
+	STONE_ITEM:0 = 3
+ELSEIF STONE_ITEM:0 == 3 && STONE_BATTLECOUNT:1 > 70
+	PRINTFORML 
+	PRINTFORML 
+	PRINTFORML 「哦，对了！新加了一件装备道具！」
+	PRINTFORMW %STONE_UKETSUKENAME%似乎在说话的时候忘记了，急忙拿出备忘录
+	PRINTFORMW 「它的名字叫做『积石计数器』！」
+	PRINTFORMW 呀！%CALLNAME:MASTER%和%STONE_UKETSUKENAME%高高地击掌了一下
+	PRINTFORML
+	PRINTFORMW 「这个呢！它可以准确地预测对手堆积的积石数量！」
+	PRINTFORMW 「这样就不会出现预测多了15个积石之类的输了！的情况了！」
+	PRINTFORMW 「不过，无法预测对手会不会出意外」
+	PRINTFORMW 「意外是无法预测的，所以才叫意外嘛」
+	PRINTFORMW 「所以，%CALLNAME:MASTER%先生，请您也成为测试玩家吧！」
+	PRINTFORMW 「拜托了！」
+	STONE_ITEM:0 = 4
+ENDIF
+RESETCOLOR
+
+IF STONE_PLAYCOUNT:2 >= 13 && STONE_PLAYCOUNT:4 == 0
+	PRINTFORMW 「啊对了！」
+	PRINTFORMW 在与接待的水子交谈的过程中，少女突然像是想到了什么好主意一样喊了起来。
+	PRINTFORML
+	PRINTFORMW 「那个......因为我现在没有名字，所以每次%CALLNAME:MASTER%先生和我说话的时候有点困扰」
+	PRINTFORMW 「所以...那个......能给我取个名字吗？」
+	PRINTFORMW 「以前也有几次被取名字的机会，但我都拒绝了」
+	PRINTFORMW 「但是......如果是%CALLNAME:MASTER%先生的话......可以的」
+	CALL STONE_NAMESET
+ENDIF
+
+@STONE_UKETSUKE_H
+SETCOLOR C_PINK
+PRINTFORML
+PRINTFORMW
+
+ IF STONE_PLAYCOUNT:2 == 9
+	;这里的亲吻脸颊是为那些不想要第一次亲吻的人考虑的
+	PRINTFORMW 根据与受付水子的约定，获胜的%CALLNAME:MASTER%来到了平常的地方
+	PRINTFORML 「………………」
+	PRINTFORMW 受付水子的脸颊比平时更加红润，她面带认真的表情站在那里
+	PRINTFORML 我对少女说话，她没有像往常一样热闹地回答，而是靠近了我
+	PRINTFORML 她的脸靠近了我，越来越近...
+	PRINTFORMW 亲❤
+	PRINTFORML
+	PRINTFORMW 「这次是脸颊！但是这次...这、这次没什么特别的！！」
+	PRINTFORMW 脸涨得通红的水子少女逃走了
+	STONE_PLAYCOUNT:1 += 10
+	STONE_PLAYCOUNT:2 = 10
+ELSEIF STONE_PLAYCOUNT:2 == 11
+	PRINTFORMW 按照与接待水子的约定，获胜的%CALLNAME:MASTER%来到了平时的地方
+	PRINTFORML 「………………」
+	PRINTFORMW 接待水子的脸色比平时更红润，她面带认真的表情站在那里
+	PRINTFORML 我向少女打招呼，她没有说话，而是静静地走近我...
+	PRINTFORML 就在我以为她要靠近我的脸时，她却蹲了下来
+	IF (TALENT:PLAYER:性別 & 2)
+		PRINTFORMW 「请，请拿出你的阳具！！！」
+		PRINTFORMW 以为是亲吻的%CALLNAME:MASTER%感到困惑，先四处确认一下周围的情况
+		PRINTFORMW 看起来周围没有其他人在…
+		PRINTFORMW 「听说对男人来说这是最好的奖励！！」
+		PRINTFORML 这、这种事情应该是和喜欢的人在一起的时候……
+		PRINTFORMW 「我、我可能不懂恋爱，因为我是水子！」
+		PRINTFORMW 「但是%CALLNAME:MASTER%对你的喜欢是真心的！那样的话就没关系了吗…？」
+		PRINTFORMW 「没、没、没关系！就算%CALLNAME:MASTER%有喜欢的人…❤这是奖励，不算是出轨…❤是安全的…❤」
+		PRINTFORML 在少女的势头下，%CALLNAME:MASTER%自愿将自己的男根暴露在外面
+		PRINTFORMW 「哇哇…这就是%CALLNAME:MASTER%的…咕噜…❤」
+		PRINTFORML 「用、用手好吗？还是用口好吗…？」
+		CALL ASK_YN("想用手来奖励","想用口来奖励")
+			IF !RESULT
+				PRINTFORML 「我知道了…因为是第一次，请不要期待太多…」
+				PRINTFORMW 少女战战兢兢地触摸了%CALLNAME:MASTER%的阳具
+				PRINTFORML
+				PRINTFORML 「啊…好厉害…好热…❤」
+				PRINTFORMW 少女冰凉的手包裹着男根，使它更加坚硬
+				PRINTFORML
+				PRINTFORML 「嗯，这样上下移动……」
+				PRINTFORMW 少女笨拙地开始动手。稍微有些不够满足的快感袭击了%CALLNAME:MASTER%
+				PRINTFORML 「嗯，是不是要更加兴奋才行呢…？」
+				PRINTFORMW 少女一度离开男根，确认周围没有人后脱光衣服
+				PRINTFORML
+				PRINTFORML 「好、好害羞啊…但是这样就可以了！」
+				PRINTFORMW 正如她所计划的那样，%CALLNAME:MASTER%注视着那微微泛红的肌肤，感到兴奋
+				PRINTFORMW 之前有些软化的男根再次变得坚硬
+				PRINTFORML 「我已经掌握了一些技巧，这样就可以了！」
+				PRINTFORMW 经过石头的训练，她的手指终于发挥出了真正的能力。迅速地给予快感，引导%CALLNAME:MASTER%达到高潮...
+				PRINTFORML
+				PRINTFORMW 噗噗❤喷喷❤❤
+				PRINTFORML
+				PRINTFORMW 「哇！好多啊……」
+				PRINTFORMW 「头发都沾到了呢！哈哈哈哈！」
+				PRINTFORML …………………
+				PRINTFORML ……………
+				PRINTFORMW ……
+				STONE_FIRSTSEX:1 = 1
+				STONE_PLAYCOUNT:2 = 12
+			ELSE
+				PRINTFORML 「我明白了…这是我第一次，请不要期望太多…」
+				PRINTFORMW 少女小心翼翼地触摸了%CALLNAME:MASTER%的阴茎，并含入口中
+				PRINTFORML
+				PRINTFORML 「啊…舒、舒服…嗯嘤…❤」
+				PRINTFORMW 少女凉爽的口腔将男根包裹，使它更加坚硬
+				PRINTFORML
+				PRINTFORML 「呼、呼唿、呼唿…」
+				PRINTFORMW 少女笨拙地动起了嘴巴。稍微有些不够满足的快感袭击了%CALLNAME:MASTER%
+				PRINTFORML 「噗哈！嗯，还是有些难度呢…是不是需要更多刺激才行…？」
+				PRINTFORMW 少女从男根上松开嘴巴，确认周围没有人后脱光了衣服
+				PRINTFORML
+				PRINTFORML 「好、好害羞啊…但是这样应该可以了！」
+				PRINTFORMW 正如她预期的那样，%CALLNAME:MASTER%凝视着略带红晕的土黄色肌肤的平坦身体而感到兴奋
+				PRINTFORMW 之前稍微变软的男根再次变得坚硬
+				PRINTFORML 「嘘、嘿嘿嘿哈哈，哇哈哈哈哈…」
+				PRINTFORMW 少女逐渐掌握了技巧，舌头的动作变得更加熟练。%CALLNAME:MASTER%逐渐被带入快感之中，走向高潮...
+				PRINTFORML
+				PRINTFORMW 噗呜❤噗噗噗❤❤
+				PRINTFORML
+				PRINTFORMW 「真、真好呀！……嗯嗯嗯！」
+				PRINTFORMW 「…………咕咕咕！真是❤超级难吃的！啊哈哈哈哈！」
+				PRINTFORML …………………
+				PRINTFORML ……………
+				PRINTFORMW ……
+				STONE_FIRSTSEX:2 = 1
+				STONE_PLAYCOUNT:2 = 12
+			ENDIF
+	ELSE
+		PRINTFORMW 「请，请拿出你的胸部！！！」
+		PRINTFORMW 以为是亲吻的%CALLNAME:MASTER%感到困惑，先四处确认一下周围的情况
+		PRINTFORMW 看起来周围没有其他人在…
+		PRINTFORML
+		PRINTFORMW 「听说对女人来说这是最好的奖励！！」
+		PRINTFORML 这、这种事情应该是和喜欢的人在一起的时候……
+		PRINTFORMW 「我、我可能不懂恋爱，因为我是水子！」
+		PRINTFORMW 「但是%CALLNAME:MASTER%对你的喜欢是真心的！那样的话就没关系了吗…？」
+		PRINTFORMW 「没、没、没关系！就算%CALLNAME:MASTER%有喜欢的人…❤这是奖励，不算是出轨…❤是安全的…❤」
+		PRINTFORML 在少女的势头下，%CALLNAME:MASTER%自愿展示了她的胸部
+		PRINTFORML
+		PRINTFORMW 「哇哇…这就是%CALLNAME:MASTER%的…咕噜…❤」
+		PRINTFORML 不是奖励，只是水子的本能在寻求胸部而已…
+		PRINTFORML 「那、那种事情……大概…不会发生吧…」
+		PRINTFORMW 少女小声否定着，含住了%CALLNAME:MASTER%的乳头
+		PRINTFORML
+		PRINTFORMW 「啾啾啪…啾啪…」
+		PRINTFORMW 「啾噜…啾啾…舔舔」
+		PRINTFORMW 「满足了！对不起！毕竟这是我的奖励吧！」
+		PRINTFORMW 确认周围没有人后，脱光了衣服
+		PRINTFORML
+		PRINTFORML 「太…太害羞了…不过这样就好！」
+		PRINTFORMW 正如她所计划的那样，%CALLNAME:MASTER%凝视着少女微红的皮肤和平坦的身体，感到兴奋
+		PRINTFORMW 「这样就是奖励了吧！」
+		PRINTFORMW 「来吧！随你喜欢吸吮！」
+		PRINTFORML …………………
+		PRINTFORML ……………
+		PRINTFORMW ……
+		STONE_PLAYCOUNT:2 = 18
+	ENDIF
+	PRINTFORML
+	PRINTFORMW 「好的！回报结束了！」
+	PRINTFORMW 少女穿上了脱下的破布，带着笑容说道。
+	PRINTFORMW 「嗯？你还想再来一次吗...？」
+	PRINTFORMW 「...其实我也想给你回报的，但最近我被责备休息太多了...」
+	PRINTFORMW 「所以在这之后再见面可能会变得很困难...」
+	PRINTFORML
+	PRINTFORMW 「…………………………」
+	PRINTFORML 「...啊！我有个主意！我们这样做！」
+	PRINTFORMW 少女沉思了一会，然后脸红了起来，开口说道。
+	PRINTFORMW 「你知道积石竞赛的HELP吧。我们找个理由溜出去做吧！」
+	PRINTFORMW 「是啊...口令是...我忘记了东西。这样怎么样！」
+	PRINTFORMW 「这样就不会引起周围人的怀疑了！真是的，%CALLNAME:MASTER%先生总是想要回报，真是没办法！」
+	PRINTFORMW 「啊！如果在情侣的时候被说出来就麻烦了！」
+	PRINTFORML
+	PRINTFORMW 「...嗯，时间也差不多了，虽然有点舍不得，但休息时间也结束了...亲亲❤」
+	PRINTFORMW 「那，那我就先走了！」
+	EXP:MASTER:射精経験 += 1
+	EXP:MASTER:絶頂経験 += 1
+	PRINTFORML 絶頂经验 +1(%CALLNAME:MASTER%)
+	PRINTFORML 射精经验 +1(%CALLNAME:MASTER%)
+	STONE_PLAYCOUNT:1 += 10
+ELSEIF STONE_PLAYCOUNT:2 == 13
+	PRINTFORMW 在积石竞赛中获胜后，我在平常的地方等待着%STONE_UKETSUKENAME%。
+	PRINTFORMW 根据以往的经验，我知道这个地方意外地没有人来，周围也看不见。现在正是进行下一步计划的最佳时机。
+	PRINTFORMW 当我凝视着被雾包围的三途之河时，突然听到了从背后传来的轻轻擦过皮肤和布料的声音。
+	PRINTFORML
+	PRINTFORMW 「......我从未想过，作为一个水子，我会有恋人并做这样的事情」
+	PRINTFORML 当%CALLNAME:MASTER%回过头去时，%STONE_UKETSUKENAME%脱下破布，露出光滑的肌肤站在那里。
+	PRINTFORMW 「因为你为了这个目的打败了真正的恶魔...我必须给你回报才行」
+	PRINTFORMW 比起活着的时间，水子们经历的死亡时间要长得多，她们的脸上不再是平常天真的少女表情，而是确实有着成熟女性的面容。
+	PRINTFORML %CALLNAME:MASTER%将大石上的衣物铺开，少女坐了下来。
+	PRINTFORMW 然后，%STONE_UKETSUKENAME%用一种带着一丝不安和期待的女性表情诱惑地说道。
+	PRINTFORML
+	PRINTFORMW 「好的，请接受我的回报♥」
+	PRINTFORML %CALLNAME:MASTER%将坚挺的男性器官插入少女的内部，缓慢地进入。
+	PRINTFORMW 「唔唔唔...好痛……」
+	PRINTFORML 疼痛传遍了她纤小的身体，她流下了大颗的眼泪。
+	PRINTFORMW 这种疼痛是她作为水子度过的时间中从未经历过的，当然也不是她死前所经历过的疼痛。
+	PRINTFORMW 这种疼痛，虽然实际上并非如此，但肯定和死亡时的疼痛一样强烈。
+	PRINTFORML
+	PRINTFORML 「动一动...没关系的...毕竟这是回报」
+	PRINTFORMW 尽管感受到这种疼痛，少女仍然充满了幸福的感觉。
+	PRINTFORML %CALLNAME:MASTER%用手指擦去她脸颊上的泪水，并告诉她不需要勉强。
+	PRINTFORML …………………
+	PRINTFORML ……………
+	PRINTFORMW ……
+	PRINTFORML
+	PRINTFORML 「唔唔唔...对不起。明明是回报的...」
+	PRINTFORMW 最终，他们无法进行到最后。对于年幼的%STONE_UKETSUKENAME%来说，第一次的疼痛是难以承受的。
+	PRINTFORMW 「但是，我听说过，一旦成功一次...下次就没问题了」
+	PRINTFORML 「下次...我们再来一次」
+	PRINTFORML 「忘记的东西...请来取吧♥...%CALLNAME:MASTER%♥」
+	IF !TALENT:MASTER:非童貞
+		CALL COLORMESSAGE("童贞丧失(你)", 0XFF64FF, 1, 1)
+		TALENT:MASTER:非童貞 = 1
+	ENDIF
+	EXP:MASTER:挿入経験 += 1
+	PRINTFORML 插入经验 +1(%CALLNAME:MASTER%)
+	STONE_PLAYCOUNT:1 += 10
+	STONE_PLAYCOUNT:2 = 14
+ENDIF
+RESETCOLOR
+
+@STONE_NAMESET
+	LOCALS = 受付水子
+	$LOOP3
+	PRINTL 「让我们给接待水子取个名字吧」
+	PRINTFORML 
+	CALL ASK_M("自己决定",1, "这是个重要的事情，我需要时间考虑",1)
+	SELECTCASE RESULT
+		CASE 0
+			PRINTL 请输入接待水子的称呼
+			PRINTBUTTON @"[(称呼为%LOCALS%)]", @"%LOCALS%"
+			PRINTL 
+			; 输入名字的循环
+			$LOOP4
+			INPUTS
+			; 去掉行首和行尾的空白字符
+			LOCALS = %RESULTS%
+			REPLACE LOCALS, "(^[ 　]+|[ 　]+$)", ""
+			; 不接受超过15个字符的名字
+			IF STRLENS(LOCALS) > 15
+				CLEARLINE 1
+				REUSELASTLINE 「名字太长了...」
+				GOTO LOOP4
+			; 不接受空白名字
+			ELSEIF RESULTS == ""
+				PRINTL 请输入名字
+				GOTO LOOP4
+			ELSE
+				; 与瓔花同名
+				IF STRCOUNT(LOCALS, "瓔花|璎花")
+					PRINTFORML 「啊，和璎花同名？！」
+					PRINTFORML 「这个...有点...」
+					GOTO LOOP4
+				ELSE
+					PRINTFORML 「%RESULTS%吗？」
+				ENDIF
+				CALL ASK_YN
+				IF !RESULT
+					; 保存接待水妖的名字
+					STONE_UKETSUKENAME = %RESULTS%
+					STONE_PLAYCOUNT:4 = 2
+					PRINTFORMW 「%STONE_UKETSUKENAME%...嗯！好名字！我喜欢！」
+					PRINTFORMW 「非常感谢你，%CALLNAME:MASTER%先生！」
+					PRINTFORML 
+				ELSE
+					PRINTL 请输入名字
+					GOTO LOOP4
+				ENDIF
+			ENDIF
+		CASE 1
+			PRINTFORMW 「明白了...暂时保留吧？」
+			PRINTFORMW 「当你决定好名字后...再来找我吧？」
+			STONE_PLAYCOUNT:4 = 1
+	ENDSELECT
+
+@STONE_MOCHIKOMI
+SIF STONE_ITEM:0 == 0
+	RETURN
+
+PRINTFORML 请选择要携带的装备。
+STONE_ITEM:1 = 0
+{
+CALL ASK_M("小石帽子（偶尔能够忘记自己发生过的事故）", 1,
+"肉体强化地藏（开始时可以多放置一些石头）", STONE_ITEM:0 >= 2,
+"随心堆石（对手的事故率稍微增加）", STONE_ITEM:0 >= 3,
+"过于诚实的石路标（能够准确预测对手的堆石情况）", STONE_ITEM:0 == 4,
+"空白的堆石（不装备任何道具）", 1,)
+}
+IF RESULT == 4
+ELSE
+	STONE_ITEM:1 = RESULT + 1
+ENDIF

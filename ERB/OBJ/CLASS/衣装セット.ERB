@@ -1,0 +1,3434 @@
+;要素名→ID変換用関数の存否確認用関数
+;変換可能（IDと要素名の関係が常に変化しない）なら設置
+;状況によって名前が変わるようなのは不可能
+@EXIST_衣装セット_ID
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;要素名→ID変換用関数
+;必要なら各オブジェクトで同様に作成のこと
+@衣装セット_ID(ARG:0, ARGS:0, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS V_NAME                  ;作成する変数名
+#DIMS C_NAME, OBJ_ID_LAST + 1 ;データ保持
+#DIM  O_ID                    ;参照用
+IF ARGS:0 == "RESET"
+	VARSET C_NAME
+	FOR O_ID, 1, OBJ_ID_LAST + 1
+		C_NAME:O_ID = %GETMETH_STR(, "衣装セット", O_ID, "名前")%
+	NEXT
+ELSE
+	O_ID = FINDELEMENT(C_NAME, ESCAPE(ARGS:0), , , 1)
+	CALLF MAKE_INT(V_NAME, O_ID)
+ENDIF
+
+
+
+;存否関数
+;F関数はTRYCALL系が使えないので通常関数で存否配列を作っちゃう
+@EXIST_衣装セット1
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;オブジェクト本体
+@衣装セット1(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套男装")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_裤子]])
+CASE "上半身内衣１"
+;漢女は裹胸をつける
+	IF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_Ｔ恤衫]])
+	ENDIF
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_上衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット2
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット2(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套女装")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_女式衬衫]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット3
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット3(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套執事服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_衬衫]])
+CASE "下半身内衣２"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_四角裤]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_夹克衫]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+CASE "其他２"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_单肩包]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_西裤]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_絲綢手套]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット4
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット4(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套女僕服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_发饰]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_烹饪服]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット5
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット5(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套神官服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_袴]])
+CASE "上半身内衣１"
+;漢女は裹胸をつける
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白小袖]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット6
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット6(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套作務衣")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "上半身内衣１"
+;漢女は裹胸をつける
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_作務衣（上）]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_手巾]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_作务裤]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット7
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット7(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套便装")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "上半身内衣１"
+;漢女は裹胸をつける
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_帯]])
+CASE "外搭"
+	SIF DAY:2 == 3 || DAY:2 == 4
+		CALLF MAKE_INT(V_NAME, [[外搭_羽织]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット8
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット8(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套道士服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_草履]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "上半身内衣１"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "下半身内衣１"
+	;男人
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし不可_兜襠布]])
+CASE "上身衣服２"
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_道着]])
+CASE "裤子"
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[裤子_袴]])
+CASE "連衣裙"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[連衣裙_道士服]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット9
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット9(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "大正风男学生制服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "上半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ可能_有色衬衫]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_長着]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_袴]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_披肩斗篷]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット10
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット10(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "大正风女学生制服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "上半身内衣１"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "下半身内衣１"
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし不可_兜襠布]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_小紋]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_行灯袴]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_蝴蝶结]])
+ENDSELECT
+
+;MOB追加
+@EXIST_衣装セット11
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット11(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "一套和服")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+ENDSELECT
+
+@EXIST_衣装セット12
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット12(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "河童セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+
+;こっから衣装設定系
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_風鏡]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_鸭舌帽]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_帆布背包]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_女式衬衫]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_上衣]])
+CASE "裙子"
+	;SIF DAY:2 != 2
+		CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+ENDSELECT
+
+@EXIST_衣装セット13
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット13(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "妖精セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_蝴蝶结]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_連衣裙]])
+ENDSELECT
+
+@EXIST_衣装セット14
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット14(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "白狼天狗セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兜巾]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_袖]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_行灯袴]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_无袖上衣]])
+ENDSELECT
+
+@EXIST_衣装セット15
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット15(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "鴉天狗セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兜巾]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_女式衬衫]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+ENDSELECT
+
+@EXIST_衣装セット16
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット16(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "因幡セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_連衣裙]])
+ENDSELECT
+
+@EXIST_衣装セット17
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット17(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "玉兎セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白衬衫]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_西装上衣]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+ENDSELECT
+
+@EXIST_衣装セット18
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット18(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "鬼セット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_拘束具]])
+CASE "上半身内衣１"
+;男の娘は文胸を付けない
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+ENDSELECT
+
+
+@EXIST_衣装セット19
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット19(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "私服Aセット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_Ｔ恤衬衫]])
+ENDSELECT
+
+
+@EXIST_衣装セット20
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット20(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "私服Bセット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_短袖女式衬衫]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+ENDSELECT
+
+
+@EXIST_衣装セット21
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット21(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "私服CAセット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_裤子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_Ｔ恤衬衫]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_夹克衫]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_首飾]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_吊帯]])
+ENDSELECT
+
+
+@EXIST_衣装セット22
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット22(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "私服CBセット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_裤子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_Ｔ恤衬衫]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_首飾]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_吊帯]])
+ENDSELECT
+
+
+@EXIST_衣装セット23
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット23(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "私服Dセット")
+CASE "基本套装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_連衣裙]])
+ENDSELECT
+
+
+;------------------------------------
+;睡衣
+;------------------------------------
+@EXIST_衣装セット31
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット31(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（襦袢）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_襦袢]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット32
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット32(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（睡袍）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_長睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット33
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット33(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（吊带睡裙）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_吊带睡裙]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット34
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット34(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裤子）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_睡裤]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット35
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット35(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裙子）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_睡衣裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット36
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット36(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裤子+兜帽）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兜帽]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_睡裤]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット37
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;とりあえずつくったが割り振ってない
+
+@衣装セット37(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裙子+兜帽）")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兜帽]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_睡衣裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット38
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット38(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裤子+睡帽）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_睡帽]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_睡裤]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット39
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット39(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（裙子+睡帽）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_睡帽]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_睡衣裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_上身睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット40
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット40(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（睡袍+睡帽）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_睡帽]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_長睡衣]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット41
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット41(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（吊带睡裙+睡帽）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_睡帽]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_吊带睡裙]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット42
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット42(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（连衣裙）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_連衣裙]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット43
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット43(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "睡衣（浴巾）套")
+CASE "睡衣セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_浴巾]])
+ENDSELECT
+
+;------------------------------------
+;Cosplay衣装
+;------------------------------------
+
+@EXIST_衣装セット44
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット44(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "修女服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_修女头巾]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_修士长袍]])
+CASE "襪子"
+	IF FLAG:2 > 0
+		CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+	ENDIF
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+ENDSELECT
+
+@EXIST_衣装セット45
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット45(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "赛车女郎套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_高叉紧身衣]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット46
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット46(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "对魔忍战斗服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_女忍紧身衣]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット48
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット48(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "女牛仔套装")
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_牛仔帽]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_牛仔夹克]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_牛仔裤]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+ENDSELECT
+
+@EXIST_衣装セット49
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット49(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "啦啦队制服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_運動鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_长袜]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_啦啦队背心]])
+ENDSELECT
+
+@EXIST_衣装セット50
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット50(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "保健室的女教师套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_眼鏡]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_開胸高领毛衣]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_包臀裙]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_白大褂]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_吊帯]])
+ENDSELECT
+
+@EXIST_衣装セット51
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット51(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "女仆装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_女仆发箍]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_围裙洋装]])
+ENDSELECT
+
+@EXIST_衣装セット52
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット52(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "比基尼套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_比基尼内衣]])
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_比基尼内裤]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+
+
+@EXIST_衣装セット53
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット53(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "迷你比基尼套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_迷你比基尼内衣]])
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_迷你比基尼内裤]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット54
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット54(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "兜裆布汉女套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "下半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし不可_兜襠布]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+
+
+@EXIST_衣装セット55
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット55(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "兔女郎套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兔耳发箍]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_袖套]])
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_兔女郎服]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_渔网袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+
+
+@EXIST_衣装セット56
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット56(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "白衣天使套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_护士帽]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_护士服]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_护士凉鞋]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット57
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット57(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "圣诞套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_圣诞帽]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_圣诞斗篷]])
+;上身衣服
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_抹胸]])
+;迷你裙
+CASE "裙子"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[裙子_圣诞短裙]])
+CASE "裤子"
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[裤子_裤子]])
+;襪子
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+;長靴
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット58
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット58(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "网球服套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+;遮陽帽
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_遮阳帽]])
+;短袖女式衬衫
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_短袖女式衬衫]])
+CASE "裙子"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[裙子_迷你裙]])
+CASE "裤子"
+	SIF !GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[裤子_短裤]])
+;運動文胸
+CASE "上半身内衣１"
+	SIF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_运动文胸]])
+;襪子
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+;靴
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット59
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット59(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "忍者套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "換装属性"
+	CALLF MAKE_STR(V_NAME, "「cosplay」")
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_胶皮底布鞋子]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_忍装束]])
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_锁子甲]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_手甲]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_面]])
+ENDSELECT
+
+
+@EXIST_衣装セット60
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット60(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "赤裸的白衬衫セット")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+;白衬衫（唯一の服装。他は全解除）
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白衬衫]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+
+@EXIST_衣装セット61
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット61(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "婚紗套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_婚纱头罩]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_穆勒鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_婚紗禮服]])
+ENDSELECT
+
+@EXIST_衣装セット62
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット62(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "超棒的Ｔ恤衬衫套")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_三色裙子]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_地獄Ｔ恤衬衫]])
+ENDSELECT
+
+@EXIST_衣装セット63
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット63(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "哥特洛丽塔套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_文胸]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_哥特洛丽塔裙]])
+ENDSELECT
+
+@EXIST_衣装セット64
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット64(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "骑手服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_骑行服]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_结丝巾]])
+ENDSELECT
+
+@EXIST_衣装セット65
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット65(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "裃套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_肩衣]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_小袖]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_袴]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_刀]])
+ENDSELECT
+
+@EXIST_衣装セット66
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット66(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "逆兔女郎套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兔耳发箍]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_袖套]])
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_逆兔女郎服]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_乳貼（心型）]])
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_創口貼]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_渔网袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット67
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット67(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "晚宴礼服套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_晚宴手套]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_晚禮服]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+ENDSELECT
+
+@EXIST_衣装セット68
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット68(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "浴衣穿搭")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_浴衣]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+ENDSELECT
+
+@EXIST_衣装セット69
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット69(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "白无垢")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_绵帽子]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_白装束]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+ENDSELECT
+
+;------------------------------------
+;角色特殊衣装（外部から参照可能）
+;------------------------------------
+@EXIST_衣装セット70
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット70(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "鴨舌帽文套")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+;鴨舌帽
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_鸭舌帽]])
+;平底鞋
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_平底鞋]])
+;襪子
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+;白衬衫
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白衬衫]])
+;五分裤
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_五分裤]])
+;领带
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+;单肩包
+CASE "其他２"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_单肩包]])
+;西装夹克
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_西装夹克]])
+ENDSELECT
+
+
+
+@EXIST_衣装セット71
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット71(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "卖药套")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_笠]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+;今天穿的内裤
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_手甲]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_葛籠]])
+CASE "其他２"
+;脚のゲートルっぽいアレは绷帯で代用
+	CALLF MAKE_INT(V_NAME, [[其他衣装_绷带]])
+ENDSELECT
+
+@EXIST_衣装セット72
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット72(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "猯藏和装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+;发饰
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_发饰]])
+;木屐
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+;短布襪
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_烟袋]])
+CASE "其他２"
+	SIF DAY:2 == 4
+		CALLF MAKE_INT(V_NAME, [[其他衣装_围巾]])
+;眼鏡
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_眼鏡]])
+;羽织
+CASE "外搭"
+	SIF DAY:2 == 4 || DAY:2 == 3
+		CALLF MAKE_INT(V_NAME, [[外搭_羽织]])
+;長着
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_長着]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+ENDSELECT
+
+@EXIST_衣装セット73
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット73(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "生足美鈴套")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_帽子]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_蝴蝶结]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_旗袍]])
+ENDSELECT
+
+@EXIST_衣装セット74
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット74(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "水手服式校服")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_发饰]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_水手服]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+ENDSELECT
+
+@EXIST_衣装セット75
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット75(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "勇仪和服套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_拘束具]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_酒杯]])
+ENDSELECT
+
+@EXIST_衣装セット76
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット76(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "外出女仆套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_蝴蝶结]])
+CASE "其他２"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_围巾]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_大衣]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_围裙洋装]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_女仆发箍]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	IF FLAG:2 > 0
+		CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+	ENDIF
+ENDSELECT
+
+@EXIST_衣装セット77
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット77(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "鸟兽伎乐套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_项圈]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_太阳镜]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_朋克演出服]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+ENDSELECT
+
+@EXIST_衣装セット78
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット78(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "舞娘套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_珠饰身体链]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_珠饰舞服]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_流苏臀巾]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_三角巾]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_涼鞋]])
+ENDSELECT
+
+@EXIST_衣装セット79
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット79(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "辣妹系休闲套装")
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_项圈]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_抹胸]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_热裤]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_涼鞋]])
+ENDSELECT
+
+@EXIST_衣装セット80
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット80(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "西式校服")
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_西装上衣]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+ENDSELECT
+
+@EXIST_衣装セット81
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット81(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "日式学校运动服")
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_体操服]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_运动短裤]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_運動鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+ENDSELECT
+
+@EXIST_衣装セット82
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット82(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "花魁盛装")
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_束发簪]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_前系结打褂]])
+ENDSELECT
+
+@EXIST_衣装セット83
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット83(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "花嫁盛装")
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_角隐]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_色打褂]])
+ENDSELECT
+
+@EXIST_衣装セット84
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット84(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "西式职业女装")
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白衬衫]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_包臀裙]])
+ENDSELECT
+
+@EXIST_衣装セット85
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット85(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "西式职业男装")
+CASE "靴"
+	IF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+	ENDIF
+CASE "襪子"
+	IF GETBIT(TALENT:ARG:2, 0)
+		CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+	ENDIF
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白衬衫]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_西装夹克]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_领带]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_西裤]])
+ENDSELECT
+
+@EXIST_衣装セット86
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット86(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "黑暗系休闲套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_露脐短上衣]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_漆皮短裙]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_连裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+ENDSELECT
+
+@EXIST_衣装セット87
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット87(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "暗杀者套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_暗杀者连体服]])
+ENDSELECT
+
+;河取用
+@EXIST_衣装セット88
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット88(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "作业服套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_吊帯背心]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_工装裤]])
+ENDSELECT
+
+@EXIST_衣装セット89
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット89(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "萃香茨歌仙变装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装设定系
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_太阳镜]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_拘束具]])
+CASE "其他２"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_角饰带]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_裹胸]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+ENDSELECT
+
+@EXIST_衣装セット90
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット90(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "米斯琪厨娘套装")
+CASE "キャラ特殊衣装セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_和服]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_三角巾]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_作業圍裙]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_草履]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_帯]])
+ENDSELECT
+
+@EXIST_衣装セット91
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット91(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "探险家套装")
+CASE "キャラ特殊衣装セット"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_牛仔帽]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_探险短裤]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_探险夹克]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_靴子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+ENDSELECT
+
+@EXIST_衣装セット92
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット92(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "盛装和服套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_布艺捏花]])
+CASE "其他２"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_围巾]])
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_盛装振袖]])
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_发箍]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+CASE "襪子"
+	IF FLAG:2 > 0
+		CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+	ENDIF
+ENDSELECT
+
+;see M_KOJO_K11_イベント.ERB
+@EXIST_衣装セット93
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット93(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "魔理沙睡衣套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装设定系
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, 13)
+CASE "襪子"
+	IF FLAG:2 > 0
+		CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+	ELSE
+		CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+	ENDIF
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット94
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット94(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "巫女装束")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_白小袖]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_行灯袴]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_雪駄]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_足袋]])
+ENDSELECT
+;冥顽不化的风纪委员长
+@EXIST_衣装セット95
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット95(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "风纪委员长套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_披肩斗篷]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_风纪委员制服]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+ENDSELECT
+
+@EXIST_衣装セット96
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット96(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "热带风情休闲套装")
+CASE "角色特殊服装集"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_遮阳帽]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_夏威夷衬衫]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_热裤]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_涼鞋]])
+ENDSELECT
+
+@EXIST_衣装セット97
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット97(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "童贞杀手毛衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_露背高领毛衣]])
+ENDSELECT
+
+@EXIST_衣装セット98
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット98(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "魔法少女变装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_魔法少女裙]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+ENDSELECT
+
+@EXIST_衣装セット99
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;量产系和非地雷系的休闲洛丽塔风塞这里
+@衣装セット99(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "甜系洛丽塔套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_吊带袜]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_甜系洛丽塔裙]])
+ENDSELECT
+
+@EXIST_衣装セット101
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット101(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "香霖堂天狗套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兜巾]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_木屐]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_行灯袴]])
+CASE "上身衣服１"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ不可_狩衣]])
+ENDSELECT
+
+@EXIST_衣装セット102
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット102(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "学院系休闲套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_鸭舌帽]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_长裙]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_女式衬衫]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_菱形格纹背心]])
+ENDSELECT
+
+@EXIST_衣装セット103
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット103(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "警察制服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_裙子]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_警察制服衬衫]])
+ENDSELECT
+
+@EXIST_衣装セット104
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット104(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "体操服套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_艺术体操服]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット105
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット105(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "纯色连衣裙套装")
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_鞋子]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_連衣裙（白）]])
+ENDSELECT
+
+;------------------------------------
+;连体紧身衣
+;------------------------------------
+
+@EXIST_衣装セット106
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット106(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "连体紧身衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_连体紧身衣]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+ENDSELECT
+
+;------------------------------------
+;泳装
+;------------------------------------
+
+@EXIST_衣装セット30
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット30(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "死库水泳衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+ 	CALLF MAKE_INT(V_NAME, [[レオタード_死库水泳衣]])
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット29
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット29(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "竞技泳衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+ 	CALLF MAKE_INT(V_NAME, [[レオタード_竞技泳衣]])
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット28
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット28(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "连体泳衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+ 	CALLF MAKE_INT(V_NAME, [[レオタード_连体泳衣]])
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット27
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット27(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "Y字泳衣")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+ 	CALLF MAKE_INT(V_NAME, [[レオタード_Y字泳衣]])
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット26
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット26(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "泳裤装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_泳裤]])
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット25
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット25(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "上半身裸泳")
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット24
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット24(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "裸泳")
+;こっから衣装設定系
+CASE "上半身内衣２"
+	CALLF MAKE_INT(V_NAME, 0)
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, 0)
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット47
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット47(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, @"%UNIQUE_UNDERWARE_SWIMMING(ARG)%")
+CASE "レオタード"
+	SIF GETMETH_INT(0, "キャラデータ", ARG, "固有泳衣类型") == 2
+		CALLF MAKE_INT(V_NAME, 14)
+CASE "上半身内衣１"
+	SIF GETMETH_INT(0, "キャラデータ", ARG, "固有泳衣类型") == 1
+		CALLF MAKE_INT(V_NAME, 23)
+CASE "下半身内衣２"
+	SIF GETMETH_INT(0, "キャラデータ", ARG, "固有泳衣类型") == 1
+		CALLF MAKE_INT(V_NAME, 35)
+CASE "OVERRIDE_UNDERWEAR_TOP" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM" ;addition custom code
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "SWIMWEAR"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+;新增的cos服装
+@EXIST_衣装セット120
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット120(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "尼托克丽丝Alter套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_乌塞赫宽领]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_细带内衣]])
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_丁字褲]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット121
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット121(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "危险野兽礼装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_危险野兽内衣]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_兽爪手套]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+ENDSELECT
+
+@EXIST_衣装セット122
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット122(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "不给治就捣蛋礼装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_漆皮夹克假领]])
+CASE "上半身内衣１"
+	CALLF MAKE_INT(V_NAME, [[上半身内衣_はだけ不可_细带内衣]])
+CASE "下半身内衣２"
+	CALLF MAKE_INT(V_NAME, [[下半身内衣_ずらし可能_高開叉胖次]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_漆皮短裙]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_乳胶手套]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_乳胶长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+
+@EXIST_衣装セット123
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット123(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "皇家糖霜礼装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_皇家糖霜内衣]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_长手套]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+ENDSELECT
+
+@EXIST_衣装セット124
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット124(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "鹿岛制服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_贝雷帽]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_海军军官礼服]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_絲綢手套]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_长袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+ENDSELECT
+
+@EXIST_衣装セット125
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット125(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "岛风制服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "帽子"
+	CALLF MAKE_INT(V_NAME, [[頭装備_兔耳发箍]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_海军军士服]])
+CASE "腕部装束"
+	CALLF MAKE_INT(V_NAME, [[腕部装束_长手套]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+ENDSELECT
+
+@EXIST_衣装セット126
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット126(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "零号机战斗服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_零号机战斗服]])
+ENDSELECT
+
+@EXIST_衣装セット127
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット127(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "二号机战斗服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_二号机战斗服]])
+ENDSELECT
+
+@EXIST_衣装セット128
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット128(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "不知火舞忍装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "和服"
+	CALLF MAKE_INT(V_NAME, [[和服_无袖浴衣忍装束]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_胶皮底布鞋子]])
+ENDSELECT
+
+@EXIST_衣装セット129
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット129(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "寄叶二号B型套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "連衣裙"
+	CALLF MAKE_INT(V_NAME, [[連衣裙_开胸泡泡袖连衣裙]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+ENDSELECT
+
+@EXIST_衣装セット130
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット130(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "月都战斗服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_月都战斗服]])
+ENDSELECT
+
+@EXIST_衣装セット131
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット131(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "神秘宝藏礼装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_神秘宝藏比基尼]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_涼鞋]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット132
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット132(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "初音套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_初音无袖衬衫]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_初音短裙]])
+CASE "飾品"
+	CALLF MAKE_INT(V_NAME, [[飾品_袖]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_长筒袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长筒靴]])
+ENDSELECT
+
+@EXIST_衣装セット133
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット133(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "魅魔套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "レオタード"
+	CALLF MAKE_INT(V_NAME, [[レオタード_魅魔连体衣]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_高跟鞋]])
+CASE "OVERRIDE_UNDERWEAR_TOP"
+	CALLF MAKE_INT(V_NAME, 1)
+CASE "OVERRIDE_UNDERWEAR_BOTTOM"
+	CALLF MAKE_INT(V_NAME, 1)
+ENDSELECT
+
+@EXIST_衣装セット134
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット134(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "迪奥套装")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "ボディースーツ"
+	CALLF MAKE_INT(V_NAME, [[ボディースーツ_连体紧身衣]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_皮夹克]])
+CASE "裤子"
+	CALLF MAKE_INT(V_NAME, [[裤子_皮套裤]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_皮鞋]])
+CASE "襪子"
+	CALLF MAKE_INT(V_NAME, [[襪子_袜子]])
+ENDSELECT
+
+@EXIST_衣装セット135
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット135(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "猿神装扮")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_虎皮短裙]])
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_无袖女式衬衫]])
+CASE "外搭"
+	CALLF MAKE_INT(V_NAME, [[外搭_背心]])
+CASE "其他１"
+	CALLF MAKE_INT(V_NAME, [[其他衣装_領巾]])
+ENDSELECT
+
+@EXIST_衣装セット136
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+@衣装セット136(ARG, O_DATA, V_NAME)
+#FUNCTION
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+SELECTCASE O_DATA
+CASE "名前"
+	CALLF MAKE_STR(V_NAME, "迦勒底制服")
+CASE "cosplay服装"
+	CALLF MAKE_INT(V_NAME, 1)
+;こっから衣装設定系
+CASE "上身衣服２"
+	CALLF MAKE_INT(V_NAME, [[上身衣服_はだけ可能_迦勒底制服衬衫]])
+CASE "裙子"
+	CALLF MAKE_INT(V_NAME, [[裙子_学生制服短裙]])
+CASE "襪子"
+		CALLF MAKE_INT(V_NAME, [[襪子_裤袜]])
+CASE "靴"
+	CALLF MAKE_INT(V_NAME, [[靴_长靴]])
+ENDSELECT

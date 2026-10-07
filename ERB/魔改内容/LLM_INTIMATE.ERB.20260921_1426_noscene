@@ -1,0 +1,501 @@
+; ============================================================================
+;  LLM_INTIMATE.ERB —— 「自由互动」（亲密场景）的独立模块
+; ============================================================================
+;  ⚠️ **本文件可以整体删除** —— 删掉后「自由互动」按钮还在，但：
+;      · 场景旁白不生成   · 身体特征表为空   · 睡姦/醉姦系统失效
+;    而**自由对话系统完全不受影响** ✓
+;
+;  为什么删掉不影响：原文件里只剩 `CALL LLM_SCENE_WRITE(...)` 这类**调用**，
+;  而 Emuera 里 **CALL 一个不存在的函数** ⇒ **不执行、也不报错** ✓
+;
+;  用户要求（2026-09-20）：
+;    「把该功能当一个单独的新模块来做
+;      删掉也不影响正常的自由对话系统进行的那种」
+; ============================================================================
+
+; ────────────────────────────────────────────────────────────────────────────
+;  ★★ **角色的身体与特质**（素质 / TALENT）—— 2026-09-18 新增
+; ────────────────────────────────────────────────────────────────────────────
+;  用户要求：「把这个地方的素质要素喂给 llm，这样可以让 llm 确认角色的体型」✓
+;  ⚠️ 只挑"**她自己能意识到、且影响她怎么说话/怎么反应**"的部分 ——
+;     **不做全量注入**（`TALENT` 有上百项，全喂会淹掉真正有用的信息）⚠️
+;  ⚠️ **`処女` 不在其中**（用户："这个有更好的地方可以注入"）✓
+; ────────────────────────────────────────────────────────────────────────────
+@LLM_CHARA_FORM(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+REF_OUT = ""
+; ★★ **身体特征表**（2026-09-20 手工补）——
+;   ⚠️ 官方**没有**翅膀/尾巴/角的 TALENT ⇒ 只能手工列 ✓
+;   ⚠️ 角色编号取自口上目录（`001 Reimu` ⇒ id = 1）✓
+;   ⚠️ **只列原作设定确定的** —— 不确定的一律留空（宁缺勿错）✓
+SELECTCASE LLM_CID
+CASE 16, 59, 102, 103
+	REF_OUT = "背后有一对**蝙蝠翅膀**（膜质的，会随情绪抖动）"
+CASE 50
+	REF_OUT = "背后有一对**彩色的小翅膀**"
+CASE 5, 6, 7, 13, 14, 18, 19, 118, 119
+	REF_OUT = "背后有一对**妖精的翅膀**（半透明，像蝴蝶或蜻蜓，碰上去凉凉的）"
+CASE 29, 42
+	REF_OUT = "背后有一对**黑色的天狗羽翼**"
+CASE 37
+	REF_OUT = "背后有一对**乌鸦的羽翼**，还拖着一根长长的控制棒"
+CASE 52, 53, 100, 107, 108
+	REF_OUT = "头顶有**兔耳**（很长、会随着心情转动）"
+CASE 25
+	REF_OUT = "头顶有**狐耳**，身后有**九条尾巴**"
+CASE 24, 36, 135
+	REF_OUT = "头顶有**猫耳**，身后有一条**猫尾巴**（末端会自己动）"
+CASE 63, 65, 120, 154
+	REF_OUT = "头顶有**兽耳**，身后有一条**兽尾**"
+CASE 69
+	REF_OUT = "头顶有**狸猫的耳朵**，身后有一条**粗尾巴**"
+CASE 10, 64
+	REF_OUT = "额头上有**鬼角**（又粗又硬，摸上去很敏感）"
+CASE 23
+	REF_OUT = "身边飘着一个**半灵**（像一团白色的、你自己的形状）"
+CASE 66
+	REF_OUT = "你是**幽灵** —— 身体是半透明的、脚不沾地、飘着走路"
+CASE 89
+	REF_OUT = "你是**僵尸** —— 身体发凉、动作有点僵，但很听话"
+CASE 93
+	REF_OUT = "你是**人鱼** —— 腰部以下是一条鱼尾，鳞片滑滑的"
+CASE 39
+	REF_OUT = "身后有一条**细长的老鼠尾巴**"
+CASE 71
+	REF_OUT = "你是**小人** —— 只有手掌那么高，什么都很巨大"
+CASE 87
+	REF_OUT = "头顶有**虎耳**，身后有一条**虎尾**"
+CASE 160
+	REF_OUT = "你是**麒麟**，头上有**角**、身上覆盖着鳞片"
+CASE 153
+	REF_OUT = "头顶有**猿猴的耳朵**，身后有一条尾巴"
+ENDSELECT
+RETURN
+
+
+; ────────────────────────────────────────────────────────────────────────────
+;  ★★ 自由互动的「动作 / 场景描写」——独立请求（2026-09-20 用户要求）
+; ────────────────────────────────────────────────────────────────────────────
+;  用户原话：「XX粗暴地抓起（角色名）的奶子，乳肉在其贪婪的揉搓之中不断地变形
+;            当然这个是要按照玩家输入的语气以及两人当前的关系而定的」
+;
+;  ⚠️ 为什么**独立请求**（而不是同一条回复里加标记）：
+;     这段是**第二人称旁白**（用「你」），而她那句是**第一人称台词** ——
+;     塞进同一条回复里，模型很容易把两种视角混起来 ⚠️
+;  ⚠️ 代价：每轮多一次往返（3~6 秒）—— 用户已确认接受 ✓
+@LLM_SCENE_WRITE(LLM_CID, LLM_PIN, LLM_RLY, REF_OUT)
+#DIM  LLM_CID
+#DIMS LLM_PIN          ; 玩家这一轮输入
+#DIMS LLM_RLY          ; 她这一轮的回复
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 8
+#DIM  LLM_REQ
+#DIM  LLM_STATE
+#DIMS LLM_SYS
+#DIMS LLM_TMP
+#DIMS LLM_OUT
+#DIMS LLM_T
+REF_OUT = ""
+; ⚠️ 玩家什么都没输入就别写了（空串会让模型瞎编）⚠️
+SIF LLM_PIN == ""
+	RETURN
+LLM_SYS = @"你在为一段 18+ 的互动场景写**旁白**（第二人称，用「你」指玩家）。"
+LLM_SYS += @"\n【角色】%CALLNAME:(LLM_CID)%"
+; ★ 关系 —— 决定"他能不能这么对她" ✓
+LLM_SYS += @"\n【你们的关系】"
+CALL LLM_REL_DESC(LLM_REL_LEVEL(LLM_CID), LLM_T)
+SIF LLM_T != ""
+	LLM_SYS += @"%LLM_T%"
+; ★ 她此刻的状态（睡着 / 烂醉 / 清醒）—— 决定旁白的分寸 ✓
+SIF CFLAG:(LLM_CID):睡眠
+	LLM_SYS += @"\n【她此刻的状态】**正在熟睡，没有意识**"
+SIF TCVAR:(LLM_CID):烂醉
+	LLM_SYS += @"\n【她此刻的状态】**醉得不省人事**"
+IF !CFLAG:(LLM_CID):睡眠 && !TCVAR:(LLM_CID):烂醉
+	LLM_SYS += @"\n【她此刻的状态】清醒"
+ENDIF
+; ★**穿着**和**外形**（写动作要碰到哪里，必须知道）✓
+CALL LLM_SHOW_CLOTHES(LLM_CID, LLM_T)
+SIF LLM_T != ""
+	LLM_SYS += @"\n【她的穿着】%LLM_T%"
+CALL LLM_CHARA_FORM(LLM_CID, LLM_T)
+SIF LLM_T != ""
+	LLM_SYS += @"\n【她的外形】%LLM_T%"
+LLM_SYS += @"\n【她的回应】%LLM_RLY%"
+; ★★ **真相 —— 只有你知道**（2026-09-20 用户要求）——
+;   ⚠️ 她对话的那次 LLM **不知道**这件事，但**你知道** ⇒ 这正是要写的 ✓
+LLM_SYS += @"\n【真相（她不知道，但你知道）】"
+LLM_SYS += @"\n  正在和她做爱的人**就是你**。"
+IF LLM_HALFAWAKE
+	CALL LLM_INT_BESTIE_NAME(LLM_CID, LLM_T)
+	IF LLM_REL_LEVEL(LLM_CID) < 2 && LLM_T != ""
+		; ══ ① 她**认错人** ⇒ **寝取**（冒名顶替）══
+		LLM_SYS += @"\n  ⚠️ 但她半梦半醒，**以为正在和她做的是%LLM_T%** —— 她认错人了。"
+	LLM_SYS += @"\n  ★★ **这一段最色的地方就是这个错认** ——"
+	LLM_SYS += @"\n     她被蒙在鼓里，一边软着嗓子叫别人的名字，一边被你上。"
+	LLM_SYS += @"\n     这种「寝取」的背德感、冒名顶替的快感，**要写出来** ✓"
+	LLM_SYS += @"\n   · 语气可以**戏谑、坏、带点得意**：「她迷糊之中竟然以为…」「她还以为…」这种 ✓"
+		LLM_SYS += @"\n   · ⚠️ 但视角仍是**你**（第二人称）—— 你的手、你能感觉到、你的腰 ✓"
+		LLM_SYS += @"\n   · ⚠️ 别写得太长 —— 一两个动作 + 一句点破错认，就够下流了 ✓"
+	ELSEIF LLM_HALFAWAKE
+		; ══ ② 她**认对了人**（是玩家）⇒ **不是寝取**，是恋爱味的背德 ══
+		LLM_SYS += @"\n  ★ 她半梦半醒之间，**隐约认出正在碰她的人就是你** ——"
+		LLM_SYS += @"\n     那个她心里放着的人。"
+		LLM_SYS += @"\n  ⚠️⚠️ **这不算寝取** —— 她认出的是**你本人**，别写成「她以为是别人」✗"
+		LLM_SYS += @"\n  ★★ **这一段的味道是「恋爱味的背德」** ——"
+	LLM_SYS += @"\n     · ★ **她心里那个人此刻就在她身边**，离得这么近 ——"
+	LLM_SYS += @"\n       而她**终于认出来了**；只是还没完全清醒。"
+	LLM_SYS += @"\n     · ★★ **也许今晚的事她永远也不会知道** ——"
+	LLM_SYS += @"\n       她**可能会当成一场春梦**，而只有你知道那是真的 ✓"
+	LLM_SYS += @"\n   · 你趁她没醒对她做这种事的那点心虚、那点得意 ✓"
+	LLM_SYS += @"\n   · ⚠️ 但**别把她的反应写死** —— 她会怎么理解、醒来记不记得，"
+	LLM_SYS += @"\n     留给她自己 ✓"
+		LLM_SYS += @"\n   · 语气可以**温柔又坏** —— 不是欺负，是「偷」心上人的那种坏 ✓"
+		LLM_SYS += @"\n   · ⚠️ 视角仍是**你**（第二人称）：你的手、你能感觉到她抖了一下 ✓"
+		LLM_SYS += @"\n   · ⚠️ 一两个动作 + 一句点出认出来的瞬间，就够 ✓"
+	ENDIF
+ENDIF
+; ★★ **必须紧跟玩家这一句**（2026-09-20 用户报告「旁白没按玩家输入行事」）——
+LLM_SYS += @"\n【★ 这一段描写的第一要求：直接接住他刚才那句话 / 那个动作】"
+LLM_SYS += @"\n   · ⚠️ 他这一轮说 / 做的那一句（见**最下方**"
+LLM_SYS += @"\n     【★★ 最后再说一遍：他这一轮说的是 / 做的是】）"
+LLM_SYS += @"\n     才是**唯一**要回应的东西 ——"
+LLM_SYS += @"\n     他做了什么动作，就写那个动作**接触到了她哪里、结果如何**；"
+LLM_SYS += @"\n     他说了什么话，就写那句话**落进她身上是什么效果** ✓"
+LLM_SYS += @"\n   · ❌ **不要**脱离他的输入自由发挥（别写「他解开扣子」这种他没做的事）✗"
+LLM_SYS += @"\n   · ❌ **不要**重复她已经说过的台词或复述剧情 —— 只写**此刻这一下** ✓"
+LLM_SYS += @"\n   · ⚠️ 如果他这句**没有动作**（只是说话），那也照样要接："
+LLM_SYS += @"\n     写她听完之后的**姿态 / 呼吸 / 眼神**，而不是跳到别的事上 ✓"
+LLM_SYS += @"\n【★ 三条硬要求】"
+LLM_SYS += @"\n   ① ★★ **字数：60 字以内**（一两个动作就够，别铺陈）✓"
+LLM_SYS += @"\n   ② ⚠️⚠️ **绝对不要输出任何 `###` 开头的东西** ——"
+LLM_SYS += @"\n      你不是在演角色，不要写 `###DELTA###` / `###BODY###` ✗"
+LLM_SYS += @"\n   ③ ⚠️ **不要写她的台词**（那已经单独有了）—— 只写画面 ✓"
+; ★★ **睡眠 / 醉酒的状态要用命令式说**（2026-09-21 用户反馈「没告知她在睡觉」）——
+;   ⚠️ 原来只是陈述「正在熟睡，没有意识」⇒ 夹在一大串要求里被淹没了 ⚠️
+LLM_SYS += @"\n【★ 她现在的意识状态 —— 这条优先于上面所有描写要求】"
+IF CFLAG:(LLM_CID):睡眠
+LLM_SYS += @"\n   ⚠️⚠️ **她正在熟睡，完全没有意识。**"
+LLM_SYS += @"\n   ⇒ 她的身体可以动、可以缩、可以哼，但**绝不会清醒地说话或反抗**；"
+LLM_SYS += @"\n     最多是**睡梦中的呻吟、皱眉、含糊的梦呓** ✓"
+ENDIF
+IF TCVAR:(LLM_CID):烂醉
+LLM_SYS += @"\n   ⚠️⚠️ **她醉得不省人事。**"
+LLM_SYS += @"\n   ⇒ 说的只是**断断续续、逻辑不清的醉话**，或者干脆只剩哼唧 ✓"
+ENDIF
+; ★★ **玩家这一句放在最后重申**（越靠后越有影响力）——
+;   ⚠️ 原来它在 prompt 靠前处 ⇒ 被后面一大串要求压过 ⇒ 旁白自行发挥 ⚠️
+LLM_SYS += @"\n【★★ 最后再说一遍：他这一轮说的是 / 做的是】"
+LLM_SYS += @"\n   %LLM_PIN%"
+LLM_SYS += @"\n   ⇒ **你的描写必须紧接着这个动作 / 这句话往下写** ——"
+LLM_SYS += @"\n     写它碰到了哪里、她（的身体）因此有什么变化 ✓"
+LLM_SYS += @"\n   ⇒ ❌ 不要写他没提过的动作、不要推进到下一步 ✗"
+LLM_SYS += @"\n【任务】写 1~2 句动作 / 场景描写（**第二人称**：用「你」） ——"
+LLM_SYS += @"\n  写**你对她做了什么**、她的**身体**因此有什么反应。"
+LLM_SYS += @"\n   · ⚠️ **不要写她的台词**（那已经有了）—— 只写动作和身体 ✓"
+LLM_SYS += @"\n   · ⚠️ **用她的名字**，不要用「她」「少女」这种代词（会像另一个人）✓"
+LLM_SYS += @"\n   · ★ **依你的语气定分寸**：粗暴就写粗暴（抓、掐、按），"
+LLM_SYS += @"\n     温柔就写温柔（抚、贴、托）—— 别把温柔写成粗暴、反之亦然 ✓"
+LLM_SYS += @"\n   · ★ **依关系定分寸**：恋人可以亲密放得开；关系浅的要有距离感、"
+LLM_SYS += @"\n     她可能抗拒或僵住 ✓"
+	LLM_SYS += @"\n   · ⚠️⚠️ **绝对不要文艺化** —— 别写「温软的弧度」「呼吸沉缓」"
+	LLM_SYS += @"\n     「指尖陷进」这类抒情腔 ✗ 那是小说，不是这里要的东西 ✓"
+	LLM_SYS += @"\n   · ★ **动作要实**：谁的手 → 抓 / 揉 / 捏 / 掐 / 按 了哪里 →"
+	LLM_SYS += @"\n     怎么动的 → 肉、皮肤、衣服 怎么变形 ✓"
+	LLM_SYS += @"\n   · ★ **部位直接说** —— 奶子 / 乳房 / 乳头 / 屁股 / 小穴 / 大腿 /"
+	LLM_SYS += @"\n     鸡巴；**别用**「胸口」「那里」「下面」绕圈子 ✗"
+	LLM_SYS += @"\n   · ★ **示范**（要这种感觉）——"
+	LLM_SYS += @"\n     「他粗暴地抓起芙兰的奶子，乳肉在他贪婪的揉搓里不断变形」"
+	LLM_SYS += @"\n     「他两根手指夹住芙兰的乳尖捻了一下，她整个人抖了抖」"
+	LLM_SYS += @"\n   · ⚠️ 别拿「轻轻」「微微」「隐隐」堆句子 —— 该重就重、该狠就狠 ✓"
+	LLM_SYS += @"\n   · ⚠️ 尺度**直白** —— 写湿了、硬了、陷进去、被顶开，都可以直接写 ✓"
+LLM_SYS += @"\n   · ⚠️ 如果你这句**没有身体动作**（只是说话），就写**场景氛围 + 她的姿态** ✓"
+LLM_SYS += @"\n【输出】只输出那 1~2 句（**60 字以内**），**不要**任何标记、引号、或说明"
+CALLSHARP LLM_CHAT_SEND(LLM_CID, LLM_SYS, "（描写一下此刻的画面。）", 0, LLM_TMP)
+; ⚠️⚠️ 必须把请求 id 接出来 —— 漏了这步 `@LLM_POLL` 会问上一个请求 ⚠️
+IF TOINT(LLM_TMP) <= 0
+	RETURN
+ENDIF
+LLM_REQ = TOINT(LLM_TMP)
+CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ⚠️ 失败就算了，不阻塞（旁白是锦上添花）
+SIF LLM_STATE != 1
+	RETURN
+CALL LLM_SANITIZE_REPLY(LLM_OUT)
+REF_OUT = %LLM_OUT%
+RETURN
+
+
+; ────────────────────────────────────────────────────────────────────────────
+;  旁白的显示：**加粗白色**（和她的台词区分开）
+; ────────────────────────────────────────────────────────────────────────────
+;  ⚠️ `FONTBOLD` 用 `FONTREGULAR` 复位（照抄 `CASINO_CHARISMA.ERB:485-487`）✓
+;  ⚠️ `C_WHITE = 0xC0C0C0`（`DIM.ERH`）✓
+@LLM_PRINT_SCENE(REF_TEXT)
+#DIMS REF_TEXT
+SIF REF_TEXT == ""
+	RETURN
+SETCOLOR C_WHITE
+FONTBOLD
+PRINTFORML %REF_TEXT%
+FONTREGULAR
+RESETCOLOR
+RETURN
+
+
+; ────────────────────────────────────────────────────────────────────────────
+;  ★★ 睡姦 / 醉姦系统（2026-09-20 用户设计）
+; ────────────────────────────────────────────────────────────────────────────
+;  ① 部位高潮值 ⇒ 直接用游戏现有的 `BASE:Ｃ/Ｖ/Ａ/Ｂ/Ｍ絶頂余韻`（30~34）✓
+;     ⚠️ 上限：部位 600、整体 800（`TRACHECK_ORGASM.ERB:390-391`）
+;     ⇒ 满了**游戏自己**会触发绝顶 ⇒ 不用我们管 ✓
+;  ② 觉醒值 ⇒ `LLM_AWAKE`（0~100，存盘）
+;  ③ 满了 ⇒ **骰惊醒判定**，与好感/信赖挂钩 ⇒ **越喜欢玩家越不容易醒**（用户设计）
+;  ④ 没醒 ⇒ **半醒**（迷糊反应）+ 觉醒值归零；
+;     ⚠️ 半醒后**每回合行动更容易提高觉醒率**（用户原话）✓
+;
+;  ⚠️ 标记格式：`###BODY###B+8,V+3,C+2;A+5`
+;     分号前 = 部位增量 / 分号后 = 觉醒增量
+;     部位：B=胸 V=阴道 C=阴蒂 A=肛门 M=口
+; ────────────────────────────────────────────────────────────────────────────
+
+; ── 从回复里解析出 ###BODY### 的内容 ──
+@LLM_INT_PARSE_BODY(REF_TEXT, REF_OUT)
+#DIMS REF REF_TEXT
+#DIMS REF REF_OUT
+#LOCALSIZE 2
+#LOCALSSIZE 4
+#DIMS LLM_TAG
+REF_OUT = ""
+LLM_TAG = "###BODY###"
+LOCAL = STRFIND(REF_TEXT, LLM_TAG)
+SIF LOCAL < 0
+	RETURN
+LOCAL:1 = LOCAL + STRLENS(LLM_TAG)
+REF_OUT = %SUBSTRING(REF_TEXT, LOCAL:1)%
+LOCAL = STRFIND(REF_OUT, "\n")
+SIF LOCAL >= 0
+	REF_OUT = %SUBSTRING(REF_OUT, 0, LOCAL)%
+REF_OUT '= TRIM_STRING(REF_OUT)
+RETURN
+
+
+; ── 通用：从 "B+8,C-2" 里取某个字母的增量（返回值）──
+@LLM_INT_GETVAL(LLM_S, LLM_CH)
+#DIMS LLM_S
+#DIMS LLM_CH
+#LOCALSIZE 4
+LOCAL = STRFIND(LLM_S, LLM_CH)
+SIF LOCAL < 0
+	RETURN 0
+LOCAL:1 = LOCAL + 1
+LOCAL:2 = STRFIND(SUBSTRING(LLM_S, LOCAL:1, STRLENS(LLM_S) - LOCAL:1), ",")
+IF LOCAL:2 < 0
+	LOCAL:3 = STRLENS(LLM_S) - LOCAL:1
+ELSE
+	LOCAL:3 = LOCAL:2
+ENDIF
+RETURN TOINT(SUBSTRING(LLM_S, LOCAL:1, LOCAL:3))
+
+
+; ── 应用：加部位快感 + 加觉醒值 ──
+@LLM_INT_APPLY_BODY(LLM_CID, LLM_TAG)
+#DIM  LLM_CID
+#DIMS LLM_TAG
+#LOCALSIZE 8
+#LOCALSSIZE 4
+#DIM  LLM_V
+#DIMS LLM_BP
+#DIMS LLM_AK
+SIF LLM_TAG == ""
+	RETURN
+LOCAL = STRFIND(LLM_TAG, ";")
+IF LOCAL < 0
+	LLM_BP = %LLM_TAG%
+	LLM_AK = "0"
+ELSE
+	LLM_BP = %SUBSTRING(LLM_TAG, 0, LOCAL)%
+	LLM_AK = %SUBSTRING(LLM_TAG, LOCAL + 1)%
+ENDIF
+; ★ 五个部位逐个处理（ERB 不能动态取 BASE 编号 ⇒ 只能展开）✓
+CALL LLM_INT_GETVAL(LLM_BP, "B")
+LLM_V = RESULT
+SIF LLM_V != 0
+	BASE:(LLM_CID):Ｂ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｂ絶頂余韻 + LLM_V, 0, 600)
+CALL LLM_INT_GETVAL(LLM_BP, "V")
+LLM_V = RESULT
+SIF LLM_V != 0
+	BASE:(LLM_CID):Ｖ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｖ絶頂余韻 + LLM_V, 0, 600)
+CALL LLM_INT_GETVAL(LLM_BP, "C")
+LLM_V = RESULT
+SIF LLM_V != 0
+	BASE:(LLM_CID):Ｃ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｃ絶頂余韻 + LLM_V, 0, 600)
+CALL LLM_INT_GETVAL(LLM_BP, "A")
+LLM_V = RESULT
+SIF LLM_V != 0
+	BASE:(LLM_CID):Ａ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ａ絶頂余韻 + LLM_V, 0, 600)
+CALL LLM_INT_GETVAL(LLM_BP, "M")
+LLM_V = RESULT
+SIF LLM_V != 0
+	BASE:(LLM_CID):Ｍ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｍ絶頂余韻 + LLM_V, 0, 600)
+; ★ 觉醒值（半醒后每回合更容易醒 ⇒ 加 LLM_AWAKE_BOOST）✓
+LLM_V = TOINT(LLM_AK)
+SIF LLM_V < 0
+	LLM_V = 0
+LLM_V += LLM_AWAKE_BOOST
+LLM_AWAKE:(LLM_CID):0 = LIMIT(LLM_AWAKE:(LLM_CID):0 + LLM_V, 0, 100)
+RETURN
+
+
+; ── 觉醒满了 ⇒ 骰「是否惊醒」──
+;    返回：1 = 惊醒了 / 0 = 没醒（转半醒）
+@LLM_INT_WAKE_CHECK(LLM_CID)
+#DIM LLM_CID
+#LOCALSIZE 4
+#DIM LLM_RATE
+SIF LLM_AWAKE:(LLM_CID):0 < 100
+	RETURN 0
+; ★ 基础 60%，好感/信赖越高越不容易醒（用户设计）——
+;   好感 2400 ⇒ -60；信赖 700 ⇒ -35 ⇒ 很亲近的人几乎不会醒 ✓
+LLM_RATE = 60
+LLM_RATE -= CFLAG:(LLM_CID):好感度 / 40
+LLM_RATE -= CFLAG:(LLM_CID):信赖度 / 20
+; ★ 半醒状态下更容易醒（用户：「每回合做出的行动更容易提高觉醒率」）✓
+SIF LLM_HALFAWAKE
+	LLM_RATE += 25
+LLM_RATE = LIMIT(LLM_RATE, 5, 95)
+; 觉醒值归零（不管醒没醒都要重来）
+LLM_AWAKE:(LLM_CID):0 = 0
+SIF RAND:100 < LLM_RATE
+	RETURN 1
+; 没醒 ⇒ 进入半醒 + 以后更容易醒 ✓
+LLM_HALFAWAKE = 1
+LLM_AWAKE_BOOST += 3
+RETURN 0
+
+
+; ── 退出互动时复位 ──
+@LLM_INT_RESET
+LLM_HALFAWAKE = 0
+LLM_AWAKE_BOOST = 0
+RETURN
+
+; ────────────────────────────────────────────────────────────────────────────
+;  ★★ 半醒时的「幻想对象」文本（2026-09-20 用户设计）
+; ────────────────────────────────────────────────────────────────────────────
+;  用户原话：
+;    「让角色在半醒状态下会把玩家当成她最亲密的好友在与她做爱（恶作剧）
+;      如果和玩家关系在思慕以上 则她脑中幻想的对象改为玩家」
+;
+;  ⚠️ 好友 = `RELATION:她:对方` **最高**的那个（官方人际关系数值）✓
+;     `QoL_ShowRelation.ERB` 用的就是它；分档：
+;       <60 很不合 / 60~99 有点疏远 / 100~129 普通 / 130~199 还算亲近 / >=200 很亲近
+;  ⚠️ 判据 `LLM_REL_LEVEL(她) >= 2`（思慕及以上）⇒ 换成「认出是玩家」✓
+;  ⚠️ 思慕以上时**两种表现都给**（用户：让模型根据性格自己选）：
+;       ① 半梦半醒地认出是他 ⇒ 害羞、心跳、半推半就
+;       ② 当成一场绮梦 ⇒ 主动迎合（反正梦里的，醒来不算数）
+; ────────────────────────────────────────────────────────────────────────────
+; ── 找「她最亲近的那个角色」的名字（官方 RELATION 数值 2026-09-20）──
+;   ⚠️ 抽成独立函数：半醒文本和旁白都要用 ✓
+@LLM_INT_BESTIE_NAME(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 2
+#DIM  LLM_BEST
+#DIM  LLM_BV
+REF_OUT = ""
+LLM_BEST = -1
+LLM_BV = 0
+FOR LOCAL, 1, CHARANUM
+	SIF LOCAL == LLM_CID
+		CONTINUE
+	SIF RELATION:LLM_CID:LOCAL <= 0
+		CONTINUE
+	IF RELATION:LLM_CID:LOCAL > LLM_BV
+		LLM_BV = RELATION:LLM_CID:LOCAL
+		LLM_BEST = LOCAL
+	ENDIF
+NEXT
+SIF LLM_BEST > 0
+	REF_OUT = %CALLNAME:(LLM_BEST)%
+RETURN
+
+
+; ── 取「她平时怎么叫玩家」（从长期记忆里找含「叫他」的那条）──
+;   ⚠️ 称呼不是独立槽 —— 已废弃，统一写进 LLM_MEMO（重要度 3）✓
+;   ⚠️ 原样返回那条记忆，不自己解析引号：模型比我们更懂那句话 ✓
+@LLM_INT_CALLHIM(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 2
+#DIMS LLM_T
+REF_OUT = ""
+SIF LLM_MEMO_CNT:(LLM_CID):0 <= 0
+	RETURN
+FOR LOCAL, 0, LLM_MEMO_CNT:(LLM_CID):0
+	LLM_T = %LLM_MEMO:(LLM_CID):LOCAL%
+	SIF STRFIND(LLM_T, "叫他") < 0
+		CONTINUE
+	REF_OUT = %LLM_T%
+	RETURN
+NEXT
+RETURN
+
+
+@LLM_INT_HALFAWAKE_TEXT(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIMS LLM_BS        ; 她最亲近的人的名字
+#DIMS LLM_CALLHIM   ; 她平时叫玩家的称呼（那条记忆的原文）
+REF_OUT = ""
+CALL LLM_INT_BESTIE_NAME(LLM_CID, LLM_BS)
+; ── 共用开头 ──
+REF_OUT += @"\n  ── 情境：**你被弄醒了，但还没真正清醒** ——"
+REF_OUT += @"\n     眼睛半睁着、眼神对不上焦，脑子糊成一团。"
+REF_OUT += @"\n     ⚠️ **你们正在做爱**（这一点你很确定）—— 只是意识只醒了一半。"
+; ══ 分两种情况：认对人 / 认错人 ══
+IF LLM_REL_LEVEL(LLM_CID) >= 2
+	REF_OUT += @"\n     ★ 你**隐约认得出这个人是「他」** —— 那个你心里一直放着的人 ✓"
+	REF_OUT += @"\n      所以你没有抗拒，只是脑子跟不上身体。"
+	REF_OUT += @"\n   · ★ **两种表现都行，依你的性格挑一个**："
+	; ★ 她叫的是平时对玩家的那个称呼（2026-09-20 用户要求）——
+	LLM_CALLHIM = ""
+	CALL LLM_INT_CALLHIM(LLM_CID, LLM_CALLHIM)
+	IF LLM_CALLHIM != ""
+		REF_OUT += @"\n   · ★ **你叫他的时候，就用你平时那个称呼** ——"
+		REF_OUT += @"\n     半睡半醒里脱口而出的那一声，会比他听过的任何一次都软 ✓"
+		REF_OUT += @"\n     （你的叫法记在这条里：「%LLM_CALLHIM%」）"
+	ELSE
+		REF_OUT += @"\n   · ★ 半睡半醒里叫他的那一声，比平时软得多 ——"
+		REF_OUT += @"\n     直接叫「你」，或者含含糊糊地叫不出完整的名字 ✓"
+	ENDIF
+	REF_OUT += @"\n     ① **半梦半醒地认出来** ⇒ 心里一惊、脸烫、不敢完全睁眼，"
+	REF_OUT += @"\n        想推又推不动，半推半就（嘴硬的角色更适合这个）"
+	REF_OUT += @"\n     ② **当成一场绮梦** ⇒ 反正是梦里的、醒来不算数 ⇒ 主动迎合、"
+	REF_OUT += @"\n        放任自己（坦率 / 大胆的角色更适合这个）"
+ELSEIF LLM_BS != ""
+	REF_OUT += @"\n     ⚠️⚠️ **你以为正在和你做爱的是%LLM_BS%** ——"
+	REF_OUT += @"\n        你心里最亲近的那个人（**其实不是**，你没认出来）⚠️"
+	REF_OUT += @"\n   · ★ **所以你会像对他那样回应**：撒娇、迎合、主动贴上去、"
+	REF_OUT += @"\n     说露骨的话、迷迷糊糊地叫他的名字 ✓"
+	REF_OUT += @"\n   · ⚠️ 尺度**照旧直白** —— 这是做爱场面，该湿的湿、该喘的喘，"
+	REF_OUT += @"\n     不要因为认错人就收敛 ✗"
+	REF_OUT += @"\n   · ⚠️ 但**半醒的迷糊要留着**：话说不利索、说一半就变成哼声、"
+	REF_OUT += @"\n     逻辑是断的、偶尔忘自己在说什么 ✓"
+	REF_OUT += @"\n   · ⚠️ 你**不会察觉**搞错了 —— 那要等你彻底清醒 ✗"
+ELSE
+	REF_OUT += @"\n     ⚠️ 你**迷迷糊糊地以为正和你做爱的是某个亲近的人**，"
+	REF_OUT += @"\n        但一时想不起是谁 —— 你不觉得有什么不对 ⚠️"
+	REF_OUT += @"\n   · ★ 所以你会**照样迎合**：撒娇、主动贴上去、说露骨的话，"
+	REF_OUT += @"\n     偶尔含糊地念一个名字（但念不清）✓"
+	REF_OUT += @"\n   · ⚠️ 尺度照旧直白；半醒的迷糊要留着（话说不利索、说一半变哼声）✓"
+	REF_OUT += @"\n   · ⚠️ 你**不会察觉**搞错了 ✗"
+ENDIF
+REF_OUT += @"\n   · 能写的：含糊的短句、黏糊的撒娇、喘息、说一半就断掉的话、"
+REF_OUT += @"\n     「……嗯……」「不要停……」这种 ✓"
+REF_OUT += @"\n   · ❌ 不要完全清醒地对话、不要识破真相（那是彻底醒来之后的事）✗"
+RETURN

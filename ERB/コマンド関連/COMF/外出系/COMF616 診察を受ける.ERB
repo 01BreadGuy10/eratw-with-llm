@@ -1,0 +1,277 @@
+﻿@COM616
+#DIM 買うもの
+PRINTL 「今天来这有什么事吗？」
+$LOOP
+DRAWLINE
+PRINTL [0] 想要驱除疲劳…
+PRINTL [1] 总感觉精神很憔悴…
+;SIF MAXBASE:MASTER:精力 - BASE:MASTER:精力 > 500
+;	PRINTL [2] 女朋友太激情…
+PRINTL [3] 最近和女友间缺乏激情…
+SIF TALENT:MASTER:清掃中毒
+	PRINTL [4] 太喜欢扫除到根本停不下来
+;PRINTL [5] 一想到先生您，我的小鸡鸡就变大了
+;PRINTL [5] 一想到先生您，我的小穴就痒痒的
+IF GETBIT(TALENT:MASTER:性別,1) && BASE:MASTER:勃起 >= 1000
+	SETCOLOR C_PINK
+	PRINTL [6] 浑身燥热憋得好痛苦，救救我永琳大人！
+	RESETCOLOR
+ENDIF
+;SIF GETBIT(TALENT:MASTER:性別 & 1)
+;PRINTL [10] 小鸡鸡的烦恼
+DRAWLINE
+PRINTL [100] 放弃
+INPUT
+IF RESULT == 0
+	CALL REMEDY(RAND:3)
+	PRINTFORML 被要求支付治疗费%金額表示(3000)%
+	IF MONEY < 3000
+		DOWNBASE:MASTER:体力 -= 100
+		DOWNBASE:MASTER:気力 -= 200
+		TIME += 180
+		TFLAG:193 = 1
+	ELSE
+		MONEY -= 3000
+	ENDIF
+ELSEIF RESULT == 1
+	;永琳の思慕恋慕で良化
+	CALL REMEDY(RAND:2 + 3 + TALENT:(NO:72):3 * 2 + TALENT:(NO:72):8)
+	PRINTFORML 被要求支付治疗费%金額表示(3000)%
+	IF MONEY < 3000
+		DOWNBASE:MASTER:体力 -= 100
+		DOWNBASE:MASTER:気力 -= 200
+		TIME += 180
+		TFLAG:193 = 1
+	ELSE
+		MONEY -= 3000
+	ENDIF
+ELSEIF RESULT == 3
+	$SELL
+	;購入条件設定
+	FOR LOCAL, 0, 1000
+		CALL ITEMDATA(LOCAL, "SHOP:診察")
+		IF RESULT
+			CALL ITEMDATA(LOCAL, "SALES")
+			ITEMSALES:LOCAL = RESULT
+		ENDIF
+	NEXT
+	DRAWLINE
+	PRINTL 「要不要试试这个」
+	PRINTFORML 请选择要购买的道具（所持金:%金額表示(MONEY)%）
+	DRAWLINE
+	CALL SHOW_SHOPPING("診察", "調教")
+	DRAWLINE
+	PRINTL [999] - 返回
+	INPUT
+	IF RESULT == 999
+		RETURN 0
+	ELSE
+		買うもの = RESULT
+		CALL ITEMDATA(買うもの, "SHOP:診察")
+		IF RESULT && ITEMSALES:買うもの >= 0 && ITEM:買うもの < 所持数制限
+			CALL ITEMDATA(買うもの, "購入")
+			SIF RESULT
+				GOTO SELL
+		ELSE
+			GOTO SELL
+		ENDIF
+	ENDIF
+ELSEIF RESULT == 4 && TALENT:MASTER:清掃中毒
+	IF FLAG:850 == 0
+		PRINTL 「喜欢做家务？这不是好事吗」
+		PRINTL 「并不是这样？」
+		PRINTW 「导致不能专心去做别的事？这是挺令人困扰的呢」
+		PRINTW …
+		PRINTW 「嗯ー、的确是有一点异常呢」
+		PRINTW ……
+		PRINTW 「还伴有性欲上的兴奋！？」
+		PRINTW …………
+		PRINTL 「到底是做了什么才会变成这种状况呢」
+		PRINTL 「因为让我见识到了罕见的症例所以这次就免费为你治疗吧」
+		PRINTL 「今后不要再进行奇怪的扫除了」
+		PRINTFORMW %CALLNAME:MASTER%的[清扫中毒]被治好了
+		TALENT:MASTER:清掃中毒 = 0
+		FLAG:850 ++
+	ELSE
+		PRINTL 「那个病又复发了吗？」
+		PRINTFORML 「真是的… 这次就收你￥{FLAG:850 * 10000}吧」
+		IF MONEY < FLAG:850 * 10000
+			PRINTL 「看起来没有足够的治疗费呢」
+			PRINTL 「请存好钱再来吧」
+		ELSE
+			PRINTW …
+			PRINTW ……
+			PRINTW …………
+			PRINTL 「嗯、治好了」
+			PRINTL 「要是再复发的话可得加价哦」
+			PRINTFORMW %CALLNAME:MASTER%的[清扫中毒]被治好了
+			TALENT:MASTER:清掃中毒 = 0
+			MONEY -= FLAG:850 * 10000
+			FLAG:850 ++
+		ENDIF
+	ENDIF
+ELSEIF RESULT == 6
+	IF GETBIT(CFLAG:72:既成事實,1) && EXP:72:口淫経験 > 40 && !TALENT:72:キス未経験
+		IF TALENT:72:心情 == 1 || TALENT:72:恋人 || (TALENT:72:心情 == 0 && !RAND:3) || (TALENT:72:恋慕 && RAND:3) || TALENT:MASTER:濃厚精液
+			SIF TALENT:MASTER:濃厚精液
+				PRINTFORMD 望向+++散发出浓郁男性气息的裤裆，
+			PRINTFORMDL %CALLNAME:72%叹息一声把%CALLNAME:MASTER%带到了里面
+			PRINTFORMDW 露出一脸无奈的表情看了+++一眼，撩了下头发含住了肿大的肉棒……
+			SETCOLOR C_PINK
+			CALL FADEIN,12,@"「%RANDLIPS_CN(,"suck:heart")%…」            ",
+			CALL FADEIN,12,@"      「%RANDLIPS_CN(,"suck:heart")%…」      ",
+			CALL FADEIN,12,@"            「%RANDLIPS_CN(,"suck:heart")%…」",
+			CALL QUAKE
+			RESETCOLOR
+			PRINTFORMDW 用小嘴接下了全部精液的%CALLNAME:72%，洗手漱口后便带着微红的脸颊回去看诊了
+			TCVAR:MASTER:要去了 = 1
+			BASE:MASTER:射精 = MAXBASE:MASTER:射精 * 2
+			CALL COM81
+			SOURCE:反感 = 0
+			BASE:MASTER:勃起 = 0
+			BASE:MASTER:射精 = 0
+			IF TALENT:MASTER:濃厚精液
+				PRINTFORML %CALLNAME:MASTER%的[浓厚精液]被治好了，蛋蛋也变得轻松（？）
+				TALENT:MASTER:濃厚精液 = 0
+			ELSE
+				PRINTFORMW %CALLNAME:MASTER%满脸清爽，蛋蛋也变得轻松（？）
+			ENDIF
+			PRINTFORMW 笑眯眯的小因幡给穿好裤子的+++递来了治疗费%金額表示(10000)%的账单
+			MONEY = MAX(MONEY - 10000, 0)
+			TFLAG:193 = 601
+		ELSEIF TALENT:72:心情 == -1 || (TALENT:72:心情 == 0 && RAND:2) || !TALENT:MASTER:濃厚精液
+
+			PRINTFORMDW 永琳因为忙得腾不出手，白了一眼+++就无视了…
+			SIF TALENT:72:心情 > -1
+				CALL COLORMESSAGE("永琳的心情变差了!",C_YELLOW,2,1)
+			TALENT:72:心情 = MAX(-1,TALENT:72:心情 - 1)
+			TFLAG:193 = 602
+		ELSE
+			GOTO 献血
+		ENDIF
+	ELSE
+		$献血
+		PRINTFORMDW %CALLNAME:72%两眼放光说有一个很棒的疗法，把\@TALENT:MASTER:濃厚精液?心痒难耐的#\@%CALLNAME:MASTER%领到里面
+		PRINTW …
+		PRINTW ……
+		PRINTW ………
+		PRINTFORMDW %CALLNAME:72%非常开心地感谢%CALLNAME:MASTER%献了血…
+		BASE:MASTER:体力 = MIN(MAXBASE:MASTER:体力,BASE:MASTER:体力 - 400)
+		BASE:MASTER:勃起 = 0
+		BASE:MASTER:射精 = 0
+		IF TALENT:MASTER:濃厚精液
+			PRINTFORMW %CALLNAME:MASTER%满脸清爽，干劲满满，既做了好事，[浓厚精液]也被治好了
+			TALENT:MASTER:濃厚精液 = 0
+		ELSE
+			PRINTFORMW %CALLNAME:MASTER%满脸清爽，干劲满满，下体的燥热也治好了（？）
+		ENDIF
+		TALENT:72:心情 = 1
+		TFLAG:193 = 603
+	ENDIF
+;ELSEIF RESULT == 10
+;	CALL PENIS_CHANGE
+ELSEIF RESULT == 100
+	RETURN -1
+ELSE
+	GOTO LOOP
+ENDIF
+SETBIT TFLAG:一日一回,3
+TIME += 30
+RETURN 1
+
+@REMEDY(ARG)
+SELECTCASE ARG
+CASE 0
+	LOCALS = 美味饭菜
+	BASE:MASTER:体力 = MIN(MAXBASE:MASTER:体力,BASE:MASTER:体力 + 500)
+CASE 1
+	LOCALS = 注射营养剂
+	BASE:MASTER:体力 = MIN(MAXBASE:MASTER:体力,BASE:MASTER:体力 + 750)
+CASE 2
+	LOCALS = 大恢复药
+	BASE:MASTER:体力 = MAXBASE:MASTER:体力
+CASE 3
+	LOCALS = 季节power
+	BASE:MASTER:気力 = MIN(MAXBASE:MASTER:気力,BASE:MASTER:気力 + 500)
+CASE 4
+	LOCALS = 注射镇静剂
+	BASE:MASTER:気力 = MIN(MAXBASE:MASTER:気力,BASE:MASTER:気力 + 750)
+CASE 5
+	LOCALS = 额头测温
+	BASE:MASTER:気力 = MIN(MAXBASE:MASTER:気力,BASE:MASTER:気力 + 900)
+CASE 6
+	LOCALS = 拥抱
+	BASE:MASTER:気力 = MIN(MAXBASE:MASTER:気力,BASE:MASTER:気力 + 1000)
+ENDSELECT
+
+PRINTFORMW 永琳进行了%LOCALS%的治疗
+SIF ARG == 2
+	PRINTL 干劲满满、状态十足！
+SIF ARG >= 0 && ARG <= 2
+	PRINTW 体力恢复了
+SIF ARG >= 3 && ARG <= 6
+	PRINTW 气力恢复了
+[SKIPSTART]
+@PENIS_CHANGE
+$TINKO_LOOP
+PRINTL [1] 因为想重拾童心所以请把小鸡鸡弄成儿童那様的大小吧
+PRINTL [2] 请调整成不会沉溺于放纵中的状态吧
+PRINTL [3] 请弄成普通的鸡鸡
+PRINTL [4] 走夜路会害怕请弄成会发光的吧
+PRINTL [5] 想让女孩子惊叹所以请往那里面植入珍珠吧
+PRINTL [6] 为了能拥有自信请把那里弄大
+;PRINTL [7] オークに憧れてるのでドリルみたいにしてください　そしてエルフを探しに行きます
+;PRINTL [8] 避妊とかめんどいんで派プカットお願いします
+INPUT
+SIF TALENT:MASTER:形状 == RESULT
+	GOTO TINKO_LOOP
+	LOCAL = RESULT
+SELECTCASE RESULT
+	CASE 1
+		IF GETBIT(CFLAG:72:既成事實,1) && CFLAG:72:2 > 5000
+			PRINTFORMW 永琳心想竟会有人会提这様的要求呐…
+		ELSE
+			PRINTFORMW 永琳满头黑线的问你是不是认真的…
+	CASE 2
+		IF GETBIT(CFLAG:72:既成事實,1) && CFLAG:72:2 > 5000
+			PRINTFORMW 永琳劝你改变主意…
+		ELSE
+	CASE 3
+		PRINTFORMW 永琳表示普通就是最好的很快应承下来
+	CASE 4
+		PRINTFORMW 永琳用像与外星人交流的语气、问你真的想把那地方弄得能发光吗…
+	CASE 5
+		PRINTFORMW 永琳無話可說
+[SKIPEND]
+
+;-------------------------------------------------
+;実行可能判定
+;-------------------------------------------------
+;診察
+@COM_ABLE616
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;一括管理
+SIF GLOBAL_COMABLE(616)
+	RETURN RESULT
+;永琳が居ないとダメ
+SIF CFLAG:MASTER:現在位置 != CFLAG:72:現在位置
+	RETURN 0
+;约会中
+SIF CHK_DATENOW(CFLAG:TARGET:约会中) && TARGET > 0
+	RETURN 0
+;约会道中
+SIF TFLAG:约会道中
+	RETURN 0
+SIF CFLAG:MASTER:現在位置 != 永遠亭
+	RETURN 0
+SIF GETBIT(TFLAG:一日一回, 3)
+	RETURN 0
+;睡眠中
+SIF CFLAG:MASTER:睡眠
+	RETURN 0
+;時間停止中
+SIF FLAG:70
+	RETURN 0
+RETURN 1
+

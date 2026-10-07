@@ -1,0 +1,659 @@
+﻿;※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+;弹幕胜负口上模板
+;经过eraTheWorld 4.972 环境测试
+;※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+; ※ABL:戰鬥能力 == 0 的角色初始是无法进行弹幕胜负的※
+; ※角色技能发动的口上接口只有【乾坤一掷】【怪力乱神】【残忍酷薄】这三个
+;==================================================
+;整体流程与时点：
+;（无→跳转则全部顺下，序号仅做跳转标识，并非实际顺序）
+;==================================================
+; 决斗前   		① 调用 COM480 决定是否进行决斗
+; 					☇ **调用 “戰鬥前” 的口上内容**
+; 开始决斗	      ② 调用 DANMAKU_BATTLE 运行决斗过程
+; 			    ③ 决斗循环
+; 					☇ ⑥ 处理骰子数值（如果启用了 胖次决斗 的DLC，还会调用 PANNOQIKALA_BATTLE 进行胖次的处理，进一步增减双方数值）
+; 						☇ **调用 "ハンデ" 的口上内容**
+; 					   ⑦ 掷骰子，生成第一次的骰子值让玩家做出选择
+; 						☇ ⑨ 选择专心回避，如果HP归零 → ⑮
+; 						   ⑩ 选择一决胜负
+; 							☇ 双方发动技能【乾坤一掷】
+; 								☇ **调用 “乾坤一擲” 的口上内容**
+; 							   ⑪ 拼点，TARGET骰子值更大 → ⑫，MASTER更大 → ⑬，相等 → ⑭
+; 								☇ ⑫ TARGET攻击
+; 									☇ MASTER发动技能【怪力乱神】/使用BOMB进行防御 → ⑭
+; 									   ⑮ MASTER被弹
+; 										☇ **调用 “击破” 的口上内容**
+; 										符合条件时TARGET发动技能【残忍酷薄】
+; 											☇  **调用 “残忍酷薄” 的口上内容** → ⑧
+; 								   ⑬ MASTER攻击
+; 									☇ TARGET发动技能【怪力乱神】进行防御
+; 										☇ **调用 “怪力乱神” 的口上内容** → ⑭
+; 									   TARGET被弹
+; 										☇ **调用 “被弹” 的口上内容** → ⑧
+; 								   ⑭ 平手
+; 					   ⑧ 一方残归零 → ④ ，否则 → ③
+; 决斗结束	      ④ 宣布败犬/人生的胜利者，处理乐谱
+; 决斗后		⑤ **调用 "戦闘後" 的口上内容**， 进行各种决斗后的数据处理
+;==================================================
+@M_KOJO_MOKA_MESSAGE_COM_K24_DANMAKU(ARGS, 对手残机, 自机残机)
+#DIM 对手残机	;残机值除了“戰鬥前”没有意义以外，其余时点都能生效
+#DIM 自机残机
+;--------------------------------------------------
+;启用（0，不显示以下内容；1，显示以下内容）
+LOCAL = 1
+;--------------------------------------------------
+IF LOCAL
+	SIF FLAG:1031
+		TRYCALLFORM M_KOJO_MOKA_COLOR_K24
+	;-------------------------------------------------
+	;允许口上侧进行的对 MASTER的 战斗力补正
+	;-------------------------------------------------
+	; HANDICAP_FIXED 是直接对 MASTER 骰子修正值的补正，而 HANDICAP_RAND 则是以 RAND:HANDICAP_RAND 的形式进行的补正
+	; 因为算式是 修正值 -= HANDICAP ，所以数值越高 MASTER 的骰子修正值就越低，如果输入负数，则变成增加 MASTER  的修正值
+	; （虽然代码写的是给 MASTER 的补正，但是口上文本写成对 TARGET 的补正也是可以的）
+
+	; （要注意的是，HANDICAP_RAND 的算式是：修正値 -= RAND:(HANDICAP_RAND + TFLAG:GipsLV（大角虫装甲负荷等级） * ABL:MASTER:戦闘能力 + 1)
+	; 这样的写法导致了如果 HANDICAP_RAND 是较大的负值而令最终计算值也为负的话就会报错。想要大幅度增强 MASTER 稳妥起见请用 HANDICAP_FIXED）
+
+	; HANDICAP 的补正无关 TARGET 本身的战斗能力，所以你甚至可以做到让1级的⑨暴打6级的MASTER（⑨是最强的）
+
+	; HANDICAP 值是每回合都重新计算一遍的，所以你可以整一点越战越勇之类的花活
+	; BTW,就这样写在这里的话就是全时点每次调用时都为 HANDICAP 赋值一遍，所以 HANDICAP = XX 之类的直接赋值建议还是做好条件限制。
+	; 或者干脆把这里删掉，在时点内给 HANDICAP 赋值。（"戰鬥前"生效一次，决斗循环中的生效顺序见上方 整体流程与时点 ，"戰鬥後"不生效）
+	
+	;-------------------------------------------------
+	;决斗前
+	;-------------------------------------------------
+	IF ARGS == "戦闘前"
+		;CFLAG:24:1300 连败计数
+		;TCVAR:24:355 记录强化模式的开关
+		IF CFLAG:24:1002 >= 1 ;恋慕不高兴状态直接怯战
+			PRINTFORMDW %CALLNAME:MASTER%正准备找橙对战、却发现橙已经不知什么时候跑掉了...
+			CFLAG:24:320 = 0
+			CFLAG:0:320 = 0
+			CFLAG:24:300 = CFLAG:24:311
+			CALL DOKU_KM_RENEW_TARGET(24) 
+			RETURN -1
+		ELSEIF FIRSTTIME ("初次弹幕胜负")
+			PRINTFORML 「诶？%CALLNAME:MASTER%要和橙弹幕对战吗？」
+			PRINTFORMDL 听到请求的橙、如同不相信听见的话一般瞪大了眼睛、朝%CALLNAME:MASTER%上下打量着
+			PRINTFORML 「唔姆唔姆...没想到%CALLNAME:MASTER%居然会找橙做对手呢！」
+			PRINTFORMW 「虽然橙不是很厉害的家伙、但是%CALLNAME:MASTER%也绝对不可以小瞧哦！」
+			PRINTFORMDW 这样说着的小猫妖跳到了不远处、摆好了发射弹幕的架势、等待着%CALLNAME:MASTER%准备完毕 
+			IF CFLAG:24:300 == CFLAG:25:300 ;蓝在同一位置
+				PRINTFORML 
+				CALL CHARA_TEXT,[[蓝]],@"『哦呀？%CALLNAME:MASTER%在和橙做什么呢？』","W"
+				PRINTFORMDW 正准备着的%CALLNAME:MASTER%、突然发现橙的一旁多出了金发的九尾式神、带着微妙的警觉眼神注视着自己...
+				PRINTFORMDW 不过在身旁的小猫妖凑近耳朵低语了几声后、蓝的表情便渐渐缓和了下来
+				CALL CHARA_TEXT,[[蓝]],@"『原来是要进行弹幕对战啊...那我就在一旁看着了哦』","W"
+				PRINTFORMDW 这样说着的蓝、似乎什么都没做...吗？
+				CALL CHARA_TEXT,[[蓝]],@"『哎呀、好像被%CALLNAME:MASTER%发现了呢』","W"
+				CALL CHARA_TEXT,[[蓝]],@"『橙是我的式神、所以待在我身边的时候、她的能力会增强哦』","W"
+				CALL CHARA_TEXT,[[蓝]],@"『当然、如果%CALLNAME:MASTER%觉得不公平的话、我也可以让你和原本力量的橙战斗呢』","W"
+				CALL CHARA_TEXT,[[蓝]],@"『那么、%CALLNAME:MASTER%打算怎么做呢？』","W"
+				PRINTFORML
+				PRINTFORMDW 要和强化过的橙对战吗？（橙的战斗力会获得强化、如果获胜则会提高战斗经验的获取、还会获得一些额外的奖励）
+				;ps.这是彩蛋级别的差分所以发的东西很慷慨哦
+				CALL ASK_YN ("战！","算了")
+				IF !RESULT ;是、数值需要测试、大概在3级战斗能力的数值...
+					CALL CHARA_TEXT,[[蓝]],@"『这样啊...我知道了』","W"
+					CALL CHARA_TEXT,[[蓝]],@"『那就请%CALLNAME:MASTER%做好准备吧』","W"
+					PRINTFORMDW 随着蓝的话音落下、%CALLNAME:MASTER%立马感受到橙身上的力量变得更强了...！
+					PRINTFORMW 「橙变得更厉害了哦！%CALLNAME:MASTER%要小心啦！」
+					PRINTFORMDW 兴奋地大喊着的小猫妖飞到了半空中、开始旋转着发射出弹幕！ 
+					HANDICAP_FIXED = 200
+					HANDICAP_RAND = 50
+					TCVAR:24:355 = 1
+				ELSE ;否
+					CALL CHARA_TEXT,[[蓝]],@"『嗯...毕竟这样确实不公平呢』","W"
+					CALL CHARA_TEXT,[[蓝]],@"『打扰%CALLNAME:MASTER%了』","W"
+					PRINTFORMDW 蓝的身影退到了一旁、目光却一刻也没有从橙的身上移开...
+					PRINTFORMW 「就算没有蓝大人的帮助、橙也不会输的哦！」
+					PRINTFORMDW 宣言一般喊着话的小猫妖跳到了半空中、开始旋转着发射出弹幕！
+				ENDIF 
+			ENDIF 
+		ELSE
+			IF CFLAG:24:1300 >= 10 ;连败10次以上、真的有人能做到嘛...
+				PRINTFORML 「...」
+				PRINTFORMDW 即使听见了%CALLNAME:MASTER%的对战请求、橙也毫无反应地蹲在一旁、不知道在干什么...
+				PRINTFORMW 「...笨蛋」
+				PRINTFORMDW 似乎听见了什么呢...好奇的%CALLNAME:MASTER%凑到了埋着脑袋的小猫妖眼前
+				PRINTFORML 「...%CALLNAME:MASTER%...就是个...只会欺负橙的笨蛋！！！」
+				PRINTFORMW 「橙不想再看见%CALLNAME:MASTER%了啦！！呜...呜哇哇啊啊～......！」
+				PRINTFORMDW 突然爆发的小猫妖猛地推开了%CALLNAME:MASTER%、捂着哭红了的眼睛、一下子就跑没了踪影...
+				CFLAG:24:1300 += 1 ;将连败次数+1、触发道歉剧情
+				CFLAG:24:318 = 1
+				TALENT:24:15 = -1
+				MARK:24:3 += 1
+				CFLAG:24:320 = 0
+				CFLAG:0:320 = 0
+				CFLAG:24:300 = CFLAG:24:311
+				CALL DOKU_KM_RENEW_TARGET(24)
+				RETURN -1
+			ELSEIF CFLAG:24:1300 > 5 ;连败5次以上
+				PRINTFORML 「呜喵哇啊啊啊...不要来了嘛...！」
+				PRINTFORML 「总是欺负橙有什么意思嘛！哼！」
+				PRINTFORMDW 撅起小嘴的小猫妖紧紧捂住了头顶的猫耳、像躲瘟神一样躲避着%CALLNAME:MASTER%
+				PRINTFORML 「...呜呜...%CALLNAME:MASTER%还是那么想打嘛...」
+				PRINTFORML 「那就...来吧...」
+				PRINTFORMDW 最后在%CALLNAME:MASTER%缠住对方、不停的请求下、橙才不情不愿地准备战斗
+			ELSEIF CFLAG:24:1300 > 3 ;连败3次以上
+				PRINTFORML 「诶？！要和橙弹幕对战？呜...那个...」
+				PRINTFORMDW 一听见%CALLNAME:MASTER%的话、小猫妖就如同被吓到了一样跳了起来
+				PRINTFORML 「%CALLNAME:MASTER%不考虑一下去找蓝大人、或者紫大人去对战吗...」
+				PRINTFORML 「橙都已经输给%CALLNAME:MASTER%很多次了吧...」
+				PRINTFORMDW 看着低着脑袋、用手指对戳着的小猫妖、%CALLNAME:MASTER%坏笑着问她是不是害怕了
+				PRINTFORML 「害怕...才、才没有呢！哼！%CALLNAME:MASTER%把橙当什么了啊！」
+				PRINTFORML 「不就是弹幕对战嘛！橙接受就是了！」
+				PRINTFORMDW 鼓起小脸的小猫妖迅速跳到了半空中、一副随时都会发射弹幕的样子呢...
+			ELSEIF CFLAG:24:930 ;输过了
+				PRINTFORML 「诶...？%CALLNAME:MASTER%还想和橙来弹幕对战吗？」
+				PRINTFORML 「唔...明明之前都输给%CALLNAME:MASTER%过了吧？」
+				PRINTFORMDL 听见%CALLNAME:MASTER%再战的请求、小猫妖似乎有些犹豫的样子
+				PRINTFORMDW 不过没过一会儿、橙就握紧了小小拳头、决定好了一般跳到了%CALLNAME:MASTER%的对侧
+				PRINTFORML 「就算这样、橙也不会拒绝%CALLNAME:MASTER%的请求的！」
+				PRINTFORMW 「这次橙一定会赢回来的哦！」 
+			ELSE
+				PRINTFORML 「还想和橙来玩弹幕对战吗？没问题哦！」
+				PRINTFORMDL 听到%CALLNAME:MASTER%的请求、小猫妖的眼里就亮起了光、一副迫不及待的样子呢
+				PRINTFORML 「上回橙都没想到能赢过%CALLNAME:MASTER%呢...」
+				PRINTFORMW 「不过这回、就算%CALLNAME:MASTER%变强了、橙也不会轻松地输掉的哦！」 
+			ENDIF
+				IF CFLAG:24:300 == CFLAG:25:300 ;蓝在同一位置
+					IF FIRSTTIME ("初次触发强化模式")
+						CALL CHARA_TEXT,[[蓝]],@"『哦呀？%CALLNAME:MASTER%在和橙做什么呢？』","W"
+						PRINTFORMDW 正准备着的%CALLNAME:MASTER%、突然发现橙的一旁多出了金发的九尾式神、带着微妙的警觉眼神注视着自己...
+						PRINTFORMDW 不过在身旁的小猫妖凑近耳朵低语了几声后、蓝的表情便渐渐缓和了下来
+						CALL CHARA_TEXT,[[蓝]],@"『原来是要进行弹幕对战啊...那我就在一旁看着了哦』","W"
+						PRINTFORMDW 这样说着的蓝、似乎什么都没做...吗？
+						CALL CHARA_TEXT,[[蓝]],@"『哎呀、好像被%CALLNAME:MASTER%发现了呢』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『橙是我的式神、所以待在我身边的时候、她的能力会增强哦』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『当然、如果%CALLNAME:MASTER%觉得不公平的话、我也可以让你和原本力量的橙战斗呢』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『那么、%CALLNAME:MASTER%打算怎么做呢？』","W"
+						PRINTFORML
+						PRINTFORMDW 要和强化过的橙对战吗？（橙的战斗力会获得强化、如果获胜则会提高战斗经验的获取、还会获得一些额外的奖励）
+						;ps.这是彩蛋级别的差分所以发的东西很慷慨哦
+						CALL ASK_YN ("战！","算了")
+						IF !RESULT ;是、数值需要测试、大概在3级战斗能力的数值...
+							CALL CHARA_TEXT,[[蓝]],@"『这样啊...我知道了』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『那就请%CALLNAME:MASTER%做好准备吧』","W"
+							PRINTFORMDW 随着蓝的话音落下、%CALLNAME:MASTER%立马感受到橙身上的力量变得更强了...！
+							PRINTFORMW 「橙变得更厉害了哦！%CALLNAME:MASTER%要小心啦！」
+							PRINTFORMDW 兴奋地大喊着的小猫妖飞到了半空中、开始旋转着发射出弹幕！ 
+							HANDICAP_FIXED = 200
+							HANDICAP_RAND = 50
+							TCVAR:24:355 = 1
+						ELSE ;否
+							CALL CHARA_TEXT,[[蓝]],@"『嗯...毕竟这样确实不公平呢』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『打扰%CALLNAME:MASTER%了』","W"
+							PRINTFORMDW 蓝的身影退到了一旁、目光却一刻也没有从橙的身上移开...
+							PRINTFORMW 「就算没有蓝大人的帮助、橙也不会输的哦！」
+							PRINTFORMDW 宣言一般喊着话的小猫妖跳到了半空中、开始旋转着发射出弹幕！
+						ENDIF
+					ELSEIF CFLAG:24:1300 >= 5 ;连败5次以上强制开启比平时更厉害的强化模式！
+						CALL CHARA_TEXT,[[蓝]],@"『哎呀、好像被我抓住了』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『%CALLNAME:MASTER%最近把橙欺负得很惨呢...』","W"
+						PRINTFORMDW 这样说着的蓝站到了橙的身后、看起来像是要和小猫妖一同出击似的...
+						CALL CHARA_TEXT,[[蓝]],@"『啊啊、不会二打一的哦、毕竟那样很不公平嘛』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『所以只是给橙更多的力量而已哦』","W"
+						PRINTFORMDW 随着蓝举起手上的符纸、%CALLNAME:MASTER%立马感觉到橙的身上传来了比平时更加强大的力量！
+						CALL CHARA_TEXT,[[蓝]],@"『请%CALLNAME:MASTER%好好反思吧～』","W"
+						HANDICAP_FIXED = 500
+						HANDICAP_RAND = 300
+						TCVAR:24:355 = 1
+					ELSE
+						PRINTFORML
+						PRINTFORMDW 蓝又一次站在了橙的身边、看着%CALLNAME:MASTER%、似乎在等待自己做决定呢...
+						PRINTFORML
+						PRINTFORMDW 要和强化过的橙对战吗？（橙的战斗力会获得强化、如果获胜则会提高战斗经验的获取、还会获得一些额外的奖励）
+						;ps.这是彩蛋级别的差分所以发的东西很慷慨哦
+						CALL ASK_YN ("战！","算了")
+						IF !RESULT ;是、数值需要测试、大概在3级战斗能力的数值...
+							PRINTFORMDW %CALLNAME:MASTER%点了点头、橙身上的力量便一下子变得更强了！
+							IF CFLAG:24:930 
+								PRINTFORMW 「这回一定要赢过%CALLNAME:MASTER%哦！喵哇哇～——！」
+							ELSE
+								PRINTFORMW 「橙变得更厉害了哦！%CALLNAME:MASTER%要小心啦！」
+							ENDIF
+						HANDICAP_FIXED = 200
+						HANDICAP_RAND = 50
+						TCVAR:24:355 = 1
+						ELSE ;否
+							PRINTFORMDW %CALLNAME:MASTER%摇了摇头、蓝便默默地退到了一边
+							IF CFLAG:24:930 
+								PRINTFORMW 「就算没有蓝大人帮忙...橙也有机会赢的哦！」
+							ELSE
+								PRINTFORMW 「就算没有蓝大人帮忙、橙也不会那么容易就输掉的哦！」
+							ENDIF
+						ENDIF 
+					ENDIF
+				ENDIF
+			PRINTFORMW
+		ENDIF
+		; 在这里返回-1的话可以口上强制中止决斗
+		RETURN 0
+	ENDIF
+	;-------------------------------------------------
+	; HANDICAP 用口上
+	; 如果 HANDICAP_FIXED 和 HANDICAP_RAND 都为假那么就不会显示这个
+	; 你可以写文本，也可以写数值的更改。这个时点是刚好卡在计算骰子值的前一步。
+	;-------------------------------------------------
+	IF ARGS == "ハンデ"
+
+		; PRINTFORML 
+		RETURN 0
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 MASTER 被弹时口上（4960新增接口）
+	;-------------------------------------------------
+	IF ARGS == "击破" 
+		;此处可填写通用文本
+
+		; MASTER获得残机的手段较多，基础是3，技能【洽览深识】+1，TALENT:0:大角虫+1，道具【命之卡片】+1
+		; 不启用 胖次决斗DLC 的话最高6残，是先减少残机再调用的“击破”和“被弹”的口上内容
+		; 默认大于4残的情况是高于橙战斗能力的情况、不做分歧
+		SELECTCASE 自机残机
+			CASE 5,4,3,2,1 ;还有残机的情况
+				IF ABL:0:42 > ABL:24:42 ;主角的战斗能力大于橙的
+					IF TCVAR:24:355 == 1 ;强化模式
+						SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「呼哇～好像命中了啊」
+							PRINTFORML 「要是没有蓝大人帮忙的话、%CALLNAME:MASTER%刚才肯定能躲过去的吧...」
+							PRINTFORMDL 橙说着话的同时、不由自主地转头看向了自己的主人
+							CALL CHARA_TEXT,[[蓝]],@"『再怎么说、发射弹幕的也是橙哦、所以是橙的功劳呢～』","L"
+							PRINTFORMDW 九尾式神似乎看透了小猫妖的心思、解答般地轻语着						
+						CASE 1
+							CALL CHARA_TEXT,[[蓝]],@"『哎呀、好像把%CALLNAME:MASTER%困住了呢』","L"
+							PRINTFORMDL 面对比起平时更加稠密的弹幕、%CALLNAME:MASTER%躲闪不及、被围住自己的弹幕击中了
+							CALL CHARA_TEXT,[[蓝]],@"『橙、做得很不错哦』","L"
+							PRINTFORML 「真的吗？谢谢蓝大人！诶嘿嘿～♪」
+							PRINTFORMDW 收到蓝的夸奖、小猫妖的嘴角一下子翘高了、连尾巴都高兴地甩了起来
+						CASE 2
+							PRINTFORML 「啊！终于打中%CALLNAME:MASTER%了！呼——」
+							PRINTFORMDL 在发射的弹幕命中%CALLNAME:MASTER%的时候、橙像是终于放松下来一般长呼了一口气
+							CALL CHARA_TEXT,[[蓝]],@"『还没有到放松的时候呢、%CALLNAME:MASTER%还有残机哦』","L"
+							PRINTFORML 「呜...可是%CALLNAME:MASTER%也很厉害的嘛...橙只是想先喘口气而已嘛...」
+							PRINTFORMDW 用小声嘀咕回答完自己主人的话、小猫妖深吸一口气、重新做好了发射弹幕的准备							
+						ENDSELECT
+					ELSE
+						SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「呜哇...%CALLNAME:MASTER%居然还有残机啊...总觉得胜算降低了喵...」
+							PRINTFORMDL 明明击中了%CALLNAME:MASTER%、橙的脸上却没有一点高兴的样子
+							PRINTFORML 「不过、要是因为这个就害怕的话可不行呢！%CALLNAME:MASTER%！要接着上了哦！」
+							PRINTFORMDW 重新振作起来的小猫妖、朝着同样重整态势的%CALLNAME:MASTER%继续发射起弹幕
+						CASE 1
+							PRINTFORML 「哇！橙居然打中了吗？」
+							PRINTFORMDL 像是不相信自己似的停下了发射弹幕的动作、小猫妖观察着被弹的%CALLNAME:MASTER%、随后鼓励自己一般轻轻握了握拳头
+							PRINTFORML 「看来橙还是有胜算的呢！嘿嘿♪」
+							PRINTFORML 「要继续进攻了哦！看招看招～」
+							PRINTFORMDW 振奋的小猫妖重新跳到了半空中、开始了新一轮的弹幕进攻！
+						CASE 2
+							PRINTFORML 「好耶！击中了呢！」
+							PRINTFORML 「如果借着这个势头的话、说不定就能赢过%CALLNAME:MASTER%呢！哼哼～」
+							PRINTFORMDW 似乎是因为取得了优势、小猫妖的尾巴似乎比起之前翘高了一点...
+						ENDSELECT
+					ENDIF
+				ELSE ;主角的战斗能力小于等于橙的
+					IF TCVAR:24:355 == 1 ;强化模式
+						SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「喵哇！力量好像使过头了！」
+							PRINTFORML 「呜...应该没有伤到%CALLNAME:MASTER%吧？」
+							PRINTFORMDL 虽然射到自己身上的弹幕看上去很唬人、但实际上只有轻轻的刺痛感
+							PRINTFORMDL 抬起脑袋、看见了小猫妖身后的九尾式神似乎在操作什么、应该是在控制弹幕的力量吧...
+							PRINTFORML 「看起来好像没有什么大碍呢、太好了...」
+							PRINTFORMW 「要是伤到%CALLNAME:MASTER%的话、橙可不好跟蓝大人解释了呢！」
+						CASE 1
+							PRINTFORML 「呜哇！感觉%CALLNAME:MASTER%根本躲不过去了...」
+							PRINTFORML 「蓝大人...橙会不会有些太欺负%CALLNAME:MASTER%了啊？」
+							PRINTFORMDL 似乎是觉得不妥、小猫妖有些迟疑地转头看着自己的主人
+							CALL CHARA_TEXT,[[蓝]],@"『这是%CALLNAME:MASTER%的要求哦、橙只要继续就行了』","L"
+							PRINTFORMW 「诶？这样嘛...那、%CALLNAME:MASTER%得快点做好下一轮的准备了哦！」
+						CASE 2
+							PRINTFORML 「呼啊～有些困了...」
+							PRINTFORMDL 看见%CALLNAME:MASTER%被弹幕击中、小猫妖停下了发射弹幕的动作、伸展着双臂打了个哈欠
+							CALL CHARA_TEXT,[[蓝]],@"『还不能大意哦、%CALLNAME:MASTER%还有机会赢呢』","L"
+							PRINTFORML 「呜...橙知道的啦...」
+							PRINTFORMDW 被提醒的橙不好意思地摸了摸自己的耳朵、重新做好了战斗的准备
+						ENDSELECT
+					ELSE
+						SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「打中%CALLNAME:MASTER%了呢！」
+							PRINTFORML 「接下来必须乘胜追击才行呢！嘿嘿～」
+							PRINTFORMDW 带着兴奋笑容的橙重新跳到半空中、开始发射新的弹幕
+						CASE 1
+							PRINTFORMDL 跟不上橙速度的%CALLNAME:MASTER%被迅速闪现的身影绕晕、一头撞上了小猫妖！
+							PRINTFORML 「呜哇...！痛痛痛...%CALLNAME:MASTER%突然撞上来做什么啦！」 
+							PRINTFORMW 「这样子可算%CALLNAME:MASTER%被弹了哦！哼！」
+						CASE 2
+							PRINTFORML 「哎呀、好像把%CALLNAME:MASTER%逼到死角了呢」
+							PRINTFORMDL 小猫妖一边在半空中旋转、一边看着%CALLNAME:MASTER%被迫中弹
+							PRINTFORMW 「对于%CALLNAME:MASTER%来说、已经做得很不错了哦」 
+						ENDSELECT
+					ENDIF
+				ENDIF
+			CASE 0
+				IF ABL:0:42 > ABL:24:42 ;主角的战斗能力大于橙的
+					IF TCVAR:24:355 == 1 ;强化模式 
+						PRINTFORMDL 只剩最后一个残机的%CALLNAME:MASTER%、被橙射出的弹幕团团围住、毫无退路
+						CALL CHARA_TEXT,[[蓝]],@"『%CALLNAME:MASTER%看起来已经输了呢』","L"
+						CALL CHARA_TEXT,[[蓝]],@"『橙、可以停手了哦』","L"
+						PRINTFORMDL 随着九尾式神的命令、小猫妖的弹幕也停了下来
+						PRINTFORMDW 看着弹幕在近在咫尺的地方停下、%CALLNAME:MASTER%不由得舒了口气  
+					ELSE
+						PRINTFORML 「只差一点...就能打中%CALLNAME:MASTER%了！」
+						PRINTFORMDL biu～——
+						PRINTFORMDW 在弹幕最终击中%CALLNAME:MASTER%的那一刻、小猫妖也无力地坐到了地上...
+					ENDIF
+				ELSE ;主角的战斗能力小于等于橙的
+					IF TCVAR:24:355 == 1 ;强化模式
+						PRINTFORML 「总觉得是橙在欺负%CALLNAME:MASTER%了呢...」
+						PRINTFORMW 「应该算不上欺负%CALLNAME:MASTER%吧？呜...」
+					ELSE
+						PRINTFORML 「好像把%CALLNAME:MASTER%打败了呢...」
+						PRINTFORMW 「下回要更努力地练习弹幕、才有机会打败橙的哦！」
+					ENDIF
+				ENDIF
+		ENDSELECT
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 被弹时口上
+	;-------------------------------------------------
+	IF ARGS == "被弾" 
+		;此处可填写通用文本
+
+		SELECTCASE 对手残机
+			;拥有【洽览深识】时，会存在残机3的情况
+			CASE 3
+				IF TCVAR:24:355 == 1 ;强化模式
+						
+				ELSE
+						
+				ENDIF 
+			CASE 2
+				IF TCVAR:24:355 == 1 ;强化模式 
+					PRINTFORML 「鬼符「青鬼赤鬼」！」
+					PRINTFORMDL 橙从身侧交替射出了赤色与青色交汇的大玉、在朝下坠落的同时朝%CALLNAME:MASTER%的位置放出了数不清的弹幕雨
+					PRINTFORMDW 看清弹幕中的缝隙来回穿行、再从空隙中锁定小猫妖举手施法的身影、迅速发起了反击！
+					PRINTFORML 「呜哇！」
+					PRINTFORMDL 被击中额头的橙下意识捂住了脑袋、停下了弹幕
+					PRINTFORML 「呜...才刚刚开始哦！蓝大人不要担心喵！」
+					PRINTFORMDW 小猫妖转头看了一眼自己的主人、一转身又重新跳到了半空中
+				ELSE
+					PRINTFORML 「仙符「凤凰展翅」！」
+					PRINTFORMDL 橙丢出如同鸟蛋般的光球、裂开后变成了圈状的弹幕、成排成排地朝%CALLNAME:MASTER%袭来
+					PRINTFORMDW 虽然名字叫「凤凰展翅」、但是除了弹幕数量、似乎和橙平时用的「凤凰卵」好像也没有太大的区别...
+					PRINTFORMDL 记住弹幕方向轻松躲避的%CALLNAME:MASTER%、迅速找到了还在抛丢光球的橙、射出了反击的弹幕
+					PRINTFORML 「哇呀！被打中了喵...」
+					PRINTFORMW 「呼、不过、还只是刚刚开始而已哦！%CALLNAME:MASTER%不要太得意了呢！」 					
+				ENDIF
+			CASE 1
+				IF TCVAR:24:355 == 1 ;强化模式 
+					PRINTFORML 「星符「交错的鳞片」！」
+					PRINTFORMDL 橙开始在半空来回折返盘旋、形成了三角形的交叠弹幕、如同鳞片般层层交织着、让人一时间有了看见龙的错觉呢
+					PRINTFORMDW 稍稍欣赏了一下美丽的弹幕、%CALLNAME:MASTER%就立马反应过来、朝着左右两侧躲避着层层下压的弹幕
+					PRINTFORMDL 如此一次次反复、%CALLNAME:MASTER%终于在橙一次稍慢的折返中抓住了破绽、丢出弹幕击中了她
+					PRINTFORML 「喵咿呀...！」
+					PRINTFORMDW 因为受击而失去平衡的小猫妖从半空中摔了下来、滚动着落到了地上
+					PRINTFORML 「呜哇...橙没事哦！还有一次机会呢！」
+					PRINTFORMDW 回应着身后蓝大人担心的视线、橙迅速翻起身子、重新做好了准备 
+				ELSE
+					PRINTFORML 「阴阳「晴明大纹」！」
+					PRINTFORMDL 橙迅速在空中画出了五角星的轨迹、随后从五个角的位置发出了一圈圈的双色弹幕
+					PRINTFORMDW 无数的鳞状弹幕和小玉组成了稠密的弹幕网、封锁着%CALLNAME:MASTER%的路线
+					PRINTFORMDL 好在弹幕速度稍缓、%CALLNAME:MASTER%朝后躲避、直到弹幕出现较大的空隙再穿过封锁
+					PRINTFORMDL 在一次次的躲避后、朝着停下弹幕的小猫妖、投出了代表击破的弹幕
+					PRINTFORML 「呜呀喵哇...！呜呜...」
+					PRINTFORMDL 被击中的小猫妖旋转着掉到了地上、眼睛冒出了小星星...
+					PRINTFORML 「...呼哇！不行！橙还没有输哦！哼！」
+					PRINTFORMDW 重新拍了拍脑袋、橙又继续投身弹幕对战之中						
+				ENDIF
+			CASE 0
+				IF TCVAR:24:355 == 1 ;强化模式 
+					PRINTFORML 「呜哇...看来橙要使出最后的符卡了哦！」
+					PRINTFORMDL 小猫妖高高举起了手指朝向天空、准备着宣言符卡——
+					CALL CHARA_TEXT,[[蓝]],@"『式神「橙」！』","L"
+					PRINTFORMDL 放出符卡的不是开始旋转的小猫妖、而是她身后的九尾式神
+					CALL CHARA_TEXT,[[蓝]],@"『哎呀、%CALLNAME:MASTER%不要误会了呢』","L"
+					CALL CHARA_TEXT,[[蓝]],@"『这只是我暂时借给橙的符卡而已呢』","L"
+					PRINTFORMDW 蓝一边朝%CALLNAME:MASTER%解释着、一边操控着橙在%CALLNAME:MASTER%周围如同弹球般来回移动起来
+					PRINTFORMDL 在发射的弹幕与橙的体术形成的双重压制下、%CALLNAME:MASTER%保持着灵活的水平机动、躲出了包围圈
+					PRINTFORMDL 随后在橙到达边角的一瞬间、迅速投出了决胜的弹幕、结实地击中了停顿下来的小猫妖
+					PRINTFORML 「呜哇哇哇...不行了喵...」
+					PRINTFORMDL 橙捂着额头、一屁股摔到了地上、身上的力量也一下子消散了
+					PRINTFORMW 「即使有蓝大人的力量也输掉了喵...呜呜...蓝大人对不起...」    
+				ELSE
+					PRINTFORML 「喵哇啊啊！橙要使出最后的符卡啦！」
+					PRINTFORML 「怪猫「橙」！喵呀呀呀呀呀～——！！！」 
+					PRINTFORMDL 带着最后一搏般的坚决语气、橙突然开始高速扑向了%CALLNAME:MASTER%！
+					PRINTFORMDW 突如其来的迅速体术攻击、要是没有瞬间的反应估计就要被撞倒了吧...
+					PRINTFORMDL 但是掌握时间停止的%CALLNAME:MASTER%来说、要做出这种反应还是相对轻松的呢
+					PRINTFORMDL 扭身躲过橙的突袭、%CALLNAME:MASTER%把手伸向还在向前冲刺的橙的背后、拽住了她的尾巴 
+					PRINTFORML 「呜咿喵呀呀～——！！！呜呜哇...好痛喵...」
+					PRINTFORMDL 捂着屁股停下来的小猫妖、眼角似乎都痛得冒出了泪花...
+					PRINTFORMW 「呜呜...%CALLNAME:MASTER%也太过分了喵...明明都输掉了、就不要故意扯尾巴啦...」
+				ENDIF
+		ENDSELECT
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【残忍酷薄】发动
+	; 【残忍酷薄】效果：MASTER从被弹中恢复时BOMB数-1
+	; 50%的概率会被道具 三滴之天粒 无效化
+	;-------------------------------------------------
+	IF ARGS == "残忍酷薄"
+		
+		; PRINTFORML 
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【乾坤一掷】发动
+	; 如果开启DLC 胖次决斗 ，这里也会成为技能【蓝！白！碗！】【调教时间！】【透明人间】发动时 的内容。时点先于普通决斗时的【乾坤一掷】
+	; 【乾坤一掷】效果：使TARGET的骰子值提升
+	;-------------------------------------------------
+	IF ARGS == "乾坤一擲"
+		IF TCVAR:24:355 == 1 ;强化模式
+			PRINTFORML 			
+		ELSE
+			PRINTFORML 
+		ENDIF 
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【怪力乱神】发动
+	; 【怪力乱神】效果：如果两方骰子差小于一定值，就能够化解MASTER的攻击，避免掉残
+	; 地文：MASTER放出的弹幕，在击中TARGET的瞬间之前消散了！
+	;-------------------------------------------------
+	IF ARGS == "怪力乱神"
+		
+	ENDIF
+	;-------------------------------------------------
+	;战斗后
+	; 如果是 MASTER 第一次击败 TARGET （此处用 !CFLAG:弾幕勝負勝利 && 相手残機 == 0 进行表示），
+	; 或者是 ABL:MASTER:戰鬥能力 < ABL:TARGET:戰鬥能力 ，COMF中都会有数值的BONUS
+	; 委托12【想要制裁某人！】也会调用这里的内容
+	;-------------------------------------------------
+	IF ARGS == "戦闘後" 
+
+		;拥有技能【洽览深识】会导致残机为4的情况
+		;残机剩余1以上就是 MASTER挑战失败，剩余0则为挑战成功
+		SELECTCASE 对手残机
+			CASE 4,3,2,1 ;橙胜利的情况
+				IF TCVAR:24:355 == 1 ;强化模式
+					IF CFLAG:24:1300 > 5 ;连败5次以上
+						PRINTFORMW 「呼喵...终于...赢回来了喵...呜哇哇...！」
+						PRINTFORMDL 收起弹幕的橙、带着挂着泪花的笑容落到了地上、被九尾式神稳稳的接住了
+						PRINTFORMW 「蓝大人...谢谢蓝大人...橙终于赢了喵...吸——...」
+						CALL CHARA_TEXT,[[蓝]],@"『嗯嗯、我家的橙做得很不错哦、呼呼～』","W"
+						PRINTFORMDW 蓝抱着抹着眼泪的小猫妖庆祝似的转了好几圈、最后才走到了%CALLNAME:MASTER%面前
+						CALL CHARA_TEXT,[[蓝]],@"『%CALLNAME:MASTER%的话...希望之后不要再继续抓着橙欺负了哦』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『如果觉得自己的实力变强了的话、应该去找更厉害的对手去对战吧？』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『不管是我还是紫大人、都随时等候%CALLNAME:MASTER%的挑战哦』","W"
+						PRINTFORMDW 身为败者的%CALLNAME:MASTER%、默默地听着蓝的话点着头...
+						PRINTL
+						CFLAG:24:1300 = 0  
+					ELSEIF CFLAG:24:1300 > 3 ;连败3次以上
+						PRINTFORMW 「呼嘿嘿...这回是橙赢了哦！」
+						PRINTFORMW 「虽然借了蓝大人的力量才打赢...但是%CALLNAME:MASTER%之前都赢了那么多回了、所以抵消掉也没问题吧！嘿嘿♪」
+						PRINTFORMDW 被%CALLNAME:MASTER%击败多次、终于取得胜利的小猫妖、露出了比平时都灿烂的笑容...
+						CALL CHARA_TEXT,[[蓝]],@"『哎呀、橙居然能因为击败%CALLNAME:MASTER%而这么高兴呢...』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『或许之后、我应该多来帮帮忙？开玩笑的啦～』","W"
+						PRINTFORMDW 在稍显快活的氛围下、即使是战败的%CALLNAME:MASTER%也感觉到有些高兴呢
+						PRINTL  
+						CFLAG:24:1300 = 0
+					ELSEIF CFLAG:24:930 ;输过了
+						PRINTFORMW 「呼呼～这回是橙赢了哦！」
+						PRINTFORMW 「虽然借了一下蓝大人的力量...但是橙也在好好地努力哦！」
+						CALL CHARA_TEXT,[[蓝]],@"『虽然这回是有些不公平...但是对于%CALLNAME:MASTER%来说、也是提醒吧？』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『也许%CALLNAME:MASTER%该以更高的目标要求一下自己了呢、只是赢过平时的橙的程度可远远不够哦』","W"
+						PRINTL 
+						CFLAG:24:1300 = 0	
+					ELSE
+						PRINTFORMW 「这回是橙赢了哦！嘿嘿...」
+						PRINTFORMW 「虽然被蓝大人强化过后、总觉得有些太欺负%CALLNAME:MASTER%了呢...」
+						CALL CHARA_TEXT,[[蓝]],@"『虽然这回是有些不公平...但是对于%CALLNAME:MASTER%来说、也是提醒吧？』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『在幻想乡、至少也得多锻炼一下战斗的本领才行呢』","W"
+						PRINTL
+						CFLAG:24:1300 = 0
+					ENDIF 			
+				ELSE
+					IF CFLAG:24:1300 > 5 ;连败5次以上
+						PRINTFORMW 「居然...真的赢过...%CALLNAME:MASTER%了？！」
+						PRINTFORMW 「橙还以为...橙会被%CALLNAME:MASTER%一直一直打败...然后...呜呜...」
+						PRINTFORMDW 终于取得胜利的小猫妖、却不知为何哭了起来...
+						PRINTFORMDW 赶紧蹲下去抱住了眼前的橙、轻轻拍着她的后背安慰起她、直到她主动从怀抱中钻了出来
+						PRINTFORMW 「嗯...谢谢%CALLNAME:MASTER%的抱抱啦...」
+						PRINTFORMW 「不过...还是希望%CALLNAME:MASTER%以后、不要总是找橙来欺负嘛...真是的...」
+						PRINTFORMW 「一直输的话、谁都会不高兴的哦！」
+						PRINTFORMDW 被站在身前的小猫妖轻轻敲着头顶轻声抱怨、%CALLNAME:MASTER%只能尴尬地笑了笑...
+						PRINTL
+						CFLAG:24:1300 = 0
+					ELSEIF CFLAG:24:1300 > 3 ;连败3次以上
+						PRINTFORMW 「呼哇...！真的赢了呢！呼嘿嘿～」
+						PRINTFORMW 「橙为了追上%CALLNAME:MASTER%、可是做了很久很久的准备呢！」
+						PRINTFORMDW 看着因为胜利而露出了比平时更加灿烂的笑容的小猫妖、%CALLNAME:MASTER%莫名觉得即使输掉也很不错呢...
+						PRINTL 
+						CFLAG:24:1300 = 0
+					ELSEIF CFLAG:24:930 ;输过了
+						PRINTFORMW 「诶嘿嘿...这回橙可是赢回来了呢！」
+						PRINTFORMW 「下回希望%CALLNAME:MASTER%也能赢回来哦！嘿嘿♪」
+						PRINTFORMDW 因为赢过了之前击败过自己的%CALLNAME:MASTER%、橙看起来很高兴呢...
+						CFLAG:24:1300 = 0
+					ELSE
+						PRINTFORMW 「是橙赢了哦！嘿嘿～」
+						PRINTFORMW 「看来是橙更厉害呢！」
+						CFLAG:24:1300 = 0
+					ENDIF
+				ENDIF 
+			CASE 0 ;主角胜利的情况
+				IF TCVAR:24:355 == 1 ;强化模式
+					IF CFLAG:24:1300 > 5 ;连败5次以上
+						PRINTFORMW 「怎么会...明明都这么努力了...还有蓝大人帮忙...橙也...」
+						PRINTFORMW 「呜...呜呜...呜哇啊啊...！」
+						PRINTFORMDW 小猫妖把脑袋深深埋进了九尾式神的尾巴里、止不住地哭了起来...
+						CALL CHARA_TEXT,[[蓝]],@"『哎呀哎呀、这可真是...』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『好了好了、不哭了哦～乖～』","W"
+						PRINTFORMDW 露出意外表情的蓝、用尾巴把身后的橙运到了怀里、紧紧抱住安慰起来
+						PRINTFORMDW 直到小猫妖慢慢停下哭泣、九尾式神才慢慢把她放到地上、转头走到%CALLNAME:MASTER%跟前
+						CALL CHARA_TEXT,[[蓝]],@"『%CALLNAME:MASTER%...之后不要再继续抓着橙欺负了哦』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『如果觉得自己的实力变强了的话、应该去找更厉害的对手去对战吧？』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『不管是我还是紫大人、都随时等候%CALLNAME:MASTER%的挑战呢...』","W"
+						PRINTFORMDW 在话语结尾的一瞬间、似乎从蓝的眼中看见了微妙的危险眼神...不过下一瞬就消失不见了
+						CALL CHARA_TEXT,[[蓝]],@"『...不过说到底、这也是“不公平”的战斗啊』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『所以说、给%CALLNAME:MASTER%奖励这件事、还是不能忘记的呢』","W"
+						PRINTL
+						PRINTFORMDW 从蓝手里获得了胜利的奖金！
+						PRINTFORMDW 因为取得胜利、战斗经验的获取提高了！
+						EXP:24:74 += 3
+						EXP:0:74 += 3
+						MONEY += 3000
+						CFLAG:24:1300 += 1 
+					ELSEIF CFLAG:24:1300 > 3 ;连败3次以上
+						PRINTFORMW 「呼哇...居然在有蓝大人帮忙的时候也输掉了...」
+						PRINTFORMW 「呜...明明都那么努力了的...」
+						PRINTFORMDW 小猫妖郁闷地坐在地上、把脑袋深深埋进了膝盖里面...
+						CALL CHARA_TEXT,[[蓝]],@"『呼呼～橙这回已经做得很不错了哦』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『再多锻炼一下的话、下一回一定有胜算的哦！』","W"
+						PRINTFORMDW 看着俯下身去安慰着橙的九尾式神、有些过意不去的%CALLNAME:MASTER%也一起安慰小猫妖
+						PRINTFORMW 「唔嗯...吸——...谢谢喵...」
+						PRINTFORMW 「%CALLNAME:MASTER%...下一回、橙一定会赢的哦！哼！」
+						PRINTFORMDW 在安慰下、小猫妖才慢慢恢复了元气的样子...
+						CALL CHARA_TEXT,[[蓝]],@"『呼啊...虽然是“不公平”的战斗、对%CALLNAME:MASTER%来说也很简单呢、都有些希望手下留情了...』","W"
+						CALL CHARA_TEXT,[[蓝]],@"『虽然这么说、但是还是得给%CALLNAME:MASTER%奖励呢』","W"
+						PRINTL
+						PRINTFORMDW 从蓝手里获得了胜利的奖金！
+						PRINTFORMDW 因为取得胜利、战斗经验的获取提高了！
+						EXP:24:74 += 3
+						EXP:0:74 += 3
+						MONEY += 3000
+						CFLAG:24:1300 += 1 
+					ELSEIF CFLAG:24:930 ;输过了
+						PRINTFORMW 「呜哇...即使有蓝大人帮忙、这一次也输掉了呢...」
+						PRINTFORMW 「%CALLNAME:MASTER%也太厉害了吧...总觉得要心服口服了喵...」
+						IF STRCOUNT(CSTR:24:0, "初次触发强化模式")
+							CALL CHARA_TEXT,[[蓝]],@"『嗯...没想到%CALLNAME:MASTER%有这种实力、难怪敢接受呢』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『不过、既然赢了的话、就把橙的零花钱分给%CALLNAME:MASTER%作奖励吧？』","W"
+							PRINTFORMDW 认真的嘛...
+							CALL CHARA_TEXT,[[蓝]],@"『呼呼～当然是单独准备的奖金哦、就当做%CALLNAME:MASTER%帮忙训练橙的感谢金了』","W"
+						ELSE					
+							CALL CHARA_TEXT,[[蓝]],@"『看来对于%CALLNAME:MASTER%来说、这样“不公平”的战斗也很简单呢』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『那么、该给%CALLNAME:MASTER%奖励了呢』","W"
+						ENDIF
+						PRINTFORML
+						PRINTFORMDW 从蓝手里获得了胜利的奖金！
+						PRINTFORMDW 因为取得胜利、战斗经验的获取提高了！
+						EXP:24:74 += 3
+						EXP:0:74 += 3
+						MONEY += 3000
+						CFLAG:24:1300 += 1 
+					ELSE
+						PRINTFORMW 「呜...有蓝大人帮忙的橙、居然输掉了...」
+						PRINTFORMDW 小猫妖坐在地上、一副不敢相信的样子
+						IF STRCOUNT(CSTR:24:0, "初次触发强化模式")
+							CALL CHARA_TEXT,[[蓝]],@"『嗯...没想到%CALLNAME:MASTER%有这种实力、难怪敢接受呢』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『不过、既然赢了的话、就把橙的零花钱分给%CALLNAME:MASTER%作奖励吧？』","W"
+							PRINTFORMDW 认真的嘛...
+							CALL CHARA_TEXT,[[蓝]],@"『呼呼～当然是单独准备的奖金哦、就当做%CALLNAME:MASTER%帮忙训练橙的感谢金了』","W"
+						ELSE					
+							CALL CHARA_TEXT,[[蓝]],@"『看来对于%CALLNAME:MASTER%来说、这样“不公平”的战斗也很简单呢』","W"
+							CALL CHARA_TEXT,[[蓝]],@"『那么、该给%CALLNAME:MASTER%奖励了呢』","W"
+						ENDIF
+						PRINTL 
+						PRINTFORMDW 从蓝手里获得了胜利的奖金！
+						PRINTFORMDW 因为取得胜利、战斗经验的获取提高了！
+						EXP:24:74 += 3
+						EXP:0:74 += 3
+						MONEY += 3000
+						CFLAG:24:1300 += 1 
+					ENDIF 			
+				ELSE
+					IF CFLAG:24:1300 > 5 ;连败5次以上
+						PRINTFORMW 「呼喵...又输掉了啦...」
+						PRINTFORMW 「明明都为了和%CALLNAME:MASTER%战斗而专门训练过了的...呜呜...」
+						PRINTFORMDW 坐在地上的小猫妖低垂着脑袋、情绪似乎很低落...
+						TALENT:24:15 = -1
+						CFLAG:24:1300 += 1 
+					ELSEIF CFLAG:24:1300 > 3 ;连败3次以上
+						PRINTFORMW 「...果然又输了喵...」
+						PRINTFORMW 「%CALLNAME:MASTER%开心就好了哦...」
+						PRINTFORMDW 被%CALLNAME:MASTER%击败的橙、说完了话后就转头不搭理%CALLNAME:MASTER%了...
+						CFLAG:24:1300 += 1   
+					ELSEIF CFLAG:24:930 ;输过了
+						PRINTFORMW 「又输给%CALLNAME:MASTER%了喵...」
+						PRINTFORMW 「%CALLNAME:MASTER%真强呢！橙也要继续努力才行！」
+						PRINTFORMDW 似乎激起了橙的斗志呢...
+						CFLAG:24:1300 += 1 
+					ELSE
+						PRINTFORMW 「呜喵...输给%CALLNAME:MASTER%了...」
+						PRINTFORMW 「%CALLNAME:MASTER%真厉害啊...」
+						CFLAG:24:1300 += 1 
+					ENDIF
+				ENDIF 
+		ENDSELECT
+	ENDIF
+	RESETCOLOR
+ENDIF
+RETURN 1
+

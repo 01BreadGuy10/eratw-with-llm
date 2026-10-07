@@ -1,0 +1,114 @@
+﻿@SAMEROOM(ARG,ARG:1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#FUNCTION
+SIF ARG < 0 || ARG >= CHARANUM
+	RETURNF 0
+SIF ARG:1 < 0 || ARG:1 >= CHARANUM
+	RETURNF 0
+ARG:1 = ARG:1 ? ARG:1 # TARGET
+SIF CFLAG:ARG:現在位置 == CFLAG:(ARG:1):現在位置
+	RETURNF 1
+
+;calls the appropriate M_KOJO_K function for ARG
+@KOJO_ACTIVE_INFO(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RESULT = 0
+RESULTS =
+IF CFLAG:ARG:口上セレクタ
+    TRYCALLFORM M_KOJO_K{NO:ARG}_{CFLAG:ARG:口上セレクタ}
+ELSE
+    TRYCALLFORM M_KOJO_K{NO:ARG}
+ENDIF
+SIF RESULTS:1 == ""
+	RESULTS:1 = 初始
+;缓存口上标识符，供#FUNCTION函数（如ALCOHOL_TASTE）构造口上侧函数名
+SIF INRANGE(ARG, 0, 人物数量上限 - 1)
+	KOJO_ACTIVE_NAME:ARG = %RESULTS%
+RETURN RESULT
+
+;-------------------------------------------------
+;#FUNCTION函数用的口上侧FUNCCHECK接口调用
+;在#FUNCTION中无法CALL KOJO_CHECK时，使用本函数通过GETMETH直接调用口上侧#FUNCTION接口
+;参  数	CHARA = 角色编号（运行时编号）
+;		SUBTYPE = 接口子类型字符串（如 "ALCOHOL_TASTE"）
+;		ARG/ARG:1 = 传给口上侧接口的整数参数（ARG为内置参数数组，无需#DIM）
+;返回值	口上侧接口的RETURNF值；接口不存在时返回0
+;条  件	口上侧接口必须是#FUNCTION函数
+;		命名格式：M_KOJO{标识符}_FUNCCHECK_K{NO}_{SUBTYPE}
+;备  注	调用前会自动重置KOJO_FUNCCHECK_OP数组；
+;		口上侧可通过设置KOJO_FUNCCHECK_OP改变返回值语义或传递额外参数
+;-------------------------------------------------
+@KOJO_FUNCCHECK(CHARA, SUBTYPE, ARG, ARG:1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#FUNCTION
+#DIM DYNAMIC CHARA
+#DIMS DYNAMIC SUBTYPE
+VARSET KOJO_FUNCCHECK_OP
+SIF !INRANGE(CHARA, 0, 人物数量上限 - 1)
+	RETURNF 0
+RETURNF GETMETH(@"M_KOJO%KOJO_ACTIVE_NAME:CHARA%_FUNCCHECK_K{NO:CHARA}_%SUBTYPE%", 0, , ARG, ARG:1)
+
+;searches for currently used dialogue and sets the character's color
+@SET_KOJO_COLOR(ARG = -1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+RESETCOLOR
+SIF !FLAG:口上色
+	RETURN
+SIF ARG == -1
+	ARG = TARGET
+	
+IF ARG == RANDOM_CHARANUM
+	SETCOLOR CFLAG:ARG:1000
+ELSE
+	CALL KOJO_ACTIVE_INFO(ARG)
+	TRYCALLFORM M_KOJO%RESULTS%_COLOR_K{NO:ARG}
+ENDIF
+
+;qol，获得代表色
+@GET_KOJO_COLOR(ARG = -1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#FUNCTION
+SIF ARG == -1
+	ARG = TARGET
+IF INRANGE(ARG, 1, CHARANUM - 1)
+	RETURNF QOL_KOJO_COLOR:ARG:0
+ELSEIF ARG == RANDOM_CHARANUM
+	RETURNF CFLAG:ARG:1000
+ELSE
+	RETURNF GETCOLOR()
+ENDIF
+
+;handles the calls to the KOJO message for secondary characters for commands involving multiple people
+;the exact number of participants is to be determined by the individual commands
+;to prevent a message being sent to secondary characters (such as when a dialogue provides text for all participants), TFLAG:SKIPASSIKOJO can be set, which will skip this
+@SEND_ASSISTANT_KOJO
+#LOCALSIZE 1
+#LOCALSSIZE 1
+IF TFLAG:50
+	LOCAL = TFLAG:50
+	LOCALS = SCOM
+ELSE
+	LOCAL = SELECTCOM
+	LOCALS = COM
+ENDIF
+IF TFLAG:50 && TFLAG:50 == ADD_CUSTOM_SCOM
+	LOCAL = ADD_SELECTED_SCOM
+	LOCALS = CUSTOM_SCOM
+ELSEIF SELECTCOM == ADD_CUSTOM_COM
+	LOCAL = ADD_SELECTCUSTOMCOM
+	LOCALS = CUSTOM_COM
+ENDIF
+
+TRYCALLFORM ASSISTANT_KOJO_%LOCALS%{LOCAL}
+
+@KOJO_CHECK(CHARA, ARGS, ARGS:1, ARG, ARG:1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIM CHARA
+CALL KOJO_MESSAGE_SEND("CHECK", 0, CHARA, ARG, ARG:1, ARGS, ARGS:1)
+RETURN RESULT

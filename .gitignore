@@ -1,0 +1,30 @@
+﻿/.project
+.trae/
+*.config
+/sav
+chara_*.dat
+*.sav
+/debug
+*.log
+*.bak
+*.orig
+/.vscode
+setting.json
+profile
+lazyloading.dat
+lazyloadingfiles.dat
+lazyloading.bin
+lazyloadingfiles.bin
+[Tt]emp/
+eratw-sub-modding.wiki/
+
+; ── ★ 敏感文件（2026-09-27 加）—— API key 绝不能进仓库 ──
+plugins/LLMBridge/apis.txt
+plugins/LLMBridge/*.local_backup_*
+; ── 编译产物 ──
+obj/
+bin/
+*.user
+*.suo
+plugins/LLMBridge/config.txt
+plugins/LLMBridge.dll

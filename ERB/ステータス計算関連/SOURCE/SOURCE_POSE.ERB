@@ -1,0 +1,216 @@
+;────────────────────────────────────
+;愛撫、性交等の継続、解除、処理
+;────────────────────────────────────
+@SHOW_TOUCH
+CALL ADD_SHOW_TOUCH_TR
+RETURN
+;(1=阴茎 2=阴蒂 3=指 4=口 5=胸 6=膣 7=肛門 8=足)
+FOR LOCAL, 1, GET_TARGETNUM() + 1
+	SIF TARGET:LOCAL <= 0
+		CONTINUE
+	SIF !CFLAG:(TARGET:LOCAL):うふふ ;qol custom code, only for those involved in sex
+		CONTINUE
+	SELECTCASE TEQUIP:(TARGET:LOCAL):Ｐ接触部位
+		CASE 3
+			PRINT 给对方手淫 
+		CASE 4
+			PRINT 给对方口交 
+		CASE 6
+			PRINT 逆强奸 
+		CASE 7
+			PRINT 逆肛交 
+		CASE 8
+			PRINT 给对方足交 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):Ｃ接触部位
+		CASE 1
+			PRINT 素股 
+		CASE 3
+			PRINT 阴蒂爱抚 
+		CASE 4
+			PRINT 舐阴 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):指接触部位
+		CASE 1
+			PRINT 手淫 
+		CASE 5
+			PRINT 揉胸 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):口接触部位
+		CASE 1
+			PRINT 口交 
+		CASE 2
+			PRINT 舐阴
+		CASE 4
+			PRINT 接吻 
+		CASE 7
+			PRINT 肛门侍奉 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):Ｂ接触部位
+		CASE 1
+			PRINT 乳交 
+		CASE 3
+			PRINT 胸爱抚 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):Ｖ接触部位
+		CASE 1
+			PRINT 性交 
+		CASE 3
+			PRINT 指插入 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):Ａ接触部位
+		CASE 1
+			PRINT 肛门性交 
+		CASE 3
+			PRINT 肛门爱抚 
+		CASE 4
+			PRINT 舐肛 
+	ENDSELECT
+	SELECTCASE TEQUIP:(TARGET:LOCAL):足接触部位
+		CASE 1
+			PRINT 足交 
+	ENDSELECT
+	PRINTFORML (%CALLNAME:(TARGET:LOCAL)%)
+NEXT
+PRINTL
+
+
+;MASTERとTARGETの接触部位を設定する
+@TOUCH_SET(ARG,ARG:1,ARG:2,ARG:3)
+;ARG TARGETの接触部位(101=阴茎 102=阴蒂 103=指 104=口 105=胸 106=膣 107=肛門 108=足)
+;ARG:1 MASTERの接触部位(1=阴茎 2=阴蒂 3=指 4=口 5=胸 6=膣 7=肛門 8=足)
+;ARG:2 対象の角色番号
+;ARG:3 真ならリセットする
+;addition custom code
+CALL ADD_TOUCH_SET_TR(PLAYER, ARG-100,ARG:1,ARG:2,,ARG:3)
+RETURN
+
+VARSET LOCAL
+
+IF ARG:3
+	FOR LOCAL,1,CHARANUM
+		FOR LOCAL:1,1,10 ;custom code, cancel armpitjobs too
+		;COM60~70の場合、口はリセットしない
+			SIF LOCAL == ARG:2 && LOCAL:1 == 4 && TFLAG:3 >= 60 && TFLAG:3 <= 70
+				CONTINUE
+			TEQUIP:LOCAL:(100 + LOCAL:1) = 0
+		NEXT
+		;ついでに体位もリセット
+		TEQUIP:LOCAL:体位 = 0
+	NEXT
+ENDIF
+SIF ARG <= 100
+	RETURN 0
+FOR LOCAL,1,CHARANUM
+	FOR LOCAL:1,1,9
+		SIF TEQUIP:LOCAL:(100 + LOCAL:1) == ARG:1
+			TEQUIP:LOCAL:(100 + LOCAL:1) = 0
+	NEXT
+NEXT
+TEQUIP:(ARG:2):ARG = ARG:1
+;継続系指令を解除
+
+IF MASTER_POSE(SET_M,SET_M) != ARG:2 && TEQUIP:(ARG:2):継続接吻 && SELECTCOM != 0
+	FOR LOCAL,1,CHARANUM
+		TEQUIP:LOCAL:継続接吻 = 0
+	NEXT
+	PRINTL ＜接吻解除＞
+ENDIF
+
+IF MASTER_POSE(SET_B,SET_YUBI) != ARG:2 && TEQUIP:(ARG:2):揉胸
+	FOR LOCAL,1,CHARANUM
+		TEQUIP:LOCAL:揉胸 = 0
+	NEXT
+	PRINTL ＜揉胸解除＞
+ENDIF
+
+IF MASTER_POSE(SET_B,SET_M) != ARG:2 && TEQUIP:(ARG:2):吸乳头 && SELECTCOM != 6 && SELECTCOM != 12
+	FOR LOCAL,1,CHARANUM
+		TEQUIP:LOCAL:吸乳头 = 0
+	NEXT
+	PRINTL ＜吸乳头解除＞
+ENDIF
+
+
+;MASTERの接触部位をリセットする
+@TOUCH_RESET_M(ARG)
+;addition custom code
+CALL ADD_TOUCH_RESET_M_TR(ARG, PLAYER)
+RETURN
+;ARG MASTERの接触部位(1=阴茎 2=阴蒂 3=指 4=口 5=胸 6=膣 7=肛門 8=足)
+FOR LOCAL, 1, GET_TARGETNUM() + 1
+	SIF TARGET:LOCAL <= 0
+		CONTINUE
+	FOR LOCAL:1,1,10 ;custom code, cancel armpitjobs too
+		SIF TEQUIP:(TARGET:LOCAL):(100 + LOCAL:1) == ARG
+				TEQUIP:(TARGET:LOCAL):(100 + LOCAL:1) = 0
+	NEXT
+NEXT
+
+;TARGETの接触部位をリセットする
+@TOUCH_RESET_T(ARG)
+;addition custom code
+CALL ADD_TOUCH_RESET_T_TR(ARG)
+RETURN
+FOR LOCAL,1,10 ;custom code, cancel armpitjobs too
+	TEQUIP:ARG:(100 + LOCAL) = 0
+NEXT
+SIF TEQUIP:ARG:体位 > 0
+	TEQUIP:ARG:体位 = 0
+SIF TEQUIP:MASTER:体位 > 0
+	TEQUIP:MASTER:体位 = 0
+@MASTER_POSE(ARG,ARG:1,ARG:2)
+;ARG MASTER的部位被TARGET:X的哪个部位占据(1=阴茎 2=阴蒂 3=手指 4=口 5=胸 6=阴道 7=肛门 8=足)
+;ARG 0的话返回是谁占据着
+;ARG:1 MASTER的部位(1=阴茎 2=阴蒂 3=手指 4=口 5=胸 6=阴道 7=肛门 8=足)
+;ARG:2 真则查看前一回合的履历
+;返回值 如果有TARGET:X占据着MASTER的部位，则返回该角色编号
+;MASTER_POSE(SET_M,SET_P,1) 如果前一回合(第3个参数)有人用嘴(第1个参数)占据着MASTER的阴茎(第2个参数)，则返回该角色编号
+;ARG返回接触MASTER的ARG:1的角色
+
+#FUNCTION
+;addition custom code
+RETURNF ADD_MASTER_POSE_TR(PLAYER, ARG, ARG:1, ARG:2)
+VARSET LOCAL
+IF !ARG
+	FOR LOCAL,1,CHARANUM
+		SIF CFLAG:LOCAL:現在位置 != CFLAG:MASTER:現在位置
+			CONTINUE
+		FOR LOCAL:1,1,9
+			SIF TEQUIP:LOCAL:(100 + LOCAL:1) == ARG:1
+				RETURNF LOCAL
+		NEXT
+	NEXT
+ENDIF
+ARG:2 = ARG:2 ? 1 # 0
+FOR LOCAL, 1, GET_TARGETNUM() + 1
+	SIF TARGET:LOCAL <= 0
+		CONTINUE
+	SIF TEQUIP:(TARGET:LOCAL):(100 + ARG + 10 * ARG:2) == ARG:1
+		RETURNF TARGET:LOCAL
+NEXT
+
+
+@插入解除(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;addition custom code
+CALL ADD_挿入解除_TR(ARG)
+RETURN
+SIF TEQUIP:ARG:Ｖ接触部位 == 1
+	TEQUIP:ARG:Ｖ接触部位 = 0
+SIF TEQUIP:ARG:Ａ接触部位 == 1
+	TEQUIP:ARG:Ａ接触部位 = 0
+TEQUIP:ARG:Ｃ接触部位 = 0
+TEQUIP:ARG:Ｐ接触部位 = 0
+TEQUIP:ARG:口接触部位 = 0
+TEQUIP:ARG:Ｖ性交 = -1
+TEQUIP:ARG:Ａ性交 = -1
+TEQUIP:ARG:体位 = 0
+TCVAR:ARG:誤爆挿入フラグ = 0
+@挿入解除(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;addition custom code
+CALL 插入解除(ARG)
+RETURN

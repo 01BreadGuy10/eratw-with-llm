@@ -1,0 +1,206 @@
+﻿@EXIST_FreeAct8
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+;オブジェクト本体
+@FFreeAct8(ARG, O_DATA, V_NAME)
+#FUNCTIONS
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#DIMS O_DATA
+#DIMS V_NAME
+#DIM 経過時間
+経過時間 = Activity_Duration:TARGET
+SELECTCASE O_DATA
+;陪同行動指令の名称
+CASE "名前"
+	IF TALENT:ARG:音楽知識 == 1
+		RETURNF "协同合奏"
+	ELSE
+		RETURNF "进行伴奏"
+	ENDIF
+CASE "CHAIN"
+;他角色に連鎖しない場合コメントアウトすること
+	RETURNF @"{1}"
+CASE "経過時間"
+;陪同行動指令での経過時間
+;0だと30分か残り時間全部の小さい方
+	RETURNF @"{0}"
+ENDSELECT
+
+@自由行動内容_8(CHARA, ARGS, 時間係数, CHAIN)
+#DIM CHARA
+#DIM CHAIN
+#DIM 現在地
+#DIM メッセージ表示
+#DIM 時間係数
+#DIM 経過時間
+現在地 = CFLAG:CHARA:現在位置
+メッセージ表示 = 現在地 == CFLAG:MASTER:現在位置 ? 1 # 0
+SELECTCASE ARGS
+	CASE "発生"
+		;［音楽知識］持ちの角色が訓練できる場所にいる時
+		SIF !TALENT:CHARA:音楽知識
+			RETURN 0
+		SIF !戦闘訓練可(現在地)
+			RETURN 0
+		SIF BASE:CHARA:気力 <= MAXBASE:CHARA:気力 / 2
+			RETURN 0
+		IF メッセージ表示
+			IF CHAIN
+				SELECTCASE TALENT:CHAIN:音楽知識
+				CASE 1
+					SELECTCASE TALENT:CHARA:音楽知識
+					CASE 1
+						PRINTFORMW %CALLNAME:CHARA%开始和%CALLNAME:CHAIN%一起合奏了。
+					CASE 2
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的演奏开始唱歌了。
+					CASE 3
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的演奏开始跳舞了。
+					ENDSELECT
+				CASE 2
+					SELECTCASE TALENT:CHARA:音楽知識
+					CASE 1
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的歌声开始演奏起来了
+					CASE 2
+						PRINTFORMW %CALLNAME:CHARA%担任起%CALLNAME:CHAIN%的和声了。
+					CASE 3
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的歌声开始跳舞了。
+					ENDSELECT
+				CASE 3
+					SELECTCASE TALENT:CHARA:音楽知識
+					CASE 1
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的舞蹈开始演奏了。
+					CASE 2
+						PRINTFORMW %CALLNAME:CHARA%配合着%CALLNAME:CHAIN%的舞蹈开始唱歌了。
+					CASE 3
+						PRINTFORMW %CALLNAME:CHARA%和%CALLNAME:CHAIN%一起跳起舞来。
+					ENDSELECT
+				ENDSELECT
+			ELSE
+				SELECTCASE TALENT:CHARA:音楽知識
+				CASE 1
+					PRINTFORMW %CALLNAME:CHARA%缓缓地开始演奏起来。
+				CASE 2
+					PRINTFORMW %CALLNAME:CHARA%情不自禁地开始唱起歌来。
+				CASE 3
+					PRINTFORMW %CALLNAME:CHARA%飘飘然地开始跳起舞来。
+				ENDSELECT
+			ENDIF
+		ENDIF
+		RETURN 60 + RAND:30
+	CASE "行動中"
+		IF メッセージ表示
+			SELECTCASE TALENT:CHARA:音楽知識
+			CASE 1
+				PRINTFORMW %CALLNAME:CHARA%在畅快地演奏着。
+			CASE 2
+				PRINTFORMW %CALLNAME:CHARA%在自由自在地歌唱着。
+			CASE 3
+				PRINTFORMW %CALLNAME:CHARA%在华丽地舞蹈着。
+			ENDSELECT
+		ENDIF
+	CASE "完了"
+		SELECTCASE TALENT:CHARA:音楽知識
+		CASE 1
+			EXP:CHARA:演奏経験 += 1
+			SIF メッセージ表示
+				PRINTFORMW %CALLNAME:CHARA%结束了演奏后缓了缓气。
+		CASE 2
+			EXP:CHARA:歌唱経験 += 1
+			SIF メッセージ表示
+				PRINTFORMW %CALLNAME:CHARA%结束了歌唱后缓了缓气。
+		CASE 3
+			EXP:CHARA:舞踏経験 += 1
+			SIF メッセージ表示
+				PRINTFORMW %CALLNAME:CHARA%结束了舞蹈后缓了口气。
+		ENDSELECT
+	CASE "中断"
+		SELECTCASE TALENT:CHARA:音楽知識
+		CASE 1
+			EXP:CHARA:演奏経験 += 1
+		CASE 2
+			EXP:CHARA:歌唱経験 += 1
+		CASE 3
+			EXP:CHARA:舞踏経験 += 1
+		ENDSELECT
+	CASE "付き合う"
+		IF TFLAG:193 == -2
+			SELECTCASE TALENT:CHARA:音楽知識
+			CASE 1
+				PRINTFORML %CALLNAME:MASTER%因为没有可以用的乐器、只好呆呆地听着%CALLNAME:CHARA%的演奏…
+			CASE 2
+				PRINTFORML %CALLNAME:MASTER%因为没有可以用的乐器、只好呆呆地听着%CALLNAME:CHARA%的演唱…
+			CASE 3
+				PRINTFORML %CALLNAME:MASTER%因为没有可以用的乐器、只好呆呆地看着%CALLNAME:CHARA%的舞蹈…
+			ENDSELECT
+		ELSE
+			SELECTCASE TALENT:CHARA:音楽知識
+			CASE 1
+				PRINTFORML %CALLNAME:MASTER%和%CALLNAME:CHARA%一起合奏起来
+				IF TFLAG:193 > 0
+					PRINTFORML %CALLNAME:CHARA%兴致勃勃地演奏着…
+				ELSEIF TFLAG:193 < 0
+					PRINTFORML %CALLNAME:CHARA%露出了紧张的神色…
+				ELSE
+					PRINTFORML %CALLNAME:CHARA%发挥稳定地演奏着…
+				ENDIF
+			CASE 2
+				PRINTFORML %CALLNAME:MASTER%配合着%CALLNAME:CHARA%的歌声开始演奏起来
+				IF TFLAG:193 > 0
+					PRINTFORML %CALLNAME:CHARA%兴致勃勃地演唱着…
+				ELSEIF TFLAG:193 < 0
+					PRINTFORML %CALLNAME:CHARA%露出了紧张的神色…
+				ELSE
+					PRINTFORML %CALLNAME:CHARA%发挥稳定地演唱着…
+				ENDIF
+			CASE 3
+				PRINTFORML %CALLNAME:MASTER%配合着%CALLNAME:CHARA%的舞蹈开始演奏起来
+				IF TFLAG:193 > 0
+					PRINTFORML %CALLNAME:CHARA%兴致勃勃地跳着舞…
+				ELSEIF TFLAG:193 < 0
+					PRINTFORML %CALLNAME:CHARA%露出了紧张的神色…
+				ELSE
+					PRINTFORML %CALLNAME:CHARA%发挥稳定地跳着舞…
+				ENDIF
+			ENDSELECT
+		ENDIF
+	CASE "ソース"
+		IF !GROUPMATCH(1, MUSIC_ABLE(30), MUSIC_ABLE(31), MUSIC_ABLE(32), MUSIC_ABLE(33), MUSIC_ABLE(34), MUSIC_ABLE(35))
+			;楽器が使えないと見てるだけ
+			TFLAG:193 = -2
+			DOWNBASE:MASTER:気力 += 20 * 時間係数
+			DOWNBASE:CHARA:体力 += 10 * 時間係数
+			DOWNBASE:CHARA:気力 += 20 * 時間係数
+			SOURCE:CHARA:歓楽 = (50 + ((ABL:CHARA:親密 + ABL:MASTER:音楽技能) * 10)) * 時間係数
+		ELSE
+			DOWNBASE:MASTER:体力 += 40 * 時間係数
+			DOWNBASE:MASTER:気力 += 40 * 時間係数
+			DOWNBASE:CHARA:体力 += 20 * 時間係数
+			DOWNBASE:CHARA:気力 += 20 * 時間係数
+			SELECTCASE RAND:(10 + ABL:MASTER:音楽技能)
+			CASE 0
+				;失敗
+				TFLAG:193 = -1
+				SOURCE:CHARA:歓楽 = (100 + ((ABL:CHARA:親密 + ABL:MASTER:音楽技能) * 20)) * 時間係数
+			CASE 1 TO 9
+				;成功
+				SOURCE:CHARA:歓楽 = (150 + ((ABL:CHARA:親密 + ABL:MASTER:音楽技能) * 50)) * 時間係数
+				TFLAG:信頼度管理 = 1
+			CASEELSE
+				;音楽技能があるとその確率で大成功
+				TFLAG:193 = 1
+				SOURCE:CHARA:歓楽 = (200 + ((ABL:CHARA:親密 + ABL:MASTER:音楽技能) * 80)) * 時間係数
+				TFLAG:信頼度管理 = 2
+			ENDSELECT
+			;その場にいる他の角色にもソースが入る
+			FOR LOCAL, 1, GET_TARGETNUM() + 1
+				SIF TARGET:LOCAL == TARGET
+					CONTINUE
+				SIF !SHIRAHU(TARGET:LOCAL)
+					CONTINUE
+				SOURCE:(TARGET:LOCAL):歓楽 = ((150 + (50 * TFLAG:193)) + ((ABL:(TARGET:LOCAL):親密 + ABL:MASTER:音楽技能) * (50 + (30 * TFLAG:193)))) * 時間係数
+			NEXT
+			EXP:MASTER:演奏経験 ++
+		ENDIF
+ENDSELECT

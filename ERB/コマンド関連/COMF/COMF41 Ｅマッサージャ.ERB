@@ -1,0 +1,96 @@
+﻿;-------------------------------------------------
+;電動按摩棒
+;道具使用指令、レベル2
+;-------------------------------------------------
+@COM41
+;-------------------------------------------------
+;COM別FLAGの設定
+;-------------------------------------------------
+;行為者
+TCVAR:116 = PLAYER
+;奉仕快楽フラグ
+TCVAR:PLAYER:108 = 1
+
+;TARGETが扶她の場合には射精可能に
+CALL DECLARE_EJACULATION(TARGET, 射精場合_道具, 射精箇所_道具, PLAYER, CHARA_NONE, PLAYER, CHARA_NONE, 1000)
+;強度
+
+;-------------------------------------------------
+;ソース追加処理
+;-------------------------------------------------
+;消費体力、気力
+IF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	BASE:MASTER:TSP -= 150
+	SOURCE:快Ｃ = 500
+
+ELSE
+
+	DOWNBASE:体力 += 30
+	DOWNBASE:気力 += 120
+
+	SOURCE:快Ｃ = 500
+	SOURCE:露出 = 40
+	SOURCE:逸脱 = 60
+	SOURCE:反感 = 60
+
+	;-------------------------------------------------
+	;特殊ソース処理
+	;-------------------------------------------------
+	;圧抑、抵抗持ちには、抑鬱ソース追加
+	SIF TALENT:自己愛 < 0 || TALENT:抵抗
+		SOURCE:鬱屈 += 60
+ENDIF
+;-------------------------------------------------
+;経験の処理
+;-------------------------------------------------
+;同性愛　レズなら戻り値1ゲイなら戻り値2
+IF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	IF HETEROSEX(TARGET,PLAYER)
+		EXP:PLAYER:(50 + HETEROSEX(TARGET,PLAYER)) += 1
+	ENDIF
+ELSE
+	IF HETEROSEX(TARGET,PLAYER)
+		EXP:(50 + HETEROSEX(TARGET,PLAYER)) += 1
+		EXP:PLAYER:(50 + HETEROSEX(TARGET,PLAYER)) += 1
+	ENDIF
+ENDIF
+EXP:PLAYER:道具使用経験 ++
+
+RETURN 1
+
+;-------------------------------------------------
+;実行判定
+;-------------------------------------------------
+@COM_ABLE41
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;電動按摩棒実行判定
+SIF !TFLAG:100
+	RETURN 0
+;一括管理
+SIF GLOBAL_COMABLE(41)
+	RETURN RESULT
+;道具を持っているか、道具無設定でないとダメ
+SIF ITEM:1 == 0 && NOITEM == 0
+	RETURN 0
+;ASSIの場合、技巧3以上か施虐狂じゃないと使えない。
+IF ASSIPLAY
+	SIF ABL:ASSI:技巧 < 3 && TALENT:ASSI:施虐狂 == 0
+		RETURN 0
+ENDIF
+;淋浴中はダメ
+SIF TEQUIP:32
+	RETURN 0
+;室内でないとダメ
+SIF !INROOM(CFLAG:PLAYER:現在位置)
+	RETURN 0
+RETURN 1
+
+
+@COM41_TOUCH(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+CALL TOUCH_SET(0,0,0,SET_P)
+TEQUIP:ARG:Ｃ接触部位 = 0
+TEQUIP:ARG:Ｐ接触部位 = 0

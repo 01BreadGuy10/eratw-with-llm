@@ -1,0 +1,560 @@
+// ============================================================================
+//  LlmClient.cs —— LLM 调用与对话历史
+// ============================================================================
+//  核心设计：**非阻塞**。
+//    CALLSHARP 是同步调用，若在这里等 HTTP 返回（1~5 秒），游戏画面会冻住，
+//    而引擎的 AWAIT 无法中断阻塞中的插件。
+//    因此拆成两步：
+//      LLM_CHAT_SEND  → 立刻返回一个 id（请求在后台线程跑）
+//      LLM_CHAT_POLL  → 由 ERB 在循环里配合 AWAIT 轮询，取到结果或"仍在等待"
+//    这样等待期间 ERB 可以 AWAIT 让出，UI 不冻。
+//
+//  对话历史：按"角色运行时索引"分别保存，只保留最近若干轮，随请求一起发出。
+// ============================================================================
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace LLMBridge
+{
+    internal sealed class LlmClient
+    {
+        // ⚠️ 30 条 = 15 轮。原来是 12 条（6 轮），2026-09 按需求放宽 ——
+        //    因为现在**开场白会作为分界线**：上一场对话的内容要留着，
+        //    降级成"补充记忆"继续给模型看，条数太少就不够用了。
+        private const int MaxHistoryMessages = 30;
+        // ⚠️ 35 秒，**必须略大于 ERB 侧的 30 秒等待上限**（`@LLM_POLL`）：
+        //    ERB 侧 30 秒没回应就放弃并**重发**，但那时底层请求还在跑 ——
+        //    如果这里设得太大，被放弃的那次会继续挂着，
+        //    **而且它一旦返回，token 照样计费**（我们只是把结果丢掉）。
+        //    ⇒ 比 30 秒大 5 秒，给"刚好在 30 秒边缘成功"的情况留点余量。
+        //  ⚠️ 为什么从 25 秒放宽到 35（2026-09-16）：
+        //     实测服务端正常回复要 **17~22 秒**（`debug.log` 的 CHAT-SEND→CHAT-OK），
+        //     25 秒会让**快要回来的回复被硬切断**（两次 25 秒超时 = TaskCanceledException），
+        //     然后 ERB 从头重发 —— 玩家体感是"思考时间明显变长"⚠️
+        //  ⚠️ 两个数字**必须成对改**：这里 35 / `@LLM_POLL` 的 30000 毫秒 ✓
+        private const int HttpTimeoutSeconds = 35;
+
+        private static readonly HttpClient Http = CreateHttpClient();
+
+        private static HttpClient CreateHttpClient()
+        {
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+                UseProxy = false,   // 本地直连；需要代理时可在系统层设置
+            };
+            var c = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(HttpTimeoutSeconds) };
+            c.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "LLMBridge/0.1 (Emuera plugin)");
+            return c;
+        }
+
+        /// <summary>一次请求的结果。</summary>
+        internal sealed class RequestResult
+        {
+            public volatile bool Done;
+            public volatile bool Ok;
+            public string Text = "";
+            public string Error = "";
+        }
+
+        private readonly ConcurrentDictionary<long, RequestResult> _pending = new ConcurrentDictionary<long, RequestResult>();
+        private long _nextId;
+
+        // 角色索引 → 历史消息（role, content）
+        private readonly Dictionary<long, List<KeyValuePair<string, string>>> _history =
+            new Dictionary<long, List<KeyValuePair<string, string>>>();
+
+        // ────────────────────────────────────────────────────────────────
+        //  对话历史
+        // ────────────────────────────────────────────────────────────────
+
+        public void ClearHistory(long charIndex)
+        {
+            lock (_history) { _history.Remove(charIndex); }
+        }
+
+        public void ClearAllHistory()
+        {
+            lock (_history) { _history.Clear(); }
+        }
+
+        public int HistoryCount(long charIndex)
+        {
+            lock (_history)
+            {
+                List<KeyValuePair<string, string>> h;
+                if (_history.TryGetValue(charIndex, out h)) return h.Count;
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// 把某个角色的对话历史**导出成纯文本**，供 ERB 侧"降级"使用。
+        /// ⚠️ 为什么需要它：ERB 侧拿不到历史内容，就没法把"上一场对话"
+        ///    转成低优先级的补充记忆 —— 而那是"以开场白为分界线"的前提。
+        /// 格式：每行「玩家：…」/「你：…」，最多 maxTurns 轮（从**最早**取）。
+        /// </summary>
+        public string DumpHistory(long charIndex, int maxTurns)
+        {
+            lock (_history)
+            {
+                List<KeyValuePair<string, string>> h;
+                if (!_history.TryGetValue(charIndex, out h) || h.Count == 0) return "";
+
+                // 只取前 maxTurns 轮（每轮 2 条），因为要"降级"的正是**较早**的部分
+                int take = maxTurns * 2;
+                if (take > h.Count) take = h.Count;
+
+                var sb = new StringBuilder();
+                for (int i = 0; i < take; i++)
+                {
+                    string who = h[i].Key == "user" ? "玩家：" : "你：";
+                    string text = h[i].Value;
+                    if (string.IsNullOrEmpty(text)) continue;
+                    // 去掉换行，免得一行拆成好几段
+                    text = text.Replace("\r", " ").Replace("\n", " ");
+                    if (text.Length > 120) text = text.Substring(0, 120) + "…";
+                    sb.Append(who).Append(text).Append('\n');
+                }
+                return sb.ToString();
+            }
+        }
+
+        private List<KeyValuePair<string, string>> GetHistory(long charIndex)
+        {
+            lock (_history)
+            {
+                List<KeyValuePair<string, string>> h;
+                if (!_history.TryGetValue(charIndex, out h))
+                {
+                    h = new List<KeyValuePair<string, string>>();
+                    _history[charIndex] = h;
+                }
+                return h;
+            }
+        }
+
+        /// <summary>记录一轮（玩家说的话 + 角色回的话）。</summary>
+        public void AppendTurn(long charIndex, string userText, string assistantText)
+        {
+            var h = GetHistory(charIndex);
+            lock (h)
+            {
+                if (!string.IsNullOrEmpty(userText))
+                    h.Add(new KeyValuePair<string, string>("user", userText));
+                if (!string.IsNullOrEmpty(assistantText))
+                    h.Add(new KeyValuePair<string, string>("assistant", assistantText));
+
+                int over = h.Count - MaxHistoryMessages;
+                if (over > 0) h.RemoveRange(0, over);
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        //  发送 / 轮询
+        // ────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 发起一次对话请求，**立即返回**。
+        /// 返回 id（&gt;0）；&lt;=0 表示发不出去（配置有问题），错误在 LastError。
+        /// </summary>
+        /// <param name="recordHistory">
+        /// 是否把这一轮记入对话历史。开场白应传 false ——
+        /// 否则历史里会留下"（请开始对话）"这种指令性文本，污染后续上下文。
+        /// </param>
+        public long Send(long charIndex, ApiEndpoint api, string systemPrompt, string userText,
+                         out string immediateError, bool recordHistory = true)
+        {
+            immediateError = "";
+            if (api == null) { immediateError = "没有可用的 API 配置（检查 apis.txt）"; return -1; }
+            if (!api.IsUsable) { immediateError = "当前 API 条目不完整（需要 url + model，key 不能是占位符）"; return -1; }
+            if (string.IsNullOrWhiteSpace(userText)) { immediateError = "输入为空"; return -1; }
+
+            long id = Interlocked.Increment(ref _nextId);
+            var res = new RequestResult();
+            _pending[id] = res;
+
+            // 记录请求概况 —— 之前请求失败是"静默"的，界面上什么都不显示，
+            // 这是"点了没反应"的根源。现在无条件写日志（仅在 debug_log=1 时落盘）。
+            try
+            {
+                // 把 system prompt 里的角色名**抽出来单独记**：
+                // 排查"和多人对话后口上串联"时，只要看 name= 是不是每次都对得上
+                // 就能判断是 ERB 侧 persona 取错，还是插件侧历史串了。
+                string sysName = ExtractBetween(systemPrompt, "【角色】", "\n");
+                string sysHead = Shorten(systemPrompt, 110);
+                PluginManifest.Log("CHAT-SEND id=" + id + " char=" + charIndex
+                    + " name=" + (string.IsNullOrEmpty(sysName) ? "?" : sysName)
+                    + " api=" + (api.Name ?? "?")
+                    + " model=" + (api.Model ?? "?")
+                    + " url=" + (api.Url ?? "?")
+                    + " key=" + LlmClient.MaskKeySafe(api.Key)
+                    + " sysLen=" + (systemPrompt == null ? 0 : systemPrompt.Length)
+                    + " userLen=" + (userText == null ? 0 : userText.Length)
+                    + " hist=" + HistoryCount(charIndex)
+                    + " record=" + recordHistory);
+                PluginManifest.Log("CHAT-SYS head=" + sysHead);
+            }
+            catch { }
+
+            // 组装消息
+            var msgs = new List<KeyValuePair<string, string>>();
+            if (!string.IsNullOrWhiteSpace(systemPrompt))
+                msgs.Add(new KeyValuePair<string, string>("system", systemPrompt));
+            lock (GetHistory(charIndex)) { } // 确保历史存在
+            var h = GetHistory(charIndex);
+            lock (h) { msgs.AddRange(h); }
+            msgs.Add(new KeyValuePair<string, string>("user", userText));
+
+            // 丢到后台线程跑，绝不阻塞脚本线程
+            var apiCopy = api;
+            Task.Run(() =>
+            {
+                try
+                {
+                    string reply = apiCopy.Type == "ollama_native"
+                        ? CallOllamaNative(apiCopy, msgs)
+                        : CallOpenAi(apiCopy, msgs);
+                    if (string.IsNullOrWhiteSpace(reply))
+                    {
+                        res.Error = "接口返回了空内容";
+                        res.Ok = false;
+                    }
+                    else
+                    {
+                        res.Text = reply.Trim();
+                        res.Ok = true;
+                        if (recordHistory) AppendTurn(charIndex, userText, res.Text);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    res.Error = DescribeException(ex);
+                    res.Ok = false;
+                    // 失败原因**无条件**落盘（这是排查"点了没反应"的关键）；
+                    // 由 LogAlways 写，即使 debug_log 关着也会留痕。
+                    try
+                    {
+                        PluginManifest.LogAlways("CHAT-FAIL", "id=" + id + " " + res.Error
+                            + "\n  url=" + (apiCopy.Url ?? "?")
+                            + "\n  ex=" + ex.GetType().FullName);
+                    }
+                    catch { }
+                }
+                finally
+                {
+                    res.Done = true;
+                }
+            });
+
+            return id;
+        }
+
+        /// <summary>
+        /// 轮询结果。
+        /// 返回：1 = 成功（结果写入 outText）；0 = 仍在等待；-1 = 失败（原因写入 outErr）
+        /// </summary>
+        public int Poll(long id, out string outText, out string outErr)
+        {
+            outText = "";
+            outErr = "";
+            RequestResult res;
+            if (!_pending.TryGetValue(id, out res)) { outErr = "请求 id 无效或已过期"; return -1; }
+
+            if (!res.Done) return 0;
+
+            _pending.TryRemove(id, out _);
+            if (res.Ok)
+            {
+                try
+                {
+                    PluginManifest.Log("CHAT-OK id=" + id + " replyLen=" + (res.Text == null ? 0 : res.Text.Length)
+                        + " reply=" + Shorten(res.Text, 120));
+                }
+                catch { }
+                outText = res.Text;
+                return 1;
+            }
+            outErr = string.IsNullOrEmpty(res.Error) ? "未知错误" : res.Error;
+            try { PluginManifest.LogAlways("CHAT-FAIL", "id=" + id + " " + outErr); } catch { }
+            return -1;
+        }
+
+        /// <summary>安全打码：密钥为空或过短时也不炸。</summary>
+        internal static string MaskKeySafe(string k)
+        {
+            if (string.IsNullOrEmpty(k)) return "(无)";
+            if (k.Equals("none", StringComparison.OrdinalIgnoreCase)) return "(无)";
+            try { return ApiEndpoint.MaskKey(k); } catch { return "****"; }
+        }
+
+        internal static string Shorten(string s, int n)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            s = s.Replace("\r", " ").Replace("\n", " ");
+            return s.Length <= n ? s : s.Substring(0, n) + "…";
+        }
+
+        /// <summary>取 from 与 to 之间的第一段文本（用于从 system prompt 里抽角色名）。</summary>
+        internal static string ExtractBetween(string s, string from, string to)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            int i = s.IndexOf(from, StringComparison.Ordinal);
+            if (i < 0) return "";
+            i += from.Length;
+            int j = string.IsNullOrEmpty(to) ? -1 : s.IndexOf(to, i, StringComparison.Ordinal);
+            if (j < 0) j = s.Length;
+            return s.Substring(i, j - i).Trim();
+        }
+
+        /// <summary>放弃等待（不中止后台请求，只是不再跟踪）。</summary>
+        public void Forget(long id)
+        {
+            RequestResult r;
+            _pending.TryRemove(id, out r);
+        }
+
+        public int PendingCount { get { return _pending.Count; } }
+
+        // ────────────────────────────────────────────────────────────────
+        //  两种接口风格
+        // ────────────────────────────────────────────────────────────────
+
+        private static string CallOpenAi(ApiEndpoint api, List<KeyValuePair<string, string>> msgs)
+        {
+            var body = new StringBuilder();
+            body.Append("{\"model\":");
+            JsonWriteString(body, api.Model);
+            body.Append(",\"messages\":[");
+            for (int i = 0; i < msgs.Count; i++)
+            {
+                if (i > 0) body.Append(',');
+                body.Append("{\"role\":");
+                JsonWriteString(body, msgs[i].Key);
+                body.Append(",\"content\":");
+                JsonWriteString(body, msgs[i].Value);
+                body.Append('}');
+            }
+            body.Append("],\"temperature\":");
+            body.Append(api.Temperature.ToString("0.##", CultureInfo.InvariantCulture));
+            body.Append(",\"max_tokens\":");
+            body.Append(api.MaxTokens.ToString(CultureInfo.InvariantCulture));
+            // ── 关闭「思考模式」（重要，写在 body 里）───────────────────
+            // DeepSeek 官方文档（guides/thinking_mode）：
+            //   "Thinking mode is enabled by default, with the default effort being high"
+            //   OpenAI 格式开关：{"thinking": {"type": "enabled" | "disabled"}}
+            // 思考模式下模型先输出一大段思维链（在 reasoning_content 字段），
+            // 最终 content 很可能为空 —— 对"角色说一句话"这种任务纯属浪费，
+            // 也正是之前"接口返回了空内容"的原因。
+            // 附带：思考模式不支持 temperature（设了也不生效）。
+            body.Append(",\"thinking\":{\"type\":\"disabled\"}");
+            body.Append(",\"stream\":false}");
+
+            using (var req = new HttpRequestMessage(HttpMethod.Post, api.Url))
+            {
+                req.Content = new StringContent(body.ToString(), new UTF8Encoding(false), "application/json");
+
+                if (!string.IsNullOrWhiteSpace(api.Key) &&
+                    !api.Key.Trim().Equals("none", StringComparison.OrdinalIgnoreCase))
+                {
+                    req.Headers.TryAddWithoutValidation("Authorization", "Bearer " + api.Key.Trim());
+                }
+
+                using (var resp = Http.SendAsync(req).GetAwaiter().GetResult())
+                {
+                    string text = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    if (!resp.IsSuccessStatusCode)
+                    {
+                        throw new InvalidOperationException(
+                            "HTTP " + (int)resp.StatusCode + " " + resp.ReasonPhrase + " :: " + Truncate(text, 300));
+                    }
+                    string content = JsonExtractAssistantContent(text);
+                    if (string.IsNullOrWhiteSpace(content))
+                    {
+                        // 兜底：万一还是走了思考模式，正文可能在 reasoning_content 里。
+                        string rc = JsonExtractValueAfterKey(text, "reasoning_content");
+                        if (!string.IsNullOrWhiteSpace(rc)) content = rc;
+                    }
+                    if (string.IsNullOrWhiteSpace(content))
+                    {
+                        // 诊断：把**真实响应体**落盘，区分是 HTTP 出错 / 字段改名 / 真返回空。
+                        PluginManifest.LogAlways("CHAT-BODY",
+                            "content 为空或缺失；HTTP " + (int)resp.StatusCode
+                            + "，响应体(" + text.Length + " 字节)=" + Truncate(text, 1200));
+                        throw new InvalidOperationException("接口返回了空内容 :: " + Truncate(text, 300));
+                    }
+                    return content;
+                }
+            }
+        }
+
+        private static string CallOllamaNative(ApiEndpoint api, List<KeyValuePair<string, string>> msgs)
+        {
+            var body = new StringBuilder();
+            body.Append("{\"model\":");
+            JsonWriteString(body, api.Model);
+            body.Append(",\"messages\":[");
+            for (int i = 0; i < msgs.Count; i++)
+            {
+                if (i > 0) body.Append(',');
+                body.Append("{\"role\":");
+                JsonWriteString(body, msgs[i].Key);
+                body.Append(",\"content\":");
+                JsonWriteString(body, msgs[i].Value);
+                body.Append('}');
+            }
+            body.Append("],\"stream\":false}");
+
+            using (var req = new HttpRequestMessage(HttpMethod.Post, api.Url))
+            {
+                req.Content = new StringContent(body.ToString(), new UTF8Encoding(false), "application/json");
+                using (var resp = Http.SendAsync(req).GetAwaiter().GetResult())
+                {
+                    string text = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    if (!resp.IsSuccessStatusCode)
+                    {
+                        throw new InvalidOperationException(
+                            "HTTP " + (int)resp.StatusCode + " " + resp.ReasonPhrase + " :: " + Truncate(text, 300));
+                    }
+                    // Ollama: {"message":{"role":"assistant","content":"..."}}
+                    string content = JsonExtractValueAfterKey(text, "content");
+                    if (content == null) throw new InvalidOperationException("无法解析返回内容 :: " + Truncate(text, 300));
+                    return content;
+                }
+            }
+        }
+
+        internal static string DescribeException(Exception ex)
+        {
+            var agg = ex as AggregateException;
+            if (agg != null && agg.InnerExceptions.Count > 0) ex = agg.InnerExceptions[0];
+            if (ex is TaskCanceledException || ex is OperationCanceledException)
+                return "请求超时（超过 " + HttpTimeoutSeconds + " 秒）";
+            if (ex is HttpRequestException)
+                return "网络错误：" + ex.Message;
+            return ex.GetType().Name + ": " + ex.Message;
+        }
+
+        private static string Truncate(string s, int n)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            s = s.Replace("\r", " ").Replace("\n", " ");
+            return s.Length <= n ? s : s.Substring(0, n) + "...";
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        //  极简 JSON 工具（不引入依赖；只做本插件需要的事）
+        // ────────────────────────────────────────────────────────────────
+
+        internal static void JsonWriteString(StringBuilder sb, string s)
+        {
+            sb.Append('"');
+            if (s != null)
+            {
+                foreach (char c in s)
+                {
+                    switch (c)
+                    {
+                        case '"': sb.Append("\\\""); break;
+                        case '\\': sb.Append("\\\\"); break;
+                        case '\n': sb.Append("\\n"); break;
+                        case '\r': sb.Append("\\r"); break;
+                        case '\t': sb.Append("\\t"); break;
+                        case '\b': sb.Append("\\b"); break;
+                        case '\f': sb.Append("\\f"); break;
+                        default:
+                            if (c < 0x20) sb.Append("\\u").Append(((int)c).ToString("x4"));
+                            else sb.Append(c);
+                            break;
+                    }
+                }
+            }
+            sb.Append('"');
+        }
+
+        /// <summary>
+        /// 取 choices[0].message.content。
+        /// 不用正则、不用第三方库；带字符串转义处理。
+        /// </summary>
+        internal static string JsonExtractAssistantContent(string json)
+        {
+            if (string.IsNullOrEmpty(json)) return null;
+
+            int ci = json.IndexOf("\"choices\"", StringComparison.Ordinal);
+            if (ci < 0) return null;
+
+            int mi = json.IndexOf("\"message\"", ci, StringComparison.Ordinal);
+            if (mi < 0) return null;
+
+            // 从 message 之后再找 content，避免命中 message 里的其它字段
+            return JsonExtractValueAfterKey(json, "content", mi);
+        }
+
+        internal static string JsonExtractValueAfterKey(string json, string key)
+        {
+            return JsonExtractValueAfterKey(json, key, 0);
+        }
+
+        /// <summary>在 json 的 fromIndex 之后查找 "key"\s*:\s*"..." 并解码返回。</summary>
+        internal static string JsonExtractValueAfterKey(string json, string key, int fromIndex)
+        {
+            if (string.IsNullOrEmpty(json)) return null;
+            string needle = "\"" + key + "\"";
+            int i = json.IndexOf(needle, fromIndex, StringComparison.Ordinal);
+            if (i < 0) return null;
+
+            int p = i + needle.Length;
+            while (p < json.Length && char.IsWhiteSpace(json[p])) p++;
+            if (p >= json.Length || json[p] != ':') return null;
+            p++;
+            while (p < json.Length && char.IsWhiteSpace(json[p])) p++;
+            if (p >= json.Length || json[p] != '"') return null;
+            p++;
+
+            var sb = new StringBuilder();
+            while (p < json.Length)
+            {
+                char c = json[p++];
+                if (c == '"') return sb.ToString();
+                if (c != '\\') { sb.Append(c); continue; }
+
+                if (p >= json.Length) break;
+                char e = json[p++];
+                switch (e)
+                {
+                    case '"': sb.Append('"'); break;
+                    case '\\': sb.Append('\\'); break;
+                    case '/': sb.Append('/'); break;
+                    case 'n': sb.Append('\n'); break;
+                    case 'r': sb.Append('\r'); break;
+                    case 't': sb.Append('\t'); break;
+                    case 'b': sb.Append('\b'); break;
+                    case 'f': sb.Append('\f'); break;
+                    case 'u':
+                        {
+                            if (p + 4 <= json.Length)
+                            {
+                                int code;
+                                if (int.TryParse(json.Substring(p, 4), NumberStyles.HexNumber,
+                                        CultureInfo.InvariantCulture, out code))
+                                {
+                                    sb.Append((char)code);
+                                    p += 4;
+                                }
+                            }
+                            break;
+                        }
+                    default: sb.Append(e); break;
+                }
+            }
+            return sb.ToString();
+        }
+    }
+}

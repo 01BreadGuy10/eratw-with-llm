@@ -1,0 +1,196 @@
+﻿;=================================================
+;特殊コマンド
+;=================================================
+;-------------------------------------------------
+
+;==================================================
+;183,ビデオカメラ,
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_183
+CALL M_KOJO_MESSAGE_COM_K39_183_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_183_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;開始
+	IF TEQUIP:ビデオ撮影
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;終了
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;187,お風呂場プレイ
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_187
+CALL M_KOJO_MESSAGE_COM_K39_187_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_187_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;開始
+	IF TEQUIP:お風呂場プレイ
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;終了
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;188,シャワー
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_188
+CALL M_KOJO_MESSAGE_COM_K39_188_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_188_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;開始
+	IF TEQUIP:シャワー
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;終了
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;189,新妻プレイ
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_189
+CALL M_KOJO_MESSAGE_COM_K39_189_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_189_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;開始
+	IF TEQUIP:新妻プレイ
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;終了
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1

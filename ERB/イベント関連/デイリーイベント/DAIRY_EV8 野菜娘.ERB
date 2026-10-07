@@ -1,0 +1,79 @@
+﻿@DAILY_NAME_EV8(ARG=1)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#FUNCTIONS
+RETURNF ARG?"蔬菜报恩"#"野菜娘"
+
+@DAILY_CONDITION_EV8
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+IF FLAG:田地工作的成果 > 60 && TALENT:MASTER:2 & 2 && FLAG:野菜娘デイリー != 2 && !RAND:20
+	CALL DAILY_EV8
+	RETURN 1
+ELSE
+	RETURN -1
+ENDIF
+
+@DAILY_EV8
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+PRINTFORML %CALLNAME:MASTER%正要钻进被窝时，一位素未谋面的少女突然来访
+PRINTFORML 她说想对一直受%CALLNAME:MASTER%照顾的自己表示感谢
+
+IF !FLAG:野菜娘デイリー
+	PRINTFORML 然而%CALLNAME:MASTER%完全没有印象……
+ELSE
+	PRINTFORML 之前好像也发生过类似的事……
+ENDIF
+
+CALL ASK_YN("是不是认错人了","送上门的饭不吃白不吃")
+IF !RESULT
+	IF !FLAG:野菜娘デイリー
+		PRINTFORML 美人计？搞不好是妖怪设下的陷阱
+		PRINTFORML 这么一想，%CALLNAME:MASTER%就把少女赶走了
+		PRINTFORML 少女一脸遗憾地离开了
+	ELSE
+		PRINTFORML 总觉得有点可怕，还是算了吧
+		PRINTFORML 少女一脸遗憾地离开了
+	ENDIF
+ELSEIF BASE:MASTER:気力 < 500 || BASE:MASTER:体力 < 750 || BASE:MASTER:精力 < 300
+	PRINTFORML 可是实在太困了，就请她先回去了
+	PRINTFORML 少女一脸遗憾地离开了
+
+ELSE
+	IF !FLAG:野菜娘デイリー
+		PRINTFORML %CALLNAME:MASTER%仔仔细细地打量起少女
+		PRINTFORML 微胖体型，还算可爱
+		PRINTFORMW 这么晚跑到男人家来，说是“感谢”，意思不就是那种事嘛
+		PRINTFORMW 虽然不知道她到底有什么隐情，但总之先上了再说
+	ELSE
+		PRINTFORM 既能爽到又能让作物长得好，哪有这么划算的买卖啊、
+	ENDIF
+	PRINTFORML 这么一想，%CALLNAME:MASTER%就把少女请进了房间
+	PRINTFORMW 问她打算用什么方式表示感谢时，果然不出所料——
+	PRINTFORMW 少女把手伸向了自己的衣服……
+	PRINTFORMW …
+	PRINTFORMW ……
+	IF !FLAG:野菜娘デイリー
+		PRINTFORML 拂晓时分，她留下半梦半醒的%CALLNAME:MASTER%，悄然离去了
+		PRINTFORML 说到底，「受了很多照顾」究竟是什么意思啊……
+		PRINTFORMW 临走前好像说了「要多生很多孩子」这种让人毛骨悚然的话……
+		PRINTFORMW …
+		PRINTFORMW ……
+		PRINTFORMW 前往田间劳作的%CALLNAME:MASTER%，忽然察觉到一丝异样
+		PRINTFORMW 怎么感觉……作物结果的量突然这么多？
+		PRINTFORML 太夸张了……这种东西，真的可以吃吗？
+	ELSE
+		PRINTFORML 果然不出所料，第二天清晨再看田地，长势比昨天还要惊人
+		PRINTFORML 昨天射进去的那些……竟然真的变成了果实，可以采摘出货……
+		PRINTFORML %CALLNAME:MASTER%陷入了某种奇妙而微妙的感慨之中
+	ENDIF
+	BASE:MASTER:精力 -= 300
+	BASE:MASTER:体力 -= 200
+	FLAG:田地工作的成果 += 20
+	FLAG:野菜娘デイリー = 2
+ENDIF
+PRINTW 
+RETURN 1

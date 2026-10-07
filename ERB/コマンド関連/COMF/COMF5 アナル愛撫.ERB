@@ -1,0 +1,120 @@
+﻿;-------------------------------------------------
+;肛門愛撫
+;愛撫系指令、レベル2
+;-------------------------------------------------
+@COM5
+;-------------------------------------------------
+;COM別FLAGの設定
+;-------------------------------------------------
+;行為者
+TCVAR:116 = PLAYER
+;奉仕快楽
+TCVAR:PLAYER:108 = 1
+
+CALL DECLARE_EJACULATION(TARGET, 射精場合_Ａ責め, 0, PLAYER, CHARA_NONE, PLAYER, CHARA_NONE, 700)
+;強度
+
+;-------------------------------------------------
+;ソース追加処理
+;-------------------------------------------------
+;消費体力、気力
+IF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	BASE:MASTER:TSP -= 50
+	SOURCE:快Ａ = 100
+	SOURCE:苦痛 = 50
+
+ELSE
+
+	DOWNBASE:体力 += 40
+	DOWNBASE:気力 += 100
+
+	SOURCE:快Ａ = 100
+	SOURCE:苦痛 = 100
+	SOURCE:屈従 = 100
+	SOURCE:逸脱 = 80
+	SOURCE:反感 = 60
+
+	SIF TALENT:PLAYER:器用な指
+		SOURCE:快Ａ += 20
+	;-------------------------------------------------
+	;特殊ソース処理
+	;-------------------------------------------------
+	;圧抑、抵抗持ちには、抑鬱ソース追加
+	SIF TALENT:自己愛 < 0 || TALENT:抵抗
+		SOURCE:鬱屈 += 100
+ENDIF
+;Aへの苦痛は先に処理しておく
+CALL PAIN_CHECK_A(TARGET)
+
+;-------------------------------------------------
+;汚れの処理
+;-------------------------------------------------
+;奴隷のＡ⇔調教者の指的污垢が移動
+STAIN:PLAYER:1 |= STAIN:4
+STAIN:PLAYER:1 |= STAIN:7
+STAIN:4 |= STAIN:PLAYER:1
+STAIN:7 |= STAIN:PLAYER:1
+;-------------------------------------------------
+;経験の処理
+;-------------------------------------------------
+;同性愛　レズなら戻り値1ゲイなら戻り値2
+IF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	IF HETEROSEX(TARGET,PLAYER)
+		EXP:PLAYER:(50 + HETEROSEX(TARGET,PLAYER)) += 2
+	ENDIF
+ELSE
+	IF HETEROSEX(TARGET,PLAYER)
+		EXP:(50 + HETEROSEX(TARGET,PLAYER)) += 2
+		EXP:PLAYER:(50 + HETEROSEX(TARGET,PLAYER)) += 2
+	ENDIF
+ENDIF
+EXP:PLAYER:手淫経験 ++
+RETURN 1
+
+;-------------------------------------------------
+;実行判定
+;-------------------------------------------------
+@COM_ABLE5
+#LOCALSIZE 1
+#LOCALSSIZE 1
+;肛門愛撫実行判定
+SIF !TFLAG:100
+	RETURN 0
+;一括管理
+SIF GLOBAL_COMABLE(5)
+	RETURN RESULT
+;毒人形だと肛門がついてないのでダメ
+SIF TALENT:196 == 99
+	RETURN 0
+;時間停止中は許可
+IF !FLAG:70 || CFLAG:TARGET:344 == 1
+	;潤滑不足で、従順3以下・百合属性3以下のASSIの場合肛門愛撫はできない（施虐狂ならＯＫ）
+	IF PALAM:潤滑 < PALAMLV:2 && ASSIPLAY
+		SIF (ABL:ASSI:従順 <= 3 || ABL:ASSI:百合属性 <= 3) && TALENT:ASSI:施虐狂 == 0
+			RETURN 0
+	ENDIF
+ENDIF
+
+;下半身着衣
+SIF TEQUIP:0 & 4
+	RETURN 0
+RETURN 1
+
+@COM5_TAGS
+#LOCALSIZE 1
+#LOCALSSIZE 1
+#FUNCTION
+LOCAL = 0
+SETBIT LOCAL, BIT_A使用コマンド
+SETBIT LOCAL, BIT_USED_CONDOM_ALLOWED
+RETURNF LOCAL
+
+@COM5_TOUCH(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+IF TEQUIP:ARG:アナルバイブ || TEQUIP:ARG:アナルビーズ || TEQUIP:ARG:浣腸
+	CALL TOUCH_RESET_M(SET_YUBI)
+ELSE
+	CALL TOUCH_SET(SET_FROM_A,SET_YUBI,ARG)
+ENDIF

@@ -1,0 +1,1921 @@
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;派生コマンド
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+;1,シックスナイン
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_1
+CALL M_KOJO_MESSAGE_SCOM_K39_1_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_1_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 1
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		;初めてチンコを間近で観察。必然的に舐陰→口交の流れで発生することになる（先に口交してしまうとその時点で初めてチンコ観察フラグが立ってしまうため）
+		IF CFLAG:1209 == 0
+			PRINTFORMW 「呼呜呜、啊呜、啊嗯、哈、啊…这么做…」
+			PRINTFORMDW 被来自敏感阴核的爱抚翻弄的纳兹琳此刻、正被在眼前摇晃着的男性器夺去注意力
+			PRINTFORMDW 纳兹琳一副恍惚梦中的表情伸手揽过你的肉棒、几乎是无意识地将其含在嘴里、开始舔舐起来…
+			CALL HPH_PRINT,@"「嗯…啾、啊姆、啾噗噗、嗯呼呜…嗯嗯…！　呼、啊、姆、啾、啾噗、哈啊…HPH」","W"
+			CFLAG:1209 = 1
+		ELSE
+			;口交を選択して発生　舐陰してるところにナズが自発的に口交
+			IF SELECTCOM == 81
+				CALL HPH_PRINT,@"「嗯呼、哈啊、哈、人家来、给你舔舔、那里…HPH　呵呵、一如既往的很大呢」","W"
+				PRINTFORMDW 纳兹琳将手伸向了仍在侍奉自己的你的已经高高耸立起的肉棒…
+				CALL HPH_PRINT,@"「让我也给你做点回礼…HPH　啾、哈啊、哈姆、啾噗…」","W"
+			;舐陰を選択して発生　口交してもらってるところにMASTERが自発的に舐陰
+			ELSE
+				PRINTFORMW 「啾噗、嗯啾、嗯嗯、啊呜、啾噗…」
+				PRINTFORMDW 将舌头伸向了此刻正努力取悦你的纳兹琳那幼小的秘裂…
+				CALL HPH_PRINT,@"「啊呜HPH　呀、别这样、要没法专心给你做了啦…HPH」","W"
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+	;口交を選択して発生
+	IF SELECTCOM == 81
+		IF TALENT:恋慕
+			PRINTFORMDW 品尝着纳兹琳可爱小秘裂的滋味的同时、鼠少女也作为回礼似的开始侍奉起你的阳具…
+			IF RAND:3 == 0
+				CALL HPH_PRINT,@"「嗯呼、哈啊、哈、人家来、给你舔舔、那里…HPH　啾、哈啊、哈姆、啾噗…」","W"
+				CALL HPH_PRINT,@"「哈啊、这种的、我在帮你做的时候你也在给我做的感觉、好喜欢…HPH」","W"
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「啪咕…嗯…啾呜…哈、啊呜HPH　我、人家也是、感觉很舒服哦、哈姆…啾呜呜呜…」","W"
+				PRINTFORMDW 即使时不时被你的爱抚刺激到不得不停嘴忍耐快乐、纳兹琳还是努力地侍奉取悦着你…
+			ELSE
+				CALL HPH_PRINT,@"「哈ーHPH　哈啊ーHPH　哈姆…、啾、啾噗、啊啊HPH」","W"
+				CALL HPH_PRINT,@"「这个太糟糕了…　要变得只能思考、色色的事情了…HPH」","W"
+			ENDIF
+		ELSE
+			IF RAND:3 == 0
+				PRINTFORMW 「哈啊、啊、哈嗯、哈…啾、啾噗、啾噜…」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「嘻嘻、人家也来给你做…」
+			ELSE
+				PRINTFORMW 「啊…阿姆、啾…啾、嗯嗯…」
+			ENDIF
+		ENDIF
+		RETURN 1
+	;舐陰を選択して発生
+	ELSE
+		;「慈しむように懸命に奉仕する納茲琳の用幼小裂缝舌で愛撫してやった…」
+		IF TALENT:恋慕
+			IF RAND:3 == 0
+				CALL HPH_PRINT,@"「啊呜HPH　呀、别这样、要没法专心给你做了啦…HPH」","L"
+				PRINTFORMDW 被你突如其来的爱抚打乱了阵脚、纳兹琳的身子轻微地颤抖着、被迫暂时停下侍奉的动作来忍耐刺激…
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「嗯呼呜HPH　嗯、嗯啾、嗯噗、呼、呒呜呜嗯HPH」","L"
+				PRINTFORMDW 像是回应着你的爱抚一般、纳兹琳也更加积极地用嘴侍奉着你的肉棒…
+			ELSE
+				CALL HPH_PRINT,@"「嗯呜HPH　嗯呒呜、啾噗、啾噗、嗯嗯…！噗啊、哈啊ーHPH　哈啊ーHPH」","L"
+				PRINTFORMDW 纳兹琳就这么嘴里仍含着你的阴茎、大口地喘着气来忍耐你爱抚带来的快乐…
+			ENDIF
+		ELSE
+			IF RAND:3 == 0
+				PRINTFORMW 「呼、呜啊！哈、嗯嗯、你也、打算舔舔人家那里吗…？」
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「嗯、咕呜嗯、快、快老实点、哈、不要啦…HPH」","W"
+			ELSE
+				PRINTFORMW 「别、别这样啦、现在是人家在、呜、呜啊啊…」
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+;CALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+;RETURN RESULT
+
+;==================================================
+;2,岩清水
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_2
+CALL M_KOJO_MESSAGE_SCOM_K39_2_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_2_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+;==================================================
+;3,Gスポット刺激
+;※指でのGスポ刺激。tntn挿入時のGスポ刺激はまた別に下にある
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_3
+CALL M_KOJO_MESSAGE_SCOM_K39_3_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_3_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;過激な恶作剧中
+	IF CFLAG:恶作剧 && CFLAG:睡眠
+		RETURN 1
+	;恋慕
+	ELSEIF TALENT:恋慕
+		;Ｖ経験30以下
+		IF EXP:Ｖ経験 <= 30
+			IF RAND:3 == 0
+				PRINTFORMW 「那里、刺激…强过头了……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「啊呜…！？刚、刚才、突然抽动了一下…」
+			ELSE
+				PRINTFORMW 「怎、怎么嘛、在奇怪的地方、啊呜…」
+			ENDIF
+		ELSEIF TEQUIP:振動棒
+			CALL HPH_PRINT,@"「不、啊啊HPH　那里、很弱的、噫咿咿HPH」","L"
+			PRINTFORMDW 用振动棒摩擦着纳兹琳的性感帯、鼠少女就忍不住快乐似的抬起了腰肢……
+		ELSE
+			IF RAND:4 == 0
+				CALL HPH_PRINT,@"「啊呜呜HPH　那里、很敏感的啦……呜啊HPH」","L"
+				PRINTFORMDW 面对G点被刺激的快乐、纳兹琳的娇躯微微颤抖着、几乎连眼泪都要流下来了
+				SIF EXP:Ｖ経験 > 120
+				PRINTFORMDW 然而少女的腰肢却艳丽地扭动着、贪图着G点被刺激到的快乐…
+			ELSEIF RAND:3 == 0
+				CALL HPH_PRINT,@"「啊！？、那里HPH　哈呜呜、啊、唏、咿嗯HPH」","W"
+				CALL HPH_PRINT,@"「咻咿、正中弱点啊、哈呜呜HPH」","W"
+				PRINTFORMDW 已经完全记住了性快乐的纳兹琳因为G点被刺激到的快乐、发出了欢喜的娇声…
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「啊啊ーHPH　那里、很弱啦、啊啊HPH」","L"
+				PRINTFORMDW 像是抚摸般温柔绵密地刺激着少女的G点、纳兹琳发出了高亢而娇媚的喘息…
+			ELSE
+				CALL HPH_PRINT,@"「咿嗯…HPH　那里不行、力气要、提不上来了…哈呜呜HPH」","L"
+				PRINTFORMDW 纳兹琳娇艳地摆动着腰肢、享受着身为雌性的快乐…
+			ENDIF
+		ENDIF
+		RETURN 1
+	;それ以外
+	ELSE
+		;Ｖ経験30以下
+		IF EXP:Ｖ経験 <= 30
+			IF RAND:3 == 0
+				PRINTFORMW 「哈呜！等、等下有点太刺激了…啊嗯」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「再、再稍微、温柔点做、呜呜」
+			ELSE
+				PRINTFORMW 「怎、怎么嘛、在奇怪的地方、啊呜…」
+			ENDIF
+		ELSEIF TEQUIP:振動棒
+			CALL HPH_PRINT,@"「不、啊啊HPH　那里、很弱的、噫咿咿HPH」","L"
+			PRINTFORMDW 用振动棒摩擦着纳兹琳的性感帯、鼠少女就忍不住快乐似的抬起了腰肢……
+		ELSE
+			IF RAND:4 == 0
+				CALL HPH_PRINT,@"「啊呜呜HPH　那里、很敏感的啦……呜啊HPH」","L"
+				PRINTFORMDW 面对G点被刺激的快乐、纳兹琳的娇躯微微颤抖着、几乎连眼泪都要流下来了
+				SIF EXP:Ｖ経験 > 120
+				PRINTFORMDW 然而少女的腰肢却艳丽地扭动着、贪图着G点被刺激到的快乐…
+			ELSEIF RAND:3 == 0
+				CALL HPH_PRINT,@"「啊！？、那里HPH　哈呜呜、啊、唏、咿嗯HPH」","W"
+				CALL HPH_PRINT,@"「咻咿、正中弱点啊、哈呜呜HPH」","W"
+				PRINTFORMDW 已经完全记住了性快乐的纳兹琳因为G点被刺激到的快乐、发出了欢喜的娇声…
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「啊啊ーHPH　那里、很弱啦、啊啊HPH」","L"
+				PRINTFORMDW 像是抚摸般温柔绵密地刺激着少女的G点、纳兹琳发出了高亢而娇媚的喘息…
+			ELSE
+				CALL HPH_PRINT,@"「咿嗯…HPH　那里不行、力气要、提不上来了…哈呜呜HPH」","L"
+				PRINTFORMDW 纳兹琳娇艳地摆动着腰肢、享受着身为雌性的快乐…
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+;==================================================
+;4,乱れ牡丹
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_4
+CALL M_KOJO_MESSAGE_SCOM_K39_4_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_4_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+;==================================================
+;5,手淫口交
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_5
+CALL M_KOJO_MESSAGE_SCOM_K39_5_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_5_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;過激な恶作剧中
+	IF CFLAG:恶作剧 && CFLAG:睡眠
+		;これでMASTERが射精する
+		IF NOWEX:MASTER:11
+			IF RAND:3 == 0 
+				PRINTFORMDW 想到能用自己的精液弄脏这张安稳睡着的精致小脸、你脊背发颤地将滚烫的肉棒凑近了纳兹琳薄薄的嘴唇…
+			ELSEIF RAND:2 == 0 
+				PRINTFORMDW 忍耐着高涨的射精感、你悄悄地将肉枪凑近了纳兹琳的嘴唇…
+			ELSE
+				PRINTFORMDW 将已经流出忍耐汁的肉棒靠近对准了睡梦中的纳兹琳的香唇…
+			ENDIF
+			IF RAND:3 == 0 
+				PRINTFORMW 「啾…嗯…咻…」
+			ELSEIF RAND:2 == 0 
+				PRINTFORMW 「嗯咕…咻…」
+			ELSE
+				PRINTFORMW 「姆呜…啾、噗…」
+			ENDIF
+		ELSE
+			IF RAND:3 == 0 
+				PRINTFORMDW 将龟头抵在了睡梦中少女那薄薄的嘴唇上…
+			ELSEIF RAND:2 == 0 
+				PRINTFORMDW 被你用先走汁涂了一层的纳兹琳的嘴唇微弱地反光着、更显得香艳…
+			ELSE
+				PRINTFORMDW 用肉棒挑弄着睡着了的少女的嘴…
+			ENDIF
+			IF RAND:3 == 0 
+				PRINTFORMW 「啾…嗯…咻…」
+			ELSEIF RAND:2 == 0 
+				PRINTFORMW 「嗯咕…咻…」
+			ELSE
+				PRINTFORMW 「姆呜…啾、噗…」
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 1
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		;初めてチンコを間近で観察
+		IF CFLAG:1209 == 0
+			IF TALENT:恋慕
+				PRINTFORMW 「…这就是、%MASTERNAME:39%的…」
+				PRINTFORM （话说…
+				;性交まだ
+				IF CFLAG:1208 == 0
+					PRINTFORMW 这真的进的来吗…？）
+				;性交済み
+				ELSE
+					PRINTFORMW 这个、之前进来过啊…）
+				ENDIF
+				PRINTFORMDW 当真的近距离目睹雄壮挺立着的你的阳刚之物时、你能感觉到纳兹琳的动作僵硬了一下
+				PRINTFORMDL 
+				PRINTFORMW 「是想让人家、舔这个吗…？」
+				PRINTFORMW 「…好啦。如果这样你就能高兴的话、也不是不能给你做…」
+				PRINTFORMDL 
+				PRINTFORMDW 纳兹琳薄薄的嘴唇像是害怕似的慢慢凑过来…
+				PRINTFORMDW 犹豫着小小伸出的舌头也不知『从何下口』、但你能感觉到纳兹琳的吐息正缓缓靠近自己的肉枪…
+				PRINTFORMDW 不知过了多久…龟头的先端感到一阵温热的湿润、纳兹琳的香舌碰着你的肉棒后又迅速缩了回去…
+				PRINTFORMDL 
+				PRINTFORMW 「…好像有点咸咸的。这就是、%MASTERNAME:39%的味道吗…」
+				PRINTFORMDW 有了接触的经验后、少女的动作也大胆起来——纳兹琳轻轻将嘴唇贴住龟头、小心翼翼地用舌头侍奉着
+				PRINTFORMW 「啾…噼啾…哈姆、啾呜…是、是这么来的吗…」
+				PRINTFORMDL 
+				PRINTFORMDW 尚不熟练少女那犹如轻吻般绵密的侍奉还将继续…
+			ELSE
+				PRINTFORMW 「哇…　这、这可真是不得了的宝贝啊」
+				PRINTFORM （话说…
+				;性交まだ
+				IF CFLAG:1208 == 0
+					PRINTFORMW 这真的进的来吗…？）
+				;性交済み
+				ELSE
+					PRINTFORMW 这个、之前进来过啊…）
+				ENDIF
+				PRINTFORMDW 当真的近距离目睹雄壮挺立着的你的阳刚之物时、你能感觉到纳兹琳的动作僵硬了一下
+				PRINTFORMDL 
+				PRINTFORMW 「说是、要舔这根…？」
+				PRINTFORMW 「雄性的生物还真是很喜欢被舔啊…知道了啦。嘛、这也对彼此都好…」
+				PRINTFORMDL 
+				PRINTFORMDW 纳兹琳薄薄的嘴唇像是害怕似的慢慢凑过来…
+				PRINTFORMDW 犹豫着小小伸出的舌头也不知『从何下口』、但你能感觉到纳兹琳的吐息正缓缓靠近自己的肉枪…
+				PRINTFORMDW 不知过了多久…龟头的先端感到一阵温热的湿润、纳兹琳的香舌碰着你的肉棒后又迅速缩了回去…
+				PRINTFORMDL 
+				PRINTFORMW 「…嘛啊…倒也没有什么让人反感的味道…」
+				PRINTFORMDW 有了接触的经验后、少女的动作也大胆起来——纳兹琳轻轻将嘴唇贴住龟头、小心翼翼地用舌头侍奉着
+				PRINTFORMW 「啾…噼啾…哈姆、啾呜…是这么来的吗…？」
+				PRINTFORMDL 
+				PRINTFORMDW 绵密浓厚的爱抚还将持续一会儿…
+			ENDIF
+			CFLAG:1209 = 1
+		ELSE
+			IF TALENT:恋慕
+				PRINTFORMW 「…要、舔吗？」
+				PRINTFORMDW 当真的近距离目睹雄壮挺立着的你的阳刚之物时、你能感觉到纳兹琳的动作僵硬了一下
+				PRINTFORMDL
+				PRINTFORMW 「…唔嗯、好哟。我来帮你舔。只要能让你开心的话、我就给你做」
+				PRINTFORMW 「毕竟你也让人家很开心嘛。这是回礼哦…」
+				PRINTFORMDL
+				PRINTFORMDW 纳兹琳薄薄的嘴唇像是害怕似的慢慢凑过来…
+				PRINTFORMDW 犹豫着小小伸出的舌头也不知『从何下口』、但你能感觉到纳兹琳的吐息正缓缓靠近自己的肉枪…
+				PRINTFORMDW 不知过了多久…龟头的先端感到一阵温热的湿润、纳兹琳的香舌碰着你的肉棒后又迅速缩了回去…
+				PRINTFORMDL
+				PRINTFORMW 「…好像有点咸咸的。这就是、%MASTERNAME:39%的味道吗…」
+				PRINTFORMDW 有了接触的经验后、少女的动作也大胆起来——纳兹琳轻轻将嘴唇贴住龟头、小心翼翼地用舌头侍奉着
+				PRINTFORMW 「啾…噼啾…哈姆、啾呜…是、是这么来的吗…」
+				PRINTFORMDL
+				PRINTFORMDW 尚不熟练少女那犹如轻吻般绵密的侍奉还将继续…
+			ELSE
+				PRINTFORMW 「呼、呵呵…再仔细看看也觉得真是雄壮啊…嘛、也可能是我太小只了也说不定」
+				PRINTFORMW 「说是、要让我用嘴侍奉根吗…？虽然感觉上不太想用嘴去碰那种地方就是啦…」
+				PRINTFORMW 「雄性的生物还真是很喜欢被舔啊…知道了啦。嘛、这也对彼此都好…」
+				PRINTFORMDL
+				PRINTFORMDW 纳兹琳薄薄的嘴唇像是害怕似的慢慢凑过来…
+				PRINTFORMDW 犹豫着小小伸出的舌头也不知『从何下口』、但你能感觉到纳兹琳的吐息正缓缓靠近自己的肉枪…
+				PRINTFORMDW 不知过了多久…龟头的先端感到一阵温热的湿润、纳兹琳的香舌碰着你的肉棒后又迅速缩了回去…
+				PRINTFORMDL
+				PRINTFORMW 「…嘛啊…倒也没有什么让人反感的味道…」
+				PRINTFORMDW 有了接触的经验后、少女的动作也大胆起来——纳兹琳轻轻将嘴唇贴住龟头、小心翼翼地用舌头侍奉着
+				PRINTFORMW 「啾…噼啾…哈姆、啾呜…是这么来的吗…？」
+				PRINTFORMDL 
+				PRINTFORMDW 绵密浓厚的爱抚还将持续一会儿…
+			ENDIF
+			CFLAG:1209 = 1
+		ENDIF
+		RETURN 1
+	ENDIF
+	;清洁口交
+	IF TCVAR:MASTER:112 == 1 || TCVAR:MASTER:112 == 2
+	;「%CALLNAME:LOCAL%の中に充分射精してから陰茎を抜き、陰茎に付着した精液を%CALLNAME:TARGET%に舐め取らせた…」
+		;お掃除用のLOCAL取得
+		IF TCVAR:MASTER:112 == 1
+			LOCAL = MASTER_POSE(SET_V,SET_P,1)
+		ELSEIF TCVAR:MASTER:112 == 2
+			LOCAL = MASTER_POSE(SET_A,SET_P,1)
+		ENDIF
+		DRAWLINE
+		PRINTFORMDL %CALLNAME:TARGET%将还沾着爱液与精液混合物的阴茎送进嘴里仔细地舔舐着…
+		PRINTFORMDL 
+		;恋慕
+		IF TALENT:恋慕
+			IF ABL:精液中毒 >= 5
+				IF RAND:6 == 0
+					PRINTFORML 「噗啊…嗯、这下就干净了…」
+					PRINTFORMW 「如何呢？　要就这么在人家嘴里射一发出来？」
+					PRINTFORM 「又或者是
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"「要来疼爱这边吗？人家两边都行的哦…HPH」","L"
+						PRINTFORMDW 纳兹琳用手指撑开\@ TCVAR:112 == 1 ? 蜜穴 # 肛门 \@、那里面还在滴着精液、向你展示了出来…
+					;中出しされたのは他の人
+					ELSE
+						CALL HPH_PRINT,@"「这次要疼爱人家了呢？我的话两边都可以接受哟…HPH」","L"
+						PRINTFORMDW 纳兹琳的娇躯轻柔挑逗般地蹭着你的肉棒、向你投来期待的目光…
+					ENDIF
+				ELSEIF RAND:5 == 0
+					PRINTFORML 「啾噜、咻呜…啾呜呜…」
+					PRINTFORMDW 纳兹琳着了魔似的舔舐着肉棒上沾着的精液与爱液、将你的阳刚清理干净…
+				ELSEIF RAND:4 == 0
+					CALL HPH_PRINT,@"「哈、哈、啊…HPH　啊、姆呜…啾噜…」","L"
+					PRINTFORMDW 纳兹琳自发地含住刚刚拔出来的肉棒、将上面的黏糊糊混在一起精液和爱液舔舐清理干净…
+				ELSEIF RAND:3 == 0
+					CALL HPH_PRINT,@"「舔舔、啾噜噜、咻噜…嗯咕、哈啊啊…HPH　嗯…」","L"
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"有我自己的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道呢…HPH」","W"
+					ENDIF
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯、嗯呜、嗯～～…啾、噗哈、哈啊…HPH」","L"
+					CALL HPH_PRINT,@"「下一发、要不要考虑一下射在人家的嘴里呢…HPH」","W"
+				ELSE
+					CALL HPH_PRINT,@"「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧…HPH」","L"
+					CALL HPH_PRINT,@"「嗯呼…啾噗…舔舔、啾啾…啊哈、精液、好美味…HPH」","W"
+				ENDIF
+			ELSEIF ABL:精液中毒 >= 3
+				IF RAND:4 == 0
+					PRINTFORML 「噗啊…嗯、这下就干净了…」
+					PRINTFORMW 「要怎么办呢？　想要人家用嘴侍奉吗？」
+					PRINTFORM 「又或者是
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"「要来疼爱这边吗？呵呵…HPH」","L"
+						PRINTFORMDW 纳兹琳用手指撑开\@ TCVAR:112 == 1 ? 蜜穴 # 肛门 \@、那里面还在滴着精液、向你展示了出来…
+					;中出しされたのは他の人
+					ELSE
+						CALL HPH_PRINT,@"「这次准备疼爱人家了呢？呵呵…HPH」","L"
+						PRINTFORMDW 纳兹琳的娇躯轻柔挑逗般地蹭着你的肉棒、向你投来期待的目光…
+					ENDIF
+				ELSEIF RAND:3 == 0
+					CALL HPH_PRINT,@"「舔舔、啾噜噜、咻噜…嗯咕、哈啊啊…HPH　嗯…」","L"
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"有我自己的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE 
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道呢…HPH」","W"
+					ENDIF
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯、嗯呜、嗯～～…啾、噗哈、哈啊…HPH」","L"
+					CALL HPH_PRINT,@"「呵呵…HPH　真的是、非常非常色情的味道呢…」","W"
+				ELSE
+					CALL HPH_PRINT,@"「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧…HPH」","L"
+					CALL HPH_PRINT,@"「嗯呜…啾噗…舔舔、啾啾…有你的种子的味道呢…HPH」","W"
+				ENDIF
+			ELSE
+				IF RAND:4 == 0
+					PRINTFORML 「噗啊…嗯、这下就干净了…」
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"「要来疼爱这边吗？嘻嘻…HPH」","L"
+						PRINTFORMDW 纳兹琳用手指撑开\@ TCVAR:112 == 1 ? 蜜穴 # 肛门 \@、那里面还在滴着精液、向你展示了出来…
+					;中出しされたのは他の人
+					ELSE
+						CALL HPH_PRINT,@"「这次打算疼爱一下人家了吗？嘻嘻…HPH」","L"
+						PRINTFORMDW 纳兹琳的娇躯轻柔挑逗般地蹭着你的肉棒、向你投来期待的目光…
+					ENDIF
+				ELSEIF RAND:3 == 0
+					PRINTFORML 「啾、啾噜噜、啾噜…嗯咕、哈啊…　嗯…」
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"有我自己的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道呢…HPH」","W"
+					ENDIF
+				ELSEIF RAND:2 == 0
+					PRINTFORML 「嗯、嗯呜、嗯嗯～～…啾、噗哈、哈啊…」
+					PRINTFORM 「精液和
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"我自己的爱液混在一起、真是厉害的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道混在一起、变得很不得了了呢…HPH」","W"
+					ENDIF
+				ELSE
+					CALL HPH_PRINT,@"「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧…HPH」","L"
+					CALL HPH_PRINT,@"「嗯呜…啾噗…舔舔、啾啾…有你的种子的味道呢…HPH」","W"
+				ENDIF
+			ENDIF
+		;恋慕無
+		ELSE
+			IF ABL:精液中毒 >= 5
+				IF RAND:6 == 0
+					PRINTFORML 「噗啊…嗯、这下就干净了…」
+					CALL HPH_PRINT,@"「就这么射在人家嘴里也不是不行的哟…HPH」","W"
+				ELSEIF RAND:5 == 0
+					PRINTFORML 「啾噜、咻呜…啾呜呜…」
+					PRINTFORMDW 纳兹琳着了魔似的舔舐着肉棒上沾着的精液与爱液、将你的阳刚清理干净…
+				ELSEIF RAND:4 == 0
+					CALL HPH_PRINT,@"「哈、哈、啊…HPH　啊、姆呜…啾噜…」","L"
+					PRINTFORMDW 纳兹琳自发地含住刚刚拔出来的肉棒、将上面的黏糊糊混在一起精液和爱液舔舐清理干净…
+				ELSEIF RAND:3 == 0
+					CALL HPH_PRINT,@"「舔舔、啾噜噜、咻噜…嗯咕、哈啊啊…HPH　嗯…」","L"
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"有我自己的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道呢…HPH」","W"
+					ENDIF
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯、嗯呜、嗯～～…啾、噗哈、哈啊…HPH」","L"
+					CALL HPH_PRINT,@"「下一发、要不要考虑一下射在人家的嘴里呢…HPH」","W"
+				ELSE
+					CALL HPH_PRINT,@"「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧…HPH」","L"
+					CALL HPH_PRINT,@"「嗯呼…啾噗…舔舔、啾啾…啊哈、精液、好美味…HPH」","W"
+				ENDIF
+			ELSEIF ABL:精液中毒 >= 3
+				IF RAND:4 == 0
+					PRINTFORML 「噗啊…嗯、这下就干净了…」
+					PRINTFORMW 「如何呢？　就这么在嘴里射一发、我会全部喝下去的哦？」
+				ELSEIF RAND:3 == 0
+					CALL HPH_PRINT,@"「舔舔、啾噜噜、咻噜…嗯咕、哈啊啊…HPH　嗯…」","L"
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						CALL HPH_PRINT,@"有我自己的味道啊…HPH」","W"
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						CALL HPH_PRINT,@"的味道呢…HPH」","W"
+					ENDIF
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯、嗯呜、嗯～～…啾、噗哈、哈啊…HPH」","L"
+					PRINTFORMW 「呵呵…非常下流的味道哦…」
+				ELSE
+					CALL HPH_PRINT,@"「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧…HPH」","L"
+					CALL HPH_PRINT,@"「嗯呒…啾啪…舔舔、啾呜…是雄性的味道啊…HPH」","W"
+				ENDIF
+			ELSE
+				IF RAND:4 == 0
+					PRINTFORMW 「噗啊…嗯、这下就变干净了呢…」
+				ELSEIF RAND:3 == 0
+					PRINTFORML 「啾、啾噜噜、啾噜…嗯咕、哈啊…　嗯…」
+					PRINTFORM 「呼呜…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						PRINTFORMW 有我自己的味道啊…」
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM 是你和
+							;呼称変。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						PRINTFORMW 的味道呢…」
+					ENDIF
+				ELSEIF RAND:2 == 0
+					PRINTFORML 「嗯、嗯呒、嗯嗯～～…啾、噗哈、哈啊…」
+					PRINTFORM 「嘻嘻…
+					;中出しされたのはTARGET
+					IF TCVAR:102 || TCVAR:104
+						PRINTFORMW 精液和我自己的爱液混在一起了、好厉害的味道哦…」
+					;中出しされたのは他の人
+					ELSE
+						PRINTFORM %MASTERNAME:39%和
+							;呼称。星ちゃんなら「ご主人」
+							IF NO:LOCAL == 87
+								PRINT 主人
+							ELSE
+								PRINTFORM %CALLNAME:LOCAL%
+							ENDIF
+						PRINTFORMW 的味道混在一起、变得很不得了了呢…」
+					ENDIF
+				ELSE
+					PRINTFORML 「啊…这不是变得没干劲了吗。唉、拿你没办法、我来让你变的精神点吧」
+					PRINTFORMW 「嗯呼…啾噗…舔舔、啾啾…好厉害的、雄性的味道啊…」
+				ENDIF
+			ENDIF
+		ENDIF
+	;普通の口交
+	ELSE
+		IF TALENT:恋慕
+			;これでMASTERが射精する
+			IF NOWEX:MASTER:11
+				;精液中毒5以上かつ技巧3以上
+				IF ABL:精液中毒 >= 5 && ABL:技巧 >= 3
+					IF RAND:5 == 0
+						CALL HPH_PRINT,@"「啾啾呜～！姆咕HPH　哈～啊姆HPH　嗯咕、嗯嗯～～啾噜噜～～～」","L"
+						PRINTFORMDW 纳兹琳带着淫靡放荡的表情继续进行着口交、那身姿已经称不上在侍奉了、仿佛这行为对她来说就是奖励似的…
+						PRINTFORMDW 享受着温润口腔与舌头的触感、你配合着纳兹琳的侍奉在她嘴里狂野地释放自己的欲望…
+					ELSEIF RAND:4 == 0
+						CALL HPH_PRINT,@"「涩粗来…HPH　%MASTERNAME:39%的种子液、在里面满满的粗来…HPH」","L"
+						PRINTFORMDW 一脸放荡地为你做着口交的纳兹琳察觉到了射精的前兆、进一步加快了嘴上的动作、贪婪地向你索取着
+						PRINTFORMDW 看着平日伶牙俐齿的鼠少女与露出完全无法想象的痴态、你无法忍耐下半身的冲动一把抱住纳兹琳的脑袋、将肉棒埋入喉咙深处尽情用白浊蹂躏了一番…
+					ELSEIF RAND:3 == 0
+						CALL HPH_PRINT,@"「嗯呼…HPH　可以哦、随你喜欢的、满满的射出来…HPH」","W"
+						PRINTFORMDL 纳兹琳小小的口腔被你的肉棒塞满微微鼓起、在这闭塞的温润的空间里鼠少女进一步用舌头侍奉着你、期待着你的精华…
+						PRINTFORMDW 玲珑精致的童顔、与纳兹琳此刻进行的过于淫靡的行为产生的强烈背德感、终于让你的肉枪迎来极限…
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「嗯咕、啾噜啾噜、噗啾、啾呒呒、啾噼、啾噗、啾噜噜～～！」
+						PRINTFORML （好想要哦…　%MASTERNAME:39%的精子、好想让%MASTERNAME:39%在嘴里满满的射出来哦…）
+						PRINTFORMDW 感觉到嘴里肉竿有了射精的前兆、纳兹琳更加卖力地侍奉着
+						PRINTFORMDW 为了让你射精而特化的快感冲击的你的下体、无法继续忍耐的你只得满满地吐出屈服的证明…
+					ELSE
+						CALL HPH_PRINT,@"「嘶啾、舔舔、啾噜啾噜、啾噗啾噗啾嘶嘶、吸吸ー…HPH」","L"
+						PRINTFORMDW 明白你即将迎来绝顶的纳兹琳故意发出淫靡的水声巧妙地吮吸着你的肉棒、追击着你的弱点
+						CALL HPH_PRINT,@"（好次的要来了HPH　%MASTERNAME:39%的精子、要在嘴里射粗来了、味道好厉害哦HPH）","L"
+						PRINTFORMDW 期待着口内射精的纳兹琳的淫乱的表情、完全看不出平日里尖酸刻薄鼠少女的模样…
+					ENDIF
+				;精液中毒3以上
+				ELSEIF ABL:精液中毒 >= 3
+					IF RAND:3 == 0 
+						CALL HPH_PRINT,@"「嗯…要出来了吗？可以哦…HPH　啾、嗯姆、啾噜啾啾啾～～HPH」","W"
+						PRINTFORMDW 纳兹琳一副坦然的样子继续吮吸着射精寸前的肉棒。已经看不出还有抵抗口内射精的样子了…
+						CALL HPH_PRINT,@"「啾、啾、涩粗来、%MASTERNAME:39%的、满满的…HPH」","W"
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「呼呜、哈噗、嗯、啾噜、啾呜」
+						CALL HPH_PRINT,@"（啊…%MASTERNAME:39%的那根、在嘴里一跳一跳的…要、射在人家嘴里了吗…HPH）","L"
+						PRINTFORMDW 察觉到射精的前兆、纳兹琳不但没有停止嘴上的侍奉、反而更来劲了…
+					ELSE
+						CALL HPH_PRINT,@"「啾噗、舔舔…呵呵…差不多要出来了？可以哟…%MASTERNAME:39%的精液、全部射出来也可以哟…HPH」","W"
+						PRINTFORMW 「啾噗、啾噗、啾唔唔～～、嗯咕、啾噗、啾噗、啾噗、嗯～啾唔～～！」
+						PRINTFORMDW 淫靡的视线从胯下挑逗似的瞥视着你、咯咯笑了两声后重新专注于为你口交。精致的童顔、此刻已经染上了榨取汁液雌性的淫靡神情…
+					ENDIF
+				;精飲経験19以下
+				ELSEIF TCVAR:精飲経験 <= 19
+					IF RAND:3 == 0 
+						PRINTFORML 「嗯呼、哔啾、嗯…在跳着呢…」
+						PRINTFORMW 「可以哦…噼啾、哈呼…就这样、射出来…！」
+					ELSEIF RAND:2 == 0 
+						PRINTFORML 「嗯啾、舔舔、呜姆、啾…嗯、要出来了吗？」
+						PRINTFORMW 「嗯…就像这样、射出来吧…我会全部接住喝下去的…」
+					ELSE
+						PRINTFORML 「哈姆、嗯…舔舔……嗯…呼啊…」
+						PRINTFORMW （好像要出来了、不知为什么…感觉就这么喝下去、好像也不错…）
+					ENDIF
+				ELSE
+					IF RAND:3 == 0 
+						CALL HPH_PRINT,@"「嗯啾、哈姆、舔舔、啾呜～～～HPH」","L"
+						CALL HPH_PRINT,@"（嗯HPH　这次、也让%MASTERNAME:39%舒服起来了啊…HPH）","W"
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「嗯呼…HPH　可以哟、射出来吧。我也已经挺习惯了、这次就全部给你喝下去HPH」","W"
+						PRINTFORMW 「嗯啾…嗯、嗯嗯、…嗯嗯～～～～」
+						PRINTFORMDW 纳兹琳用小小的嘴将你的肉枪整根吞下、那努力侍奉的身姿让你无可奈何的变得更加兴奋…
+					ELSE
+						PRINTFORML 「啾噗、就噼、嘶啾呜呜…啊…要射出来了吗？」
+						CALL HPH_PRINT,@"「可以哟…你的精子、我会全部好好接下来的…HPH」","W"
+					ENDIF
+				ENDIF
+			;MASTER射精せず
+			ELSE
+				DRAWLINE
+				PRINTFORMDL 纳兹琳用嘴\@ PREVCOM == SELECTCOM ? 继续侍奉着你 # 开始侍奉你 \@…
+				PRINTFORMDL 
+				;勃起きっていない
+				IF BASE:MASTER:勃起 < 1000
+					IF RAND:3 == 0
+						CALL HPH_PRINT,@"「真是的…怎么还是软趴趴的样子呢。拿你没办法啊…嘿HPH」","W"
+						PRINTFORMDW 纳兹琳不知为何有点开心的样子主动用嘴侍奉起你的分身…
+						CALL HPH_PRINT,@"（嘻嘻…HPH　在嘴里慢慢变大的感觉…、真有趣…HPH)","W"
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「嘿嘿…还是小小的有点可爱呢…HPH　啊姆…」","L"
+						CALL HPH_PRINT,@"「嗯嗯…啾咕、啾噜、啾噗…、嘻嘻♪　偶尔调戏一下你这软绵绵的、也挺有意思的嘛HPH」","W"
+						PRINTFORMDW 被纳兹琳小小的嘴逗弄着、能感觉到血液正快速地涌向下半身…
+					ELSE
+						CALL HPH_PRINT,@"「…嘻嘻、啾啪、舔舔…啾、啾、啾噗、嗯…HPH」","L"
+						PRINTFORMDW 像是疼爱着你尚未勃起的阴茎似的、纳兹琳并不急着让你的大宝贝立起、而是将它含在嘴里慢慢地、温柔地舔舐
+						PRINTFORMDW 回应着这淫靡又惹人怜爱的侍奉、你的肉棒也渐渐挺立起来…
+					ENDIF
+				;普通に勃起
+				ELSE
+					;舌のLv2以上か技巧4以上
+					IF ABL:舌 >= 2 || ABL:技巧 >= 4
+						;精液中毒Lv.3以上で随机分岐3つ追加、Lv.5以上でさらに5つ追加
+						IF RAND:11 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「啾HPH　啾啪、嗯呼嗯噗、嗯～～♪」","L"
+							PRINTFORMDW 像是挑逗着因高涨的射精感欲火焚身的你一样、纳兹琳持续侍奉着你却又不至于让你真的射出来
+							CALL HPH_PRINT,@"「呵呵呵、还不行哦HPH　再多多忍耐一下、就能比平时射出来更多、也会比平时舒服很多哟HPH」","L"
+							CALL HPH_PRINT,@"「所以说啊…还得再忍耐一会HPH　呢嘻嘻…♪」","L"
+							PRINTFORMDW 就算是『想要射出来啊』这样宣告自己败北似的请求着、也不过是在煽动纳兹琳的嗜虐心…
+						ELSEIF RAND:10 == 0 && ABL:精液中毒 >= 5
+							PRINTFORML 「呐…！　已经、可以舔了吧？已经可以舔了吧…！？」
+							PRINTFORMDW 在纳兹琳眼前拨弄着肉枪、让浓烈的雄性气味挑逗着纳兹琳的鼻腔
+							PRINTFORMDW 充分地进行挑逗后终于下达了口交的许可、纳兹琳满脸欢喜地缓缓将你的男根吞进嘴里…
+							CALL HPH_PRINT,@"「哈啊、咕HPH　嗯、嗯咕、啾噜噜～～…呼啊HPH　啊、坏东西…呀♪」","W"
+						ELSEIF RAND:9 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「啾噗、啾啪、哈啊、好腻害哦HPH　%MASTERNAME:39%的大鸡鸡、好好吃HPH」","L"
+							CALL HPH_PRINT,@"（哈啊HPH　我现在、在侍奉着%MASTERNAME:39%的鸡鸡啊HPH）","L"
+							PRINTFORMDW 品尝着心爱之人的性器逐渐陶醉其中的纳兹琳、像是要让你阳具的每一个角落都沾染自己唾液似的用舌头仔细地侍奉着你
+							CALL HPH_PRINT,@"「把精液、啾噜、就这样、在嘴里、舔舔、涩粗来…HPH　你的种子、好想要哦HPH」","W"
+						ELSEIF RAND:8 == 0 && ABL:精液中毒 >= 5
+							PRINTFORML 「啾、啾呜呜、嘶噜噜噜、啾噗、啾噗、嗯呼～～…♪」
+							PRINTFORMDW 嘴里吮吸舔舐着男性器时奇妙地产生了一种背德的快乐、纳兹琳的脸上浮现出恍惚的笑容
+							CALL HPH_PRINT,@"「呐…很舒呼的吧？啾噜、毕竟都变的那～么硬邦邦、在人家嘴里一跳一跳的了呢HPH」","L"
+							CALL HPH_PRINT,@"「啾噗…嗯嗯…喵噗、好哦？要射出来的时候、就由我来给你弄干净HPH」","W"
+						ELSEIF RAND:7 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「呐、人家啊…好像是变得非常非～～常喜欢你的精液的样子了呢…HPH」","W"
+							CALL HPH_PRINT,@"「只是想到你的帝王液就会变得兴奋起来、更别提现在闻到这么厉害的味道…HPH　无论如何那里都会一阵一阵地发疼啊…HPH」","W"
+							CALL HPH_PRINT,@"「所以说…啦？在人家嘴里、射出来？再更多地、侵犯我吧…HPH」","W"
+							PRINTFORMDW 薄薄的嘴唇和小小的口腔像是渴求着雄性的种子一般、纳兹琳将你的阳具含在嘴里卖力地侍奉着…
+						ELSEIF RAND:6 == 0 && ABL:精液中毒 >= 3
+							PRINTFORML 「哈啊、哈啊、已经、忍不住了啦…」
+							PRINTFORMDW 纳兹琳灼热的吐息刺激着你的欲望、促使胯下的硬物更进一步挺立
+							CALL HPH_PRINT,@"「哈、呒…嗯HPH　啾、啾噗、啾噗、嗯哈、哈啊…HPH　好好次…」","W"
+							CALL HPH_PRINT,@"「啾噗、嗯啾、嗯姆嗯姆、啊～HPH　%MASTERNAME:39%的种子、满满的～射个舒服吧…HPH」","W"
+						ELSEIF RAND:5 == 0 && ABL:精液中毒 >= 3
+							CALL HPH_PRINT,@"「啾、啾呜、舔、哈啊…HPH」","L"
+							PRINTFORMDW 纳兹琳反复轻吻着肉棒的前段、似乎已经陶醉于浓烈的雄性气味
+							CALL HPH_PRINT,@"「嘻嘻…啾、好浓的味道哦…真受不了呀…♪HPH　啾、嗯、啾呜～～」","W"
+						ELSEIF RAND:4 == 0 && ABL:精液中毒 >= 3
+							CALL HPH_PRINT,@"「嗯、嗯呼、嗯嗯～…啾、嘿嘿、你的那里、在人家的嘴里…变的好硬好硬哦HPH」","W"
+							CALL HPH_PRINT,@"「想射出来的吧？你现在可是一副很辛苦的表情哦？不过因为我很喜欢你这个表情、所以我故意这么舔的啦HPH」","W"
+							PRINTFORMDW 纳兹琳像是打从心底觉得享受似地玩弄着你的肉棒、在不让你射精的情况下给予你快感并乐在其中…
+						ELSEIF RAND:3 == 0 
+							CALL HPH_PRINT,@"「呵呵、知道啦…HPH　那、这次就花点时间慢慢给你做吧…♪」","L"
+							PRINTFORMDW 纳兹琳轻薄的嘴唇凑上你阴茎的前段、缓慢地、一点点地、逐渐将硬物吞到自己温润的嘴里…
+							PRINTFORMDW 在此期间、纳兹琳嘴里大量分泌的唾液顺着你的阴茎垂到了睾丸、甚至于是肛门上…
+							
+						ELSEIF RAND:2 == 0 
+							CALL HPH_PRINT,@"「啾噗、嗯噗嗯噗…呼啊HPH 啾噗、啾啪、嗯嗯～…HPH」","L"
+							PRINTFORMDW 用自己的淫行取悦你——纳兹琳像是对此感到满足一般乐在其中、慈爱的口交仍在继续着…
+							CALL HPH_PRINT,@"「嗯、嗯、哈噗、啾呜、……呒啊、哈啊HPH　怎么样啊？感觉还舒服吗？」","W"
+						ELSE
+							PRINTFORML 「嗯啾呜呜、啾噜、嗯咕、嗯～～、啾噗、啾噗啾噗、呜咕…嗯…」
+							PRINTFORMDW 纳兹琳将自己唾液大量地涂抹在肉棒上充当润滑后吞下、吐出时再将嘴里混合这你先走汁和自己唾液的液体咽下…
+							CALL HPH_PRINT,@"「嗯…♪嘴里、慢慢的、都是你的味道…HPH」","W"
+						ENDIF
+					ELSE
+						IF RAND:3 == 0
+							PRINTFORML 「嗯呼、嗯、…啾、啪、哈啊、啊姆…」
+							PRINTFORMW （…虽然不觉得自己做的有多好啦、%MASTERNAME:39%会不会觉得舒服呢…）
+						ELSEIF RAND:2 == 0
+							PRINTFORMDL 纳兹琳一边抬眼观察着你的反应、一边拼命用舌头刺激着肉棒…
+							PRINTFORMW 「舔舔、啾噗、姆…这样感觉还好吗…？」
+						ELSE
+							PRINTFORML 「哈呒、姆……啾、啾噗…」
+							PRINTFORMDW 虽然动作生涩、但能从中感受到少女想要取悦你而做的努力……这么想着、你的阴茎变的更坚挺了…
+						ENDIF
+					ENDIF
+				ENDIF
+			ENDIF
+		RETURN 1
+		;恋慕無
+		ELSE
+			;これでMASTERが射精する
+			IF NOWEX:MASTER:11
+				;精液中毒5以上かつ技巧3以上
+				IF ABL:精液中毒 >= 5 && ABL:技巧 >= 3
+					IF RAND:5 == 0
+						CALL HPH_PRINT,@"「啾啾呜～！姆咕HPH　哈～啊姆HPH　嗯咕、嗯嗯～～啾噜噜～～～」","L"
+						PRINTFORMDW 纳兹琳带着淫靡放荡的表情继续进行着口交、那身姿已经称不上在侍奉了、仿佛这行为对她来说就是奖励似的…
+						PRINTFORMDW 享受着温润口腔与舌头的触感、你配合着纳兹琳的侍奉在她嘴里狂野地释放自己的欲望…
+					ELSEIF RAND:4 == 0
+						CALL HPH_PRINT,@"「涩粗来…HPH　你的精液、在嘴里尽情地涩粗来…HPH」","L"
+						PRINTFORMDW 一脸放荡地为你做着口交的纳兹琳察觉到了射精的前兆、进一步加快了嘴上的动作、贪婪地向你索取着
+						PRINTFORMDW 看着平日伶牙俐齿的鼠少女与露出完全无法想象的痴态、你无法忍耐下半身的冲动一把抱住纳兹琳的脑袋、将肉棒埋入喉咙深处尽情用白浊蹂躏了一番…
+					ELSEIF RAND:3 == 0
+						CALL HPH_PRINT,@"「嗯呼…HPH　可以哦、随你喜欢的、满满的射出来…HPH」","W"
+						PRINTFORMDL 纳兹琳小小的口腔被你的肉棒塞满微微鼓起、在这闭塞的温润的空间里鼠少女进一步用舌头侍奉着你、期待着你的精华…
+						PRINTFORMDW 玲珑精致的童顔、与纳兹琳此刻进行的过于淫靡的行为产生的强烈背德感、终于让你的肉枪迎来极限…
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「嗯咕、啾噜啾噜、噗啾、啾呒呒、啾噼、啾噗、啾噜噜～～！」
+						PRINTFORML （好想要…　雄性的种子、好想要精液在嘴里一下一下地射出来哦…）
+						PRINTFORMDW 感觉到嘴里肉竿有了射精的前兆、纳兹琳更加卖力地侍奉着
+						PRINTFORMDW 为了让你射精而特化的快感冲击的你的下体、无法继续忍耐的你只得满满地吐出屈服的证明…
+					ELSE
+						CALL HPH_PRINT,@"「嘶啾、舔舔、啾噜啾噜、啾噗啾噗啾嘶嘶、吸吸ー…HPH」","L"
+						PRINTFORMDW 明白你即将迎来绝顶的纳兹琳故意发出淫靡的水声巧妙地吮吸着你的肉棒、追击着你的弱点
+						CALL HPH_PRINT,@"（好吃的要来了HPH　精液、快用精液侵犯我的嘴巴、要泡在雄性的味道里了HPH）","L"
+						PRINTFORMDW 期待着口内射精的纳兹琳的淫乱的表情、完全看不出平日里尖酸刻薄鼠少女的模样…
+					ENDIF
+				;精液中毒3以上
+				ELSEIF ABL:精液中毒 >= 3
+					IF RAND:3 == 0 
+						CALL HPH_PRINT,@"「嗯…要出来了吗？可以哦…HPH　啾、嗯姆、啾噜啾啾啾～～HPH」","W"
+						PRINTFORMDW 纳兹琳一副坦然的样子继续吮吸着射精寸前的肉棒。已经看不出还有抵抗口内射精的样子了…
+						CALL HPH_PRINT,@"「啾、啾、涩粗来、全部涩粗来…HPH」","W"
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「呼呜、哈噗、嗯、啾噜、啾呜」
+						CALL HPH_PRINT,@"（啊啊…雄性的鸡鸡、在嘴里一跳一跳的…这是、要射在嘴里了呢…HPH）","L"
+						PRINTFORMDW 察觉到射精的前兆、纳兹琳不但没有停止嘴上的侍奉、反而更来劲了…
+					ELSE
+						CALL HPH_PRINT,@"「啾噗、舔舔…呵呵…是差不多到极限了吗？可以哟…把你的精液全部射出来吧…HPH」","W"
+						PRINTFORMW 「啾噗、啾噗、啾唔唔～～、嗯咕、啾噗、啾噗、啾噗、嗯～啾唔～～！」
+						PRINTFORMDW 淫靡的视线从胯下挑逗似的瞥视着你、咯咯笑了两声后重新专注于为你口交。精致的童顔、此刻已经染上了榨取汁液雌性的淫靡神情…
+					ENDIF
+				;精飲経験19以下
+				;恋慕無、精飲経験19以下だと吐き出す
+				ELSEIF TCVAR:精飲経験 <= 19
+				;「突然の射精に%CALLNAME:TARGET%はむせ返り、精液を吐き出してしまった…」
+					IF RAND:3 == 0 
+						PRINTFORML 「嗯呼、哔啾、嗯…在跳着呢…」
+						PRINTFORMW 「要射出来的时候、咳噗、说一句嘛…」
+					ELSEIF RAND:2 == 0 
+						PRINTFORML 「嗯啾、舔舔、呜姆、啾…嗯、要射了吗？」
+						PRINTFORMW 「还是不希望你射在人家嘴里呢…」
+					ELSE
+						PRINTFORML 「哈姆、嗯…舔舔……嗯…呼啊…」
+						PRINTFORMW （射出来了啊、唉…等下吐掉吧…）
+					ENDIF
+				ELSE
+					IF RAND:3 == 0 
+						PRINTFORML 「嗯啾、哈姆、舔舔、啾～～～」
+						PRINTFORMW 「…怎么样啊？我可是有自信已经变得相当擅长了呢」
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「嗯哈…　可以哦、射出来吧。人家也挺习惯了、这次就全部给你喝下去HPH」","W"
+						PRINTFORMW 「嗯啾…嗯、嗯嗯、…嗯嗯～～～～」
+					ELSE
+						PRINTFORML 「啾噗、就噼、嘶啾呜呜…啊…要射出来了吗？」
+						PRINTFORMW 「可以哟…已经蛮习惯了。就这么射出来吧…」
+					ENDIF
+				ENDIF
+			;MASTER射精せず
+			ELSE
+				DRAWLINE
+				PRINTFORMDL 纳兹琳用嘴\@ PREVCOM == SELECTCOM ? 继续侍奉着你 # 开始侍奉你 \@…
+				PRINTFORMDL 
+				;勃起きっていない
+				IF BASE:MASTER:勃起 < 1000
+					IF RAND:3 == 0
+						CALL HPH_PRINT,@"「真是的…怎么还是软趴趴的样子呢。拿你没办法啊…嘿HPH」","W"
+						PRINTFORMDW 纳兹琳不知为何有点开心的样子主动用嘴侍奉起你的分身…
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「嘿嘿…还是小小的有点可爱呢…HPH　啊姆…」","L"
+						CALL HPH_PRINT,@"「嗯嗯…啾咕、啾噜、啾噗…、嘻嘻♪　偶尔调戏一下你这软绵绵的、也挺有意思的嘛HPH」","W"
+						PRINTFORMDW 被纳兹琳小小的嘴逗弄着、能感觉到血液正快速地涌向下半身…
+					ELSE
+						CALL HPH_PRINT,@"「…嘻嘻、啾啪、舔舔…啾、啾、啾噗、嗯…HPH」","L"
+						PRINTFORMDW 纳兹琳温柔地将尚未充血的阴茎含在嘴里、仔细地用舌头舔舐抚慰着
+						PRINTFORMDW 感受着少女的侍奉、你的肉棒很快便取回了雄风…
+					ENDIF
+				;普通に勃起
+				ELSE
+					;舌のLv2以上か技巧4以上
+					IF ABL:舌 >= 2 || ABL:技巧 >= 4
+						;精液中毒Lv.3以上で随机分岐3つ追加、Lv.5以上でさらに5つ追加
+						IF RAND:11 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「啾HPH　啾啪、嗯呼嗯噗、嗯～～♪」","L"
+							PRINTFORMDW 像是挑逗着因高涨的射精感欲火焚身的你一样、纳兹琳持续侍奉着你却又不至于让你真的射出来
+							CALL HPH_PRINT,@"「呵呵呵、还不行哦HPH　再多多忍耐一下、就能比平时射出来更多、也会比平时舒服很多哟HPH」","L"
+							CALL HPH_PRINT,@"「所以说啊…还得再忍耐一会HPH　呢嘻嘻…♪」","L"
+							PRINTFORMDW 就算是『想要射出来啊』这样宣告自己败北似的请求着、也不过是在煽动纳兹琳的嗜虐心…
+						ELSEIF RAND:10 == 0 && ABL:精液中毒 >= 5
+							PRINTFORML 「呐…！　已经、可以舔了吧？已经可以舔了吧…！？」
+							PRINTFORMDW 在纳兹琳眼前拨弄着肉枪、让浓烈的雄性气味挑逗着纳兹琳的鼻腔
+							PRINTFORMDW 充分地进行挑逗后终于下达了口交的许可、纳兹琳满脸欢喜地缓缓将你的男根吞进嘴里…
+							CALL HPH_PRINT,@"「哈啊、咕HPH　嗯、嗯咕、啾噜噜～～…呼啊HPH　啊、坏东西…呀♪」","W"
+						ELSEIF RAND:9 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「啾噗、啾啪、哈啊、好厉害HPH　大鸡鸡、好好次HPH」","L"
+							CALL HPH_PRINT,@"「把精液、啾噜、就这样、在嘴里、舔舔、涩粗来…HPH　你的种子、好想要哦HPH」","W"
+						ELSEIF RAND:8 == 0 && ABL:精液中毒 >= 5
+							PRINTFORML 「啾、啾呜呜、嘶噜噜噜、啾噗、啾噗、嗯呼～～…♪」
+							PRINTFORMDW 嘴里吮吸舔舐着男性器时奇妙地产生了一种背德的快乐、纳兹琳的脸上浮现出恍惚的笑容
+							CALL HPH_PRINT,@"「呐…很舒呼的吧？啾噜、毕竟都变的那～么硬邦邦、在人家嘴里一跳一跳的了呢HPH」","L"
+							CALL HPH_PRINT,@"「啾噗…嗯嗯…喵噗、好哦？要射出来的时候、就由我来给你弄干净HPH」","W"
+						ELSEIF RAND:7 == 0 && ABL:精液中毒 >= 5
+							CALL HPH_PRINT,@"「呐、人家呀…好像是变得非常非常喜欢精液的样子了呢…HPH」","W"
+							CALL HPH_PRINT,@"「仅仅是闻到味道…HPH　那里就无论如何都会莫名地发疼呢…HPH」","W"
+							CALL HPH_PRINT,@"「所以说…啦？在人家嘴里、射出来？再更多地、侵犯我吧…HPH」","W"
+							PRINTFORMDW 薄薄的嘴唇和小小的口腔像是渴求着雄性的种子一般、纳兹琳将你的阳具含在嘴里卖力地侍奉着…
+						ELSEIF RAND:6 == 0 && ABL:精液中毒 >= 3
+							PRINTFORML 「哈啊、哈啊、已经、忍不住了啦…」
+							PRINTFORMDW 纳兹琳灼热的吐息刺激着你的欲望、促使胯下的硬物更进一步挺立
+							CALL HPH_PRINT,@"「哈、呒…嗯HPH　啾、啾噗、啾噗、嗯哈、哈啊…HPH　好好次…」","W"
+							CALL HPH_PRINT,@"「啾噗、嗯啾、嗯姆嗯姆、啊啊HPH　满满的、把你的种子液射出来吧…HPH」","W"
+						ELSEIF RAND:5 == 0 && ABL:精液中毒 >= 3
+							CALL HPH_PRINT,@"「啾、啾呜、舔、哈啊…HPH」","L"
+							PRINTFORMDW 纳兹琳反复轻吻着肉棒的前段、似乎已经陶醉于浓烈的雄性气味
+							CALL HPH_PRINT,@"「嘻嘻…啾、好浓的味道哦…真受不了呀…♪HPH　啾、嗯、啾呜～～」","W"
+						ELSEIF RAND:4 == 0 && ABL:精液中毒 >= 3
+							CALL HPH_PRINT,@"「嗯、嗯呼、嗯嗯～…啾、嘿嘿、你的那里、在人家的嘴里…变的好硬好硬哦HPH」","W"
+							CALL HPH_PRINT,@"「想射出来的吧？你现在可是一副很辛苦的表情哦？不过因为我很喜欢你这个表情、所以我故意这么舔的啦HPH」","W"
+							PRINTFORMDW 纳兹琳像是打从心底觉得享受似地玩弄着你的肉棒、在不让你射精的情况下给予你快感并乐在其中…
+						ELSEIF RAND:3 == 0 
+							CALL HPH_PRINT,@"「呵呵、知道啦…HPH　那、这次就花点时间慢慢给你做吧…♪」","L"
+							PRINTFORMDW 纳兹琳轻薄的嘴唇凑上你阴茎的前段、缓慢地、一点点地、逐渐将硬物吞到自己温润的嘴里…
+							PRINTFORMDW 在此期间、纳兹琳嘴里大量分泌的唾液顺着你的阴茎垂到了睾丸、甚至于是肛门上…
+						ELSEIF RAND:2 == 0 
+							CALL HPH_PRINT,@"「啾噗、滋噗滋噗…嗯呼HPH　啾噗、啾噗、嗯嗯～…」","L"
+							PRINTFORMW 「嗯、嗯、哈噗、啾噜、……呼啊、哈…客官如何呀？舒服吗？」
+						ELSE
+							PRINTFORML 「嗯啾呜呜、啾噜、嗯咕、嗯～～、啾噗、啾噗啾噗、呜咕…嗯…」
+							PRINTFORMDW 纳兹琳将自己唾液大量地涂抹在肉棒上充当润滑后吞下、吐出时再将嘴里混合这你先走汁和自己唾液的液体咽下…
+							CALL HPH_PRINT,@"「嗯…♪在人家的嘴里、雄性的大鸡鸡、塞的满满的…HPH」","W"
+						ENDIF
+					ELSE
+						IF RAND:3 == 0
+							PRINTFORML 「嗯呼、嗯、…啾、啪、哈啊、啊姆…」
+							PRINTFORMW （…嗯…是不觉得自己做的有多好啦、但是…）
+						ELSEIF RAND:2 == 0
+							PRINTFORMDL 纳兹琳抬眼观察着你的反应、动作笨拙地刺激着你的肉棒…
+							PRINTFORMW 「舔舔、啾噗、姆…这样感觉还好吗…？」
+						ELSE
+							PRINTFORMW 「哈呜、姆……啾、啾噗…」
+						ENDIF
+					ENDIF
+				ENDIF
+			ENDIF
+		RETURN 1
+		ENDIF
+	ENDIF
+ENDIF
+;未記入
+;TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+;RETURN RESULT
+
+;==================================================
+;6,挿入Ｇスポ責め
+;※挿入子宮口玩弄になるかは随机
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_SCOM_K39_6
+;口上分岐
+IF RAND:2 == 0
+	CFLAG:1501 = 1
+ELSE
+	CFLAG:1501 = 0
+ENDIF
+;※早い話が1/2でＧスポ責めの地の文を呼ばない
+SIF CFLAG:1501 == 1
+	RETURN 0
+RETURN 1
+
+@M_KOJO_MESSAGE_SCOM_K39_6
+CALL M_KOJO_MESSAGE_SCOM_K39_6_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_6_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;過激な恶作剧中
+	IF CFLAG:恶作剧 && CFLAG:睡眠
+		;挿入Ｇスポ責め
+		IF CFLAG:1501 == 1
+			;これでMASTERが射精する
+			IF NOWEX:MASTER:11
+				PRINTFORMDW 用肉棒摩擦着纳兹琳淫肉的上壁、在熟睡着的少女体内释放出了自己的欲望…
+				IF RAND:3 == 0 
+					CALL HPH_PRINT,@"「嗯…嗯呒…嗯嗯…HPH」","W"
+				ELSEIF RAND:2 == 0 
+					CALL HPH_PRINT,@"「哈啊ーHPH　哈啊ー…HPH」","W"
+				ELSE
+					PRINTFORMDW 纳兹琳的身体一颤一颤地抖动着…
+				ENDIF
+			ELSE
+				PRINTFORMDW 你用肉棒的前端反复摩擦刺激熟睡着的纳兹琳的性感帯…
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…嗯呼…嗯…」
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「嗯呜……嗯…」
+				ELSE
+					PRINTFORMW 「嗯嗯……嗯…」
+				ENDIF
+			ENDIF
+		;連続
+		ELSE
+			DRAWLINE
+			;正常位、対面立位
+			IF TEQUIP:体位 == 1
+				;MASTERについている
+				IF TALENT:PLAYER:2 & 2
+					PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+				ELSE
+					PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+				ENDIF
+				PRINTFORMDL 
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…嗯呼…嗯…」
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「嗯呜……嗯…」
+				ELSE
+					PRINTFORMW 「嗯嗯……嗯…」
+				ENDIF
+			;後背位、背面立位
+			ELSEIF TEQUIP:体位 == 2
+				;MASTERについている
+				IF TALENT:PLAYER:2 & 2
+					PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+				ELSE
+					PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+				ENDIF
+				PRINTFORMDL 
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…嗯呼…嗯…」
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「嗯呜……嗯…」
+				ELSE
+					PRINTFORMW 「嗯嗯……嗯…」
+				ENDIF
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 1
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		SIF CFLAG:1501 == 0
+		DRAWLINE
+		PRINTFORMDW 在仍能感觉到阻力的纳兹琳的膣内、你的肉棒无意间蹭到了一个稍微有些凸起的位置…
+		IF ABL:Ｖ感覚 >= 3
+			CALL HPH_PRINT,@"「啊呜…HPH　那、那里是…HPH」","W"
+		ELSE
+			PRINTFORMW 「咿呜…！？刚、刚才怎么了、突然颤了一下…」
+		ENDIF
+		RETURN 1
+	ENDIF
+	;基本セット
+	;※CFLAG:1501 == 1でＧスポ責めしている時、0で選んだ指令で継続して突いている時の口上
+	;挿入Ｇスポ責め
+	IF CFLAG:1501 == 1
+		CFLAG:1501 = 0
+		;Ｖ感覚1以下
+		IF ABL:Ｖ感覚 <= 1
+			PRINTFORMW 「呜、呜呜…咕、啊…」
+			PRINTFORMDW 纳兹琳那娇小的性器光是接受你的进入就已经是竭尽全力了、此刻并没有体验性快乐的余裕…
+		;恋慕
+		ELSEIF TALENT:恋慕
+			;これでMASTERが射精
+			IF NOWEX:PLAYER:11
+				;TARGETがＶ絶頂する場合、随机分岐2つ追加
+				IF RAND:4 == 0 && NOWEX:Ｖ絶頂
+					CALL HPH_PRINT,@"「啊呜HPH　那、那里被戳到的话人家要去了啦HPH」","L"
+					CALL HPH_PRINT,@"「…哈…、%MASTERNAME:39%、也是…、一起去…HPH」","W"
+				ELSEIF RAND:3 == 0 && NOWEX:Ｖ絶頂
+					CALL HPH_PRINT,@"「现、现在欺负那里太狡猾了HPH　要…不行了…HPH」","L"
+					PRINTFORMDW 为了与性感帯被你刺激到一下子声音变得高亢起来的纳兹琳同时迎来快乐的高潮、你用已经胀大到极限的肉棒卯足劲在少女的蜜壶里抽送着…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「唏、咿嗯！？你、那里、膨胀的好厉害…HPH」","L"
+					CALL HPH_PRINT,@"「现在…要是射在那里、的话…HPH」","W"
+				ELSE
+					CALL HPH_PRINT,@"「啊呜HPH　啊啊HPH　是、要射出来了吗？」","L"
+					CALL HPH_PRINT,@"「在人家里面、最敏感的地方、满满地射进来…HPH」","W"
+				ENDIF
+			ELSE
+				IF RAND:4 == 0
+					CALL HPH_PRINT,@"「啊呜呜HPH　那里、很敏感的啦……呜啊HPH」","L"
+					PRINTFORMDW 面对G点被刺激的快乐、纳兹琳的娇躯微微颤抖着、几乎连眼泪都要流下来了
+					SIF EXP:Ｖ経験 > 120
+					PRINTFORMDW 然而少女的腰肢却艳丽地扭动着、自发地摩擦着你的肉棒、贪图着G点被刺激到的快乐…
+				ELSEIF RAND:3 == 0
+					CALL HPH_PRINT,@"「啊！？那里HPH　哈呜呜、啊、唏、咿嗯HPH」","W"
+					CALL HPH_PRINT,@"「你的大鸡鸡、碰到了、哈呜呜HPH」","W"
+					PRINTFORMDW 已经完全记住了性快乐的纳兹琳因为G点被刺激到的快乐、发出了欢喜的娇声…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「啊啊ーHPH　那里、很弱啦、啊啊HPH」","L"
+					PRINTFORMDW 当你用龟头像是抚摸般轻柔地刺激着少女的G时、纳兹琳就会发出更加高声的娇喘…
+				ELSE
+					CALL HPH_PRINT,@"「咿嗯…HPH　那里不行、力气要、提不上来了…哈呜呜HPH」","L"
+					PRINTFORMDW 纳兹琳娇艳地摆动着腰肢、享受着身为雌性的快乐…
+				ENDIF
+			ENDIF
+		;それ以外
+		ELSE
+			IF RAND:4 == 0
+				PRINTFORML 「啊呜呜…　那里、很敏感的啦、再温柔点……呜啊」
+				PRINTFORMDW 面对G点被刺激的快乐、纳兹琳的娇躯微微颤抖着、几乎连眼泪都要流下来了
+				SIF EXP:Ｖ経験 > 120
+				PRINTFORMDW 然而少女的腰肢却艳丽地扭动着、自发地摩擦着你的肉棒、贪图着G点被刺激到的快乐…
+			ELSEIF RAND:3 == 0
+				CALL HPH_PRINT,@"「啊！？那、那里　哈呜呜、啊、唏、咿嗯HPH」","W"
+				PRINTFORMDW 已经完全记住了性快乐的纳兹琳因为G点被刺激到的快乐、发出了欢喜的娇声…
+			ELSEIF RAND:2 == 0
+				CALL HPH_PRINT,@"「啊啊ーHPH　那里、很弱啦、啊啊HPH」","L"
+				PRINTFORMDW 当你用龟头像是抚摸般轻柔地刺激着少女的G时、纳兹琳就会发出更加高声的娇喘…
+			ELSE
+				CALL HPH_PRINT,@"「唏嗯…　那里不行啦、要、使不上力了…哈呜呜HPH」","L"
+				PRINTFORMDW 纳兹琳娇艳地摆动着腰肢、享受着身为雌性的快乐…
+			ENDIF
+		ENDIF
+	;連続
+	ELSE
+		DRAWLINE
+		;正常位、対面立位
+		IF TEQUIP:体位 == 1
+			;MASTERについている
+			IF TALENT:PLAYER:2 & 2
+				PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+			ELSE
+				PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+			ENDIF
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_60_1
+		;後背位、背面立位
+		ELSEIF TEQUIP:体位 == 2
+			;MASTERについている
+			IF TALENT:PLAYER:2 & 2
+				PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+			ELSE
+				PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+			ENDIF
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_61_1
+		;騎乗位
+		ELSEIF TEQUIP:体位 == 3
+			PRINTFORMDW %CALLNAME:TARGET%下腹用力收紧腔室包裹住插着的肉棒、再次摆动起腰肢来…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_65_1
+		;対面座位
+		ELSEIF TEQUIP:体位 == 4
+			PRINTFORMDW %CALLNAME:TARGET%与%CALLNAME:PLAYER%激烈地接着吻、两条舌头相互缠绕交换着唾液的同时腰部也再次动作起来…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_67_1
+		;背面座位
+		ELSE
+			PRINTFORMDW 从背后抱住%CALLNAME:TARGET%、再次贪恋起%CALLNAME:TARGET%美妙的身体…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_68_1
+		ENDIF
+	ENDIF
+	RETURN 1
+ENDIF
+;未記入
+;TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+;RETURN RESULT
+
+;==================================================
+;7,挿入子宮口責め
+;子宮口開発経験 > 50になると、一日の終わりにポルチオ性感（実在するらしい）を取得
+
+;地の文
+[SKIPSTART]
+SELECTCASE EXP:TARGET:子宮口開発経験
+CASE IS < 25
+	PRINTDATA
+		DATAFORM %CALLNAME:TARGET%はぎゅっと目を閉じて異物感に耐えている…
+		DATAFORM %CALLNAME:TARGET%は子宮口をこじ開けられる感覚に顔を歪めている…
+	ENDDATA
+CASE 25 TO 50
+	PRINTFORML じっくり開発してやった甲斐あってか、もはや%CALLNAME:TARGET%の表情には苦悶の色は薄い。
+	PRINTFORML 綻びはじめた子宮口を小突かれ、%CALLNAME:TARGET%は悲鳴のような喘ぎを上げた。
+CASE IS > 50
+	SELECTCASE RAND:2
+	CASE 0
+		PRINTFORML %TINKO(PLAYER)%を深く挿入すると、開発されきった%CALLNAME:TARGET%の子宮口は柔軟に口を開き
+		PRINTFORML 突き入れられた亀頭を難なく子宮内に迎え入れた
+		IF TALENT:TARGET:恋慕
+			PRINTDATA
+				DATAFORM %CALLNAME:TARGET%はとろけきった表情で、%CALLNAME:PLAYER%と最も深い場所で愛し合う幸せに酔い痴れている…
+				DATAFORM %CALLNAME:TARGET%は%CALLNAME:MASTER%に子宮まで愛される喜びに頬を緩ませている…
+			ENDDATA
+		ELSE
+			PRINTFORML %CALLNAME:TARGET%は子宮を直接蹂躙される感覚に恐怖を覚えるも、とうに%CALLNAME:PLAYER%に屈服している牝の肉体は抵抗を許さず
+			PRINTFORML %CALLNAME:TARGET%はなすすべなくよがり啼いた…
+		ENDIF
+	CASE 1
+		PRINTFORML 開発されきった子宮口を%TINKO(PLAYER)%で小突かれ、%CALLNAME:TARGET%は快楽のあまり全身をがくがくと痙攣させ、肉の悦びに打ち震えた…
+	ENDSELECT
+ENDSELECT
+[SKIPEND]
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_SCOM_K39_7
+
+RETURN 0
+
+@M_KOJO_MESSAGE_SCOM_K39_7
+CALL M_KOJO_MESSAGE_SCOM_K39_7_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_7_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;過激な恶作剧中
+	;※CFLAG:1501 == 1で挿入子宮口玩弄している時、0で選んだ指令で継続して突いている時の口上
+	IF CFLAG:恶作剧 && CFLAG:睡眠
+		;挿入Ｇスポ責め
+		IF CFLAG:1501 == 1
+			;これでMASTERが射精する
+			IF NOWEX:MASTER:11
+				PRINTFORMDW 将深入阴道的肉枪抵在了少女的子宫口、在熟睡着的纳兹琳体内尽情喷洒精液…
+				IF ABL:Ｖ感覚 >= 3
+					IF RAND:3 == 0 
+						CALL HPH_PRINT,@"「嗯…嗯呒…嗯嗯…HPH」","W"
+					ELSEIF RAND:2 == 0 
+						CALL HPH_PRINT,@"「哈啊ーHPH　哈啊ー…HPH」","W"
+					ELSE
+						PRINTFORMDW 纳兹琳的身体一颤一颤地抖动着…
+					ENDIF
+				ELSE
+					PRINTFORMW 「嗯…咕…」
+				ENDIF
+			ELSE
+				PRINTFORMDW 入侵了睡梦中少女蜜壶的最深处、用龟头摩擦着纳兹琳的子宫口…
+				IF ABL:Ｖ感覚 >= 3
+					IF RAND:3 == 0 
+						PRINTFORMW 「嗯…嗯呼…嗯…」
+					ELSEIF RAND:2 == 0 
+						PRINTFORMW 「嗯呜……嗯…」
+					ELSE
+						PRINTFORMW 「嗯嗯……嗯…」
+					ENDIF
+				ELSE
+					PRINTFORMW 「嗯…」
+				ENDIF
+			ENDIF
+		;連続
+		ELSE
+			DRAWLINE
+			;正常位、対面立位
+			IF TEQUIP:体位 == 1
+				;MASTERについている
+				IF TALENT:PLAYER:2 & 2
+					PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+				ELSE
+					PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+				ENDIF
+				PRINTFORMDL 
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…嗯呼…嗯…」
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「嗯呜……嗯…」
+				ELSE
+					PRINTFORMW 「嗯嗯……嗯…」
+				ENDIF
+			;後背位、背面立位
+			ELSEIF TEQUIP:体位 == 2
+				;MASTERについている
+				IF TALENT:PLAYER:2 & 2
+					PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+				ELSE
+					PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+				ENDIF
+				PRINTFORMDL 
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…嗯呼…嗯…」
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「嗯呜……嗯…」
+				ELSE
+					PRINTFORMW 「嗯嗯……嗯…」
+				ENDIF
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;※CFLAG:1501 == 1で挿入子宮口責めしている時、0で選んだコマンドで継続して突いている時の口上←era命蓮寺時代の名残。とりあえずコメントアウト
+	;挿入子宮口責め
+	;IF CFLAG:1501 == 1
+		;恋慕または愛欲
+		IF TALENT:恋慕 || TALENT:愛欲
+			;前回射精した
+			IF TCVAR:112 == 1  && NOWEX:MASTER:11 == 0
+				IF RAND:2 == 0
+					PRINTFORMDL 你的肉枪裹挟着方才注入的精液突刺到腔室的最深处、刺激着少女的花房…
+					CALL HPH_PRINT,@"「呜啊…明明、刚刚才射了一大堆、现在欺负那里的话…HPH」","W"
+				ELSE
+					CALL HPH_PRINT,@"「呜啊…HPH　欺负人、明明才射进来那么多…HPH」","L"
+					CALL HPH_PRINT,@"「精液、在最里面、蹭到了HPH」","W"
+				ENDIF
+			;これでMASTERが射精する
+			;子宮口責めだと多分コレが一番選択されるんじゃないか？ということでランダムをもっと増やす
+			;前コマンドが正常位だとコマンド名が「種付けプレス」、前コマンドが後背位だと「種付け交尾」、後背位で危険日CFLAG:TARGET:生理周期 == 7だと「孕ませ交尾」に変化
+			;射精口上はまた別に表示されることに注意
+			ELSEIF TCVAR:PLAYER:イきそう
+				;恋人または妊娠願望持ちまたは発情中、かつ子宮口開発経験25以上　積極的に種付けを求める
+				;種付けプレスでランダム分岐5個、種付け交尾でランダム分岐5個追加
+				IF ( TALENT:恋人 || TALENT:妊娠願望 || TCVAR:発情 ) && EXP:子宮口開発経験 >= 25
+					IF RAND:10 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「哦呼HPH　啊——HPH　等一下HPH　肚子、被顶到了HPH」","W"
+						PRINTFORMW 每当压下纳兹琳\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@身体时、%TINKO(PLAYER)%都深深刺入其中、无情地剜挖着雌性肚腹深处温暖的地方…
+					ELSEIF RAND:9 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"（不行HPH　%MASTERNAME:39%的HPH在敲打着子宮入口HPH）","W"
+						CALL HPH_PRINT,@"（雌性的幸福HPH　要被你教会了HPHHPH）","W"
+					ELSEIF RAND:8 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊、不行、呼呜HPH　这、这个姿势、真的会怀孕的HPH」","W"
+						CALL HPH_PRINT,@"「人家想要精液HPH　给人家精液HPH　啊——啊HPH　要、要去了HPH　啊——啊————HPHHPHHPH」","W"
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊——呜HPH　啊哈啊——呜HPH　不行HPH　要去了HPH」","W"
+						CALL HPH_PRINT,@"「呼叽！？HPH　啊——HPH　子宮要被压坏了HPH　要变得幸福了HPHHPH」","W"
+						PRINTFORMDW 每一次抽送都将纳兹琳小小的花芯压得扁扁的、幸福绝顶的快乐被深深镌刻在脑海里…
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「哦——哦HPH　哦呼！？HPH　哦、哦哦————HPHHPH」","W"
+						PRINTFORMDW 随着每一次『咚啾、咚啾』地压下纳兹琳\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@腰肢的动作、潮水和爱液都飞溅开来…
+						PRINTFORMDW 你为了让忘乎所以地发出野兽般喘息声的她的胎内注满子种、进一步加快了腰部的动作…
+					ELSEIF RAND:10 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊HPH　喜欢HPH　%MASTERNAME:39%喜欢HPH　喜欢%MASTERNAME:39%的交尾HPH」","W"
+						CALL HPH_PRINT,@"「哈呜HPH　啊HPH　要来了HPH　播种的精液要来了HPH　要去了HPHHPH」","W"
+					ELSEIF RAND:9 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　啊～～HPHHPH　啊呜、啊～～HPHHPHHPH」","W"
+						IF TALENT:MASTER:年齢 == -1
+							PRINTFORMDW 双手抓住腰肢覆上纳兹琳，毫不客气地蹂躏着子宮入口
+							PRINTFORMDW 过度的花芯快感让纳兹琳眼神空洞，只能发出不成言语的喘息声…
+						ELSE
+							PRINTFORMDW 双手抓住腰肢，像使用大号飞机杯一样用纳兹琳来套弄%TINKO(PLAYER)%
+							PRINTFORMDW 从后面被侵犯的纳兹琳脚尖悬空，眼神空洞地垂流着不成言语的喘息声…
+						ENDIF
+					ELSEIF RAND:8 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊呜HPH　哈——、哈——、啊HPH　精液要来了HPH　你的孩子、真的要怀上了HPH」","W"
+						CALL HPH_PRINT,@"（啊HPH　%MASTERNAME:39%的鸡鸡，鼓鼓地膨胀着HPH　真的打算\@ CFLAG:TARGET:生理周期 == 7 ? 让我怀上 # 给我播种 \@吗HPH）","W"
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「哈啊HPH　啊啊HPH　嗯HPH　嗯HPH　好啊HPH　给我播种HPH让我怀上HPH　%MASTERNAME:39%HPH」","W"
+						CALL HPH_PRINT,@"「%MASTERNAME:39%的种子HPH　我、想要…HPH」","W"
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　呜！？HPH　啊、啊啊　啊～…HPH」","W"
+						PRINTFORMDW 每次从后面重重撞击腰部时，『咕啾、咕啾』的下流交合声便从性器间漏出
+						PRINTFORMDW 将龟头抵在已经变得柔软松开的花芯入口，为了让大量的子种直接\@ CFLAG:生理周期 == 7 ? 种付 # 注入 \@，阴茎颤抖着…
+						CALL HPH_PRINT,@"（好厉害HPH　从后面被子宫顶撞HPH　我知道的HPH　这是在最深处被做的感觉…HPH）","W"
+					ELSEIF RAND:5 == 0
+						CALL HPH_PRINT,@"「哈HPH　哈HPH　哈啊HPH　在最里面、射出来…HPH」","L"
+						CALL HPH_PRINT,@"「啊呜…HPH　%MASTERNAME:39%的子种、好多…HPH」","W"
+					ELSEIF RAND:4 == 0
+						PRINTFORML 「就、是、那里…嗯、全部射出来…！」
+						CALL HPH_PRINT,@"「让人家怀上你的孩子…HPH」","W"
+					ELSEIF RAND:3 == 0
+						CALL HPH_PRINT,@"「…！在那种地方射出来的话、真的会怀上你的孩子的啦…HPH」","L"
+						PRINTFORMDW 纳兹琳感受到了在自己身体最深处的射精、像是有点开心似的喃喃自语着…
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「啊、啊、在最里面、鸡鸡一跳一跳的…HPH」","L"
+						CALL HPH_PRINT,@"「要被人类的精子、播种受精了…HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「啊——呜HPH　哦——HPH　哦哦～～～HPHHPH」","W"
+						CALL HPH_PRINT,@"（顶到最深处了HPH　啊HPH　尖端HPH　鼓鼓地胀大着HPH　要被射出精液了HPHHPH）","W"
+					ENDIF
+				;恋慕または愛欲のみ。心の奥底では妊娠を欲しているが積極的に求めるわけではない
+				;種付けプレスでランダム分岐3個、種付け交尾でランダム分岐3個追加
+				ELSE
+					IF RAND:8 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊、不行、呼呜HPH　这、这个姿势、真的会怀孕的HPH」","W"
+						CALL HPH_PRINT,@"「精液不行HPH　要、要去了HPH　啊——啊HPH　啊——啊～～～HPHHPHHPH」","W"
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊——呜HPH　啊哈啊——呜HPH　不行HPH　要去了HPH」","W"
+						CALL HPH_PRINT,@"「呼叽！？HPH　啊——HPH　子宮要被压坏了HPH　要变得幸福了HPHHPH」","W"
+						PRINTFORMDW 每一次抽送都将纳兹琳小小的花芯压得扁扁的、对怀孕的顾虑被幸福绝顶的快乐所覆盖…
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「哦——HPH　哦呼！？HPH　哦、哦哦————HPHHPH」","W"
+						PRINTFORMDW 随着每一次『咚啾、咚啾』地压下纳兹琳\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@腰肢的动作、潮水和爱液都飞溅开来…
+						PRINTFORMDW 你为了让忘乎所以地发出野兽般喘息声的她的胎内注满子种、进一步加快了腰部的动作…
+					ELSEIF RAND:8 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　啊～～HPHHPH　啊呜、啊～～HPHHPHHPH」","W"
+						IF TALENT:MASTER:年齢 == -1
+							PRINTFORMDW 双手抓住腰肢覆上纳兹琳，毫不客气地蹂躏着子宮入口
+							PRINTFORMDW 过度的花芯快感让纳兹琳眼神空洞，只能发出不成言语的喘息声…
+						ELSE
+							PRINTFORMDW 双手抓住腰肢，像使用大号飞机杯一样用纳兹琳来套弄%TINKO(PLAYER)%
+							PRINTFORMDW 从后面被侵犯的纳兹琳脚尖悬空，眼神空洞地垂流着不成言语的喘息声…
+						ENDIF
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊呜HPH　哈——、哈——、啊HPH　不行HPH　不行不行、真的会怀上的HPH」","W"
+						CALL HPH_PRINT,@"（啊HPH　%MASTERNAME:39%的鸡鸡，鼓鼓地膨胀着HPH　",""
+						CALL HPH_PRINT,@"真的打算\@ CFLAG:TARGET:生理周期 == 7 ? 让我怀上 # 给我播种 \@吗HPH）","W"
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　呜！？HPH　啊、啊啊　啊～…HPH」","W"
+						PRINTFORMDW 每次从后面重重撞击腰部时，『咕啾、咕啾』的下流交合声便从性器间漏出
+						PRINTFORMDW 为了让子种直接\@ CFLAG:生理周期 == 7 ? 受孕 # 注入 \@，将龟头抵在已经变得柔软松开的花芯入口…
+						CALL HPH_PRINT,@"（好厉害HPH　从后面被子宫顶撞HPH　被教会了HPH　最深处被捣弄的感觉…HPH）","W"
+					ELSEIF RAND:5 == 0
+						CALL HPH_PRINT,@"「哈、哈、呜、啊、那种地方、要射出来了…HPH」","W"
+						CALL HPH_PRINT,@"「不、行HPH　真的、真的会怀上的啦HPH」","W"
+					ELSEIF RAND:4 == 0 
+						CALL HPH_PRINT,@"「啊、那里…要、射出来、吗…？」","L"
+						CALL HPH_PRINT,@"「不、不是…HPH　我才没在想那种事，啊HPH　啊HPH　不行HPH」","W"
+					ELSEIF RAND:3 == 0
+						CALL HPH_PRINT,@"「…！在、那种地方射出来的话，真的会怀上你的孩子…HPH」","L"
+						PRINTFORMDW 纳兹琳察觉到了在最深处的射精，像是有点开心似的喃喃自语着…
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「啊、啊、在最里面、一跳一跳的…HPH」","L"
+						CALL HPH_PRINT,@"「要被人类的精液、播种受孕了…HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「呼、嗯嗯、啊、那种地方、要射出来…HPH」","L"
+						CALL HPH_PRINT,@"「子宮、里面、都要变成你的了…HPH」","W"
+					ENDIF
+				ENDIF
+			;前回射精でも今回MASTER:が射精するわけでもない、普通の子宮口責め
+			;子宮口開発経験 < 25の場合のみ、今回MASTER:が射精してもこの分岐を通る
+			ELSE
+				;子作り快楽に溺れてる状態、ポルチオ快楽って実際にあるらしい
+				IF EXP:子宮口開発経験 > 50
+				;地の文
+				;%TINKO(PLAYER)%を深く挿入すると、開発されきった%CALLNAME:TARGET%の子宮口は柔軟に口を開き
+				;突き入れられた亀頭を難なく子宮内に迎え入れた
+				;恋慕
+				;%CALLNAME:TARGET%はとろけきった表情で、%CALLNAME:PLAYER%と最も深い場所で愛し合う幸せに酔い痴れている…
+				;%CALLNAME:TARGET%は%CALLNAME:MASTER%に子宮まで愛される喜びに頬を緩ませている…
+				;恋慕なし
+				;%CALLNAME:TARGET%は子宮を直接蹂躙される感覚に恐怖を覚えるも、とうに%CALLNAME:PLAYER%に屈服している牝の肉体は抵抗を許さず
+				;%CALLNAME:TARGET%はなすすべなくよがり啼いた…
+				;
+				;または
+				;開発されきった子宮口を%TINKO(PLAYER)%で小突かれ、%CALLNAME:TARGET%は快楽のあまり全身をがくがくと痙攣させ、肉の悦びに打ち震えた…
+				
+				;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊呜…、哈、最里面、一下一下地被撞到了…HPH」","L"
+						CALL HPH_PRINT,@"「再…再抱抱我、抱的、更紧点…啊啊、%MASTERNAME:39%…HPH」","L"
+						PRINTFORMDW 纳兹琳像是感到害怕似的贴在你身上请求你抱住她、同时也紧紧地回抱住你的身体…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊HPH　啊呜、哈HPH　插到很厉害的地方来了…HPH」","L"
+						CALL HPH_PRINT,@"「好舒服哟、HPH　你的、那里、连肚子、都能感觉到…HPH」","L"
+						PRINTFORMDW 抱住纳兹琳娇小身躯的同时在她身体的深处反复摩擦碰撞着、少女沉溺于雌性的本能发出淫乱甜美的娇声…
+					ELSEIF RAND:3 == 0
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到少女身体深处的入口时、纳兹琳都会发出甜美的喘息…
+						CALL HPH_PRINT,@"「呜HPH　呜呀HPH　进来了、在深处、蹭来蹭去的HPH」","L"
+						CALL HPH_PRINT,@"「喜欢、喜欢这个、%MASTERNAME:39%的大鸡鸡、好喜欢…HPH」","W"
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「呼、啊…啊哦…HPH　啊、%MASTERNAME:39%…%MASTERNAME:39%…HPH」","W"
+						CALL HPH_PRINT,@"「%MASTERNAME:39%的大肉棒、好厉害、把深处都填满了……HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「里面…%MASTERNAME:39%的大肉棒、一下一下地在撞……HPH」","L"
+						CALL HPH_PRINT,@"「不着急哦…、慢慢来吧、花上一段时间…欺负人家…HPH」","W"
+					ENDIF
+				;結構慣れてきた、あなたを子宮で感じられて嬉しい
+				ELSEIF EXP:子宮口開発経験 >= 25
+				;地の文
+				;じっくり開発してやった甲斐あってか、もはや%CALLNAME:TARGET%の表情には苦悶の色は薄い。
+				;綻びはじめた子宮口を小突かれ、%CALLNAME:TARGET%は悲鳴のような喘ぎを上げた。
+					;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊呜…、哈、最里面、在被咕噜咕噜地顶着…HPH」","L"
+						CALL HPH_PRINT,@"「更紧点…抱、紧、我…啊啊、%MASTERNAME:39%…HPH」","L"
+						PRINTFORMDW 纳兹琳被你覆在身下、拼命地回抱住你…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊HPH　啊呜、哈HPH　顶到好厉害的地方来了…HPH」","L"
+						CALL HPH_PRINT,@"「你的、那个、顶到、肚子深处了…HPH　感觉、好舒服、也许HPH」","L"
+						PRINTFORMDW 一边抱紧她一边咕噜咕噜地摩擦着最深处，纳兹琳发出了被雌之本能融化般的甜美声音…
+					ELSEIF RAND:3 == 0
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到深处入口时、纳兹琳都会发出娇声…
+						CALL HPH_PRINT,@"「呜HPH　呜呀HPH　好像、来了、在深处、一下一下地顶着HPH」","L"
+						CALL HPH_PRINT,@"「喜欢、那个喜欢、%MASTERNAME:39%的、喜欢…HPH」","W"
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「呼、啊…啊啊…HPH　啊、%MASTERNAME:39%…%MASTERNAME:39%…HPH」","W"
+						CALL HPH_PRINT,@"「%MASTERNAME:39%的那个、满满地、顶到最深处来了……HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「在最深处…%MASTERNAME:39%的尖端、一下一下地顶着……HPH」","L"
+						CALL HPH_PRINT,@"「就…这样、慢慢地、花上足够的时间…做…HPH」","W"
+					ENDIF
+				;気持ちよくないしぶっちゃけ苦しい、あなたを深くまで受け入れてるという事実だけで耐えてる
+				ELSEIF EXP:子宮口開発経験 < 25
+				;DATAFORM %CALLNAME:TARGET%はぎゅっと目を閉じて異物感に耐えている…
+				;DATAFORM %CALLNAME:TARGET%は子宮口をこじ開けられる感覚に顔を歪めている…
+					;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						PRINTFORML 「哈呜…、哈、最里面、被咕噜咕噜地顶着…」
+						PRINTFORMW 「哈啊、哈啊、好了啦再紧一点…抱、紧、我…啊啊、%MASTERNAME:39%…」
+						PRINTFORMDW 纳兹琳被你覆在身下、一边忍耐着不熟悉的刺激一边拼命地回抱住你…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						PRINTFORML 「啊　啊呜、哈　顶、顶到好厉害的地方来了…」
+						PRINTFORMW 「你的、那个、顶到、肚子深处了…　强烈地、感受到你了…」
+						PRINTFORMDW 一边抱紧她一边咕噜咕噜地摩擦着还尚未成熟的最深处…纳兹琳虽然看起来很痛苦但还是接纳了你…
+					ELSEIF RAND:3 == 0
+						PRINTFORML 「呜、呜咕　好像、来了、到最深处、呜呜…」
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到深处入口时、纳兹琳都会发出苦闷的声音…
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「呼、啊…啊啊…　啊、%MASTERNAME:39%…%MASTERNAME:39%…」
+						PRINTFORMW 「哈啊、哈啊、%MASTERNAME:39%的那个、满满地、顶到最深处来了……」
+					ELSE
+						PRINTFORMW 「呜呜…在最深处…%MASTERNAME:39%的尖端、一下一下地顶着…」
+						PRINTFORMW 「就…这样、慢慢地…花上足够的时间…做…」
+					ENDIF
+				ENDIF
+			ENDIF
+		;恋慕・愛欲なし　セフレ、愛人、思慕、それ以下　愛人だけ特別扱い
+		ELSE
+			;前回射精した
+			IF TCVAR:112 == 1  && NOWEX:MASTER:11 == 0
+				IF RAND:2 == 0
+					PRINTFORMDL 你的肉枪裹挟着方才注入的精液突刺到腔室的最深处、刺激着少女的花房…
+					PRINTFORMW 「呜啊…明明、刚刚才射了一大堆、现在欺负那里的话…」
+				ELSE
+					PRINTFORML 「呜啊啊…　欺负人、明明才射进来那么多…」
+					PRINTFORMW 「最深的地方、被涂满了啦…」
+				ENDIF
+			;これでMASTERが射精する、かつ子宮口開発経験25以上
+			;子宮口責めだと多分コレが一番選択されるんじゃないか？ということでランダムをもっと増やす
+			;前コマンドが正常位だとコマンド名が「種付けプレス」、前コマンドが後背位だと「種付け交尾」、
+			;後背位で危険日CFLAG:TARGET:生理周期 == 7だと「孕ませ交尾」に変化
+			;射精口上はまた別に表示されることに注意
+			ELSEIF NOWEX:PLAYER:11 && EXP:子宮口開発経験 >= 25
+			
+				;愛人、かつ子宮口開発経験25以上　セフレルートの上位版として設定　妊娠とかに頭回ってなくて中出し気持ちいい♡なかだししゅき♡状態
+				IF TALENT:セフレ == 2
+					;種付けプレスでランダム分岐5個、種付け交尾でランダム分岐5個追加
+					IF RAND:10 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「哦呼HPH　啊——HPH　等一下HPH　肚子、被顶到了HPH」","W"
+						PRINTFORMW 每当压下纳兹琳\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@身体时、%TINKO(PLAYER)%都深深刺入其中、无情地剜挖着雌性肚腹深处温暖的地方…
+					ELSEIF RAND:9 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"（不行HPH　%MASTERNAME:39%的HPH在敲打着子宮入口HPH）","W"
+						CALL HPH_PRINT,@"（雌性的幸福HPH　要被你教会了HPHHPH）","W"
+					ELSEIF RAND:8 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊、不行、呼呜HPH　这、这个姿势、真的会怀孕的HPH」","W"
+						CALL HPH_PRINT,@"「精液不行HPH　要、要去了HPH　啊——啊HPH　啊——啊～～～HPHHPHHPH」","W"
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊——呜HPH　啊哈啊——呜HPH　不行HPH　要去了HPH」","W"
+						CALL HPH_PRINT,@"「呼叽！？HPH　啊——HPH　子宮要被压坏了HPH　要变得幸福了HPHHPH」","W"
+						PRINTFORMDW 每一次抽送都将纳兹琳小小的花芯压得扁扁的、幸福绝顶的快乐被深深镌刻在脑海里…
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「哦——HPH　哦呼！？HPH　哦、哦哦————HPHHPH」","W"
+						PRINTFORMDW 随着每一次『咚啾、咚啾』地压下纳兹琳\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@腰肢的动作、潮水和爱液都飞溅开来…
+						PRINTFORMDW 你为了让忘乎所以地发出野兽般喘息声的她的胎内注满子种、进一步加快了腰部的动作…
+					ELSEIF RAND:10 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊HPH　喜欢HPH　%MASTERNAME:39%喜欢HPH　喜欢%MASTERNAME:39%的交尾HPH」","W"
+						CALL HPH_PRINT,@"「哈呜HPH　啊HPH　这个HPH　要来了HPH　要在最深处射精了HPHHPH」","W"
+					ELSEIF RAND:9 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　啊～～HPHHPH　啊呜、啊～～HPHHPHHPH」","W"
+						IF TALENT:MASTER:年齢 == -1
+							PRINTFORMDW 双手抓住腰肢覆上纳兹琳，毫不客气地蹂躏着子宮入口
+							PRINTFORMDW 过度的花芯快感让纳兹琳眼神空洞，只能发出不成言语的喘息声…
+						ELSE
+							PRINTFORMDW 双手抓住腰肢，像使用大号飞机杯一样用纳兹琳来套弄%TINKO(PLAYER)%
+							PRINTFORMDW 从后面被侵犯的纳兹琳脚尖悬空，眼神空洞地垂流着不成言语的喘息声…
+						ENDIF
+					ELSEIF RAND:8 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊呜HPH　哈——、哈——、啊HPH　不行HPH　要变奇怪了HPH　肚子、要变笨蛋了HPH」","W"
+						CALL HPH_PRINT,@"（啊HPH　%MASTERNAME:39%的鸡鸡、鼓鼓地胀大了HPH）","W"
+						CALL HPH_PRINT,@"（又是热热的好舒服的HPH　会在子宫里、给我好多的HPHHPHHPH）","W"
+					ELSEIF RAND:7 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「哈啊HPH　啊啊HPH　嗯HPH　嗯HPH　好啊HPH　把精液射出来HPH」",""
+						CALL HPH_PRINT,@"「热热的、好多HPH　射在最深处吧HPH　%MASTERNAME:39%HPH」","W"
+						CALL HPH_PRINT,@"「子宫里精液HPH　人、人家想要嘛…HPH」","W"
+					ELSEIF RAND:6 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——HPH　啊——HPH　呜！？HPH　啊、啊啊　啊～…HPH」","W"
+						PRINTFORMDW 每次从后面重重撞击腰部时，『咕啾、咕啾』的下流交合声便从性器间漏出
+						PRINTFORMD 将龟头抵在已经变得柔软松开的花芯入口，
+						PRINTFORMDW 为了让大量的子种直接\@ CFLAG:生理周期 == 7 ? 种付 # 注入 \@，阴茎颤抖着…
+						CALL HPH_PRINT,@"（好厉害HPH　从后面被子宫顶撞HPH　我知道的HPH　这是在最深处被做的感觉…HPH）","W"
+					ELSEIF RAND:5 == 0
+						CALL HPH_PRINT,@"「哈HPH　哈HPH　哈啊HPH　在最里面、射出来…HPH」","L"
+						CALL HPH_PRINT,@"「肚子HPH　里面HPH　啊呜…HPH　会、会变得、好高兴的…HPH」","W"
+					ELSEIF RAND:4 == 0
+						PRINTFORML 「就、是、那里…嗯、全部射出来…！」
+						CALL HPH_PRINT,@"「热热的…HPH　给我射好多好多嘛HPH」","W"
+					ELSEIF RAND:3 == 0 
+						CALL HPH_PRINT,@"「…HPH　那、那种地方射出来的话HPH　又要高潮了HPH　要去了HPH」","W"
+						PRINTFORMDW 纳兹琳察觉到了在最深处的射精、一脸迷醉地期待着膣内射精的快乐…
+					ELSEIF RAND:2 == 0 
+						CALL HPH_PRINT,@"「啊、啊HPH　在最深处、尖端、鼓鼓地变大了HPH」","W"
+						CALL HPH_PRINT,@"「人类的精液要来了HPH　要在子宫里高潮了HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「啊——呜HPH　哦——HPH　哦哦～～～HPHHPH」","W"
+						CALL HPH_PRINT,@"（到最深处来了HPH　啊HPH　尖端HPH　鼓鼓地胀大了HPH　这个HPH　精液要来了HPHHPH）","W"
+					ENDIF
+					
+				;思慕、セフレ、またはそれ未満　一応中出ししてもいいとは言ったけどできれば妊娠はしたくない
+				;種付けプレスでランダム分岐3個、種付け交尾でランダム分岐3個追加
+				ELSE
+					IF RAND:5 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「呼呜HPH　这、这个姿势、不行啦、真的会怀上的…」","W"
+					ELSEIF RAND:4 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「啊——呜HPH　啊哈啊——呜HPH　不行　子宫要坏掉了HPH」","W"
+						PRINTFORMDW 每一次抽送都将纳兹琳小小的花芯压得扁扁的、她正被授以造子的快乐…
+					ELSEIF RAND:3 == 0 && TEQUIP:TARGET:体位 == 1 && (BEDROOM(CFLAG:PLAYER:現在位置) || (BATHROOM() && ITEM:20))
+						CALL HPH_PRINT,@"「咕咿！？　嗯！　嗯呜！？唏HPH　呜HPH」","W"
+						PRINTFORMD 纳兹琳的\@ TALENT:MASTER:年齢 == -1 ?  # 娇小的 \@花芯
+						PRINTFORMDW 每当被阴茎从上面压下时、细微的啼鸣便从她口中漏出
+						PRINTFORMDW 你为了让对真正的生殖行为尚不熟练的她的胎内注满子种、进一步加快了腰部的动作…
+					ELSEIF RAND:5 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「喂、这个、好紧…　啊——HPH　喂、听、听我说啦、啊——呜HPH」","W"
+						CALL HPH_PRINT,@"（呜、从后面被顶着子宫…　这个、是要在最深处射出来的那种…HPH）","W"
+						IF TALENT:MASTER:年齢 == -1
+							PRINTFORMDW 从后面用双手抓住腰肢覆上纳兹琳、用缓慢的动作反复刺激着子宫的入口
+							PRINTFORMDW 尽管未知的感觉让纳兹琳眼神乱转、但她的身体似乎正在逐渐适应生殖的快乐…
+						ELSE
+							PRINTFORMDW 双手抓住腰肢，像使用大号飞机杯一样用纳兹琳来套弄%TINKO(PLAYER)%
+							PRINTFORMDW 从后面被侵犯的纳兹琳脚尖悬空、每当腰部撞击时都会一颤一颤地跳动着…
+						ENDIF
+					ELSEIF RAND:4 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊呜HPH　哈——、哈——、啊、不行、要变奇怪了HPH　肚子、要坏掉了…」","W"
+						PRINTFORMW （…%MASTERNAME:39%的鸡鸡、从后面被压过来了…　又要、在最深处被射出来了…）
+					ELSEIF RAND:3 == 0 && TEQUIP:TARGET:体位 == 2
+						CALL HPH_PRINT,@"「啊——　啊——HPH　呜！？　啊、啊啊　啊～…HPH」","W"
+						PRINTFORMDW 每当从后面重重撞击腰部时、都会响起『啪、啪』的干涩交合声
+						PRINTFORMD 为了直接大量地\@ CFLAG:生理周期 == 7 ? 种付 # 注入 \@精液、
+						PRINTFORMDW 将龟头抵在仍残留着硬度的花芯入口上…
+					ELSEIF RAND:5 == 0
+						PRINTFORMW 「哈、哈、呜、啊！？、那种地方、不行啦…」
+						PRINTFORMW 「真的、真的会怀上的啦」
+					ELSEIF RAND:4 == 0 
+						PRINTFORMW 「呜呜、呼呜、啊…不行、不行不行、不能在那里射出来…！」
+						PRINTFORMW 「所以说、舒服不舒服的、不是那种问题、啊、啊啊！？」
+					ELSEIF RAND:3 == 0
+						PRINTFORMW 「…！在、那种地方射出来的话、真的会、怀上孩子的…」
+						PRINTFORMDW 纳兹琳察觉到了在最深处的射精、焦急地喃喃自语着…
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「啊、啊、在最深处、一颤一颤地动着…」
+						PRINTFORMW 「要被人类、播种了…」
+					ELSE
+						PRINTFORMW 「呼、嗯嗯、啊、那种地方、要射出来的话…」
+						PRINTFORMW 「呵、呵呵、你真的打算让妖怪怀孕吗…？」
+					ENDIF
+				ENDIF
+
+			;前回射精でも今回MASTER:が射精でもない、普通の子宮口責め
+			;あなたの名前とか愛してほしいとかはあまり前面に出さない
+			;子宮口開発経験 < 25の場合のみ、今回MASTERが射精してもこの分岐を通る
+			ELSE
+				IF EXP:子宮口開発経験 > 50
+				;地の文
+				;%TINKO(PLAYER)%を深く挿入すると、開発されきった%CALLNAME:TARGET%の子宮口は柔軟に口を開き
+				;突き入れられた亀頭を難なく子宮内に迎え入れた
+				;
+				;%CALLNAME:TARGET%は子宮を直接蹂躙される感覚に恐怖を覚えるも、とうに%CALLNAME:PLAYER%に屈服している牝の肉体は抵抗を許さず
+				;%CALLNAME:TARGET%はなすすべなくよがり啼いた…
+				;または
+				;開発されきった子宮口を%TINKO(PLAYER)%で小突かれ、%CALLNAME:TARGET%は快楽のあまり全身をがくがくと痙攣させ、肉の悦びに打ち震えた…
+				
+				;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊呜…、哈、最里头、咕噜咕噜地顶着呢…HPH」","L"
+						CALL HPH_PRINT,@"「饶了我吧HPH　要变笨蛋了HPH　小肚肚里面、要变得奇怪了HPHHPH」","L"
+						PRINTFORMDW 纳兹琳被你覆在身下，让娇声回荡在繁殖的快乐中…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊HPH　啊呜、哈HPH　顶到好厉害的地方来了…HPH」","L"
+						CALL HPH_PRINT,@"「好舒、服、呀HPH　你的、那个、顶到、肚子、最深处了…HPH」","L"
+						PRINTFORMDW 一边抱紧她一边咕噜咕噜地摩擦着最深处，纳兹琳发出了被雌之本能融化般的甜美声音…
+					ELSEIF RAND:3 == 0
+						CALL HPH_PRINT,@"「呜HPH　呜呀HPH　好厉害HPH　好像、来了、在深处、咚咚地顶着呢HPH」","L"
+						CALL HPH_PRINT,@"「啊～～HPH　喜欢、那个喜欢、被大鸡鸡咕噜咕噜地搅动着好喜欢…HPH」","W"
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到少女身体深处的入口时、纳兹琳都会发出甜美的喘息…
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「呼、啊——HPH　啊——呜～HPH　啊、%MASTERNAME:39%…%MASTERNAME:39%…HPH」","W"
+						CALL HPH_PRINT,@"「好厉害HPH　%MASTERNAME:39%的、顶到最深处了、呼呜呜～……HPH　哈啊HPH　哈啊HPH」","W"
+					ELSE
+						CALL HPH_PRINT,@"「这个不行HPH　在深处…%MASTERNAME:39%的尖端、咚咚地顶着呢……HPH」","L"
+						CALL HPH_PRINT,@"「就…这样、再多一点HPH　花上足够的时间…欺负我…HPH」","W"
+					ENDIF
+				;結構慣れてきた
+				ELSEIF EXP:子宮口開発経験 >= 25
+				;地の文
+				;じっくり開発してやった甲斐あってか、もはや%CALLNAME:TARGET%の表情には苦悶の色は薄い。
+				;綻びはじめた子宮口を小突かれ、%CALLNAME:TARGET%は悲鳴のような喘ぎを上げた。
+					;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊呜…、哈、深处、被咕噜咕噜地顶着呢…HPH」","L"
+						CALL HPH_PRINT,@"「！！刚、刚才的、不行啦　好奇怪的感觉、要变得奇怪了…HPH」","L"
+						PRINTFORMDW 纳兹琳被你覆在身下，正被逐渐习惯的繁殖快乐所翻弄…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						CALL HPH_PRINT,@"「啊HPH　啊呜、哈　你的、顶到好厉害的地方来了…」","L"
+						CALL HPH_PRINT,@"「我、也不知道啦…肚子、好舒服、也许…HPH」","L"
+						PRINTFORMDW 纳兹琳的最深处被咕噜咕噜地玩弄着，似乎开始感受到造子的快乐了…
+					ELSEIF RAND:3 == 0
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到深处入口时、纳兹琳都会发出娇声…
+						CALL HPH_PRINT,@"「呜HPH　呜呀HPH　好像、来了、在深处、一下一下地顶着呢HPH」","L"
+						CALL HPH_PRINT,@"「喜欢、那个喜欢、%MASTERNAME:39%的、喜欢…HPH」","W"
+					ELSEIF RAND:2 == 0
+						CALL HPH_PRINT,@"「呼、啊…啊啊…HPH　啊、…好、厉害…」","W"
+						CALL HPH_PRINT,@"「呵呵…看呐…你的、连这种地方都顶到了……HPH」","W"
+						PRINTFORMDW 纳兹琳抚摸着自己肚脐附近，向你投来挑衅般的视线…
+					ELSE
+						PRINTFORMW 「呜呜…在深处…你的、顶到了…」
+						PRINTFORMW 「稍微习惯一点了…就…这样、慢慢地、花上足够的时间…做…」
+					ENDIF
+				;こんなの気持ちよくなるわけ無いだろ状態　しかし子宮口開発経験を増やせるのはこれくらいなのだ
+				ELSEIF EXP:子宮口開発経験 < 25
+				;DATAFORM %CALLNAME:TARGET%はぎゅっと目を閉じて異物感に耐えている…
+				;DATAFORM %CALLNAME:TARGET%は子宮口をこじ開けられる感覚に顔を歪めている…
+					;正常位から、または対面座位からでランダム分岐2つ追加
+					IF RAND:5 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						PRINTFORML 「哈呜…、哈、深处、不要那样咕噜咕噜地转啦…」
+						PRINTFORMW 「真、真的不行的啦…」
+						PRINTFORMDW 纳兹琳被你覆在身下，对不熟悉的刺激发出怨言…
+					ELSEIF RAND:4 == 0 && (PREVCOM == 60 || PREVCOM == 60)
+						PRINTFORML 「啊　啊呜、哈　顶、顶到不妙的地方来了…好难受…」
+						PRINTFORMW 「咕、呜呜…就算你再怎么往里顶、也进不去的啦…」
+					ELSEIF RAND:3 == 0
+						PRINTFORML 「呜、呜咕　到最深处、呜呜…怎么可能、会舒服嘛…」
+						PRINTFORMDW 每当\@ TALENT:PLAYER:2 & 2 ? 阴茎 # 假阳具 \@蹭到深处入口时、纳兹琳都会发出苦闷的声音…
+					ELSEIF RAND:2 == 0
+						PRINTFORMW 「呼、啊…啊啊…　啊、唏！？　进、进到奇怪的地方去了…」
+						PRINTFORMW 「呜啊！？不、不要动啦、唏　不要顶深处啦……」
+					ELSE
+						PRINTFORMW 「呜呜…到最深处了……啊　啊呜、顶到好厉害的地方来了…」
+						PRINTFORMW 「就…这样、慢慢地…啊、不要太用力顶啦……」
+					ENDIF
+					PRINTFORMDW 看来对于%TEXTR("子宫口/最深处/花芯")%的快乐还远远不够有经验呢…
+				ENDIF
+			ENDIF
+		ENDIF
+	[SKIPSTART]
+	;連続
+	ELSE
+		DRAWLINE
+		;正常位、対面立位
+		IF TEQUIP:体位 == 1
+			;MASTERについている
+			IF TALENT:PLAYER:2 & 2
+				PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+			ELSE
+				PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+			ENDIF
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_60_1
+		;後背位、背面立位
+		ELSEIF TEQUIP:体位 == 2
+			;MASTERについている
+			IF TALENT:PLAYER:2 & 2
+				PRINTFORMDW 品味着%CALLNAME:TARGET%膣内的触感、你再次动起腰突刺起来…
+			ELSE
+				PRINTFORMDW 保持着将肉枪插在%CALLNAME:TARGET%蜜壶的姿势、你再次动腰开始突刺…
+			ENDIF
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_61_1
+		;騎乗位
+		ELSEIF TEQUIP:体位 == 3
+			PRINTFORMDW %CALLNAME:TARGET%下腹用力收紧腔室包裹住插着的肉棒、再次摆动起腰肢来…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_65_1
+		;対面座位
+		ELSEIF TEQUIP:体位 == 4
+			PRINTFORMDW %CALLNAME:TARGET%与%CALLNAME:PLAYER%激烈地接着吻、两条舌头相互缠绕交换着唾液的同时腰部也再次动作起来…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_67_1
+		;背面座位
+		ELSE
+			PRINTFORMDW 从背后抱住%CALLNAME:TARGET%、再次贪恋起%CALLNAME:TARGET%美妙的身体…
+			PRINTFORMDL 
+			CALL M_KOJO_MESSAGE_COM_K39_68_1
+		ENDIF
+	ENDIF
+	[SKIPEND]
+	RETURN 1
+ENDIF
+;未記入
+;TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+;RETURN RESULT
+
+;==================================================
+;8,６９乳交
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_8
+CALL M_KOJO_MESSAGE_SCOM_K39_8_1
+RETURN RESULT
+@M_KOJO_MESSAGE_SCOM_K39_8_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(TFLAG:50 + 500)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT
+
+
+;==================================================
+;12,乳夾口交
+;==================================================
+@M_KOJO_MESSAGE_SCOM_K39_12
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+;未記入
+TRYCALLFORM M_KOJO_MESSAGE_COM_K39_{SELECTCOM}_1
+RETURN RESULT

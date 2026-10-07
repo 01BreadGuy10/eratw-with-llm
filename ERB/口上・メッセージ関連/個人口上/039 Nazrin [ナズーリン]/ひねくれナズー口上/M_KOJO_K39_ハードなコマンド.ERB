@@ -1,0 +1,1592 @@
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;加虐系コマンド・ハードなコマンド
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+;100,スパンキング
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_100
+CALL M_KOJO_MESSAGE_COM_K39_100_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_100_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;101,鞭
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_101
+CALL M_KOJO_MESSAGE_COM_K39_101_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_101_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;102,蝋燭
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_102
+CALL M_KOJO_MESSAGE_COM_K39_102_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_102_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;103,針
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_103
+CALL M_KOJO_MESSAGE_COM_K39_103_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_103_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;104,アイマスク
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_104
+CALL M_KOJO_MESSAGE_COM_K39_104_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_104_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;装着
+	IF TEQUIP:アイマスク
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;105,縄
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_105
+CALL M_KOJO_MESSAGE_COM_K39_105_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_105_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;装着
+	IF TEQUIP:縄
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;106,ボールギャグ
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_106
+CALL M_KOJO_MESSAGE_COM_K39_106_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_106_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;装着
+	IF TEQUIP:ボールギャグ
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMDW 
+			RETURN 1
+		;不埒3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMDW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMDW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;ハードな調教コマンド
+;※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+;140,深喉
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_140
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_140
+CALL M_KOJO_MESSAGE_COM_K39_140_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_140_1
+
+;虽然存在体格差就无法执行，但必须是体格差 > 2 才会真的无法执行，所以普通大人尺寸的你基本是安全的
+;另外，鸡鸡尺寸不影响执行判定（说实话我觉得应该让鸡鸡尺寸也影响判定才对）
+
+;在这个口上的设定里，纳兹的嘴尺寸参照下面的“小嘴”尺寸。也就是说大人尺寸的你那根普通肉棒对她来说已经相当勉强
+;这里借用原本用于判断鸡鸡与阴道尺寸相性的“挿入不可(39)”函数。该数值根据双方体格与鸡鸡形状计算得出
+;相性数值的含义如下
+;-2:松松垮垮　-1:宽松柔软　0:刚刚好　+1:有点紧的尺寸　+2:相当紧但还能进去　+3:进不去。靠手指之类积攒V经验的话或许勉强能进　+4以上:不要啊！进不去！（需要禁断的知识
+
+;地之文　PRINTFORML %CALLNAME:PLAYER%粗暴地将肉棒插到了%CALLNAME:TARGET%的喉咙深处…
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初次
+		;記入チェック
+		LOCAL:1 = 1
+		;-------------------------------------------------
+		IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+			;有恋慕的话会征得同意后再做，没有恋慕的话会擅自插进去　各有各的趣味
+			IF TALENT:恋慕
+				;毕竟很难想象有人把好感培养到恋慕后、还从完全没口交经验的状态直接玩深喉，所以不考虑这种情况
+				PRINTFORMW 「深喉…？那是什么？」
+				;与纳兹的相性+3以上（无法插入的尺寸
+				;黄漫里特有的幻想级深喉，食道贯通级别的玩法
+				;被恋慕对象这样对待的话，情绪会崩溃得一塌糊涂…不过如果有受虐倾向就另当别论。
+			IF 挿入不可(39) >= 3
+				PRINTFORMW 「你说要插到喉咙深处…就、就用这个…？」
+				PRINTFORMDL 纳兹琳会感到害怕也是理所当然的
+				PRINTFORMDW 因为眼前这根凶恶挺立的肉棒，怎么看都不像是能塞进她嘴里的尺寸
+				PRINTFORMW 「哎呀呀，你的变态程度真让我甘拜下风呢…虽然一直以来都是这样啦」
+				PRINTFORMW 
+				PRINTFORMW 「嗯啊…嗯…不、不对，果然还是不行啊，这个…呜咕！？」
+				PRINTFORML 
+				PRINTFORMDW 你等得不耐烦了，抓住纳兹琳的耳根，强行把肉棒往里压去
+				PRINTFORMDW 在温热的喉咙深处强行抽插的独特快感，以及侵犯着气绝边缘少女的嗜虐行为，让你乐在其中
+				PRINTFORMDW 巨大的肉棒贯穿了她的口腔，穿过喉咙，甚至抵达了食道…面对这场暴力的侵略，纳兹琳只能拼命忍耐…
+				PRINTFORMW 「嗯咕、咕…哦、咕吼、嗯嘎！？嗯咕…　～～～咕吼！　嘎哈、咳吼、咳吼…」
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+				
+			;与纳兹的相性0～2（刚刚好～偏大但还能进去）
+			;理所当然，即使是这种尺寸插到喉咙深处也是普通的鬼畜行为
+			ELSEIF 挿入不可(39) >= 0
+				PRINTFORMW 「诶诶～…你说要插到喉咙深处…用这个…？」
+				PRINTFORMDL 纳兹琳会退缩也是理所当然的
+				PRINTFORMDW 因为眼前这根挺立的分身，怎么看都不像是能塞进她嘴里的尺寸
+				PRINTFORMW 「哎呀呀，你的变态程度真让我甘拜下风呢…虽然一直以来都是这样啦」
+				PRINTFORMW 
+				PRINTFORMW 「嗯啊…嗯…咕、咕吼…呜呜…呜咕！？」
+				PRINTFORML 
+				PRINTFORMDW 你等得不耐烦了，抓住纳兹琳的耳根，强行把肉棒往里压去
+				PRINTFORMDW 在温热的口腔内强行抽插的独特快感，以及侵犯着泪眼少女的行为，让你乐在其中
+				PRINTFORMDW 肉枪贯穿了她的口腔，直达喉咙…面对这场暴力的侵略，纳兹琳只能拼命忍耐…
+				PRINTFORMW 「嗯咕、咕…哦、咕吼、嗯嘎！？嗯咕…　～～～咕吼！　咳吼、咳吼…」
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+				
+			;与纳兹的相性-1以下。因为她太小了，再怎么压也够不到喉咙深处
+			;方向是把下腹部连同纳兹的脸一起压上去，营造出近似窒息的描写
+			;玩家是小孩且鸡鸡也是幼儿尺寸，所以是相当真实的路线。
+			ELSE
+				PRINTFORMW 「诶诶～…你说要插进嘴里…？」
+				PRINTFORMW 「那和普通的口…就是舔的那个，有什么区别？」
+				PRINTFORMDL 纳兹琳会感到疑惑也是理所当然的
+				PRINTFORMDW 虽然硬度倒是很够看，但你的那根东西看样子根本够不到纳兹琳的喉咙深处
+				PRINTFORMW 「嘛，算了。真是的，你的变态程度真让我甘拜下风呢…虽然一直以来都是这样啦」
+				PRINTFORMW 
+				PRINTFORMW 「啊姆…嗯…嗯姆呜！？」
+				PRINTFORMDW 你等得不耐烦了，抓住纳兹琳耳后的后脑勺，把性器强行压在她脸上
+				PRINTFORMDW 在温热的口腔内被包皮剥开而反翘起来的肉棒，执拗地刮蹭着纳兹琳的上颚，带来独特的快感
+				PRINTFORMDW 纳兹琳的嘴被你的下体堵住，无法呼吸，只能拼命忍耐…
+				PRINTFORMW 「嗯～！　嗯姆呜～、嗯咕…　…！　…！　～～～噗哈！　咳吼、咳吼、呜呜…」
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+			
+			ENDIF
+		;没有恋慕　擅自插进去　虽然没试过但感觉会加反发刻印的家伙
+		ELSE
+			;与纳兹的相性+3以上（无法插入的级别
+			;黄漫里特有的幻想级深喉，食道贯通级别的玩法
+			;完全就是暴力行为，所以会被抵抗
+			IF 挿入不可(39) >= 3
+				PRINTFORMW 「深喉…？什么…呜咕！？」
+				PRINTFORMDW 你把那根挺立的凶恶分身，猛地塞进了怎么看都塞不下的纳兹琳嘴里
+				PRINTFORMW 「你、你做什…咕哦！？…嘎…咳呃…！…呜哦…」
+				PRINTFORML 
+				PRINTFORMDW 你抓住纳兹琳的耳根，强行把魔罗往里压去
+				PRINTFORMDW 在温热的喉咙深处强行抽插的独特快感，以及侵犯着气绝边缘少女的嗜虐行为，让你乐在其中
+				PRINTFORMDW 巨大的肉棒贯穿了她的口腔，穿过喉咙，甚至抵达了食道…面对这场暴力的侵略，纳兹琳正用双手拼命抵抗…
+				PRINTFORMW 「嗯咕、咕…哦、咕吼、嗯嘎！？嗯咕…　～～～咕吼！　嘎哈、咳吼、咳吼…」
+				PRINTFORMDW 终于拔出了怒张的肉棒，让她干呕起来
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+				
+			;与纳兹的相性0～2（刚刚好～偏大但勉强能进去）
+			;理所当然，即使是这种尺寸插到喉咙深处也是普通的鬼畜行为
+			ELSEIF 挿入不可(39) >= 0
+				PRINTFORMW 「深喉…？什么…呜咕！？」
+				PRINTFORMDW 你把那根挺立的分身，猛地塞进了怎么看都塞不下的纳兹琳嘴里
+				PRINTFORMW 「你、你做什…咕哦！？…嘎…咳呃…！…呜哦…」
+				PRINTFORML 
+				PRINTFORMDW 你等得不耐烦了，抓住纳兹琳的耳根，强行把肉棒往里压去
+				PRINTFORMDW 在温热的口腔内强行抽插的独特快感，以及侵犯着泪眼少女的行为，让你乐在其中
+				PRINTFORMDW 肉枪贯穿了她的口腔，直达喉咙…面对这场暴力的侵略，纳兹琳正用双手拼命抵抗…
+				PRINTFORMW 「嗯咕、咕…哦、咕吼、嗯嘎！？嗯咕…　～～～咕吼！　咳吼、咳吼…」
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+				
+			;与纳兹的相性-1以下。因为她太小了，再怎么压也够不到喉咙深处
+			;方向是把下腹部连同纳兹的脸一起压上去，营造出近似窒息的描写
+			;玩家是小孩且鸡鸡也是幼儿尺寸，所以是相当真实的路线。
+			ELSE
+				PRINTFORMW 「诶诶～…你说要插进嘴里…？」
+				PRINTFORMW 「以你的大小，跟普通的口…就是舔的那个，也没什么区…呜姆呜！？」
+				PRINTFORMDW 你用肉棒堵住她那惹人厌的嘴，强行压了进去
+				PRINTFORMW 「啊姆…嗯…嗯姆呜！？」
+				PRINTFORML 
+				PRINTFORMDW 你等得不耐烦了，抓住纳兹琳耳后的后脑勺，把下体强行压在她脸上
+				PRINTFORMDW 在温热的口腔内被包皮剥开而反翘起来的肉棒，执拗地刮蹭着纳兹琳的上颚，带来独特的快感
+				PRINTFORMDW 纳兹琳的嘴被你的下体堵住，无法呼吸，正用双手拼命抵抗…
+				PRINTFORMW 「嗯～！　嗯姆呜～、嗯咕…　…！　…！　～～～噗哈！　咳吼、咳吼、呜呜…」
+				PRINTFORML 
+				IF ABL:マゾっ気 >= 4 || TALENT:マゾ
+					CALL HPH_PRINT,@"「…你可真是、做得出来呢…HPH」","W"
+					PRINTFORMDW 尽管遭受了这样的对待，泪眼朦胧的纳兹琳还是微微地笑了起来…
+				ELSE
+					PRINTFORMW 「…你可真是、做得出来呢…」
+					PRINTFORMDW 奄奄一息的纳兹琳只是低声呢喃了这么一句
+				ENDIF
+			ENDIF
+		ENDIF
+		RETURN 1
+	ENDIF
+
+	;基本セット
+	;以常人的感性来说，就算是恋慕也会拒绝深喉吧，
+	;所以分支不按是否有恋慕，而是按是否对深喉没有抵抗（≒口淫经验或苦痛快楽经验丰富）来分
+	;再加上受虐倾向和高的精液中毒，表现出“痛苦得要死但还是想要”的感觉，苦痛快楽经验也给予加成
+	
+	;受虐倾向4以上或受虐，且精液中毒5以上
+	;表面上嫌弃、实际也很痛苦，但心底深处却渴望着被肉棒与精液窒息的状态
+	IF ( ABL:マゾっ気 >= 4 || TALENT:マゾ ) && ABL:精液中毒 >= 5
+		;与纳兹的相性+3以上　无法插入的尺寸　黄漫里特有的幻想级玩法
+		IF 挿入不可(39) >= 3
+			;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					CALL HPH_PRINT,@"「呼——…HPH　呼——…HPH」","W"
+					CALL HPH_PRINT,@"（那个要来了HPH　%MASTERNAME:39%的精液、要咕嘟咕嘟地HPH　被射出来了HPH）","W"
+					PRINTFORMDW 感受到射精先兆的纳兹琳，正用挑衅般的眼神仰望你…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「咕呜HPH　呜、咕、嗯咕呜HPH」","W"
+					CALL HPH_PRINT,@"「…HPHHPHHPH」","W"
+					PRINTFORMDW 感受到射精先兆的纳兹琳，正用挑衅般的眼神仰望你…
+				ELSE
+					CALL HPH_PRINT,@"「～～呜HPH　嗯、嗯呜、嗯咕、咕呜HPH」","W"
+					CALL HPH_PRINT,@"（肉棒、胀大了HPH　要来了HPH　痛苦的感觉要来了HPH）","W"
+					PRINTFORMDW 纳兹琳正翘首以待着喉咙深处被精液蹂躏的快乐…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					CALL HPH_PRINT,@"「嗯～？　呸啊，就这样，想插到深处？」","W"
+					CALL HPH_PRINT,@"「诶诶～不要啦～　那个会喘不上气，好辛苦的呢～…HPH」","W"
+					PRINTFORMDW 纳兹琳故意吊胃口般地煽动着，然后张嘴含住龟头，一口气吞到了喉咙深处…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯噗，嗯啾，啾呜～HPH　…嗯呼HPH」","W"
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察知你意图的纳兹琳谄媚般地微笑了
+					CALL HPH_PRINT,@"「嗯、嗯呜HPH　嗯咕呜～HPH」","W"
+				ELSE
+					;使用注音构造　想用在其他口上时，记得连同函数库里的注音函数一并移植
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住纳兹琳的头，她正一脸迷醉地含着那根凶恶的肉棒；她立刻就领会了你的意思
+					PRINTL
+					PRINTFORM 「　
+					HTML_PRINT RUBYTEMP("狗这样","就这样")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("奥森粗","到深处")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("想查紧惹？","想插进来吗？")  , 1
+					PRINTFORMW 」
+					CALL HPH_PRINT,@"「…HPH　嗯咕、哦、哦…HPH　呼——、呼——、嗯咕HPH」","W"
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					CALL HPH_PRINT,@"「…HPH　嗯啊HPH」","W"
+					PRINTFORMDW 你把那根巨大的分身展示给她看，纳兹琳便一言不发地把喉咙深处朝向你
+					PRINTFORMDW 她用舌头欢迎着与她那娇小身体完全不相称的龟头，仿佛理所当然般将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					CALL HPH_PRINT,@"「嗯姆呜HPH呜呜HPH　呼呜HPH呼呜HPH　…嗯～～…呜HPH」","W"
+					CALL HPH_PRINT,@"（好痛苦HPH　好痛苦呜HPHHPH　痛苦好舒服…呜HPHHPH）","W"
+					PRINTFORMDW 每当那看起来根本塞不进去的巨大肉竿被强行推入，纳兹琳便泛着泪光，用沉溺的表情仰望这边…　
+				ELSEIF RAND:3 == 0 
+					CALL HPH_PRINT,@"「噢诶呜HPH　咕哦HPH　呼呜HPH　噢哦HPHHPH」","W"
+					CALL HPH_PRINT,@"（喉咙能被用好开心呜HPHHPH　喜欢喉咙被侵犯呜HPHHPH）","W"
+					PRINTFORMDW 纳兹琳双肩无力垂下，被人抓着头的她，就这么沉溺在被当作喉咙飞机杯使用的快感中…
+				ELSEIF RAND:2 == 0 
+					CALL HPH_PRINT,@"「…咕呜HPH　呜哦HPH　咕　咕哦HPH　呼——、呼——…HPH」","W"
+					CALL HPH_PRINT,@"（明明想舔到更深处呜HPH　%MASTERNAME:39%觉得舒服好开心…呜HPH）","W"
+					PRINTFORMDW 纳兹琳虽泛着泪光，却以谄媚的眼神，继续着用喉咙性器进行的服务…
+				ELSE
+					CALL HPH_PRINT,@"（%MASTERNAME:39%的小鸡鸡太大了HPH　这个根本进不去…呜HPH）","W"
+					CALL HPH_PRINT,@"「嗯咕呜HPH　…嗯咕呜、咕呜、嗯——…HPH」","W"
+					PRINTFORMDW 与娇小身体完全不相称的巨竿，被强行吞进了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		;与纳兹的相性0～2　刚刚好～偏大但勉强能进去
+		;理所当然，即使是这种尺寸插到喉咙深处也是普通的鬼畜行为
+		ELSEIF 挿入不可(39) >= 0
+		;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					CALL HPH_PRINT,@"「呼——…HPH　呼——…HPH」","W"
+					CALL HPH_PRINT,@"（那个要来了HPH　%MASTERNAME:39%的精液、要咕叽咕叽地HPH　被射出来了HPH）","W"
+					PRINTFORMDW 感受到射精先兆的纳兹琳，正用挑衅般的眼神仰望你…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「咕呜HPH　呜、咕、嗯咕呜HPH」","W"
+					CALL HPH_PRINT,@"「…HPHHPHHPH」","W"
+					PRINTFORMDW 感受到射精先兆的纳兹琳，正用挑衅般的眼神仰望你…
+				ELSE
+					CALL HPH_PRINT,@"「～～呜HPH　嗯、嗯呜、嗯咕、咕呜HPH」","W"
+					CALL HPH_PRINT,@"（肉棒、胀大了HPH　要来了HPH　精液要来了HPH）","W"
+					PRINTFORMDW 纳兹琳正翘首以待着喉咙深处被精液蹂躏的快乐…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					CALL HPH_PRINT,@"「嗯～？　呸啊，就这样，想插到深处？」","W"
+					CALL HPH_PRINT,@"「诶诶～不要啦～　那个会喘不上气，好辛苦的呢～…HPH」","W"
+					PRINTFORMDW 纳兹琳故意吊胃口般地煽动着，然后张嘴含住龟头，一口气吞到了喉咙深处…
+				ELSEIF RAND:2 == 0
+					CALL HPH_PRINT,@"「嗯噗，嗯啾，啾呜～HPH　…嗯呼HPH」","W"
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察知你意图的纳兹琳谄媚般地微笑了
+					CALL HPH_PRINT,@"「嗯、嗯呜HPH　嗯咕呜～HPH」","W"
+				ELSE
+					;使用注音构造　想用在其他口上时，记得连同函数库里的注音函数一并移植
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住正以一副荡漾的表情含着雄枪的纳兹琳的头，她立刻就领会了你的意图
+					PRINTL
+					PRINTFORM 「　
+					HTML_PRINT RUBYTEMP("狗这样","就这样")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("奥森粗","到深处")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("想查紧惹？","想插进来吗？")  , 1
+					PRINTFORMW 」
+					CALL HPH_PRINT,@"「…HPH　嗯咕、哦、哦…HPH　呼——、呼——、嗯咕呜HPH」","W"
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					CALL HPH_PRINT,@"「…HPH　嗯啊HPH」","W"
+					PRINTFORMDW 你把分身展示给她看，纳兹琳便一言不发地把喉咙深处朝向你
+					PRINTFORMDW 她用舌头欢迎着与娇小纳兹琳完全不相称的龟头，仿佛理所当然般将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					CALL HPH_PRINT,@"「嗯姆呜HPH呜呜HPH　呼呜HPH呼呜HPH　…嗯～～…呜HPH」","W"
+					CALL HPH_PRINT,@"（好痛苦HPH　好痛苦呜HPHHPH　痛苦好舒服…呜HPHHPH）","W"
+					PRINTFORMDW 每当大人尺寸的肉竿被强行推入喉咙深处，纳兹琳便泛着泪光，用沉溺的表情仰望这边…　
+				ELSEIF RAND:3 == 0 
+					CALL HPH_PRINT,@"「噢诶呜HPH　咕哦HPH　呗诶呜HPH　噢诶呜HPHHPH」","W"
+					CALL HPH_PRINT,@"（喉咙能被用好开心呜HPHHPH　喜欢喉咙被侵犯呜HPHHPH）","W"
+					PRINTFORMDW 纳兹琳双肩无力垂下，被人抓着头的她，就这么沉溺在被当作喉咙飞机杯使用的快感中…
+				ELSEIF RAND:2 == 0 
+					CALL HPH_PRINT,@"「…咕呜HPH　呜哦HPH　咕　咕哦HPH　呼——、呼——…HPH」","W"
+					CALL HPH_PRINT,@"（明明想舔到更深处呜HPH　%MASTERNAME:39%觉得舒服好开心…呜HPH）","W"
+					PRINTFORMDW 纳兹琳虽泛着泪光，却以谄媚的眼神，继续着用喉咙性器进行的服务…
+				ELSE
+					CALL HPH_PRINT,@"（%MASTERNAME:39%的鸡鸡好大HPH　只进得去前端…呜HPH）","W"
+					CALL HPH_PRINT,@"「嗯咕呜HPH　…嗯咕呜、咕呜、嗯——…HPH」","W"
+					PRINTFORMDW 勉强能侵入嘴里的尺寸的肉棒，被强行吞进了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		;与纳兹的相性-1以下。因为她太小了，再怎么压也够不到喉咙深处
+		;方向是把下腹部连同纳兹的脸一起压上去，营造出近似窒息的描写
+		;玩家是小孩且鸡鸡也是幼儿尺寸，所以是相当真实的路线。
+		ELSE
+		
+		ENDIF
+		
+		;苦痛快楽経験にボーナス
+		CALL COLORMESSAGE(@"苦痛快乐经验＋1",C_YELLOW,1,1)
+		EXP:苦痛快楽経験 ++ 
+		RETURN 1
+	;口淫经验30以上或苦痛快楽经验30以上，且恋慕或奉仕精神5以上
+	;已经习惯了且被需要所以会做（并不是本身喜欢这种行为）
+	ELSEIF ( EXP:口淫経験 >= 30 || EXP:苦痛快楽経験 >= 30 ) && ( TALENT:恋慕 || ABL:奉仕精神 >= 5 )
+		;与纳兹的相性+3以上　无法插入的尺寸　黄漫里特有的幻想级玩法
+		IF 挿入不可(39) >= 3
+			;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…」
+					PRINTFORMW （那个要来了…！　%CALLNAME:MASTER%的精液，会咕嘟一下、被射出来…）
+					PRINTFORMDW 察觉到射精先兆的纳兹琳，以做好觉悟般的眼神仰望你…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，以做好觉悟般的眼神仰望你…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 面对喉咙深处将被精液蹂躏的痛苦，纳兹琳绷紧了身体…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…？呸啊，就这样想插到深处…？」
+					PRINTFORMW 「那个会喘不上气，好辛苦的啊…」
+					PRINTFORMW 纳兹琳有些犹豫之后，狠下心张嘴含住龟头，一点一点地往喉咙深处吞去…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗，嗯啾，啾呜～　呜啊…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察觉到这点的纳兹琳不安地抬头看过来
+					PRINTFORMW 「嗯…嗯…　嗯咕哦、哦！」
+				ELSE
+					;使用注音构造　想用在其他口上时，记得连同函数库里的注音函数一并移植
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住正服侍着那根凶恶分身的纳兹琳的头，她立刻就领会了你的意图
+					PRINTL
+					PRINTFORM 「…　
+					HTML_PRINT RUBYTEMP("狗这样","就这样")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("奥森粗","到深处")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("想查紧惹？","想插进来吗？")  , 1
+					PRINTFORMW 」
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「哈啊…　嗯啊」
+					PRINTFORMDW 你把那根巨大的分身展示给她看，纳兹琳叹了口气，一言不发地把喉咙深处朝向你
+					PRINTFORMDW 她一边推入那完全不相称的龟头，一边谨慎地将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （好痛苦…好痛苦…但是…如果这样能让%MASTERNAME:39%高兴的话…）
+					PRINTFORMDW 每当那看起来根本塞不进去的巨大肉竿被强行推入，纳兹琳便泛着泪光，仰望着这边…
+					;进入下一阶段的提示
+					PRINTFORML 
+					IF  ( ABL:マゾっ気 <= 3 && !TALENT:マゾ ) && ABL:精液中毒 <= 4
+						PRINTFORMDW 看来对被虐快感和精液的耐受都还不够…
+					ELSEIF ABL:マゾっ気 <= 3 && !TALENT:マゾ
+						PRINTFORMDW 看来她对被虐快感还不够习惯
+					ELSEIF ABL:精液中毒 <= 4
+						PRINTFORMDW 看来她对精液的耐受还不够
+					ENDIF
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呗诶呜　噢诶呜」
+					PRINTFORMW （　…　　　…啊…　　　…）
+					PRINTFORMDW 气绝边缘的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （明明想舔到更深处…意识要…飞走了…）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍继续着用喉咙性器进行的服务…
+					;进入下一阶段的提示
+					PRINTFORML 
+					IF  ( ABL:マゾっ気 <= 3 && !TALENT:マゾ ) && ABL:精液中毒 <= 4
+						PRINTFORMDW 看来对被虐快感和精液的耐受都还不够…
+					ELSEIF ABL:マゾっ気 <= 3 && !TALENT:マゾ
+						PRINTFORMDW 看来她对被虐快感还不够习惯
+					ELSEIF ABL:精液中毒 <= 4
+						PRINTFORMDW 看来她对精液的耐受还不够
+					ENDIF
+				ELSE
+					PRINTFORMW （%MASTERNAME:39%的小鸡鸡太大了…这个根本进不去……）
+					PRINTFORMW 「嗯咕…　…嗯咕呜、咕呜、嗯——…」
+					PRINTFORMDW 与娇小身体完全不相称的巨竿，被强行吞进了纳兹琳小小的喉咙…
+					;进入下一阶段的提示
+					PRINTFORML 
+					IF  ( ABL:マゾっ気 <= 3 && !TALENT:マゾ ) && ABL:精液中毒 <= 4
+						PRINTFORMDW 看来对被虐快感和精液的耐受都还不够…
+					ELSEIF ABL:マゾっ気 <= 3 && !TALENT:マゾ
+						PRINTFORMDW 看来她对被虐快感还不够习惯
+					ELSEIF ABL:精液中毒 <= 4
+						PRINTFORMDW 看来她对精液的耐受还不够
+					ENDIF
+				ENDIF
+			ENDIF
+		;与纳兹的相性0～2　刚刚好～偏大但勉强能进去
+		;理所当然，即使是这种尺寸插到喉咙深处也是普通的鬼畜行为
+		ELSEIF 挿入不可(39) >= 0
+			;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…」
+					PRINTFORMW （那个要来了…！　%CALLNAME:MASTER%的精液，会咕叽咕叽地射出来…）
+					PRINTFORMDW 察觉到射精先兆的纳兹琳，以做好觉悟般的眼神仰望你…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，以做好觉悟般的眼神仰望你…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 面对喉咙深处将被精液蹂躏的痛苦，纳兹琳绷紧了身体…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…？呸啊，就这样想插到深处…？」
+					PRINTFORMW 「那个会喘不上气，好辛苦的啊…」
+					PRINTFORMW 纳兹琳有些犹豫之后，狠下心张嘴含住龟头，一点一点地往喉咙深处吞去…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗，嗯啾，啾呜～　呜啊…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察觉到这点的纳兹琳不安地抬头看过来
+					PRINTFORMW 「嗯…嗯…　嗯咕哦、哦！」
+				ELSE
+					;使用注音构造　想用在其他口上时，记得连同函数库里的注音函数一并移植
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住正服侍着雄枪的纳兹琳的头，她立刻就领会了你的意图
+					PRINTL
+					PRINTFORM 「…　
+					HTML_PRINT RUBYTEMP("狗这样","就这样")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("奥森粗","到深处")  , 1
+					PRINTFORM 、
+					HTML_PRINT RUBYTEMP("想查紧惹？","想插进来吗？")  , 1
+					PRINTFORMW 」
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「哈啊…　嗯啊」
+					PRINTFORMDW 你把分身展示给她看，纳兹琳叹了口气，一言不发地把喉咙深处朝向你
+					PRINTFORMDW 她一边推入那与娇小纳兹琳完全不相称的龟头，一边谨慎地将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （好痛苦…好痛苦…但是…如果这样能让%MASTERNAME:39%高兴的话…）
+					PRINTFORMDW 每当大人尺寸的肉竿被强行推入喉咙深处，纳兹琳便泛着泪光，仰望着这边…
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呼呜　噢哦」
+					PRINTFORMW （　…　　　…啊…　…）
+					PRINTFORMDW 气绝边缘的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （明明想舔到更深处…意识要…飞走了…）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍继续着用喉咙性器进行的服务…
+				ELSE
+					PRINTFORMW （%MASTERNAME:39%的鸡鸡好大…只进得去前端……）
+					PRINTFORMW 「嗯咕…　…嗯咕呜、咕呜、嗯——…」
+					PRINTFORMDW 勉强能侵入嘴里的尺寸的肉棒，被强行吞进了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		;与纳兹的相性-1以下。因为她太小了，再怎么压也够不到喉咙深处
+		;方向是把下腹部连同纳兹的脸一起压上去，营造出近似窒息的描写
+		;玩家是小孩且鸡鸡也是幼儿尺寸，所以是相当真实的路线。
+		ELSE
+		
+		ENDIF
+		
+		;进入下一阶段的提示
+		PRINTFORML 
+		IF  ( ABL:マゾっ気 <= 3 && !TALENT:マゾ ) && ABL:精液中毒 <= 4
+			PRINTFORMDW 被虐快感和精液的耐受都还不够…
+		ELSEIF ABL:マゾっ気 <= 3 && !TALENT:マゾ
+			PRINTFORMDW 看来她对被虐快感还不够习惯
+		ELSEIF ABL:精液中毒 <= 4
+			PRINTFORMDW 看来她对精液的耐受还不够
+		ENDIF
+		;苦痛快楽経験にボーナス
+		CALL COLORMESSAGE(@"苦痛快乐经验＋1",C_YELLOW,1,1)
+		EXP:苦痛快楽経験 ++ 
+		RETURN 1
+	
+	;习惯了但还是不想做
+	ELSEIF EXP:口淫経験 >= 30 || EXP:苦痛快楽経験 >= 20
+		;ナズとの相性+3以上　挿入不可なサイズ　エロ漫画特有のファンタジープレイ
+		IF 挿入不可(39) >= 3
+		;このコマンドであなたが射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…」
+					PRINTFORMW （那个要来了…！　%CALLNAME:MASTER%的精液，会咕嘟咕嘟地射出来…）
+					PRINTFORMDW 察觉到射精先兆的纳兹琳，不安地仰望你…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，不知所措地仰望你…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 面对喉咙深处将被精液蹂躏的痛苦，纳兹琳绷紧了身体…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…？呸啊，就这样想插到深处…？」
+					PRINTFORMW 「那个会喘不上气，好辛苦的啊…」
+					PRINTFORMDW 纳兹琳相当犹豫之后，狠下心张嘴含住龟头，却立刻就干呕了…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗、嗯啾、啾呜～　呜啊…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察觉到这点的纳兹琳不安地抬头看过来
+					PRINTFORMW 「嗯…嗯…　嗯咕哦、哦！」
+				ELSE
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住正用舌头服侍着凶恶肉棒的纳兹琳的头，她很快察觉了你的意图，明显地皱起了眉头
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「哈啊…又来？　…嗯啊」
+					PRINTFORMDW 你把巨大的肉棒展示给她看，纳兹琳叹了口气，无言地把喉咙深处朝向你
+					PRINTFORMDW 一边推入那完全不相称的龟头，一边谨慎地将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （果然好痛苦…好难受…）
+					PRINTFORMDW 每当那根本不可能进去的巨大肉竿被强行推入，纳兹琳便翻着白眼拼命忍耐…
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呗诶呜　噢诶呜」
+					PRINTFORMW （　…　　　…啊…　　　…）
+					PRINTFORMDW 气绝边缘的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （终于找到诀窍了，但呼吸…！）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍忍受着喉咙所受的暴虐…
+				ELSE
+					PRINTFORMW （%MASTERNAME:39%的小鸡鸡太大了…这个根本进不去……）
+					PRINTFORMW 「嗯咕…　…嗯咕呜、咕呜、嗯——…」
+					PRINTFORMDW 与娇小身体完全不相称的巨竿，被强行推入了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		;ナズとの相性0～2　ちょうどいい～デカ目だがギリギリ入る
+		;当たり前だがこのサイズでも喉奥まで突っ込むのは普通に鬼畜行為
+		ELSEIF 挿入不可(39) >= 0
+			;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…」
+					PRINTFORMW （那个要来了…！　%CALLNAME:MASTER%的精液，会扑哧扑哧地射出来…）
+					PRINTFORMDW 察觉到射精先兆的纳兹琳，不安地仰望你…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，不知所措地仰望你…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 面对喉咙深处将被精液蹂躏的痛苦，纳兹琳绷紧了身体…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯…？呸啊，就这样想插到深处…？」
+					PRINTFORMW 「那个会喘不上气，好辛苦的啊…」
+					PRINTFORMDW 纳兹琳相当犹豫之后，狠下心张嘴含住龟头，却立刻就干呕了…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗、嗯啾、啾呜～　呜啊…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，察觉到这点的纳兹琳不安地抬头看过来
+					PRINTFORMW 「嗯…嗯…　嗯咕哦、哦！」
+				ELSE
+					;使用注音构造　想用在其他口上时，记得连同函数库里的注音函数一并移植
+					PRINTFORMW 「嗯嗯～？」
+					PRINTFORMDW 你按住正用舌头服侍着大人尺寸肉棒的纳兹琳的头，她很快察觉了你的意图，明显地皱起了眉头
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「哈啊…又来？　…嗯啊」
+					PRINTFORMDW 你把肉棒展示给她看，纳兹琳叹了口气，无言地把喉咙深处朝向你
+					PRINTFORMDW 一边推入那不相称的龟头，一边谨慎地将雄枪吞了下去…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （果然好痛苦…好难受…）
+					PRINTFORMDW 每当大人尺寸的肉竿被强行推入喉咙深处，纳兹琳便翻着白眼拼命忍耐…
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呗诶呜　噢诶呜」
+					PRINTFORMW （　…　　　…啊…　　　…）
+					PRINTFORMDW 气绝边缘的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （终于找到诀窍了，但呼吸…！）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍忍受着喉咙所受的暴虐…
+				ELSE
+					PRINTFORMW （%MASTERNAME:39%的鸡鸡好大…只进得去前端……）
+					PRINTFORMW 「嗯咕…　…嗯咕呜、咕呜、嗯——…」
+					PRINTFORMDW 勉强能侵入嘴里的尺寸的肉棒，被强行推入了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		
+		;ナズとの相性-1以下。ちっちゃいのでいくら押し付けても喉奥には届かない
+		;下腹部ごとナズの顔に押し付けることで窒息気味の描写にする方向性
+		;子供あなたかつ幼チン以下なのでかなりレアルートのはず。
+		ELSE
+		
+		ENDIF
+		
+		;次段階への誘導を入れる
+		PRINTFORML 
+		IF !EXP:苦痛快楽経験 >= 30 && ( !TALENT:恋慕 || !ABL:奉仕精神 >= 5 )
+			PRINTFORMDW 被虐快楽への経験と奉仕する快楽に目覚めれば、この行為にももう少し慣れるかもしれない…
+		ELSEIF !EXP:苦痛快楽経験 >= 30
+			PRINTFORMDW 被虐快楽への経験を積めば、この行為にももう少し慣れるかもしれない…
+		ELSEIF !TALENT:恋慕 || !ABL:奉仕精神 >= 5
+			PRINTFORMDW 奉仕する快楽に目覚めたり、尽くしたい相手であれば、この行為にももう少し慣れるかもしれない…
+		ENDIF
+	
+		;苦痛快楽経験にボーナス
+		CALL COLORMESSAGE(@"苦痛快乐经验＋1",C_YELLOW,1,1)
+		EXP:苦痛快楽経験 ++ 
+		RETURN 1
+;慣れてない。めちゃ苦しいのでキレ気味。あたりまえだよなあ？
+	;口淫にもちゃんと慣れてない
+	ELSE
+		;ナズとの相性+3以上　挿入不可なサイズ　エロ漫画特有のファンタジープレイ
+		IF 挿入不可(39) >= 3
+		;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…！」
+					PRINTFORMW （那个要来了…！　又要被咕嘟咕嘟地射出来了…）
+					PRINTFORMDW 察觉到射精的纳兹琳，拼命想要吐出嘴里的巨大肉竿…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，为了不被窒息而拼命想要从你身上逃走…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 纳兹琳因害怕喉咙深处被精液蹂躏而剧烈抵抗…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯啾、呸咯…呸啊　…？　…哦咕！？　呜、呜咿、嗯咕哦…哦…！　…哦…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的头，将那根粗得夸张的肉棒强行拧了进去
+					PRINTFORMW 突然侵略而来的凶恶肉棒让纳兹琳吓了一跳，拼命抵抗着…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗、嗯啾、啾呜～　呜咕！？　咕姆呜……」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，将那怎么看都进不去的雄枪一路推到喉咙深处
+					PRINTFORMW 「嗯…嗯！嗯—！　嗯咕哦、哦！　…咕…！……」
+				ELSE
+					PRINTFORMW 「嗯嗯～？呜唔哦！？　哦咕！　等、等等，诶咕哦！　哦！…」
+					PRINTFORMDW 你按住正用舌头服侍着凶恶肉棒的纳兹琳的头，强行开始腰部活塞运动…
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「是是是用嘴对吧…诶？不一样？」
+					PRINTFORMW 「不是要含进去吗？　啊姆…嗯咕！？」
+					PRINTFORMDL 你把巨大的肉棒塞进她嘴里，纳兹琳因害怕喉咙深处被侵犯而拼命抵抗
+					PRINTFORMDW 你对此毫不在意，将那完全不相称尺寸的雄枪一路拧进食道…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜！　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （为什么、为什么、这么、痛…呼吸、不…了…！）
+					PRINTFORMDW 那根根本不可能进去的巨大肉竿被强行推入，纳兹琳拼命想要从你身上逃走…
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呗诶呜　噢诶呜」
+					PRINTFORMW （　…　　　…啊…　　　…）
+					PRINTFORMDW 意识模糊的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （不、行…呼吸、不…了…想吐…）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍忍受着喉咙所受的暴虐…
+				ELSE
+					PRINTFORMW （不…行…呼吸…不了…为什么、这样…）
+					PRINTFORMW 「嗯咕…　…嗯咕、咕呜、咯嘿—、哈啊、哈啊、咕！？…　哦……」
+					PRINTFORMDW 与娇小身体完全不相称的巨竿，被强行推入了纳兹琳小小的喉咙…
+				ENDIF
+			ENDIF
+		;ナズとの相性0～2　ちょうどいい～デカ目だがギリギリ入る
+		;当たり前だがこのサイズでも喉奥まで突っ込むのは普通に鬼畜行為
+		ELSEIF 挿入不可(39) >= 0
+			;这个指令中玩家射精
+			IF NOWEX:MASTER:射精
+				IF RAND:3 == 0
+					PRINTFORMW 「呼——…　呼——…！」
+					PRINTFORMW （那个要来了…！　又要被扑哧扑哧地射出来了…）
+					PRINTFORMDW 察觉到射精的纳兹琳，拼命想要吐出填满嘴里的肉棒…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「咕呜…　呜、咕、嗯咕呜…」
+					PRINTFORMW 「…　…！」
+					PRINTFORMDW 察觉到龟头膨胀的纳兹琳，因窒息的恐惧而拼命想要从你身上逃走…
+				ELSE
+					PRINTFORMW 「～～…　嗯、嗯呜、嗯咕、咕呜…」
+					PRINTFORMW （！　胀大了…要来了…精液要来了…！）
+					PRINTFORMDW 纳兹琳因害怕喉咙深处被精液蹂躏而剧烈抵抗…
+				ENDIF
+			;前一个指令是口交或真空口交
+			ELSEIF PREVCOM == 81 || PREVCOM == 83
+				IF RAND:3 == 0 
+					PRINTFORMW 「嗯啾、呸咯…呸啊　…？　…哦咕！？　呜、呜咿、嗯咕哦…哦…！　…哦…」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的头，将那与她不相称尺寸的肉棒强行拧了进去
+					PRINTFORMW 突然侵略而来的凶恶肉棒让纳兹琳吓了一跳，拼命抵抗着…
+				ELSEIF RAND:2 == 0
+					PRINTFORMW 「嗯噗、嗯啾、啾呜～　呜咕！？　咕姆呜……」
+					PRINTFORMDW 你抓住正在口交中的纳兹琳的后脑勺，将大人尺寸的雄肉一路推到喉咙深处
+					PRINTFORMW 「嗯…嗯！嗯—！　嗯咕哦、哦！　…咕…！……」
+				ELSE
+					PRINTFORMW 「嗯嗯～？呜唔哦！？　哦咕！　等、等等，诶咕哦！　哦！…」
+					PRINTFORMDW 你按住正用舌头服侍着大人尺寸肉棒的纳兹琳的头，强行开始腰部活塞运动…
+					PRINTFORMW 「…嗯咕、哦、哦哦…　呼——、呼——、嗯咕哦」
+				ENDIF
+			;不会射精・前一个指令不是口交或真空口交
+			ELSE
+				IF RAND:5 == 0
+					PRINTFORMW 「是是是用嘴对吧…诶？不一样？」
+					PRINTFORMW 「不是要含进去吗？　啊姆…嗯咕！？」
+					PRINTFORMDL 你把大人尺寸的肉棒塞进她嘴里，纳兹琳因害怕喉咙深处被侵犯而拼命抵抗
+					PRINTFORMDW 你对此毫不在意，将那不相称粗度的雄枪一路拧进食道…
+				ELSEIF RAND:4 == 0
+					PRINTFORMW 「嗯姆呜、呜呜！　呼呜、呼呜、　…嗯～～…呜」
+					PRINTFORMW （为什么、为什么、这么、痛…呼吸、不…了…！）
+					PRINTFORMDW 大人尺寸的肉竿被强行推入喉咙深处，纳兹琳拼命想要从你身上逃走…
+				ELSEIF RAND:3 == 0 
+					PRINTFORMW 「噢诶呜　咕哦　呗诶呜　噢诶呜」
+					PRINTFORMW （　…　　　…啊…　　　…）
+					PRINTFORMDW 意识模糊的纳兹琳双肩无力垂下，被人抓着头的她，就这么被当作喉咙飞机杯使用…
+				ELSEIF RAND:2 == 0 
+					PRINTFORMW 「…咕呜　呜哦　咕　咕哦　呼——、呼——、…」
+					PRINTFORMW （不、行…呼吸、不…了…想吐…）
+					PRINTFORMDW 纳兹琳虽泛着泪光，仍忍受着喉咙所受的暴虐…
+				ELSE
+					PRINTFORMW （不…行…呼吸…不了…为什么、这样…）
+					PRINTFORMW 「嗯咕…　…嗯咕、咕呜、咯嘿—、哈啊、哈啊、咕！？…　哦……」
+					PRINTFORMDW 勉强能侵入嘴里的尺寸的肉棒，被强行推入了纳兹琳小小的喉咙…
+				ENDIF
+				
+			ENDIF
+		
+		;ナズとの相性-1以下。ちっちゃいのでいくら押し付けても喉奥には届かない
+		;下腹部ごとナズの顔に押し付けることで窒息気味の描写にする方向性
+		;子供あなたかつ幼チン以下なのでかなりレアルートのはず。
+		ELSE
+		
+		ENDIF
+		;次段階への誘導入れる
+		PRINTFORML 
+		IF !EXP:口淫経験 >= 30 && !EXP:苦痛快楽経験 >= 20
+			PRINTFORMDW 对于口交经验和被虐快感都不足的纳兹琳来说，这似乎只是痛苦…
+		ELSEIF !EXP:苦痛快楽経験 >= 20
+			PRINTFORMDW 对于还不习惯被虐快感的纳兹琳来说，这似乎只是痛苦…
+		ELSEIF !EXP:口淫経験 >= 30
+			PRINTFORMDW 看来她还没习惯口交…
+		ENDIF
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;141,フィストファック
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_141
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_141
+CALL M_KOJO_MESSAGE_COM_K39_141_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_141_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;142,肛門拳交
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_142
+CALL M_KOJO_MESSAGE_COM_K39_142_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_142_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;143,両穴フィスト
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_143
+CALL M_KOJO_MESSAGE_COM_K39_143_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_143_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMDW 
+		RETURN 1
+	;不埒3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMDW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMDW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;144,放尿
+;好きな指令だが持ちネタの少なさに絶望。間違いなく手抜き口上No.1
+;==================================================
+@M_KOJO_MESSAGE_COM_K39_144
+CALL M_KOJO_MESSAGE_COM_K39_144_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_144_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 1
+;-------------------------------------------------
+IF LOCAL
+	;過激な恶作剧中
+	IF CFLAG:恶作剧 && CFLAG:睡眠
+		IF RAND:3 == 0 
+			PRINTFORMW 「哈…呼……」
+		ELSEIF RAND:2 == 0 
+			PRINTFORMW 「呼…呜…呜…」
+		ELSE
+			PRINTFORMW 「…嗯…哈啊…」
+		ENDIF
+		IF RAND:3 == 0 
+			PRINTFORMDW 尽管纳兹琳还是熟睡着、但从少女幼嫩的秘裂里淅淅沥沥地流出黄金色液体…
+		ELSEIF RAND:2 == 0 
+			PRINTFORMDW 从股间漏出来的液体将床垫弄脏、染出一大片水渍…
+		ELSE
+			PRINTFORMDW 温热的液体从被充分爱抚了的尿道口排出、房间里一下子充斥着一股刺激性的味道…
+		ENDIF
+		RETURN 1
+	ENDIF
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 1
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		IF TALENT:恋人
+			PRINTFORMW 「…不好意思没听清楚、能再说一遍吗？」
+			PRINTFORMDW 于是你再次向纳兹琳传达想要看着少女放尿的姿态。
+			PRINTFORML 「…哈啊。该怎么说呢、人类的罪业可真是深重啊。」
+			PRINTFORMW 「顺便问一下、这也可以解释为是你的一种爱情表现吗？」
+			PRINTFORMDW 『当然如此』、听到这样的回答、纳兹琳再次深深叹了一口气
+			PRINTFORMW 「…唉、毕竟不会弄疼我、让你看看就让你看看吧。…真的是、怎么就选了这样的人当自己的恋人呢…」
+		ELSEIF TALENT:恋慕
+			PRINTFORMW 「…不好意思没听清楚、能再说一遍吗？」
+			PRINTFORMDW 于是你再次向纳兹琳传达想要看着少女放尿的姿态。
+			PRINTFORML 「…哈。当然我是能理解你的话语啦、你应该知道这么做的话会让我经历不如一死了之级别的羞耻的吧？」
+			;/むしろそれが目的ですが？
+			PRINTFORMDW 给予肯定的答复后、纳兹琳美目含泪地狠狠瞪了这里一眼…
+			PRINTFORMW 「呜ー…等会你可给我记住了哦…」
+		ELSE
+			PRINTFORMW 「…不好意思没听清楚、能再说一遍吗？」
+			PRINTFORMDW 于是你再次向纳兹琳传达想要看着少女放尿的姿态。
+			PRINTFORMW 「…哈啊。没想到你会变态到那个地步啊…变态成这样反而让人觉得清爽了」
+			PRINTFORMW 「可以哟、啊不过话是这么说、我现在可是超级、超——级想把你扔出去这个世界的呢…」
+		ENDIF
+		RETURN 1
+	ENDIF
+	;風呂場　というか、風呂場しか書けそうにない。そしてネタ切れ、恋慕と露出癖高い時の分岐誰か書いてー
+	IF BATHROOM()
+		;恋慕
+		IF TALENT:恋慕
+			IF RAND:3 == 0
+				PRINTFORMW 「又、又来啊？呜ー…」
+				PRINTFORMDW 纳兹琳面露苦涩的表情、但还是乖乖地面向排水口开始动作…
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「呜…咕…～～～！」
+				PRINTFORMDW 纳兹琳的悲鸣声响起的同时、少女的尿道口开始有黄金色的液体飞溅而出、形成一道发源自少女下体中止于排水口的小瀑布…
+			ELSE
+				PRINTFORMW 「呜呜…这绝对是特别特别糟糕的兴趣的说…」
+				PRINTFORMW 「果然还是要做…？嗯ー…　嗯、咕、～～～～」
+			ENDIF
+			RETURN 1
+		;それ以外
+		ELSE
+			IF RAND:3 == 0
+				PRINTFORMW 「又、又来啊？呜ー…」
+				PRINTFORMDW 纳兹琳面露苦涩的表情、但还是乖乖地面向排水口开始动作…
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「呜…咕…～～～！」
+				PRINTFORMDW 纳兹琳的悲鸣声响起的同时、少女的尿道口开始有黄金色的液体飞溅而出、形成一道发源自少女下体中止于排水口的小瀑布…
+			ELSE
+				PRINTFORMW 「呜呜…这绝对是特别特别糟糕的兴趣的说…」
+				PRINTFORMW 「果然还是要做…？嗯ー…　嗯、咕、～～～～」
+			ENDIF
+			RETURN 1
+		ENDIF
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;145,アナル奉仕強制
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_145
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_145
+CALL M_KOJO_MESSAGE_COM_K39_145_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_145_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMW 
+		RETURN 1
+	;屈服3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;146,浣腸器＋プラグ
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_146
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_146
+CALL M_KOJO_MESSAGE_COM_K39_146_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_146_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;浣腸液注入
+	IF TEQUIP:浣腸
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMW 
+			RETURN 1
+		;屈服3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;147,拡張バルーン
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_147
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_147
+CALL M_KOJO_MESSAGE_COM_K39_147_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_147_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;装着
+	IF TEQUIP:拡張バルーン
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMW 
+			RETURN 1
+		;屈服3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;148,アナル電極
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_148
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_148
+CALL M_KOJO_MESSAGE_COM_K39_148_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_148_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;装着
+	IF TEQUIP:アナル電極
+		;恋慕
+		IF TALENT:恋慕
+			PRINTFORMW 
+			RETURN 1
+		;屈服3
+		ELSEIF MARK:不埒刻印 == 3
+			PRINTFORMW 
+			RETURN 1
+		;それ以外
+		ELSE
+			PRINTFORMW 
+			RETURN 1
+		ENDIF
+	;解除
+	ELSE
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1
+
+;==================================================
+;150,胸の谷間を犯す
+;==================================================
+;==================================================
+;Optional: Determines if the standard description should be skipped.
+;Return 0 if description and KOJO should be shown, 1 if description should be hidden and KOJO shown, 2 if description should be shown and KOJO hidden, and 3 if both description and KOJO should be hidden.
+;==================================================
+@M_KOJO_MESSAGE_MESSAGECHECK_COM_K39_150
+RETURN 0
+
+@M_KOJO_MESSAGE_COM_K39_150
+CALL M_KOJO_MESSAGE_COM_K39_150_1
+RETURN RESULT
+
+@M_KOJO_MESSAGE_COM_K39_150_1
+;-------------------------------------------------
+;記入チェック（=0, 非表示、1, 表示）
+LOCAL = 0
+;-------------------------------------------------
+IF LOCAL
+	;-------------------------------------------------
+	;小分岐
+	;-------------------------------------------------
+	;初めて
+	;記入チェック
+	LOCAL:1 = 0
+	;-------------------------------------------------
+	IF LOCAL:1 && FIRSTTIME(SELECTCOM)
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+	;基本セット
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMW 
+		RETURN 1
+	;屈服3
+	ELSEIF MARK:不埒刻印 == 3
+		PRINTFORMW 
+		RETURN 1
+	;それ以外
+	ELSE
+		PRINTFORMW 
+		RETURN 1
+	ENDIF
+ENDIF
+RETURN 1

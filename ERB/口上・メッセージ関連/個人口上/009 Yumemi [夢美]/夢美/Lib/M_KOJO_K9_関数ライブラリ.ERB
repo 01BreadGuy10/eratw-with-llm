@@ -1,0 +1,1600 @@
+﻿;
+;### 関数 ###################################
+;以下の関数は「映姫様口上」内の「M_KOJO_K30_関数・お説教ライブラリ」や「はたて口上」のものを拝借したものです
+;夢美口上作者が作成したものではないのでご注意ください
+;同ライブラリの利用に関しては、映姫様口上の作者様のライセンスに準じます
+
+;==================================================
+;料理に対する反応（食事を取る、振舞う）
+;==================================================
+;★メシに関する反応はおいおい作っていきたい(2022/11/23　メモ　★キャラ番号修正を忘れずに)
+;@K9_COOKING_REACTION
+	;OBJ/CLASS/キャラデータに料理嗜好
+	;料理：好きな味　魚料理/獣肉/虫肉/葉物/ガッツリ/濃厚/豪華/機能的/鮮やか/ふわふわ/天狗流/外界風/甘い/甘い/しょっぱい/しょっぱい/
+	;料理：嫌いな味　あっさり/辛い/辛い/卵/卵/卵/地底風/地底風/地底風/鳥肉/鳥肉/鳥肉/鳥肉/鳥肉/
+	;料理：助手効果　濃い味
+	;大好き…甘い、しょっぱい
+	;大嫌い…鶏肉＞地底風＝卵＞辛い＞あっさり
+	
+	;料理そのものに対する反応
+	;DISHDATAが改訂されてから変更してなかったのを色々修正しました
+	;現実で卵を使っていても、DISH_TASTEに「卵」が入っていなければ卵料理じゃない反応をします（例：フレンチトースト）
+	;好物に関しても同様です
+	
+	;軽食
+;	SELECTCASE DISHNAME
+;	CASE "おにぎり"
+;		PRINTFORML 「私、中に具が入ってるのも入ってないのも好きだよ」
+;		PRINTFORML 「でも海苔巻いてると歯にくっ付いちゃうからヤなんだよねー」
+;		PRINTFORML 「まあ海苔って幻想郷じゃ貴重品だから贅沢言ってるのは分かってんだけど…」
+;		PRINTW 
+;	CASE "のり巻き"
+;		PRINTFORML 「わお、立派な海苔巻きねー」
+;		PRINTFORML 「んっ、んっ…太くて、全部入らないよぉ…っ」
+;		PRINTW 
+;	CASE "かっぱ巻き"
+;		PRINTFORML 「うん、このキュウリのほんのりしょっぱい感じがいいのよねー」
+;		PRINTW 
+;	CASE "フレンチトースト"
+;		PRINTFORML 「んふふ、甘いのだ～い好き%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "スコーン"
+;		PRINTFORML 「口の中パサパサしそうね。お茶も用意しなきゃ」
+;		PRINTW 
+;	CASE "サンドイッチ"
+;		PRINTFORML 「あ、卵入ってる…これはパスで…」
+;		PRINTFORML 「こっちの果物と、ツナが入ってるのちょーだい♪」
+;		PRINTW 
+;	CASE "ハンバーガー";〇
+;		PRINTFORML 「んふふー♪　おにくおっきー♪」
+;		PRINTFORML 「でも大きい口開けて食べるのってあんまり行儀よくないよね…え、いーの？　あーん♪」
+;		PRINTW 
+;	CASE "ホットドッグ"
+;		PRINTFORML 「わお、太ーい♪　おいしそー♪　私の大好物だー♪」
+;		PRINTFORML 「あむっ、んむっ、わわっ、お汁いっぱい出てきちゃったぁ」
+;		PRINTW 
+;	CASE "ラピュタパン"
+;		PRINTFORML 「すごーい♪　これ全部食べていーのー？」
+;		PRINTFORML 「あ、目玉焼き…これだけはポイっと…」
+;		PRINTW 
+;	CASE "コーンフレーク"
+;		PRINTFORML 「食感がサクサクしてて面白ーい♪」
+;		PRINTFORML 「ふやけたところもこれはこれで悪くないわねー」
+;		PRINTW 
+;	CASE "カロリーバー"
+;		PRINTFORML 「締め切りに追われてるときなんか、こーいう食べ物があると便利ねー」
+;		PRINTFORML 「いくつか家に常備しとこうかなぁ」
+;		PRINTW 
+;	CASE "ポップコーン"
+;		PRINTFORML 「へー、実を油で揚げるとこんなふーになるんだ」
+;		PRINTFORML 「ついつい食べすぎちゃうやつだわー。やばいわね！」
+;		PRINTW 
+;	CASE "サラダ"
+;		PRINTFORML 「私、お肉も好きだけど野菜も好きだよ？」
+;		PRINTFORML 「前はお残ししてた？　気のせいじゃない？」
+;		PRINTW 
+;	CASE "山菜サラダ"
+;		PRINTFORML 「野菜は好きだけどさぁ」
+;		PRINTFORML 「やっぱりお肉食べたい～お腹にたまるものがいい～」
+;		PRINTW 
+;	CASE "おひたし"
+;		PRINTFORML 「あっさりしすぎなのはあんまり好きじゃないんだけど…お野菜だからこれはヘーキかも」
+;		PRINTFORML まるで子供のような言い訳だ
+;		PRINTW 
+;	CASE "漬物"
+;		PRINTFORML 「ねーねー、ご飯なーい？　これ絶対ご飯がほしくなるやつじゃーん」
+;		PRINTW 
+;	CASE "ビーフン"
+;		PRINTFORML 「やったー♪　私の大好物ー♪」
+;		PRINTFORML 「食べやすいからついつい食べすぎちゃいそうねー」
+;		PRINTW 
+;	CASE "タコス";◎
+;		PRINTFORML 「もちもちの記事の中にはお肉がたっぷり…しあわせー♪」
+;		PRINTW 
+;	CASE "モッツァレラチーズとトマトのサラダ"
+;		PRINTFORML 「私、サラダ好きだよー。見た目が綺麗なのもいーね♪」
+;		PRINTW 
+;	CASE "オムレツ"
+;		PRINTFORML 「なんでおいしそーな見た目してるのに、卵料理なんだろうなぁ…」
+;		PRINTW 
+;	CASE "ゆでたまご"
+;		PRINTFORML 「ちょっとぉ、これ何のイジメよぉ～」
+;		PRINTW 
+;	CASE "肉じゃが"
+;		PRINTFORML 「んー♪　これはけっこー好きかなー♪」
+;		PRINTFORML 「これにカレー粉入れるとカレーになるの？　へー」
+;		PRINTW 
+;	CASE "茶碗蒸し"
+;		PRINTFORML 「キレーな見た目してるのに、これも卵料理かぁ…」
+;		PRINTFORML 「卵以外で作れない？　無理？　そっかぁ…」
+;		PRINTW 
+;	CASE "ロールキャベツ"
+;		PRINTFORML 「ん、これ、私の好きな組み合わせー♪」
+;		PRINTFORML 「スープの味が染みて、おいしー♪」
+;		PRINTW 
+;	CASE "ポトフ"
+;		PRINTFORML 「うわっ、これ鶏肉入ってるじゃん…」
+;		PRINTFORML 「どーしても食べなきゃダメ？」
+;		PRINTW 
+;	CASE "キムチ"
+;		PRINTFORML 「うわこれすっごく辛そう」
+;		PRINTFORML 「食べたらヤバいやつなんじゃないの？　見た目ほどじゃない？　ホントに～？」
+;		PRINTW 
+;	CASE "イナゴの佃煮"
+;		PRINTFORML 「ふーん、イナゴを甘辛く煮たんだ」
+;		PRINTFORML 「あ、私意外と虫へーきだよ。元々鴉だしねー」
+;		PRINTW 
+;	CASE "蜂の子"
+;		PRINTFORML 「へー、蜂の子ねぇ。取ってくるの大変だったんじゃない？」
+;		PRINTFORML 「虫って栄養たっぷりなんだってね。私たちにはあんまり関係ないんだけど」
+;		PRINTFORML 「あ、ちなみに私の大好物なんだー、これ」
+;		PRINTW 
+;	CASE "干物"
+;		PRINTFORML 「んーこのしょっぱさ、ご飯に合うわねー♪」
+;		PRINTFORML 「いくらでもおかわりしたくなっちゃう♪」
+;		PRINTW 
+;	CASE "茹でた枝豆"
+;		PRINTFORML 「豆かぁ。豆食べるならお肉食べればいいんじゃない？」
+;		PRINTFORML 「まあ、好きな味だから食べちゃうけど…あ、やばい。止まらなくなるヤツだ、これ」
+;		PRINTW 
+;	CASE "からあげ"
+;		PRINTFORML 「お肉を別の物にしてくれればっ…もっとたくさん食べれるのにぃっ」
+;		PRINTW 
+;	CASE "フライドチキン"
+;		PRINTFORML 「なんで鶏なのよぉっ…鶏は苦手なんだってばぁ…」
+;		PRINTW 
+;	CASE "フランクフルト"
+;		PRINTFORML 「わぁっ、太くて美味しそう%UNICODE(0x2665) *1%」
+;		PRINTFORML 「あむっ…んっ、んむっ…はぁっ、熱くて、おいし…%UNICODE(0x2665) *1%」
+;		PRINTFORML 「ん、どしたの？　赤い顔して」
+;		PRINTW 
+;	CASE "竜田揚げ"
+;		PRINTFORML 「お魚なのに揚げてあるから食べ応えあっていいわね♪」
+;		PRINTFORML 「おかわりもっとちょーだい♪」
+;		PRINTW 
+;	CASE "カエルのから揚げ"
+;		PRINTFORML 「ふふん、私が女の子だからって食べられないと思ってるでしょー」
+;		PRINTFORML 「私の食への探求心は、カエルごときでは揺らがないよっ！　ってゆーかフツーにおいしーし」
+;		PRINTW 
+;	CASE "たこ焼き"
+;		PRINTFORML 「あちっ、あちちちっ、はふはふっ…」
+;		PRINTFORML 「へー、外はカリカリなのに中はトロトロなんだぁ」
+;		PRINTW 
+;	CASE "コロッケ"
+;		PRINTFORML 「ホクホクしてていーわね。ジャガイモの優しい味がするー♪」
+;		PRINTW 
+;	CASE "肉まん";◎
+;		PRINTFORML 「あちちちち…　あーん、大好きなのに熱くて食べれないよー」
+;		PRINTFORML 「ううう、なんてお預け状態…」
+;		PRINTW 
+;	CASE "餃子"
+;		PRINTFORML 「これぞ、究極の家庭料理ね！　野菜もお肉も炭水化物もとれる！」
+;		PRINTFORML 「しかも中の餡の組み合わせは無限大！　サイコーよね♪」
+;		PRINTW 
+;	CASE "シウマイ";〇
+;		PRINTFORML 「これ好き～　いくらでも入っちゃいそう～」
+;		PRINTW 
+;	;魚料理
+;	CASE "フライ"
+;		PRINTFORML 「お魚をサクサクに揚げるのって、こんなにおいしーんだ…♪」
+;		PRINTW 
+;	CASE "塩焼き";〇
+;		PRINTFORML 「お魚っていーわよねぇ♪　おいしーし、ヘルシーだし♪」
+;		PRINTW 
+;	CASE "照り焼き"
+;		PRINTFORML 「この照りが、私を堕落へと誘っちゃうの…私が悪いんじゃない、この照りがいけないんだ…」
+;		PRINTW 
+;	CASE "煮付け";◎
+;		PRINTFORML 「このタレの甘辛さが…身もホクホク、やっぱり和食っていいわねぇ…♪」
+;		PRINTW 
+;	CASE "蒲焼き"
+;		PRINTFORML 「蒲焼きだったらミスティアさんの屋台で食べるのが一番だけど、たまには家で食べるのもいーわね♪」
+;		PRINTFORML 「ところでミスティアさんが使ってるタレって、やっぱり自家製なのかな。すっごく美味しーよね」
+;		PRINTW 
+;	CASE "ムニエル"
+;		PRINTFORML 「ふーん、こっちは洋風の照り焼きなんだね。あ、バターのいい香りが…♪」
+;		PRINTFORML 「うん、こっちも私が好きな味だー♪」
+;		PRINTW 
+;	CASE "マリネ"
+;		PRINTFORML 「へー、この酸っぱさ、思ってたより嫌いじゃないかも」
+;		PRINTFORML 「何より小魚だからすっごく食べやすいね♪」
+;		PRINTW 
+;	CASE "天ぷら"
+;		PRINTFORML 「お魚でもキノコでもなんでも美味しく食べられるのがいーね♪」
+;		PRINTFORML 「つゆで食べるのもすっごく美味しいけど、塩もいけるわねー」
+;		PRINTW 
+;	CASE "カエルの塩焼き"
+;		PRINTFORML 「えっ、これってカエルなの？　知らないで食べちゃった」
+;		PRINTFORML 「うん、けっこーイケてる♪」
+;		PRINTW 
+;	CASE "カエルのソテー"
+;		PRINTFORML 「カエルってもっとグニュグニュしてるのかって思ったけど、意外とそーでもないのね」
+;		PRINTW 
+;	;芋料理
+;	CASE "焼きいも"
+;		PRINTFORML 「甘～～い%UNICODE(0x2665) *1%　ふかしたのも好きだけど、やっぱり焼き芋の甘さにはかなわないわね～♪」
+;		PRINTW 
+;	CASE "フライドポテト"
+;		PRINTFORML 「あ、ヤバイこれ。手が止まんなくなるやつだ」
+;		PRINTW 
+;	CASE "じゃがバター"
+;		PRINTFORML 「シンプル・イズ・ザ・ベストを形容したような料理だなあ」
+;		PRINTFORML ジャガイモだけの部分と、バターがかかった部分で二度楽しめるのがいーね♪」
+;		PRINTW 
+;	CASE "フィッシュ＆チップス"
+;		PRINTFORML 「駄目よ…この組み合わせは…私を堕落させる…」
+;		PRINTW 
+;	CASE "味噌汁"
+;		PRINTFORML 「ず…　はぁ…♪」
+;		PRINTFORML 「なんで味噌汁って、食べてて落ち着くんだろーねー。ため息出ちゃう♪」
+;		PRINTW 
+;	CASE "おしるこ"
+;		PRINTFORML 「あぁ～…やっぱり、おしるこよねぇ～…%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "豚汁"
+;		PRINTFORML 「私は割となんでも入れちゃう派なんだけどさ」
+;		PRINTFORML 「組み合わせにうるさい人もいるんでしょ？　こだわり強いとは思うけど、それはそれでいーのかな、なんて」
+;		PRINTW 
+;	CASE "コーンスープ"
+;		PRINTFORML 「あったかいね…♪　それに甘くておいしー♪」
+;		PRINTW 
+;	CASE "カップ麺"
+;		PRINTFORML 「ずずー…いや、思うんだけどさ」
+;		PRINTFORML 「ずずー…この即席料理を考えた人って、ホント天才だと思うのよ」
+;		PRINTW 
+;	CASE "ちくわ"
+;		PRINTFORML 「おでんによし、困ったときの具材によし、そのまま食べてよし」
+;		PRINTFORML 「なかなか万能よね、ちくわって」
+;		PRINTW 
+;	CASE "納豆"
+;		PRINTFORML 「%MASTERNAME:42%って、納豆には何を入れる派？」
+;		CALL ASK_M("タレだけ", 1,"からし", 1,"ラー油", 1,"ネギ", 1,"生卵", 1)
+;		SELECTCASE RESULT
+;		CASE 0
+;			PRINTFORML 「あーなるほどねー。変に何か混ぜなくても十分美味しいもんねー」
+;		CASE 1
+;			PRINTFORML 「私は辛いの苦手だけれど、そーいう食べ方もあるんだ」
+;		CASE 2
+;			PRINTFORML 「あーラー油！　人間には体に悪そうだけど、それは美味しそうね」
+;		CASE 3
+;			PRINTFORML 「うんうん、美味しいネギと混ぜると美味しいもんね」
+;		CASE 4
+;			PRINTFORML 「はぁ？　私と戦争するつもり？」
+;		ENDSELECT
+;		PRINTW 
+;	CASE "豆腐"
+;		PRINTFORML 「材料がいいと、何もかけなくても美味しいのよね、豆腐って」
+;		PRINTFORML 「私は揚げ出し豆腐が一番好きかなー♪」
+;		PRINTW 
+;	CASE "梅干し"
+;		PRINTFORML 「ねーねー知ってた？　実は梅干しってねー」
+;		PRINTFORML 「……やっぱ、なんでもない\/\/\/　あ、すっぱ！」
+;		PRINTW 
+;	CASE "葛切り"
+;		PRINTFORML 「葛ってそんなに大した量が取れるわけじゃないから、お店だと偽物が出てくるときあるんだよねー」
+;		PRINTFORML 「そんなインチキしないで、正直に葛切り風味って書けばいーのにね」」
+;		PRINTW 
+;	CASE "煎餅"
+;		PRINTFORML 「このお煎餅フワフワサクサクだー♪」
+;		PRINTFORML 「すっごく甘いお菓子も好きだけど、こういうしょっぱいお菓子もいーよね♪」
+;		PRINTW 
+;	;主食
+;	CASE "やまもりごはん"
+;		PRINTFORML 「山盛りってだけで幸せー♪」
+;		PRINTW 
+;	CASE "卵かけご飯"
+;		PRINTFORML 「うぅっ…黄身が私を睨んでるっ…」
+;		PRINTW 
+;	CASE "お茶漬け"
+;		PRINTFORML 「これ食べて帰れとか言わないよね？　言わない？　よかったぁー…あ、おいし…」
+;		PRINTW 
+;	CASE "たけのこごはん"
+;		PRINTFORML 「このたけのこの食感がたまらないのよねー♪　じょーずに炊けましたー♪」
+;		PRINTW 	
+;	CASE "漬け物に大盛り飯"
+;		PRINTFORML 「料理に過度な足し算はいらないよねー。この飾らない美味しさが、互いを互いに引き立て合って、サイコー」
+;		PRINTW 	
+;	CASE "赤飯"
+;		PRINTFORML 「もちもち、甘くて美味しい♪　私お赤飯大好きー♪」
+;		PRINTW 	
+;	CASE "雑炊"
+;		PRINTFORML 「ずずっ…はぁー…あったまるぅ」
+;		PRINTW 
+;	CASE "カツ丼"
+;		PRINTFORML 「トンカツの衣がほどよくタレを吸い込んで…ああ…%UNICODE(0x2665) *1%」
+;		PRINTFORML 「そしておもむろにご飯を食べるっ！　サイコー♪」」
+;		PRINTW 
+;	CASE "牛丼"
+;		PRINTFORML 「早くて、うまくて、安い！　牛丼は最高のファーストフードね！」
+;		PRINTFORML 「%MASTERNAME:42%、もっと玉ねぎほしーなー。あ、玉はいらない！」
+;		PRINTW 
+;	CASE "親子丼"
+;		PRINTFORML 「…どーして私にこーいうの出すかなー…」
+;		PRINTW 
+;	CASE "天丼"
+;		PRINTFORML 「エビがおっきー♪　うん、すっごいプリプリしてる♪」
+;		PRINTW 
+;	CASE "海鮮丼"
+;		PRINTFORML 「わぁー、見た目が綺麗ねー。見るだけでも楽しめちゃう」
+;		PRINTFORML 「具もたくさん載ってるからすっごいお得な感じ。贅沢ってこのことね♪」
+;		PRINTW 
+;	CASE "寿司"
+;		SELECTCASE RAND:2
+;		CASE 0
+;			PRINTFORML 「白身はあっさりしてて食べやすいわねー。あ、同じのもー一つ」
+;			PRINTFORML 「赤身は癖があるけど…うん、この癖が逆にいー感じで…こっちもおかわり！」
+;		CASE 1
+;			PRINTFORML 「わ、なんかすっごくきれーな四角になってる」
+;			PRINTFORML 「押し寿司って見た目が綺麗だから好きだよ。もちろん味も好きだけど♪」
+;			PRINTW 
+;		ENDSELECT
+;	CASE "うな重"
+;		IF TCVAR:発情 || TALENT:妊娠願望
+;			CALL HPH_PRINT,@"「ちゃんと食べて、精をつけないとね…HPH」","L"
+;		ELSE
+;			PRINTFORML 「この…ふたを開けたときの香り…はぁ…%UNICODE(0x2665) *1%」
+;			PRINTFORML 「パリッふわっのウナギと、甘いタレがかかったご飯…幸せー%UNICODE(0x2665) *1%」
+;			PRINTW 
+;		ENDIF
+;	CASE "オムライス"
+;		PRINTFORML 「だから卵で美味しそうな料理つくんないでよぉ」
+;		PRINTFORML はたてにケチャップで「ばか」と書かれた…
+;		PRINTW 
+;	CASE "チャーハン"
+;		PRINTFORML 「へー、ちゃんとご飯がパラパラになってる」
+;		PRINTFORML 「これって難しいんでしょ。失敗するとすぐベショベショ飯になっちゃうし」
+;		PRINTFORML 「うん、口の中でほぐれる♪　サイコーの炒め加減ね♪」
+;		PRINTW 
+;	CASE "カレーライス"
+;		PRINTFORML 「うーん、辛いのちょっと苦手なんだけどなー」
+;		PRINTFORML 「牛乳と一緒に食べるといい？　あ、辛いのちょっと引いたかも。うん、味はすっごく美味しい」
+;		PRINTW 
+;	CASE "ドリア"
+;		PRINTFORML 「このご飯、ピラフっていうの？　上の白いソースと一緒に食べるとサイコーね♪」
+;		SELECTCASE RAND:2
+;		CASE 0
+;			PRINTFORML 「あちっ！　舌、やけどしちゃったよー」
+;		CASE 1
+;			PRINTFORML 「ちょっと茶色くなったこのチーズ部分が…甘さとしょっぱさが両方味わえるのがいーね♪」
+;		ENDSELECT
+;		PRINTW 
+;	CASE "フィッシュカレー"
+;		PRINTFORML 「おおっ、けっこー大きなお魚が入ってる」
+;		PRINTFORML 「辛いのって苦手なんだけど、けっこーおいしーね、これ」
+;		PRINTW 
+;	CASE "カエルカレー"
+;		PRINTFORML 「ん、ひょっとしてこれカエル？」
+;		PRINTFORML 「別に食べようと思えば食べられるわよ。どっちかというと、辛いほうが…」
+;		PRINTW 	
+;	CASE "粉末成形スシ"
+;		PRINTFORML 「せっかくのお魚をこんなにしちゃうなんて…」
+;		PRINTFORML 「普通のお寿司にしようよー。魚が泣いてるよー」
+;		PRINTW 
+;	CASE "そば"
+;		;季節で変化
+;		SELECTCASE DAY:2
+;		;夏はざるそば
+;		CASE 2
+;			PRINTFORML 「暑いときはやっぱ、ざるそばに限るわねー」
+;			PRINTFORML 「うーん、ソバがいい香りー」
+;			PRINTW 
+;		;冬は温そば
+;		CASE 4
+;			PRINTFORML 「あったかいつゆと一緒にすするソバもいいわねー♪」
+;			PRINTFORML 「うーん、お出汁がいー香り」
+;			PRINTW 
+;		;春、秋はどっちでもとれるように
+;		CASEELSE
+;			PRINTFORML 「私、麺類ってなんでも好きなのよねー。もちろんお蕎麦も大好きよ！」
+;			PRINTW
+;		ENDSELECT 
+;	CASE "うどん"
+;		;季節で変化
+;		SELECTCASE DAY:2
+;		;夏は冷やしうどん
+;		CASE 2
+;			PRINTFORML 「暑いときはやっぱ、ざるうどんに限るわねー」
+;			PRINTFORML 「うーん、麺がシコシコしてて甘いー♪」
+;			PRINTW 
+;		;冬はあったかいうどん
+;		CASE 4
+;			PRINTFORML 「あったかいつゆと一緒にすするうどんもいいわねー♪」
+;			PRINTFORML 「へー意外。上品な味がするー」
+;			PRINTW 
+;		;春、秋はどっちでもとれるように
+;		CASEELSE
+;			PRINTFORML 「つるつるー♪　それにとっても歯ごたえあるわねぇ」
+;			PRINTW 
+;		ENDSELECT 
+;	CASE "そうめん"
+;		PRINTFORML 「前にさぁ、頂き物の素麺が期限切れ近かったから、まとめて茹でちゃったのよね」
+;		PRINTFORML 「鍋の底から素麺が延々と生えてくるみたいで、結構苦痛だったわー…」
+;		PRINTW 
+;	CASE "ラーメン"
+;		PRINTFORML 「……！　……、……」
+;		PRINTFORML はたては夢中になって麺をすすっている
+;		PRINTW 
+;	CASE "担々麺"
+;		PRINTFORML 「私、麺は好きって言ったけど、辛いのは苦手っていったじゃん～」
+;		PRINTFORML はたては泣き顔で麺をすすっている。あ、むせた
+;		PRINTW 
+;	CASE "スパゲッティ"
+;		SELECTCASE RAND:3
+;		CASE 0
+;			PRINTFORML 「へー、これ、穴があいてるー。おもしろーい♪」
+;		CASE 1
+;			PRINTFORML 「この平べったいのも麺なの。そーなんだー」
+;		CASE 2
+;			PRINTFORML 「ソースをしっかり絡めて食べると…んー%UNICODE(0x2665) *1%」
+;		ENDSELECT
+;		PRINTW 
+;	CASE "焼きそば";（大好物）
+;		PRINTFORML 「これよ、これ！　真においしい料理は、上品さなど不要！」
+;		PRINTFORML 「気取らず食べれる、栄養もとれる、何よりおいしい！　完璧ね！」
+;		PRINTW 
+;	CASE "冷やし中華"
+;		PRINTFORML 「へー、麺ってこーいう食べ方もあるんだね」
+;		PRINTFORML 「すっぱくてあっさりした感じが、すっごく食べやすいね」
+;		PRINTW 
+;	CASE "水炊き"
+;		PRINTFORML 「もーやめてよー私に鳥料理だすのー」
+;		PRINTFORML 「いーもん、野菜部分だけ食べるから…」
+;		PRINTW
+;	CASE "すき焼き"
+;		PRINTFORML 「え、そんなにお砂糖入れるなって？　その方がおいしくない？」
+;		PRINTFORML 「あー、タレがお肉や野菜にしっかり沁みて、おいしー♪」
+;		PRINTW 
+;	CASE "おでん"
+;		PRINTFORML 「ちょっとー、卵はいらないでしょー」
+;		PRINTFORML 「私はその大根とがんも食べるから、%MASTERNAME:42%が食べてよねー」
+;		PRINTW 
+;	CASE "チゲ鍋"
+;		PRINTFORML 「私思うんだけど、なんでも辛くして食べればいいってものじゃないと思うのよね」
+;		PRINTFORML 「何が言いたいかっていうと、私は辛いのがにーがーてーなーのー！」
+;		PRINTW 
+;	CASE "しゃぶしゃぶ"
+;		SELECTCASE RAND:2
+;		CASE 0
+;			PRINTFORML 「何このお肉。宝石みたいなんだけど！」
+;			PRINTFORML 「お出汁も昆布からとってるの？　貴重品なのにぜいたくー♪」
+;			PRINTW 
+;		CASE 1
+;			PRINTFORML 「お肉をしゃぶ、しゃぶ、しゃぶ…っと。んー、おいし～♪」
+;			PRINTFORML 「そんなにまとめて食べるなって？　ふふん、早い者勝ちだー♪」
+;			PRINTW 
+;		ENDSELECT
+;		IF !EQUIP:TARGET:下半身下着２
+;			PRINTFORML 「ねー…このままじゃなきゃ、駄目？」
+;			PRINTFORML 「下半身がスースーして、落ち着かないんだけど…\/\/\/」
+;		ELSE
+;			PRINTFORML 「え？　ノーパンしゃぶしゃぶなんてのがあるの？」
+;			PRINTFORML 「いや…私、ちゃんと下着履いてるからね？」
+;		ENDIF
+;	CASE "チーズフォンデュ"
+;		PRINTFORML 「へぇー、このチーズに野菜とかパンを漬けて食べるんだ」
+;		PRINTFORML 「うん、このチーズのしょっぱさがパンにしみ込んで…♪」
+;		PRINTW 
+;	CASE "シチュー";◎
+;		PRINTFORML 「私の大好物ー♪　%MASTERNAME:42%、ありがとっ♪」
+;		PRINTW 
+;	CASE "ボルシチ"
+;		PRINTFORML 「見た目、すっごい辛そーなんだけど…あれ、美味しい」
+;		PRINTFORML 「私、この味付け好きかも」
+;		PRINTW 
+;	CASE "ブレッドボウルシチュー"
+;		PRINTFORML 「へー、パンが器になってるんだー。おしゃれー♪」
+;		PRINTFORML 「うん、味も私の好みね♪」
+;		PRINTW 
+;	CASE "グラタン";◎
+;		PRINTFORML 「シチューも大好きだけど、こっちも大好きだよ」
+;		PRINTFORML 「ちょっとだけ焦げたところって美味しーんだよね」
+;		PRINTW 
+;	CASE "ピザ"
+;		PRINTFORML 「わお！　具材がもりもりだー♪」
+;		PRINTFORML 「うーん、このモチモチした食感と、チーズのとろけ具合が…%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "お好み焼き"
+;		PRINTFORML 「え…これ、卵入ってんの？　やだなー」
+;		PRINTFORML 「味は私好みなのが…複雑だなあ…でもおいしい…」
+;		PRINTW 
+;	CASE "麻婆茄子"
+;		PRINTFORML 「こ、これが丸○屋の…」違います
+;		PRINTFORML 「くうっ、辛くなければ結構好きなんだけどなー…」
+;		PRINTW 
+;	CASE "油淋鶏";鶏肉だが肉／ボ付いてるので〇
+;		PRINTFORML 「うーん、すごくおいしそーな見た目なのに…」
+;		PRINTFORML 「これ鶏なんだよねー…」
+;		PRINTW 
+;	CASE "中華あんかけ"
+;		PRINTFORML 「この餡がたまらないわねー♪」
+;		PRINTFORML 「ねえねえ、これをご飯とか焼いた麺の上に載せてもおいしーんじゃない？」
+;		PRINTW 
+;	CASE "野菜炒め"
+;		PRINTFORML 「時間がないときはもやしと厚揚げ豆腐炒めて醤油かけるだけでもそれなりになるんだよねー」
+;		PRINTFORML 「うん、生も嫌いじゃないけど、火の通った野菜のほうがおいしーね」
+;		PRINTW 
+;	CASE "生姜焼き";◎
+;		PRINTFORML 「ほどよく生姜が利いたタレとお肉の相性といったら…あ～ん、もう！」
+;		SELECTCASE RAND:2
+;		CASE 0
+;			PRINTFORML 「ああやばいっ、ご飯が何杯でも進んじゃう…」
+;			PRINTW 
+;		CASE 1
+;			PRINTFORML 「ご飯お替り持ってきてー！」
+;			PRINTW 
+;		ENDSELECT
+;	CASE "ステーキ";◎
+;		PRINTFORML 「お肉柔らかーい…%UNICODE(0x2665) *1%　肉汁すごーい…%UNICODE(0x2665) *1%　はぁ…%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "ハンバーグ";◎
+;		PRINTFORML 「うわあ、切ったら肉汁がいっぱい溢れてきた！」
+;		PRINTFORML 「口の中でじゅわあってする～幸せ～」
+;		PRINTW 
+;	CASE "お子様ランチ"
+;		PRINTFORML 「何これー♪　ごはんに旗が立っててかわいー%UNICODE(0x2665) *1%」
+;		PRINTFORML 「あ、子ども向けだけど私も好きな味だな、これ」
+;		PRINTW 
+;	CASE "刺身"
+;		PRINTFORML 「うまい魚は生でもうまい！」
+;		PRINTFORML 「新鮮なお魚が食べられるんだから、贅沢な話よねー」
+;		PRINTW 
+;	CASE "キッシュ"
+;		PRINTFORML 「私これ好きだなー」
+;		PRINTFORML 「パイはサクサクしてて、具材は優しい甘さで。いくらでも食べれちゃうよ♪」
+;		PRINTW 
+;	CASE "スターゲイジーパイ"
+;		PRINTFORML 「何これ。悪魔でも召喚すんの？」
+;		PRINTFORML 「見た目はすごいけど…味は…あ、普通においしー」
+;		PRINTW 
+;	CASE "義大莉而鳥苗鳥肉";鶏が入ってるのでトータルでマイナス補正。はたてちゃんは虫肉はイケるのだ
+;		PRINTFORML 「ウギャアアアアアーーーーッッ！」
+;		PRINTFORML 「ダ……ダ……ダチョウ肉が皿に載ってるぅ～～～～ッッ！！」
+;		PRINTW 
+;		PRINTFORML そっちか！
+;		PRINTFORML かわりにはたてはゲンゴローやミミズ、トンボをバリバリと食べていた…
+;		PRINTW 
+;	CASE "ドーピングコンソメスープ"
+;		PRINTFORML 「あのね…なんでもかんでも漫画から影響受けるのやめなさい」
+;		PRINTFORML 「そのうち死人が出るわよ」
+;		PRINTW 
+;	CASE "ギンギー料理";◎
+;		PRINTFORML 「見た目がアレだけど、私の好みのツボを押さえてあるのよね…」
+;		PRINTW 
+;	
+;	;料理：好きな味　魚料理/獣肉/虫肉/葉物/ガッツリ/濃厚/豪華/機能的/鮮やか/ふわふわ/天狗流/外界風/甘い/甘い/しょっぱい/しょっぱい/
+;	;料理：嫌いな味　あっさり/辛い/辛い/卵/卵/卵/地底風/地底風/地底風/鳥肉/鳥肉/鳥肉/鳥肉/鳥肉/
+;	;料理：助手効果　濃い味
+;	;大好き…甘い、しょっぱい
+;	;普通に好き…魚料理、獣肉、虫肉、葉物、ガッツリ、濃厚、豪華、機能的、鮮やか、ふわふわ、天狗流、外界風
+;	;大嫌い…鶏肉＞地底風＝卵＞辛い＞あっさり
+;	
+;	;季節の料理
+;	CASE "おせち料理";☆甘い、ガッツリ、濃厚、豪華、鮮やかとプラス補正ばっかり
+;		PRINTFORML 「わぁ～、色んなお料理が入ってる～%UNICODE(0x2665) *1%」
+;		PRINTFORML 「すごーい、どれも目移りしちゃう♪　どれからたーべよっかなー♪」
+;		PRINTW 
+;	CASE "七草粥"
+;		PRINTFORML 「♪せり　なずな　ごぎょう　はこべら　ほとけのざ♪　すずな　すずしろ　春の七草♪」
+;		PRINTFORML はたては即興の歌を歌いながら粥を食べている
+;		PRINTW 
+;	CASE "恵方巻"
+;		PRINTFORML 「恵方って、どっち向けばいーの？」
+;		PRINTFORML 「ん…太いよぉー」
+;		PRINTW 
+;	CASE "年越し蕎麦"
+;		IF FESTIVAL() == "大晦日"
+;			PRINTFORML 「これ食べてると、ああ、今年も終わりなんだなーって思っちゃうんだよね」
+;			PRINTFORML 「来年もよろしくね、%MASTERNAME:42%♪」
+;			PRINTW 
+;		ELSE
+;			PRINTFORML 「これじゃ年越し蕎麦じゃなくてただの蕎麦じゃない？」
+;			PRINTFORML 「まー、お蕎麦好きだからいいんだけどさ」
+;			PRINTW 
+;		ENDIF
+;	CASE "ローストチキン";×見た目だけならはたて好みなのに、鳥肉って時点でアウト
+;		IF FESTIVAL() == "クリスマスイヴ" || FESTIVAL() == "クリスマス"
+;			PRINTFORML 「こんな日にこんなもの出すとか、%MASTERNAME:42%って私に何か恨みでもあるの…？」
+;			PRINTFORML はたてはローストチキンを目の前にしてプルプル震えている…
+;			PRINTW 
+;		ELSE
+;			PRINTFORML 「何？　私、そんなに%MASTERNAME:42%に嫌われるようなことをした？」
+;			PRINTFORML あのはたてが涙目になっている…
+;			PRINTW 
+;		ENDIF
+;	;洋菓子は軒並み鶏卵入ってるので好みとしてはプラス補正がたくさんついてないとアウト
+;	;デザート
+;	CASE "ショートケーキ";◎はたてにとってはプラス補正の塊なので
+;		PRINTFORML 「う…これ、卵で作ってるのよね…でも、見た目は大丈夫だから、多分イケる…えいっ！」
+;		PRINTFORML 「あ……美味しい。甘いけど、くどくなくて…なんか、幸せ…♪」
+;		PRINTW 
+;	CASE "チョコレートケーキ";○ショートケーキには一歩劣る
+;		PRINTFORML 「これはケーキ、これはケーキ…甘くて美味しい、甘くて美味しい…」
+;		PRINTFORML 「…うん、ほんのりとした苦さと、濃厚な甘さが舌の上で踊ってるみたい」
+;		PRINTW 
+;	CASE "ホットケーキ";△卵のマイナス補正のほうがデカいので
+;		PRINTFORML 「ふわふわでかわいーのに…これ、ちょっと苦手なんだよねー…」
+;		PRINTFORML 「いや、甘い物は好きなのよ。好きなんだけど、さ…卵、入ってるじゃん…」
+;		PRINTW 
+;	CASE "パイ";△
+;		PRINTFORML 「うん、サクサクしてて不思議な食感ね♪　これで、卵が入ってなければなぁ…」
+;		PRINTW 
+;	CASE "タルト";△
+;		PRINTFORML 「なんで美味しそうなお菓子に限って卵が使われてるのよ～」
+;		PRINTW 
+;	CASE "マカロン";○
+;		PRINTFORML 「フワフワ、サクサクしてて不思議な食感ねー」
+;		PRINTFORML 「これって、しっかりかき混ぜないと上手く作れないんでしょ？　すごーい」
+;		PRINTW 
+;	CASE "クレープ";プラマイゼロ
+;		PRINTFORML 「えへへ、甘い物で固めちゃった♪」
+;		PRINTFORML 「逆にしょっぱいものだけ具材にして食べてもいけそーね、これ」
+;		PRINTW 
+;	CASE "シュークリーム"
+;		PRINTFORML 「わー、中にいっぱいクリームが詰まってる」
+;		PRINTFORML 「外の皮も不思議な食感してるねー」
+;		PRINTW 
+;	CASE "パフェ";◎卵がなければほらこの通り！
+;		PRINTFORML 「これ、全部食べていーの！？　やったー♪」
+;		PRINTFORML 「ん～♪　幸せ～%UNICODE(0x2665) *1%」
+;		PRINTFORML はたては頬に手を当て、幸せいっぱいな表情を浮かべている
+;		PRINTW 
+;	CASE "プリン"
+;		PRINTFORML 「私好みのデザートなんだけど、卵を使ってるのがなぁ～」
+;		PRINTFORML 「別のもので代用できないかなぁ」
+;		PRINTW 
+;	CASE "ゼリー";〇
+;		PRINTFORML 「んー♪　つるつるー♪」
+;		PRINTFORML 「見た目も可愛いから、私ゼリーって好き%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "カエルプリン"
+;		PRINTFORML 「わお。プリンの中にカエル入ってんじゃん」
+;		PRINTFORML 「さすがにこれはどうかと思うわよー。料理で遊んでるって思われそう」
+;		PRINTW 
+;	CASE "ヨーグルト"
+;		PRINTFORML 「この白くてドロっとしたの、おいしー♪　ん、どしたの？」
+;		PRINTW 
+;	CASE "アイスクリーム";〇
+;		PRINTFORML 「んー♪　ちべたーい♪」
+;		PRINTFORML 「果物も入ってて、見た目も綺麗だよねー。でも全部食べちゃう！」
+;		PRINTW 
+;	CASE "クッキー";△
+;		PRINTFORML 「美味しーのに、美味しーのに、なんか、フクザツ…うぅ、でももう一枚食べちゃう…」
+;		PRINTW 
+;	CASE "ドーナツ"
+;		PRINTFORML 「面白い形してるよねー、ドーナッツ」
+;		PRINTFORML 穴からはたてがこちらを覗いてきた。お行儀悪いですよ
+;		PRINTW 
+;	CASE "りんご飴";○
+;		PRINTFORML 「外はとびきり甘くて。中は甘酸っぱくて。見た目もシンプルなのにとっても綺麗」
+;		PRINTFORML はたては飴をパキっと砕き、ゆっくりと味わうように口の中で転がした
+;		PRINTW 
+;	CASE "あんみつ"
+;		PRINTFORML  「んー%UNICODE(0x2665) *1%　つるんっとしてておいしー%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "カステラ";DISHDATAがかわってプラマイゼロになりました
+;		PRINTFORML 「フワフワしてておいしそーなのに…これも卵…うぅ…」
+;		PRINTFORML 「あ…でも、上品な甘さだね」
+;		PRINTW 
+;	CASE "団子"
+;		PRINTFORML 「お団子、ついつい食べすぎちゃうんだよねー。ねー、もうちょっと食べていーい？」
+;		PRINTFORML 「みたらし、よもぎ、あんこ、次はどれにしよっかなー♪」
+;		PRINTW 
+;	CASE "羊羹"
+;		PRINTFORML 「私、和菓子大好きー♪」
+;		PRINTFORML 「このつるんってした食感と甘さ、いーよね%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "大福"
+;		PRINTFORML 「甘くてもちもち…%UNICODE(0x2665) *1%　しあわせー%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	CASE "まんじゅう"
+;		PRINTFORML 「まんじゅう怖い！　もう一つおわかりさせられたら、私が幸せになっちゃう！」
+;		PRINTW 
+;	CASE "栗きんとん"
+;		PRINTFORML 「この上品な甘さ、いいよねー。材料が栗だからか、甘ったるい感じじゃないし」
+;		PRINTFORML 「まあ私は甘ったるいのも大好きなんだけどさ♪」
+;		PRINTW 
+;	CASE "杏仁豆腐"
+;		PRINTFORML 「うーん、このつるんとした感じが食べやすくていいわね♪」
+;		PRINTFORML 「ほどよい甘さだから、お腹いっぱい食べた後でも入っちゃう♪」
+;		PRINTW 
+;	CASE "フルーツ盛り合わせ";〇
+;		PRINTFORML 「私、果物だったら甘いのも酸っぱいのも好きだよ」
+;		PRINTFORML 「それに盛り付け綺麗だよねー、これ
+;		PRINTW 
+;	CASE "タピオカミルクティー"
+;		PRINTFORML 「なんかモチモチしてておいしー♪」
+;		PRINTFORML 「え、胸の上に容器を載せてみろって？」
+;		IF TALENT:TARGET:バストサイズ > 0
+;			PRINTFORML 「いーけど…こんな感じかなあ」
+;		ELSEIF TALENT:TARGET:バストサイズ <= -1
+;			PRINTFORML 「アンタ…私が胸が小さいのを知ってて言ってるでしょ。やんないわよ」
+;		ELSE
+;			PRINTFORML 「載るかな…わわっ、ダメかー」
+;		ENDIF
+;		PRINTW 
+;	CASE "いちごとうふ"
+;		PRINTFORML 「これが…外の世界で流行っているっていう噂の…」
+;		PRINTFORML 「なんてゆーか…奥が深い味で悲しくなっちゃう」
+;		PRINTW 
+;	;季節のデザート
+;	CASE "月見団子"
+;		IF FESTIVAL() == "十五夜"
+;			PRINTFORML 「えっと…食べてもいーんだよね？」
+;			PRINTFORML 「やった♪　いただきまーす♪」
+;			IF GROUPMATCH(DAY:5, 0, 1)
+;				PRINTFORML 「月は綺麗だし。お団子はおいしーし。今日はいい日だね♪」
+;			ELSE
+;				PRINTFORML 「月が見えないのが残念だー。でも、お団子がおいしーから、いっか♪」
+;			ENDIF
+;			PRINTW 
+;		ELSE
+;			PRINTFORML 「十五夜じゃなきゃお団子食べちゃいけないって決まりはないもんね♪　あーん♪」
+;			PRINTW 
+;		ENDIF
+;	CASE "ハロウィンケーキ";☆
+;		PRINTFORML 「わぁ…なんか色々デコってあるー♪　かわいー♪」
+;		PRINTFORML 「勿体ないけど、味の方も確認っと…うん、見た目も味もバッチリ♪」
+;		PRINTW 
+;	CASE "クリスマスケーキ";◎卵のマイナス補正を余裕で打ち消す貫禄
+;		IF FESTIVAL() == "クリスマスイヴ" || FESTIVAL() == "クリスマス"
+;			SELECTCASE RAND:4
+;			CASE 0
+;				PRINTFORML 「うわぁ、イチゴがたくさん載ってるー♪　おいしそー♪」
+;			CASE 1
+;				PRINTFORML 「わぁー、切り株みたいな形だー」
+;			CASE 2
+;				PRINTFORML 「この圧倒的なボリュームのチョコレートケーキ…！　素敵…♪」
+;			CASE 3
+;				PRINTFORML 「あ、私と%MASTERNAME:42%の人形が載ってる♪」
+;			ENDSELECT
+;			PRINTFORML 「うぅ～ん、甘～～い%UNICODE(0x2665) *1%　幸せ～～%UNICODE(0x2665) *1%」
+;			PRINTW 
+;		ELSE
+;			PRINTFORML 「季節外れでも、美味しいものはいつ食べたっていいんだよ！　幸せになるから♪」
+;			PRINTFORML 「でも、次のクリスマスでも食べよーね♪」
+;			PRINTW 
+;		ENDIF
+;	;禁断の料理
+;	CASE "揚げローター"
+;		PRINTFORML 「うーん、このパリっと揚がった感じがとてもいい食感を…」
+;		PRINTFORML 「ってなるわけないでしょ！　…でも意外と美味しい」
+;		PRINTW 
+;	CASE "Eマッサージャ風ローターの湯引き"
+;		PRINTFORML 「熱湯にサッとくぐらせることでローターの生臭さ感が抜けて…」
+;		PRINTFORML 「ンなワケないでしょ！」
+;		PRINTW 
+;	CASE "クリキャップ用ローターの握り"
+;		PRINTFORML 「見てよこのローターの切っつけ部分！　ピンと立って、食材の新鮮さを十二分に活かし…」
+;		PRINTFORML 「って私に何言わせるのよっ！」
+;		PRINTW 
+;	CASE "オナホール仕立てのローター煮込み"
+;		PRINTFORML 「じっくり、コトコト時間をかけて煮込むことで旨味を十分に吸い込んだローターが口の中で芳醇な…」
+;		PRINTFORML 「ってそんなことあるかっ！　しかも無駄に私の好みに合わせてるしっ」
+;		PRINTW 
+;	CASE "バイブライクローターアイス"
+;		PRINTFORML 「ご立派なアイスね！　夏バテも軽くふっとんじゃう…」
+;		PRINTFORML 「どっちかってゆーと、ふっとんでるのは%MASTERNAME:42%の頭なんだけどね」
+;		PRINTW 
+;		
+;	;ここから固有料理
+;	;◆はたて
+;	CASE "プリンセスデザート"
+;		PRINTFORML 「これ食べてると、小さい頃を思い出すなー。お姫様になったみたい♪」
+;		PRINTFORML 「えへへ♪　今、とっても幸せな気分♪」
+;		PRINTW 
+;	;霊夢
+;	CASE "紅白まんじゅう"
+;		PRINTFORML 「見てるだけでおめでたいわねー。でも勿体ないから食べちゃう♪」
+;		PRINTFORML 「んー♪　ふかふかー♪」
+;		PRINTW 
+;	;サニーミルク
+;	CASE "サニーサイドアップ"
+;		PRINTFORML 「見た目はとっても可愛いーわねー」
+;		PRINTFORML 「そう…見た目は、ね……」
+;		PRINTFORML はたては白身部分からちびちびと食べている…
+;		PRINTW 
+;	;ルナチャイルド
+;	CASE "静かの海スープ"
+;		PRINTFORML 「月の海をイメージしたスープ…妖精さんが考えたにしては随分詩的ね」
+;		PRINTFORML 「海かあ。またいつか、見れるのかな」
+;		PRINTW 
+;	;スターサファイア
+;	CASE "京丸牡丹鍋"
+;		PRINTFORML 「花弁が意外と肉厚で…お肉じゃないけどイケる感じ？」
+;		PRINTFORML 「猪肉が苦手な人にはこっちの方がいーのかな」
+;		PRINTW 
+;	;ちゆり
+;	CASE "水兵カレー"
+;		PRINTFORML 「ん、なんかいつもと味が違う？」
+;		PRINTFORML 「あと旗も立ってるし…水兵カレーっていうんだ。へー」
+;		PRINTW 
+;	;夢美
+;	CASE "イチゴスペシャル"
+;		PRINTFORML 「甘い…%UNICODE(0x2665) *1%　ふわふわ…%UNICODE(0x2665) *1%　幸せ…%UNICODE(0x2665) *1%」
+;		PRINTFORML はたてはうっとりとメシの顔を浮かべている…
+;		PRINTW 
+;	;萃香
+;	CASE "ウイスキー入りチョコレート"
+;		PRINTFORML 「あ、私これ大好きな味だー♪　下戸の私でも平気でいくらでも食べられるし♪」
+;		PRINTFORML 「鬼って甘い物嫌いそうなイメージあったけど、意外だねー」
+;		PRINTW 
+;	;魔理沙
+;	CASE "魔法のキノコソテー"
+;		PRINTFORML 「これ食べたら口からマスタースパークが出たりしないよね」
+;		PRINTFORML 「%MASTERNAME:42%…口から光漏れてない？」
+;		PRINTFORML 「あっ」
+;		PRINTW 
+;	;ルーミア
+;	CASE "闇ドーナツ"
+;		PRINTFORML 「ドーナツっていうより、暗黒物質って言った方が正しそうね…」
+;		PRINTFORML 「あ、でも意外とイケる…」
+;		PRINTW 
+;	;チルノ
+;	CASE "かき氷"
+;		PRINTFORML 「冷た～～い！　甘～～い♪」
+;		IF DAY:2 == 2
+;			PRINTFORML 「やっぱり夏といえばこれよねー♪」
+;		ELSEIF DAY:2 == 4
+;			PRINTFORML 「…でも、冬に食べるのはちょっと間違いだったかも」
+;		ELSE
+;			PRINTFORML 「…やっぱり夏じゃないとちょっと冷えるわねぇ」
+;		ENDIF
+;		PRINTW 
+;	;咲夜
+;	CASE "紅魔ランチ"
+;		PRINTFORML 「わお！　すっごい豪勢ー」
+;		PRINTFORML 「私、紅魔館に就職しようかなー…え、お嬢様しか食べられないの？」
+;		IF TALENT:恋慕 || TALENT:恋人
+;			PRINTFORML 「いーもん、%MASTERNAME:42%に作ってもらうんだもーん」
+;		ELSE
+;			PRINTFORML 「いーもん、%MASTERNAME:42%のところに就職するから」
+;			PRINTFORML 「どしたの？　顔なんて赤くして」
+;		ENDIF
+;		PRINTW 
+;	;レミリア
+;	CASE "真紅のブラッドスープ"
+;		PRINTFORML 「うわぁ真っ赤っ赤。でも下品な色じゃなくって、とっても綺麗ね」
+;		PRINTFORML 「この料理考えた人って、とってもセンスがいいと思うわ！」
+;		PRINTFORML 考案したのが幼女（推定500歳）と知ったらどんな反応をするだろうか
+;		PRINTL 
+;		PRINTFORML 「あ、この赤いのってトマト使ってるんだ。濃厚なのは血も使ってるから？　手が込んでるなぁ」
+;		PRINTW 
+;	;アリス
+;	CASE "ジンジャーブレッドマン"
+;		PRINTFORML 「可愛いー♪　お人形さんがいっぱいだ♪」
+;		PRINTFORML 「こーいうの作ってみたいなあ。今度教えてよ♪」
+;		PRINTFORML 「味はっと…うん、甘～～い%UNICODE(0x2665) *1%　お菓子ってサイコー%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	;リリーホワイト
+;	CASE "春のお花見弁当"
+;		PRINTFORML 「うわあ、きれいー！　とってもおいしそーね♪」
+;		IF DAY:2 == 1
+;			PRINTFORML 「目で桜を楽しんで、舌で春を楽しむ。最高の贅沢よね」
+;		ELSE
+;			PRINTFORML  「ま、季節は外れても美味しいものはいつ食べたって美味しいんだから♪」
+;		ENDIF
+;		PRINTW 
+;	;リリーブラック
+;	CASE "春の鎮魂料理"
+;		PRINTFORML 「料理を食しながら故人を偲ぶ…」
+;		PRINTFORML 「何かの問答みたいに思えてきちゃうから不思議だね」
+;		PRINTW 
+;	;妖夢
+;	CASE "白玉みつまめ"
+;		PRINTFORML 「この白玉かわいー%UNICODE(0x2665) *1%　ふよんふよんしてる♪」
+;		PRINTFORML 「淡泊だけど甘さは感じられるし、つるんってした食感も好きだし。私好みかも♪」
+;	;橙
+;	CASE "猫まんま"
+;		PRINTFORML 「実はこれ、私も好きな味なのよねー」
+;		PRINTFORML 「かわいい料理も好きだけどさ、こーいう飾らない料理も好きー♪」
+;		PRINTW 
+;	;藍
+;	CASE "お稲荷さん"
+;		PRINTFORML 「あー！　それは私のお稲荷さんー！」
+;		PRINTW 
+;	;紫
+;	CASE "ウミガメのスープ"
+;		PRINTFORML 「ウミガメ？　まあ、隙間妖怪さんなら捕まえてくるくらいワケないだろうし」
+;		PRINTFORML 「ん…？　これ、前に食べたことあるような…んー、なんだっけっかなぁ」
+;		PRINTW 
+;	;リグル
+;	CASE "ローヤルゼリー"
+;		PRINTFORML 「これが不純物なしの天然ハチミツ…！」
+;		PRINTFORML 「自分で作れるの？　へー、やり方教えてよー」
+;		PRINTFORML 「うぅ～ん、甘い%UNICODE(0x2665) *1%　お料理に混ぜてもよさそうだよねぇ」
+;		PRINTW 
+;	;ミスティア
+;	CASE "ヤツメウナギの蒲焼き"
+;		PRINTFORML 「おお、これがミスティアさん直伝の？」
+;		PRINTFORML 「よくここまで再現できたわねー。やるじゃん♪」
+;		PRINTFORML 「このほどほどに焦げたタレがウナギの身に絡んで…ん～%UNICODE(0x2665) *1%　ほっこりしてる%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	;文
+;	CASE "ミックスナッツ"
+;		PRINTFORML ポリ…ポリ…
+;		PRINTFORML 「なんだかんだでこのおつまみ、止まらなくなっちゃうんだよねー…」
+;		PRINTFORML 　　ポリ…ポリ…
+;		PRINTW 
+;	;映姫
+;	CASE "地獄ラーメン（極辛）"
+;		PRINTFORML 「名前がっ…見た目が目に痛いっ…！」
+;		PRINTFORML 「味は決して悪くないんだけど…ごめん…やっぱ辛いわ」
+;		PRINTFORML 言えたじゃねぇか
+;		PRINTW 
+;	;早苗
+;	CASE "やしょうま"
+;		PRINTFORML 「へー、幻想郷の外のお団子ねぇ」
+;		PRINTFORML 「早苗さんの故郷では、こんなの食べてたんだー」
+;		PRINTW 
+;	;神奈子
+;	CASE "オンバシラスティック"
+;		PRINTFORML 「でっかーい！　説明不要ね！」
+;		PRINTFORML 「あ、これ、硬…んぎぎぎぎっ！」
+;		PRINTW 
+;	;諏訪子
+;	CASE "のたもち"
+;		PRINTFORML 「緑色がきれいだー。これも外の世界の料理？」
+;		PRINTFORML 「枝豆の控えめな甘さがいいね。いくらでも食べれそう♪」
+;		PRINTW 
+;	;天子
+;	CASE "天界フルーツパフェ"
+;		PRINTFORML 「はぁ…仙桃がふんだんに使われてるなんて贅沢～…%UNICODE(0x2665) *1%」」
+;		PRINTFORML 「ほっぺが落ちるって、こういうことを言うのね～%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	;衣玖
+;	CASE "わたパチ"
+;		PRINTFORML 「甘くてふわふわ～%UNICODE(0x2665) *1%　私これ好き～%UNICODE(0x2665) *1%」
+;		PRINTFORML 「んんっ…？　んん゛っ！！？　ん゛ん゛ん゛っっ！！」
+;		PRINTW 
+;	;お燐
+;	CASE "ゾンビ焼き"
+;		PRINTFORML 「見た目がなんてゆーか…可愛くない」
+;		PRINTFORML 「美味しくないわけじゃないんだけど、ちょっと合わない感じかなぁ」
+;		PRINTW 
+;	;お空
+;	CASE "核熱メルトダウンステーキ"
+;		PRINTFORML 「わお、すっごいジュージューいってる。しかもお肉光ってる？」
+;		PRINTFORML 「ねぇ、なんでフタとお皿の間にドライバーが入ってるの？え？　閉じたら駄目？」
+;		PRINTW 
+;	;こいし
+;	CASE "りんごの薔薇ゼリー"
+;		PRINTFORML 「見た目も味も素敵♪　絶対これ女の子に人気が出ると思うんだけどなあ」
+;		PRINTFORML 「許可もらって商品化してみたら？　バズりそうな気がする！」
+;		PRINTW 
+;	;ナズーリン
+;	CASE "チーズケーキ"
+;		PRINTFORML 「チーズケーキってのはね、効果が90以上ないとチーズケーキとはいえないの」
+;		PRINTFORML あの、はたてさん？
+;		PRINTFORML 「それ以下はゴミ箱行きなの。分かる？」
+;		PRINTFORML いや、あの
+;		PRINTFORML 「配分率はカステラは1.9、チーズ2.8、ヨーグルト2.0、乳糖は2.4…」
+;		PRINTFORML はたてはチーズケーキを食べている間、ずっと不気味なことを呟いていた…
+;		PRINTW 
+;	;ぬえ
+;	CASE "未確認飛行料理"
+;		PRINTFORML 「えっ、何これ、口の中で味が変わるんだけど…うわ酸っぱ！　いや甘っ、か、辛いぃ～～～～！」
+;		PRINTW 
+;	;里香
+;	CASE "ばけばケーキ"
+;		PRINTFORML 「魂を天ぷらにする料理は見たことあるけど、幽霊をクリームにするのは斬新ね…」
+;		PRINTFORML 「幽霊が素材だからか…甘さが微妙に足りないかも」
+;		PRINTW 
+;	;さとり
+;	CASE "ハートフェルトファンシー"
+;		PRINTFORML 「へー、さとりさんが料理教えてくれたんだ。いーなー、私も教えてもらおっと」
+;		PRINTFORML 「わ、ハートがいっぱいちりばめられててすっごく可愛い%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	;フランドール
+;	CASE "クランベリートラップ"
+;		PRINTFORML 「なんか呪われそうな見た目のイチゴだなあ…味は…わっ、すっごく甘～～い%UNICODE(0x2665) *1%」
+;		PRINTFORML 「あれ、でも、なんか…！？　☆＜・）三＜＠　●~くぁｗせｄｒｆｔ５ｇ６ｙ７ふｊ８いこ」
+;		PRINTFORML 「……まだ胸がドキドキする…これのせい？」
+;		PRINTW 
+;	;にとり
+;	CASE "キュウリのキューちゃん"
+;		PRINTFORML 「この一見変哲もないキュウリ…漬け方が違うわねっ」
+;		PRINTFORML 「にとりさんから習った？　やっぱりねー」
+;		PRINTW 
+;	;てゐ
+;	CASE "紅白なます"
+;		PRINTFORML 「すっぱいのは平気なんだけどさ。あっさりしてて私には物足りないんだよねー。やっぱりガツンとしたのが食べたいー」
+;		PRINTW 
+;	;鈴仙
+;	CASE "狂気の赤い目玉焼き"
+;		PRINTFORML 「なんかグロいし卵料理だし…私これ苦手だなあ。味付けはまあ嫌いじゃないほうなんだけど」
+;		PRINTW 
+;	;パチュリー
+;	CASE "マジカルカップケーキ"
+;		PRINTFORML 「わお、カラフルー。どれにするか悩んじゃうね」
+;		SELECTCASE RAND:6
+;			CASE 0
+;				PRINTW 「赤もーらいっと♪　あ、これはラズベリーなんだ」
+;			CASE 1
+;				PRINTW 「このオレンジ色はっと…あ、ニンジンだこれ」
+;			CASE 2
+;				PRINTW 「黄色いやつはー…カボチャ？　甘ーいね♪」
+;			CASE 3
+;				PRINTW 「緑色のにするわ。ほうれん草？　へぇー」
+;			CASE 4
+;				PRINTW 「青ってなかなか珍しいね。チョウマメ？　マメの色なのこれ？」
+;			CASE 5
+;				PRINTW 「紫色はー…ん、すっぱい。ブルーベリー？」
+;		ENDSELECT
+;		
+;	;白蓮
+;	CASE "精進料理"
+;		PRINTFORML 「野菜嫌いってわけじゃないけど、ガッツリしたのが食べたいなぁ～。ちょっとあっさりかも」
+;		PRINTW 
+;	;こころ
+;	CASE "恋する人形焼き"
+;		PRINTFORML 「わぁ、一つ一つ形が違うんだ。凝ってるー」
+;		PRINTFORML 「なんか食べるの勿体ないけど、残すのはもっと勿体ないもんね。いただきまーす♪」
+;		PRINTW 
+;	;美鈴
+;	CASE "彩色小籠包"
+;		PRINTFORML 「色とりどりで、虹みたい。すっごい綺麗ー♪」
+;		PRINTFORML 「しかも、一口サイズになってるのが嬉しいよね。紅魔館の門番さんが教えてくれたの？」
+;		PRINTFORML 「こーいう目でも楽しませてくれる料理ってなかなか難しいよね。すごいなー」
+;		PRINTW 
+;	;小悪魔
+;	CASE "悪魔のおにぎり"
+;		PRINTFORML 「見た目はおにぎりなのに…妖気を感じる」
+;		PRINTFORML 「ホントーに食べてだいじょぶ？　えいやっ…んんっ！？　これイケる！」
+;		PRINTW 
+;	;パルスィ
+;	CASE "やきもち"
+;		PRINTFORML 「ふーん、見た目はフツーのおもちだけど、どれ…」
+;		PRINTFORML 「うん、フツーにおもちだねー」
+;		IF TALENT:恋慕 || TALENT:恋人 || TALENT:思慕
+;			PRINTFORML 「ねえ、ところで、この料理誰に習ったの？」
+;			PRINTFORML 「男の人？　女の人？　私の知ってる人？　知らない人？　その人とどういう関係？　ただのお友達？　それとももっと親しい関係？
+;			PRINTFORML 　私より可愛い？　優しい？　胸が大きい？　そんなことないよね？　私が一番だよね？　私の方が私が私私私私私私私私ワタシ私私
+;			PRINTFORML 　私私私私私私私私ワタシ私私私私私私私私私私ワタシ私私私私私私私私私私ワタシ私私私私私私私私私私ワタシ私私私私私私私私私
+;			PRINTFORML 　妬ましい妬ましい妬ましい妬ましい妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬僻妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬嫉妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTFORML 　妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬妬
+;			PRINTW 　
+;			PRINTFORML 「…はっ！？　私ってば、どうしちゃってた！？」
+;			PRINTFORML 「食べてる間の記憶がなんかすっぽり抜け落ちてるのよね…これ以上食べるのやめとこーかしら」
+;			PRINTW 
+;		ENDIF
+;		PRINTW 
+;	;妹紅
+;	CASE "焼き鳥"
+;		PRINTFORML 「うう、焼き鳥かぁ…」
+;		PRINTFORML 「私、こればっかりは受け付けないのよね…　ちょっとは食べたから許して…」
+;		PRINTW 
+;	;輝夜
+;	CASE "蓬莱のアイスの玉の枝"
+;		PRINTFORML 「絶世の美女の難題はアイスだったかー」
+;		PRINTFORML 「当時はアイス作る技術なかったから無理だったんだろーね」
+;		PRINTFORML 「まず目で楽しんで、舌でも楽しめる。最高のデザートね！」
+;		PRINTW 
+;	;影狼
+;	CASE "ジビエ料理"
+;		PRINTFORML 「肉！　やっぱり食べるなら肉よね！」
+;		PRINTFORML 大はしゃぎするはたてを見て、見かけによらず肉食系だなあと思った
+;		PRINTFORML …が、ちゃっかり鳥肉だけは避けて食べているようだ
+;		PRINTW 
+;	;椛
+;	CASE "もみじ饅頭"
+;		PRINTFORML 「へー、椛から習ったんだー。あの子、戦い一辺倒に見えてすっごい家庭的なんだよ」
+;		IF TALENT:恋慕
+;			PRINTFORML 「二人っきりで練習したの？　ちょっと、妬けちゃうなー」
+;		ENDIF
+;			PRINTFORML 「見た目は簡素なんだけど、綺麗な形。ん、甘ーい♪　椛の作り方、私は好きだなー」
+;			PRINTW 
+;	;幽々子
+;	CASE "桜餅"
+;		PRINTFORML 「あんまりお行儀よくないのかもしれないけど、この葉っぱもほんのりしょっぱくて美味しいんだよねー」
+;		PRINTFORML 「んー%UNICODE(0x2665) *1%　もちもちしておいしー%UNICODE(0x2665) *1%　あんこの桜色も綺麗だね♪」
+;		PRINTW 
+;	;慧音
+;	CASE "月見うどん"
+;		PRINTFORML 「ねー、この卵どけていーい？」
+;		PRINTFORML それではただのうどんに…
+;		PRINTW 
+;	;幽香
+;	CASE "ひまわりワッフル"
+;		PRINTFORML 「ワッフルがお日様の形だー♪」
+;		PRINTFORML 「幽香さんってお花育ててたり、お菓子も可愛い形してたりで、あの人自身が可愛いよね」
+;		PRINTFORML 「卵を使ってるのが気になるけど、美味しいからまあ良しとしちゃおう」
+;		PRINTW 
+;	;永琳
+;	CASE "超栄養ドリンク"
+;		SELECTCASE RAND:3
+;		CASE 0
+;			PRINTFORML 「ふぁいとぉぉーーーーー！」
+;			PRINTFORML いっぱぁーーーーーっつ！
+;		CASE 1
+;			PRINTFORML 「きいろーとーくーろはゆーうきのしーるし」
+;			PRINTFORML にじゅーよじかんたたかーえますかっ
+;		CASE 2
+;			PRINTFORML 「ダダーン！」
+;			PRINTFORML ぼよよん、ぼよよん！
+;		ENDSELECT
+;		PRINTW 
+;	;蛮奇
+;	CASE "飛頭饅頭"
+;		PRINTFORML 「うわ、本物の生首みたい」
+;		PRINTFORML さらに、この紐を引っ張ると！
+;		PRINTFORML パァーン「ぎゃあーっ！　破裂したー！」
+;		PRINTW 
+;	;レティ
+;	CASE "ゆきだるまアイス"
+;		PRINTFORML 「あ、これ眉毛がチョコレートなんだ。かわいー%UNICODE(0x2665) *1%」
+;		PRINTW 
+;	;メディスン
+;	CASE "鈴蘭団子"
+;		PRINTFORML 「綺麗なお団子ねー。いただきまーす」
+;		PRINTFORML 「……なんか身体が、しびれる……」
+;		PRINTW 
+;	;小町
+;	CASE "人魂わたあめ"
+;		PRINTFORML 「甘ーい。冥界にもこんなお菓子があるんだ」
+;		PRINTFORML 「これで濃厚だったらもっと私好みね！」
+;		PRINTW 
+;	;静葉
+;	CASE "紅葉の天ぷら"
+;		PRINTFORML 「ん？　これ、紅葉を天ぷらにしたの？」
+;		PRINTFORML 「んー、サクサクしてて食べやすいわねー。ほんのり苦い感じもアクセントになってていいわ」
+;		PRINTW 
+;	;穣子
+;	CASE "スイートポテト"
+;		PRINTFORML 「わ、すっごく甘いのにしつこくない。材料のお芋がいいってことかな」
+;		PRINTFORML 「穣子さんの製法にも何か秘密がありそうね」
+;		PRINTW 
+;	;雛
+;	CASE "ひなあられ"
+;		PRINTFORML 「ふふ、一粒一粒がカラフルできれーだね♪」
+;		PRINTFORML 「勿体ないけど食べちゃう！　あーん♪　うーん、このほんのりとした甘さがクセになっちゃう」
+;		PRINTW 
+;	;阿求
+;	CASE "求聞雑炊"
+;		PRINTFORML 「記憶力が良くなる？　それはいいけど」
+;		PRINTFORML 「阿求さんみたいに一度覚えたことを忘れられなくなるのもそれはそれでヤだなー」
+;		PRINTW 
+;	;蓮子
+;	CASE "栄養効率サプリメント"
+;		PRINTFORML 「や、お手軽な料理は確かに好きだけどさ。これってもう料理ですらないじゃん」
+;		PRINTFORML 「私は、料理は『感動』とか『喜び』とか、感情と一緒に食べてるの。でも、これにはそーいうのがないっていうか」
+;		PRINTW 
+;		PRINTFORML 「これだけで必要な栄養が取れるっていうのは驚きだけど…」
+;		PRINTFORML 「人間が知恵を付けた結果の先がこれって、何か物悲しいね」
+;		PRINTW 
+;	;一輪
+;	CASE "入道わたあめ"
+;		PRINTFORML 「わお、こんなわたあめ見たことないや」
+;		PRINTFORML 「うわー。あっまーい！　私、こーいうの大好き♪」
+;		PRINTFORML 「顔をズボっていってみたいけど、絶対後でベトベトしちゃうよね」
+;		PRINTW 
+;	;ムラサ
+;	CASE "深海料理"
+;		PRINTFORML 「見た目はなかなかグロテスクねー。見たことないのばっかり」
+;		PRINTFORML 「でも味は食べて見なきゃ分かんないよね。いざ試食！」
+;		PRINTW 
+;	;星
+;	CASE "ハングリータイガーステーキ"
+;		PRINTFORML 「肉が煩悩？　とんでもない！」
+;		PRINTFORML 「お肉ってのはね、こう、本能に訴えかけるものなのよ！　本能に抗うな！　いただきます！」
+;		PRINTW 
+;	;わかさぎ姫
+;	CASE "マーメイドパフェ"
+;		PRINTFORML 「まさに『人魚姫』って感じ！　透き通る青がとっても綺麗」
+;		PRINTFORML 「泡になって溶けちゃう前に食べないとねー。いただきまーす♪」
+;		PRINTW 
+;	;弁々
+;	CASE "びわゼリー"
+;		PRINTFORML 「ビワが丸ごと入ってるなんて贅沢だなー。まるで宝石みたい」
+;		PRINTFORML 「えへへ、まずゼリーからいただいて、ビワは最後までとっておこうっと♪」
+;		PRINTW 
+;	;八橋
+;	CASE "八つ橋"
+;		PRINTFORML 「甘い煎餅ってのも美味しいねー。癖になっちゃうかも♪」
+;		PRINTW 
+;	;正邪
+;	CASE "逆さバーガー"
+;		PRINTFORML 「ん？　これ、フツーのハンバーガーと何が違うの？　ひっくり返しただけ？」
+;		PRINTFORML 「ふむふむ…お肉の味がしっかり…してない？　あれ？　なにこれ？」
+;		PRINTW 
+;	;ユキ
+;	CASE "フォンデュ・エソテリア"
+;		PRINTFORML 「あれ、これはチーズじゃなくてスープなんだ」
+;		PRINTFORML 「んんっ、思ったより、辛くて、すっぱい…」
+;		PRINTW 
+;	;マイ
+;	CASE "ヴィナ・コーヒー"
+;		PRINTFORML 「ふふ、生クリームたっぷり入れて飲むコーヒーはおいしーね♪」
+;		PRINTFORML 「私はブラック苦手だから、こっちのほうが好きかなー」
+;		PRINTW 
+;	;清蘭
+;	CASE "ストロベリーダンゴ"
+;		PRINTFORML 「へー、これが最近人気の…よく再現できたわねー」
+;		PRINTFORML 「うーん、もちもち、甘ーい♪　あの名店の味がご自宅で！って感じね
+;		PRINTW 
+;	;鈴瑚
+;	CASE "鈴瑚印の団子"
+;		PRINTFORML 「もう一つのお団子屋さんのお団子？　こっちはなんと…仙桃！？　わお！」
+;		PRINTFORML 「っていっても、私妖怪だから寿命とか関係ないんだよねー。あ、でも味はすっごくおいしい♪」
+;		PRINTW 
+;	;ドレミー
+;	CASE "謎の夢魂菓子"
+;		PRINTFORML 「何これ。めっちゃ伸びるのに歯とかお箸に付かないし。味もビミョーに変化していってるんだけど」
+;		PRINTFORML 作ったおいてなんだが自分も原理が分からない
+;		PRINTW 
+;	;クラウンピース
+;	CASE "アビスバーガー"
+;		PRINTFORML 「見た目はなんていうか、『食べるな危険！』って感じなんだけど」
+;		PRINTFORML 「味は…うん、フツーのハンバーガーだ。見た目との差が激しいなあ」
+;		PRINTW 
+;	;純狐
+;	CASE "月餅"
+;		PRINTFORML 「甘くてふわふわ～♪　幸せ～♪」
+;		PRINTFORML 「どれを食べようか迷っちゃうなぁー。わくわく」
+;		PRINTW 
+;	;ヘカーティア
+;	CASE "三色地獄そぼろ丼"
+;		PRINTFORML 「ヘカーティアさんが持ってる球体をイメージした丼なんだ。味が違ってておもしろーい」
+;		PRINTFORML 「これ単体で食べてもいいし、混ぜて食べてもいいし、結構食べ方にバリエーションがある感じ？」
+;		PRINTW 
+;	;エタニティラルバ
+;	CASE "花蜜ゼリー"
+;		PRINTFORML 「へー、花の蜜をゼリーにしたんだ。貴重だね」
+;		PRINTFORML 「さて、お味は、と…あ、すっごく優しい甘さだー」
+;		PRINTW 
+;	;ネムノ
+;	CASE "山の郷土料理"
+;		PRINTFORML 「山の恵みってサイコーよねー。私の大好きなものがたっぷり詰まってる♪。この野趣あふれる感じも嫌いじゃないよ♪」
+;		PRINTFORML 「じゃんじゃん食べるわよー。おかわりあるー？」
+;		PRINTW 
+;	;あうん
+;	CASE "犬まんま"
+;		PRINTFORML 「これを料理と呼んでいいかは賛否両論ありそうだけど…」
+;		PRINTFORML 「意外とこの組み合わせは私好みっていうか…うん、イケる」
+;		PRINTW 
+;	;成美
+;	CASE "地蔵焼き"
+;		PRINTFORML 「ジンジャークッキーなんかも可愛いけど、お地蔵様もかわいーね♪」
+;		PRINTFORML 「本物と違ってサクサクだー。うん、おいしい♪」
+;		PRINTW 
+;	;舞
+;	CASE "タナバタスターソーメン"
+;		PRINTFORML 「うわっ。すっごい派手」
+;		PRINTFORML 「えっ、食べ物なのに1680万色に光るの？　なんで？　なんか意味あるの？」
+;		PRINTW 
+;	;里乃
+;	CASE "忘れ茗荷の酢漬け"
+;		PRINTFORML 「いや、食べたら物忘れしやすくなるって…食べちゃ駄目なんじゃないの？」
+;		PRINTFORML 「まあいいや。とりあえず食べてみよう…で、これ、なんで食べちゃダメなんだっけ？」
+;		PRINTW 
+;	;隠岐奈
+;	CASE "マターラボッカ"
+;		PRINTFORML 「わあ、おいしそー♪　ところでこれ、何のお肉？」
+;		PRINTFORML 「まあいいか。お肉ならなんでも。んー、食べなれないはずなのに、なんか懐かしい味なのよねー。なんでかなー」
+;		PRINTW 
+;	;女苑
+;	CASE "イタ飯"
+;		PRINTFORML 「へー、これが外の世界の料理なんだ。お洒落ー」
+;		PRINTFORML 「ピザにパスタにカルパッチョ…目移りしちゃうわー♪」
+;		PRINTW 
+;	;紫苑
+;	CASE "もやし炒め"
+;		PRINTFORML 「もやしっておいしーよねー♪　安いし、ボリュームあるし。割とどんな料理にでも合うし」
+;		PRINTFORML 「私、もやし大好きー♪　あれ、%MASTERNAME:42%なんで泣いてるの？」
+;		PRINTW 
+;	;瓔花
+;	CASE "バベルタワーパンケーキ"
+;		PRINTFORML 「ふぉぉ…美味しそうなパンケーキがこんなにうず高く…」
+;		PRINTFORML 「あー、お行儀悪いけど飛びながら食べないとダメねー、これ。%MASTERNAME:42%、許してね♪
+;		PRINTW 
+;	;潤美
+;	CASE "活け造り"
+;		PRINTFORML 「わっ、身がすっごく新鮮！　すごーい！」
+;		PRINTFORML 「なるほど、内臓を傷付けないようにしながら身をさばいてるんだねー」
+;		PRINTW 
+;	;久侘歌
+;	CASE "ひよ子"
+;		PRINTFORML 「ひよこちゃんがー、ひよこちゃんがあああ」
+;		PRINTFORML はたては愛らしいお菓子を目の前にして魅入っているようだ
+;		PRINTW 
+;	;八千慧
+;	CASE "魚翅湯"
+;		PRINTFORML 「へー、これがワニのヒレを使ったスープ…」
+;		PRINTFORML 「わー、プルプル。スープの味がしっかりしみ込んで、いい味になってるわね♪」
+;		PRINTW 
+;	;磨弓
+;	CASE "はにわまん"
+;		PRINTFORML 「何かこのすっとぼけた感じの顔、好きかも」
+;		PRINTFORML 「はにゃ～って顔してるわよね。はにゃ～」
+;		PRINTFORML 「フカフカかと思ったら、揚げてるからサクサクなんだね。なんだかドーナツみたい」
+;		PRINTW 
+;	;袿姫
+;	CASE "偶像仕立ての工芸菓子"
+;		PRINTFORML 「え、これ全部お菓子なの！？　すっごーーい！」
+;		PRINTFORML 「え、これはバトロイド形態？　ファイター形態やガウォーク形態にもなれる？　何言ってんの…って変形した！！？」
+;		PRINTW 
+;	;早鬼
+;	CASE "鬼形のホイボーロ"
+;		PRINTFORML 「なんか弾幕みたいな形してるわね」
+;		PRINTFORML 「丸いのやら三角のやら、こっちはやけに細長いわね。でもどれもサクサクだー」
+;		PRINTW 
+;	;美宵
+;	CASE "鯢呑亭秘伝の煮付け"
+;		PRINTFORML 「えっ%MASTERNAME:42%って鯢呑亭の料理まで覚えたの？」
+;		PRINTFORML 「店の看板メニューまで模倣できるって、%MASTERNAME:42%すごくない？　味もしっかりプロだし…」
+;		PRINTW 
+;	;たかね
+;	CASE "グリーンサラダ"
+;		PRINTFORML 「山菜って結構クセ強いけど、私は好きだよ」
+;		PRINTFORML 「でもお肉がないとちょっと物足りないわねー」
+;		PRINTW 
+;	;魅須丸
+;	CASE "勾玉クッキー"
+;		PRINTFORML 「わー、一つ一つがとっても綺麗。お菓子っていうより工芸品みたい」
+;		PRINTFORML 「食べやすい大きさだし、いくらでも食べられそう♪」
+;		PRINTW 
+;	;典
+;	CASE "きつねごはん"
+;		PRINTFORML 「飯綱丸様のところの管狐が教えてくれたの？　へー」
+;		PRINTFORML 「なんか変わり種が入ってるかと思ったけど、意外と素朴な味ねー。この煮込んだ油揚げが…♪」
+;		PRINTW 
+;	;千亦
+;	CASE "レインボータルト"
+;		PRINTFORML 「うわっ。すっごい派手。虹色のお菓子なんて初めてみたかも」
+;		PRINTFORML 「んー、甘ーい♪　あれ、このタルト、層も虹色になってんじゃん。すごくない？」
+;		PRINTW 
+;	;百々世
+;	CASE "ドラゴンステーキ"
+;		PRINTFORML 「これぞ肉！　って感じね。こーいうの、大好きよ♪」
+;		PRINTFORML 「龍の魔力が込められてるってだけで、本物の龍の肉じゃないのね。残念。いつか本物を食べてみたいなー…あ、おいしい」
+;		PRINTW 
+;	;尤魔
+;	CASE "剛欲な獣神の夕餉"
+;		PRINTFORML 「うわ、この量…とてもじゃないけど食べきれない…」
+;		PRINTFORML 「美味しいんだけどね…ちょっと辛いのもあるし…」
+;		PRINTW 
+;	ENDSELECT
+;	
+;	;味付けに対する反応
+;	SELECTCASE TCVAR:MASTER:308
+;	;濃い
+;	CASE 0
+;		PRINTFORML 「あ、これ私の好きな味付けー」
+;		PRINTFORM 「もー、分かってんじゃん
+;		IF CFLAG:好感度 >= 500
+;			PRINTFORML %MASTERNAME:42%♪」
+;		ELSE
+;			PRINTFORML あんた♪」
+;		ENDIF
+;	;薄味
+;	CASE 1
+;		PRINTFORML 「んー…何かこう、物足りないのよねー」
+;		PRINTFORML はたては濃い味付けの方が好きなようだ
+;		PRINTW 
+;	;激辛
+;	CASE 3
+;		PRINTFORML 「ぶッふォ！？　何ゴレ゛っ！？」
+;		PRINTFORML 老人が食べたら絶命してしまいそうな辛味を口にしてしまい、はたては盛大にむせた
+;		PRINTW 
+;	;激甘
+;	CASE 4
+;		;はたての好みが変わったので修正
+;		PRINTFORML 「んん～～～～、すっごく甘～い♪」
+;		PRINTFORML さすがは甘党、喜んで食べている…
+;		PRINTW 
+;	;わさび
+;	CASE 5
+;		PRINTFORML 「ぐあッ！　ツーンってきた！　ツーンって！」
+;		PRINTFORML はたては眉間を押さえて辛味に耐えている
+;		PRINTW 
+;	;激酸っぱ
+;	CASE 6
+;		PRINTFORML 「酸っぱ！？　何これ！？」
+;		PRINTFORML はたては口元を押さえて目を白黒させている
+;		PRINTW 
+;	ENDSELECT
+;	
+;	;最終的な味の評価
+;	PRINTL 
+;	PRINTFORML さて、はたての評価は…
+;	PRINTL 
+;	SELECTCASE TCVAR:[[はたて]]:料理評価値
+;	;高評価
+;	CASE IS >= 700
+;		IF CFLAG:K42C_結婚 >= 1
+;			SELECTCASE RAND:4
+;			CASE 0
+;				PRINTFORML 「あぁん、これおいしー♪　いくらでも入っちゃうー%UNICODE(0x2665) *1%」
+;				PRINTFORML 「料理上手の旦那様がいて幸せー♪」
+;				PRINTFORML メシの顔しやがって…気持ちがほっこりした
+;				PRINTW  
+;			CASE 1
+;				PRINTFORML 「何これ！？　美味しっ！」
+;				PRINTFORML 「%MASTERNAME:42%って料理上手なんだ…恐れ入ったわー」
+;				PRINTFORML 「私もお料理もっと頑張らなきゃ！」
+;				PRINTW 
+;			CASE 2
+;				PRINTFORML 「こんなご馳走がおうちで食べれる幸せ…♪」
+;				PRINTFORML 「あぁん、ダーリンと結婚してよかったー%UNICODE(0x2665) *1%」
+;				PRINTL 
+;				PRINTFORML ご飯の話だけ？とからかうと、
+;				PRINTFORML 「もー、分かってるくせに、そんなわけないじゃん」
+;				PRINTFORML と頬を膨らませた
+;				PRINTW 
+;			CASE 3
+;				PRINTFORML 「うーん…お嫁さんの私の方が胃袋掴まれちゃってるじゃん…」
+;				PRINTFORML 「でもしょーがないよね…こんなにおいしーんだもん…」
+;			ENDSELECT
+;		ELSE
+;			SELECTCASE RAND:2
+;			CASE 0
+;				PRINTFORML 「あぁん、これおいしー♪　いくらでも入っちゃうー%UNICODE(0x2665) *1%」
+;				PRINTFORML メシの顔しやがって…気持ちがほっこりした
+;				PRINTW  
+;			CASE 1
+;				PRINTFORML 「何これ！？　美味しっ！」
+;				PRINTFORML 「%MASTERNAME:42%って料理上手なんだ…恐れ入ったわー」
+;				PRINTW 
+;			ENDSELECT
+;		ENDIF
+;		CFLAG:1106 += 1
+;	CASE IS >= 400
+;		SELECTCASE ABL:MASTER:料理技能
+;		CASE IS > 2
+;			PRINTL 
+;			PRINTFORML 「ふーん、これはイケるわね♪」
+;			PRINTFORML 「おかわりあるー？　まだまだイケるわよ！」
+;			PRINTW 
+;		CASE IS > 1
+;			PRINTFORML 「ふーん、まーまーね」
+;			PRINTFORML 「感動するほどじゃないけど、特に文句もないかなー」
+;			PRINTFORML 「普段食べなら決して悪くないんだけどね」
+;			PRINTW 
+;		CASE 0, 1
+;			PRINTFORML 「うーん、ビミョー」
+;			PRINTFORML 「%MASTERNAME:42%が作ってくれたから食べてるけど、店でお金出してまでって感じじゃないわね」
+;			PRINTFORML 「もーちょっと見た目から楽しませてくれないとねー
+;			PRINTW 
+;		ENDSELECT
+;		CFLAG:1106 += 1
+;	CASEELSE
+;		SELECTCASE ABL:MASTER:料理技能
+;		CASE IS > 2
+;			PRINTFORML 「料理頑張ってくれたけど、私の口には合わないかなぁ…」
+;			PRINTFORML 「見た目は良かったんだけどねぇ」
+;			PRINTW 
+;		CASE IS > 1
+;			PRINTFORML 「見た目を大事にしすぎて、肝心の味がおろそかになっちゃった感じ？」
+;			PRINTFORML 「やっぱり味が良くないと台無しだよ」
+;			PRINTW 
+;		CASE 0, 1
+;			SELECTCASE RAND:3
+;			CASE 0
+;				PRINTFORML 「…料理に対する冒涜よ、これは」
+;				PRINTW 
+;			CASE 1
+;				PRINTFORML 「口の中がなんか変な感じー。一口食べるたびに幸せが逃げていくー」
+;				PRINTW 
+;			CASE 2
+;				PRINTFORML 「…………」
+;				PRINTFORML 料理を食べたはたては変な汗を流している…
+;				PRINTW 
+;			ENDSELECT
+;		ENDSELECT
+;	ENDSELECT
+;RETURN 1
+
+;==================================================
+;スカートめくりで画像を表示
+;290スレの>>728さんが作成してくださったものを使用しています
+;==================================================
+@K9_すかーとめくり
+#DIMS RESOURCE_NAME
+#DIMS PANTS_NAME
+#DIM おぱんつ種類
+#DIM 画像情報保存１
+#DIM 画像情報保存２
+#DIM 画像情報保存３
+;基本IMAGE.ERBで表情作るときと一緒です
+;わかりやすさ重点で分岐はなるべくIF文にしました
+SIF 顔絵付きメッセージ != 1
+	RETURN
+;顔絵表示と関数共用のため、先にサイズ情報を保持
+画像情報保存１ = FLAG:マルチサイズ
+画像情報保存２ = デフォルトキャラ画像横幅
+画像情報保存３ = キャラ画像表示サイズ比
+
+
+;はたての画像を大きく表示するように変数書き換え
+FLAG:マルチサイズ = 1
+デフォルトキャラ画像横幅 = 300
+;サイズ変更は300*300を基準値100として、ここの数字10刻みで変えてください
+キャラ画像表示サイズ比 = 100
+
+;INPUT
+;EQUIP:9:下半身下着２ =RESULT
+
+;素体を決める
+;分岐の組み合わせで呼び出すリソース名を作成します
+;条件合うタグを後ろに付け足していくイメージ
+RESOURCE_NAME = 9_
+
+;バストサイズみる
+SIF TALENT:9:バストサイズ > 0
+	RESOURCE_NAME += "巨"
+
+;表情変化の条件みる
+IF TALENT:9:機嫌 == -1
+	RESOURCE_NAME += "怒り"
+;ELSEIF TCVAR:9:発情 == 1
+;	RESOURCE_NAME += "発情"
+ELSEIF TALENT:9:機嫌 == 1 || TCVAR:9:発情 == 1
+	RESOURCE_NAME += "笑顔"
+ELSE
+	RESOURCE_NAME += "通常"
+ENDIF
+
+;恋慕表情の条件見る
+;SIF TALENT:恋慕 || TALENT:恋人 || TALENT:愛欲 || TALENT:セフレ
+;	RESOURCE_NAME += "恋"
+
+;露出癖のレベルを見る
+IF ABL:14 <= 2
+	;押さえる
+	RESOURCE_NAME += "スカート押さえ"
+ELSEIF ABL:14 <= 5
+	;チラ見え
+	RESOURCE_NAME += "パンチラ"
+ELSE
+	;どこでもたくし上げ
+	RESOURCE_NAME += "見せつけ"
+ENDIF
+
+;レイヤーセット関数に素体を送る,一番下のレイヤーに自動でセットされる
+CALL 画像セット(RESOURCE_NAME, 0, 0, キャラ画像表示サイズ比, 0)
+
+;ぱんつ画像を決める(露出癖が3以上のとき)
+IF ABL:14 > 2
+	;ノーパンならぱんつ処理キャンセル→ノーパンで表示される
+	;IF EQUIP:9:下半身下着２
+		;EQUIP:下半身下着２から下着のID取得
+		おぱんつ種類 = EQUIP:9:下半身下着２
+		
+		IF ABL:14 >= 6
+			;リソース名は変数に対応した番号振ると処理が楽できます
+			PANTS_NAME = 9_2_P{おぱんつ種類}
+		ELSEIF ABL:14 < 6 && ABL:14 > 2
+			PANTS_NAME = 9_1_P{おぱんつ種類}
+		ENDIF
+
+		;"9_P〇〇"の画像があるか判定、あったらそれを重ねる
+		;画像作ってないのはノーパン扱い
+		SIF SPRITECREATED(PANTS_NAME)
+			CALL 画像セット(PANTS_NAME, 0, 0, キャラ画像表示サイズ比, 1)
+	;ENDIF
+ENDIF
+
+;重ねた画像を呼び出す
+CALL 画像一斉表示("LEFT", 0, 1, -1)
+
+;顔絵表示サイズ用変数を元に戻す
+FLAG:マルチサイズ = 画像情報保存１
+デフォルトキャラ画像横幅 = 画像情報保存２ 
+キャラ画像表示サイズ比 = 画像情報保存３
+
+RETURN
+

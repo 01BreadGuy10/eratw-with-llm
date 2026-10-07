@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>LLMBridge</AssemblyName>
+    <RootNamespace>LLMBridge</RootNamespace>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+    <!-- 源文件通过下面的 Compile Include 显式列出，关闭默认通配避免拾取多余文件 -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BridgeConfig.cs" />
+    <Compile Include="ApiRegistry.cs" />
+    <Compile Include="LlmClient.cs" />
+    <Compile Include="EngineApi.cs" />
+    <Compile Include="PluginManifest.cs" />
+  </ItemGroup>
+
+  <!-- ==========================================================================
+       关键：引用"身份为 Emuera"的桩程序集，且 **不复制到输出**。
+
+       ProjectReference + Private=false 会让编译器生成指向程序集 `Emuera` 的
+       TypeRef（而不是把契约类型内联进来），运行时按名字解析到真实的引擎程序集，
+       于是 LoadPlugins 里的 (PluginManifestAbstract) 强转才能成立。
+
+       ⚠️ 绝不能改成 Reference 一个普通命名的工程，也绝不能把契约类型
+          本地声明进本工程 —— 两者都会重新引入 InvalidCastException 崩溃。
+       ========================================================================== -->
+  <ItemGroup>
+    <ProjectReference Include="..\api\Emuera\Emuera.csproj">
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,593 @@
+﻿;※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+;弹幕胜负口上（萃香 K10格式）
+;经过eraTheWorld 4.972 环境测试
+;※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+;==================================================
+; ※ABL:戰鬥能力 == 0 的角色初始是无法进行弹幕胜负的※
+; ※角色技能发动的口上接口只有【乾坤一掷】【怪力乱神】【残忍酷薄】这三个
+;==================================================
+;整体流程与时点：
+;（无→跳转则全部顺下，序号仅做跳转标识，并非实际顺序）
+;==================================================
+; 决斗前   		① 调用 COM480 决定是否进行决斗
+; 					☇ **调用 "戦闘前" 的口上内容**
+; 开始决斗	      ② 调用 DANMAKU_BATTLE 运行决斗过程
+; 			    ③ 决斗循环
+; 					☇ ⑥ 处理骰子数值（如果启用了 胖次决斗 的DLC，还会调用 PANNOQIKALA_BATTLE 进行胖次的处理，进一步增减双方数值）
+; 						☇ **调用 "ハンデ" 的口上内容**
+; 					   ⑦ 掷骰子，生成第一次的骰子值让玩家做出选择
+; 						☇ ⑨ 选择专心回避，如果HP归零 → ⑮
+; 						   ⑩ 选择一决胜负
+; 							☇ 双方发动技能【乾坤一掷】
+; 								☇ **调用 "乾坤一擲" 的口上内容**
+; 							   ⑪ 拼点，TARGET骰子值更大 → ⑫，MASTER更大 → ⑬，相等 → ⑭
+; 								☇ ⑫ TARGET攻击
+; 									☇ MASTER发动技能【怪力乱神】/使用BOMB进行防御 → ⑭
+; 									   ⑮ MASTER被弹
+; 										☇ **调用 "击破" 的口上内容**
+; 										符合条件时TARGET发动技能【残忍酷薄】
+; 											☇  **调用 "残忍酷薄" 的口上内容** → ⑧
+; 								   ⑬ MASTER攻击
+; 									☇ TARGET发动技能【怪力乱神】进行防御
+; 										☇ **调用 "怪力乱神" 的口上内容** → ⑭
+; 									   TARGET被弹
+; 										☇ **调用 "被弾" 的口上内容** → ⑧
+; 								   ⑭ 平手
+; 					   ⑧ 一方残归零 → ④ ，否则 → ③
+; 决斗结束	      ④ 宣布败犬/人生的胜利者，处理乐谱
+; 决斗后		⑤ **调用 "戦闘後" 的口上内容**， 进行各种决斗后的数据处理
+;==================================================
+@M_KOJO_MOMO_MESSAGE_COM_K10_DANMAKU(ARGS, 对手残机, 自机残机)
+#DIM 对手残机	;残机值除了"戦闘前"没有意义以外，其余时点都能生效
+#DIM 自机残机
+;--------------------------------------------------
+;启用（0，不显示以下内容；1，显示以下内容）
+LOCAL = 1
+;--------------------------------------------------
+IF LOCAL
+	SIF FLAG:1031
+		TRYCALLFORM M_KOJO_MOMO_COLOR_K10
+	;-------------------------------------------------
+	;允许口上侧进行的对 MASTER的 战斗力补正
+	;-------------------------------------------------
+	; HANDICAP_FIXED 是直接对 MASTER 骰子修正值的补正，而 HANDICAP_RAND 则是以 RAND:HANDICAP_RAND 的形式进行的补正
+	; 因为算式是 修正值 -= HANDICAP ，所以数值越高 MASTER 的骰子修正值就越低，如果输入负数，则变成增加 MASTER  的修正值
+	; （虽然代码写的是给 MASTER 的补正，但是口上文本写成对 TARGET 的补正也是可以的）
+
+	; （要注意的是，HANDICAP_RAND 的算式是：修正値 -= RAND:(HANDICAP_RAND + TFLAG:GipsLV（大角虫装甲负荷等级） * ABL:MASTER:戦闘能力 + 1)
+	; 这样的写法导致了如果 HANDICAP_RAND 是较大的负值而令最终计算值也为负的话就会报错。想要大幅度增强 MASTER 稳妥起见请用 HANDICAP_FIXED）
+
+	; HANDICAP 的补正无关 TARGET 本身的战斗能力，所以你甚至可以做到让1级的⑨暴打6级的MASTER（⑨是最强的）
+
+	; HANDICAP 值是每回合都重新计算一遍的，所以你可以整一点越战越勇之类的花活
+	; BTW,就这样写在这里的话就是全时点每次调用时都为 HANDICAP 赋值一遍，所以 HANDICAP = XX 之类的直接赋值建议还是做好条件限制。
+	; 或者干脆把这里删掉，在时点内给 HANDICAP 赋值。（"戦闘前"生效一次，决斗循环中的生效顺序见上方 整体流程与时点 ，"戦闘後"不生效）
+
+	HANDICAP_FIXED = 2
+	HANDICAP_RAND = 1
+	;-------------------------------------------------
+	;决斗前
+	;-------------------------------------------------
+	IF ARGS == "戦闘前"
+		IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「嗝～要跟现在的我打吗？真是有勇气啊%CALLNAME:MASTER%！」
+					PRINTFORMW 「喝醉了的鬼才是最可怕的哦～不知道吗？」
+				CASE 1
+					PRINTFORML 「呜嘿嘿～弹幕胜负～？好啊好啊～」
+					PRINTFORMW 「正好酒劲上来了，稍微活动下身体吧！」
+				CASE 2
+					PRINTFORML 「呼哈哈哈哈！」
+					PRINTFORMW 「酒精和战斗混在一起最棒了！来吧来吧！」
+			ENDSELECT
+		ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+			SETCOLOR 0xC07070
+			PRINTFORML 「………………。」
+			PRINTFORMDL 萃香沉默着，手中的葫芦被她捏得嘎吱作响。
+			PRINTFORMDL 周围的空气变得沉重起来——那是鬼的「気」。
+			PRINTFORMW 「鬼符『遗失之力』」
+			PRINTFORMDW 话音未落，萃香的弹幕已经铺天盖地袭向%CALLNAME:MASTER%！！
+		ELSEIF ABL:MASTER:戦闘能力 < 1
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「哦，%CALLNAME:MASTER%？想向我挑战？」
+					PRINTFORMW 「呼嘻嘻～胆量倒是不小嘛。不过光有胆量可不够哦？」
+				CASE 1
+					PRINTFORML 「嗯～？你要和鬼打架吗？」
+					PRINTFORMW 「虽然我觉得你还差得远呢～不过陪你玩玩也行啦」
+				CASE 2
+					PRINTFORML 「哇～胆子真大啊，%CALLNAME:MASTER%」
+					PRINTFORMW 「虽然不知道你能撑多久，不过让我来试试你的身手吧！」
+			ENDSELECT
+		ELSEIF ABL:MASTER:戦闘能力 >= 4
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「哦，%CALLNAME:MASTER%……」
+					PRINTFORML 「感觉今天的气息不太一样呢」
+					PRINTFORMW 「好啊！既然如此，我也不用手下留情了！」
+				CASE 1
+					PRINTFORML 「哼哼～气势不错嘛，%CALLNAME:MASTER%」
+					PRINTFORMW 「好久没有遇到能认真起来的对手了……可别让我失望哦！」
+				CASE 2
+					PRINTFORML 「呼嘻嘻～看来你已经做好了觉悟呢」
+					PRINTFORMW 「那么，四天王之一的实力——好好体会一下吧！」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					PRINTFORML 「弹幕胜负！最喜欢了！」
+					PRINTFORMW 「来吧来吧，不用客气尽情放马过来！」
+				CASE 1
+					PRINTFORML 「哦，想和鬼一决胜负？」
+					PRINTFORMW 「有趣！你可别后悔哦？」
+				CASE 2
+					PRINTFORML 「%CALLNAME:MASTER%想跟我比弹幕？」
+					PRINTFORMW 「好啊，正好最近有点闲呢。让我来陪你活动活动筋骨吧！」
+			ENDSELECT
+		ENDIF
+		RETURN 0
+	ENDIF
+	;-------------------------------------------------
+	; HANDICAP 用口上
+	; 如果 HANDICAP_FIXED 和 HANDICAP_RAND 都为假那么就不会显示这个
+	; 你可以写文本，也可以写数值的更改。这个时点是刚好卡在计算骰子值的前一步。
+	;-------------------------------------------------
+	IF ARGS == "ハンデ"
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「嗯？要多让我一些吗？」
+				PRINTFORMW 「啊哈哈，那可不行哦。鬼就是要堂堂正正一决胜负的！」
+			CASE 1
+				PRINTFORML 「哎～看不起我吗？」
+				PRINTFORMW 「我可是鬼之四天王哦？你这样会吃大亏的！」
+			CASE 2
+				PRINTFORML 「哦～还挺体贴的嘛」
+				PRINTFORMW 「不过，让着鬼可是不吉利的哦？」
+		ENDSELECT
+		RETURN 0
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 MASTER 被弹时口上（4960新增接口）
+	;-------------------------------------------------
+	IF ARGS == "击破" 
+		;此处可填写通用文本
+
+		; MASTER获得残机的手段较多，基础是3，技能【洽览深识】+1，TALENT:0:大角虫+1，道具【命之卡片】+1
+		; 不启用 胖次决斗DLC 的话最高6残，是先减少残机再调用的"击破"和"被弾"的口上内容
+		SELECTCASE 自机残机
+			CASE 5
+
+			CASE 4
+
+			CASE 3
+
+			CASE 2
+			
+			CASE 1
+			
+			CASE 0
+			
+		ENDSELECT
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 被弹时口上
+	;-------------------------------------------------
+	IF ARGS == "被弾" 
+		;此处可填写通用文本
+
+		SELECTCASE 对手残机
+			;拥有【洽览深识】时，会存在残机3的情况
+			CASE 3
+				IF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					PRINTFORML 「………………。」
+					PRINTFORMDW 萃香一言不发。空气变得更加沉重了。
+				ELSE
+					PRINTFORML 「哦～还挺行的嘛！」
+					PRINTFORMW 「不过，这才第一下而已，别太得意哦？」
+				ENDIF
+			CASE 2
+				IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「好疼疼疼！啊哈哈哈！」
+							PRINTFORMW 「打得不错嘛！那么我也稍微认真一点好了！」
+							PRINTFORML 「醉神『鬼缚之术』！！」
+							PRINTFORMDW 萃香醉醺醺的步伐反而让弹幕的轨道更加难以预测！
+						CASE 1
+							PRINTFORML 「唔嘿嘿～干得漂亮！」
+							PRINTFORMW 「来来来，给你看看好东西！」
+							PRINTFORML 「萃符『户隐山之投』！！」
+							PRINTFORMDW 萃香随手一挥，凝聚了密度的小石块如流星般砸来！
+					ENDSELECT
+				ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					PRINTFORML 「……不错。」
+					PRINTFORMDW 萃香露出了笑容——但那绝对不是善意的笑。
+					PRINTFORML 「鬼符『大江山悉皆杀』」
+					SETCOLOR 0xC07070
+					PRINTFORMDW 密集的弹幕如同要将%CALLNAME:MASTER%碾碎一般狂涌而来！
+				ELSEIF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「哎，挺能干的嘛%CALLNAME:MASTER%～」
+							PRINTFORMW 「不过我可不会因为在意的对象就手下留情哦！」
+							PRINTFORML 「疏符『六里雾中』」
+							PRINTFORMDW 浓厚的雾气瞬间吞没了周围，萃香的身影消失在了雾中！
+						CASE 1
+							PRINTFORML 「嘿嘿，%CALLNAME:MASTER%果然很强呢」
+							PRINTFORMW 「不过～鬼可是越战越强的哦！」
+							PRINTFORML 「雾符『云集雾散』」
+							PRINTFORMDW 萃香的身体化作雾气四散，下一个瞬间又在完全不同的位置凝聚！
+						CASE 2
+							PRINTFORML 「让我兴奋起来了呢……%CALLNAME:MASTER%！」
+							PRINTFORMW 「你知道吗？鬼认真起来的时候，可是很可怕的哦？」
+							PRINTFORML 「鬼符『遗失之力』！！」
+							PRINTFORMDW 蕴藏着鬼神之力的弹幕排山倒海般向%CALLNAME:MASTER%压来！
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「哇～被摆了一道！」
+							PRINTFORMW 「那么……是时候让你见识一下鬼的恐怖了！」
+							PRINTFORML 「萃符『户隐山之投』！！」
+							PRINTFORMDW 萃香将周围石块的密度凝缩成弹丸砸了过来！
+						CASE 1
+							PRINTFORML 「不错不错！我开始觉得有意思了！」
+							PRINTFORMW 「好！我要开始认真了，你可要小心哦？」
+							PRINTFORML 「疏符『六里雾中』」
+							PRINTFORMDW 不知何时，周围已被浓雾笼罩！
+						CASE 2
+							PRINTFORML 「嘿咻～还挺疼的嘛」
+							PRINTFORMW 「那我就稍微拿出点真本事好了！」
+							PRINTFORML 「醉神『鬼缚之术』」
+							PRINTFORMDW 萃香喝了一口葫芦里的酒，吐出的气息化作了锁链般的弹幕！
+					ENDSELECT
+				ENDIF
+			CASE 1
+				IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「呜啊哈哈哈哈！」
+							PRINTFORMW 「真开心啊！好久没被人逼到这种地步了！」
+							PRINTFORML 「最后的最后——鬼神『遗失之紫力』！！」
+							PRINTFORMDW 醉酒后的鬼神之力不受控制地全面释放！
+						CASE 1
+							PRINTFORML 「嗝～%CALLNAME:MASTER%好强啊……」
+							PRINTFORMW 「不过呢，喝醉的鬼比平常更难缠这件事……你知道吗？」
+							PRINTFORML 「『百万鬼夜行』！！！！」
+							PRINTFORMDW 萃香的身后仿佛浮现出无数鬼的影子，弹幕如百鬼夜行般涌来！
+					ENDSELECT
+				ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					PRINTFORML 「……挺能干的嘛。」
+					PRINTFORMDL 萃香握紧了拳头。
+					PRINTFORMDL 周围的空间开始扭曲——那是密度操纵的力量。
+					PRINTFORML 「在这世上，惹怒鬼可不是什么明智之举。」
+					PRINTFORMW 「好好体会一下……什么叫绝对的力量差距！」
+					PRINTFORML 「四天王奥义『三步坏废』！！！！」
+					SETCOLOR 0xC04040
+					PRINTFORMDW 萃香释放了足以粉碎山川的一击！！
+				ELSEIF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「能把我逼到这种地步……」
+							PRINTFORMW 「现在的%CALLNAME:MASTER%比以前的我都更强了啊」
+							PRINTFORML 「不过！这可还没结束呢！」
+							PRINTFORMW 「鬼神『遗失之紫力』！！」
+							PRINTFORMDW 萃香认真起来了——作为鬼，作为四天王之一！
+						CASE 1
+							PRINTFORML 「哈啊……哈啊……」
+							PRINTFORMW 「说实话，%CALLNAME:MASTER%真的让我很惊讶」
+							PRINTFORMW 「所以！作为对你全力以赴的回报——」
+							PRINTFORML 「四天王奥义『三步坏废』」
+							PRINTFORMW 「我会用全力来回应你！！」
+						CASE 2
+							PRINTFORML 「……我承认了，%CALLNAME:MASTER%」
+							PRINTFORMW 「能够正面和鬼战斗到这种地步的人类，你是第一个」
+							PRINTFORMW 「因此！作为敬意——这是我的王牌！」
+							PRINTFORML 「『百万鬼夜行』！！！！」
+							PRINTFORMDW 萃香高举起葫芦，无数分身般的弹幕从四面八方杀来！
+					ENDSELECT
+				ELSEIF ABL:MASTER:戦闘能力 >= 4
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「呼嘻嘻……%CALLNAME:MASTER%，你果然很强」
+							PRINTFORMW 「不过啊……鬼的字典里可没有"认输"这个词！」
+							PRINTFORML 「鬼神『遗失之紫力』！！」
+						CASE 1
+							PRINTFORML 「有趣！太有趣了！」
+							PRINTFORMW 「能和这样的强者一战，正是身为鬼最大的乐趣！」
+							PRINTFORML 「四天王奥义『三步坏废』」
+							PRINTFORMW 「接招吧！」
+						CASE 2
+							PRINTFORML 「唔……好久没被逼到这一步了」
+							PRINTFORMW 「看来我也得拿出压箱底的绝招了……！」
+							PRINTFORML 「『百万鬼夜行』！！！！」
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「等等等等，这样下去可不妙啊……！」
+							PRINTFORMW 「既然如此——鬼神『遗失之紫力』！」
+							PRINTFORMDW 萃香不再有玩闹的表情。鬼之天王认真了。
+						CASE 1
+							PRINTFORML 「我承认，是我太小看你了……」
+							PRINTFORMW 「不过，这场胜负的结局还不得而知呢！」
+							PRINTFORML 「『百万鬼夜行』！！」
+						CASE 2
+							PRINTFORML 「呜哇……%CALLNAME:MASTER%还挺有两下子的嘛……」
+							PRINTFORMW 「但是身为鬼的尊严，可不能就这么丢了……！」
+							PRINTFORML 「四天王奥义『三步坏废』！！」
+					ENDSELECT
+				ENDIF
+			CASE 0
+				IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORMW 「呜哇～%CALLNAME:MASTER%好强啊……」
+							PRINTFORMW 「嗝……酒也喝完了……算了，这次是你赢了～」
+						CASE 1
+							PRINTFORML 「倒下了倒下了～已经飞不动了啦～」
+							PRINTFORMW 「真是的……做了个愉快的梦呢……Zzz……」
+					ENDSELECT
+				ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					PRINTFORML 「……怎么可能……！」
+					PRINTFORMDW 萃香难以置信地瞪大了眼睛。
+					PRINTFORMDW 鬼之天王——竟然输了……
+				ELSEIF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「啊哈哈……输掉了输掉了～」
+							PRINTFORMW 「痛快！%CALLNAME:MASTER%果然是最棒的！」
+							PRINTFORMW 「下次再来打吧？我请客喝酒哦！」
+						CASE 1
+							PRINTFORML 「唔～输给%CALLNAME:MASTER%了啊……」
+							PRINTFORMW 「虽然有点不甘心，不过输给在意的人感觉也不错嘛」
+							PRINTFORMW 「呼呼……下次可不会这么简单了哦」
+						CASE 2
+							PRINTFORML 「我还是第一次输得这么开心呢」
+							PRINTFORMW 「能够全力以赴地战斗，然后又坦然接受失败——」
+							PRINTFORMW 「这就是和%CALLNAME:MASTER%在一起的意义啊」
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORMW 「呜哇！败了败了！」
+							PRINTFORMW 「%CALLNAME:MASTER%好强啊，真让人大开眼界！」
+						CASE 1
+							PRINTFORML 「这可真是……」
+							PRINTFORMW 「没想到我竟然会输。看来%CALLNAME:MASTER%也不是一般人呢」
+						CASE 2
+							PRINTFORML 「咕……竟然输掉了」
+							PRINTFORMW 「好吧，这次是你更胜一筹。下次再来打过！」
+					ENDSELECT
+				ENDIF
+		ENDSELECT
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【残忍酷薄】发动
+	; 【残忍酷薄】效果：MASTER从被弹中恢复时BOMB数-1
+	; 50%的概率会被道具 三滴之天粒 无效化
+	;-------------------------------------------------
+	IF ARGS == "残忍酷薄"
+		IF TALENT:恋慕 || TALENT:恋人
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「嘿嘿～%CALLNAME:MASTER%想赢我还早了一百年哦！」
+					PRINTFORMW 「来，继续继续！让我更兴奋一点嘛！」
+				CASE 1
+					PRINTFORML 「啊～好开心！」
+					PRINTFORMW 「弹幕，打架，还有和%CALLNAME:MASTER%在一起——」
+					PRINTFORMW 「这酒怎么喝都不会腻呢！」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「哦？觉得我弹幕太少了吗？」
+					PRINTFORMW 「好啊～那再加一倍怎么样？」
+				CASE 1
+					PRINTFORML 「哼哼，鬼可是不会这么轻易被打倒的哦」
+					PRINTFORMW 「不如说——越是挨打就越兴奋呢！」
+			ENDSELECT
+		ENDIF
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【乾坤一掷】发动
+	; 如果开启DLC 胖次决斗 ，这里也会成为技能【蓝！白！碗！】【调教时间！】【透明人间】发动时 的内容。时点先于普通决斗时的【乾坤一掷】
+	; 【乾坤一掷】效果：使TARGET的骰子值提升
+	;-------------------------------------------------
+	IF ARGS == "乾坤一擲"
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORML 「鬼可不会瞻前顾后！」
+				PRINTFORMW 「这一击——接下试试看啊！！」
+			CASE 1
+				PRINTFORML 「胜负这种事情——」
+				PRINTFORMW 「有时候就是要豁出去才有意思！！」
+			CASE 2
+				PRINTFORML 「来吧来吧来吧！」
+				PRINTFORMW 「豪迈地全数接下吧——大江山鬼的全力一击！！」
+		ENDSELECT
+	ENDIF
+	;-------------------------------------------------
+	;决斗中 TARGET 的技能【怪力乱神】发动
+	; 【怪力乱神】效果：如果两方骰子差小于一定值，就能够化解MASTER的攻击，避免掉残
+	; 地文：MASTER放出的弹幕，在击中TARGET的瞬间之前消散了！
+	;-------------------------------------------------
+	IF ARGS == "怪力乱神"
+		IF TALENT:恋慕 || TALENT:恋人
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「%CALLNAME:MASTER%，你的实力我认可了……！」
+					PRINTFORMW 「既然如此，就让你看看真正的鬼之力吧！」
+					PRINTFORMDW 萃香全身散发出惊人的气场——这才是四天王的真正实力！
+				CASE 1
+					PRINTFORML 「一直以来都小打小闹的……」
+					PRINTFORMW 「但是，如果是为%CALLNAME:MASTER%而战的话——」
+					PRINTFORMW 「我不打算再藏着掖着了！！」
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:2
+				CASE 0
+					PRINTFORML 「让你见识一下——」
+					PRINTFORMW 「鬼真正的力量是什么！！」
+					PRINTFORMDW 萃香凝聚全身妖力，准备释放超乎常人想象的一击！
+				CASE 1
+					PRINTFORML 「我乃鬼之四天王，伊吹萃香——！」
+					PRINTFORMW 「可别把你看到的这一切……当成幻想了！！」
+					PRINTFORMDW 萃香的弹幕夹杂着鬼气，威力骤然猛增！
+			ENDSELECT
+		ENDIF
+	ENDIF
+	
+	;-------------------------------------------------
+	;战斗后
+	; 如果是 MASTER 第一次击败 TARGET （此处用 !CFLAG:弾幕勝負勝利 && 对手残机 == 0 进行表示），
+	; 或者是 ABL:MASTER:戰鬥能力 < ABL:TARGET:戰鬥能力 ，COMF中都会有数值的BONUS
+	; 委托12【想要制裁某人！】也会调用这里的内容
+	;-------------------------------------------------
+	IF ARGS == "戦闘後" 
+
+		;拥有技能【洽览深识】会导致残机为4的情况
+		;残机剩余1以上就是 MASTER挑战失败，剩余0则为挑战成功
+		PRINTFORML 
+		SELECTCASE 对手残机
+			CASE 4
+				PRINTFORML 
+			CASE 3
+				IF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「呼嘻嘻～有点不够尽兴呢」
+							PRINTFORMW 「%CALLNAME:MASTER%要不要一起特训？我会好好教你的哦？」
+						CASE 1
+							PRINTFORML 「哎呀呀，轻轻松松～」
+							PRINTFORMW 「不过和%CALLNAME:MASTER%一起玩弹幕总是很开心呢」
+							PRINTFORMW 「下次也多陪我打打吧？」
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「呼嘻嘻～完全不够看呢！」
+							PRINTFORMW 「想要挑战鬼，你还得再修炼个一百年吧！」
+						CASE 1
+							PRINTFORML 「就这？就这？」
+							PRINTFORMW 「我可是鬼之四天王哦？这点程度连热身都算不上呢！」
+					ENDSELECT
+				ENDIF
+			CASE 2
+				IF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「嗯～%CALLNAME:MASTER%还是很努力的呢♥」
+							PRINTFORMW 「虽然距离赢我还差一点，不过比之前进步了不少呢」
+						CASE 1
+							PRINTFORML 「赢了赢了～」
+							PRINTFORMW 「不过%CALLNAME:MASTER%要是再努力一点说不定真能赢呢」
+							PRINTFORMW 「我很期待那一天哦～」
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「还不错嘛，但还是不够看哦」
+							PRINTFORMW 「再多修炼修炼再来吧！」
+						CASE 1
+							PRINTFORML 「虽然给你打中了几下……」
+							PRINTFORMW 「不过结果还是一样的！鬼的胜利！」
+					ENDSELECT
+				ENDIF
+			CASE 1
+				IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「呼嘻嘻嘻～好险好险！」
+							PRINTFORMW 「差一点就输掉了呢，%CALLNAME:MASTER%不简单啊！」
+						CASE 1
+							PRINTFORML 「呜哇～好危险好危险……」
+							PRINTFORMW 「喝醉了果然还是有点影响呢……不过赢了就是赢了！」
+					ENDSELECT
+				ELSEIF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「哈啊……哈啊……」
+							PRINTFORMW 「太危险了……%CALLNAME:MASTER%真的好强啊」
+							PRINTFORMW 「不过正因为这样，赢了你的时候才特别有成就感啊……♥」
+						CASE 1
+							PRINTFORML 「就差一点就被%CALLNAME:MASTER%打败了呢」
+							PRINTFORMW 「能被你追到这一步我很高兴哦～」
+							PRINTFORMW 「下次再来一决胜负吧！」
+					ENDSELECT
+				ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					PRINTFORML 「呼……」
+					PRINTFORMW 「能把我逼到使用四天王奥义，算你有点本事」
+					PRINTFORMW 「不过也就此为止了。回去好好修炼吧。」
+				ELSE
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「呼嘻嘻～真是场精彩的胜负！」
+							PRINTFORMW 「不过最后还是我赢了呢！来，庆祝胜利来喝一杯吧！」
+						CASE 1
+							PRINTFORML 「哇，差点就输掉了……」
+							PRINTFORMW 「%CALLNAME:MASTER%还挺能干的嘛，下次我可不会这么大意了！」
+					ENDSELECT
+				ENDIF
+			CASE 0
+				IF ALCOHOL_FACE(10) == "醉酒" || ALCOHOL_FACE(10) == "不省人事"
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「啊～被干掉了被干掉了……」
+							PRINTFORMW 「果然喝太多不是好事呢……下次先打架再喝酒好了～」
+						CASE 1
+							PRINTFORML 「呼～真是舒服地输了一场呢」
+							PRINTFORMW 「酒也好架也好，果然和%CALLNAME:MASTER%在一起就是开心啊」
+					ENDSELECT
+				ELSEIF TALENT:10:心情 == -1 || CFLAG:10:ブチギレ || MARK:10:反発刻印 >= 3
+					SETCOLOR 0xC07070
+					PRINTFORML 「………………………………」
+					PRINTFORMDW 萃香一言不发地盯着%CALLNAME:MASTER%。
+					PRINTFORMDW 那双眼睛里燃烧着鬼的火焰——这绝不是结束。
+				ELSEIF TALENT:恋慕 || TALENT:恋人
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「哎呀～完败完败！」
+							PRINTFORMW 「%CALLNAME:MASTER%果然很厉害呢。我很高兴能够遇见你」
+							PRINTFORMW 「走吧，作为庆祝我来请客喝酒！今天不醉不归！」
+						CASE 1
+							PRINTFORML 「服了服了，%CALLNAME:MASTER%太强了」
+							PRINTFORMW 「说实话，我还是第一次输得这么干脆呢」
+							PRINTFORMW 「不过……输给你，感觉并不坏。甚至还挺高兴的。」
+						CASE 2
+							PRINTFORML 「真不愧是%CALLNAME:MASTER%……」
+							PRINTFORMW 「作为鬼输了虽然有点不甘心，但是能遇到你这样的强者——」
+							PRINTFORMW 「我真的很幸运呢。下次还要来打哦？」
+					ENDSELECT
+				ELSEIF ABL:MASTER:戦闘能力 >= 4
+					SELECTCASE RAND:2
+						CASE 0
+							PRINTFORML 「厉害……太厉害了！」
+							PRINTFORMW 「%CALLNAME:MASTER%果然不是泛泛之辈呢！」
+							PRINTFORMW 「太好了！以后我们就是酒友兼战友了！」
+						CASE 1
+							PRINTFORML 「竟然正面赢过了身为鬼之天王的我……」
+							PRINTFORMW 「%CALLNAME:MASTER%，你到底是什么来头啊？」
+							PRINTFORMW 「……算了！管它呢！来喝酒喝酒！」
+					ENDSELECT
+				ELSE
+					SELECTCASE RAND:3
+						CASE 0
+							PRINTFORML 「唔啊！输掉了！」
+							PRINTFORMW 「%CALLNAME:MASTER%挺厉害的嘛，看来不是等闲之辈呢」
+							PRINTFORMW 「这次是我输了！下次再来决胜负！」
+						CASE 1
+							PRINTFORML 「哇～被反杀了……」
+							PRINTFORMW 「看来是我太小看你了呢。不过这样才有意思！」
+						CASE 2
+							PRINTFORML 「我竟然会输……」
+							PRINTFORMW 「好吧好吧，%CALLNAME:MASTER%确实够格做我的对手」
+							PRINTFORMW 「来！输家得请喝酒，这是鬼的规矩哦！」
+					ENDSELECT
+				ENDIF
+		ENDSELECT
+	ENDIF
+	RESETCOLOR
+ENDIF
+RETURN 1

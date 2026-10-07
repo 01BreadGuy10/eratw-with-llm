@@ -1,0 +1,900 @@
+﻿;------------------------------------
+;長期予報に関する変数
+;------------------------------------
+
+;現在的長期天候傾向
+;0=未設定 1=通常 2=エルニーニョ現象 3=ラニーニャ現象
+#DIM SAVEDATA YEAR_WEATHER_CONTROL
+
+;------------------------------------
+;短期予報に関する変数
+;------------------------------------
+
+;現在的ターム数
+#DIM SAVEDATA NOW_TERM
+
+;現在的タームにおける寒気の強さ
+#DIM SAVEDATA POWER_COLD_AIR
+
+;現在的タームにおける暖気の強さ
+#DIM SAVEDATA POWER_WARM_AIR
+
+;現在梅雨である
+;第1引数：0=梅雨である　1=梅雨末期である
+#DIM SAVEDATA IS_RAINY_SEASON1, 2
+
+;現在秋雨である
+#DIM SAVEDATA IS_RAINY_SEASON2
+
+;現在寒冷渦が発生している
+#DIM SAVEDATA IS_COLD_LOW
+
+;寒冷渦の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_COLD_LOW, 3
+
+;寒冷渦の勢力圏通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_TERRITORY_COLD_LOW, 3
+
+;台風が発生している
+;第1引数：0=発生している　1=勢力(1~5)　2=通過位置(1:可航半円 2:直撃 3:危険半円)　3=先駆降雨帯が発生している
+#DIM SAVEDATA IS_TYPHOON, 4
+
+;台風の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_TYPHOON, 3
+
+;台風の強風域突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_WIND_ZONE_TYPHOON, 3
+
+;台風の暴風域突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_STORM_AREA_TYPHOON, 3
+
+;台風の最接近時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_CLOSEST_TYPHOON, 3
+
+;台風の目通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_EYE_TYPHOON, 3
+
+;台風の暴風域通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_STORM_AREA_TYPHOON, 3
+
+;台風の強風域通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_WIND_ZONE_TYPHOON, 3
+
+;日本海低気圧が発生している
+;1=日本海低気圧が発生している　2=二つ玉低気圧が発生している
+#DIM SAVEDATA IS_SoJ_LOW
+
+;日本海低気圧の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_SoJ_LOW, 3
+
+;日本海低気圧の最接近時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_CLOSEST_SoJ_LOW, 3
+
+;疑似好天エリア通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_FAKE_FINE, 3
+
+;日本海低気圧の通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_SoJ_LOW, 3
+
+;南岸低気圧が発生している
+#DIM SAVEDATA IS_SOUTHERN_LOW
+
+;南岸低気圧の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_SOUTHERN_LOW, 3
+
+;南岸低気圧の通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_SOUTHERN_LOW, 3
+
+;春・秋の温帯低気圧の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_EXTRATROPICAL_LOW, 3
+
+;春・秋の温帯低気圧の温暖前線通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_WARM_FRONT, 3
+
+;春・秋の温帯低気圧の寒冷前線通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_COLD_FRONT, 3
+
+;春・秋の温帯低気圧の勢力圏通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_EXTRATROPICAL_LOW, 3
+
+;線状降水帯が発生している
+;第1引数：0=発生している　1=勢力(1~2)
+#DIM SAVEDATA IS_LINER_RAINBAND, 2
+
+;線状降水帯の勢力圏突入時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_ENTER_TERRITORY_LINER_RAINBAND, 3
+
+;線状降水帯の通過時刻
+;第1引数：0=季節　1=日期　2=時間
+#DIM SAVEDATA TIME_PASSAGE_LINER_RAINBAND, 3
+
+;------------------------------------
+;1日予報に関する変数
+;------------------------------------
+
+;霧が発生するか
+#DIM SAVEDATA CAN_STRATUS
+
+;積雲/積乱雲は発生するか
+;0：発達度合い　0=発生せず 1=積雲 2=雄大積雲 3=積乱雲(入道雲) 4=積乱雲(かなとこ雲) 5=積乱雲(スーパーセル)
+;1：直撃するかどうか
+;2：風の強さ
+#DIM SAVEDATA CAN_CUMULUS, 3
+
+;積雲/積乱雲の勢力圏突入時刻
+#DIM SAVEDATA TIME_ENTER_TERRITORY_CUMULUS
+
+;積雲/積乱雲の最接近時刻
+#DIM SAVEDATA TIME_CLOSEST_CUMULUS
+
+;積雲/積乱雲の勢力圏通過時刻
+#DIM SAVEDATA TIME_PASSAGE_CUMULUS
+
+;天子による天候操作で天候変更が禁止されている
+#DIM SAVEDATA FORBIDDEN_CHANGE_WEATHER
+
+;1日の大気安定度(小さいほど不安定)
+;熱雷発生判定に使用
+#DIM SAVEDATA ATMOSPHERIC_INSTABILITY
+
+;------------------------------------
+;農作物関係
+;------------------------------------
+
+;寒気による被害量
+#DIM SAVEDATA AMOUNT_COLD_CROP_DAMAGE
+
+;冷害が発生した
+#DIM SAVEDATA IS_COLD_CROP_DAMAGE
+
+;風害が発生した
+#DIM SAVEDATA IS_STORM_CROP_DAMAGE
+
+;水害が発生した
+#DIM SAVEDATA IS_FLOOD_CROP_DAMAGE
+
+;------------------------------------
+;其他変数
+;------------------------------------
+
+;風速
+;0=通常 1=強風 2=暴風
+#DIM SAVEDATA WIND_VELOCITY
+
+;現在的天候管理
+#DIM SAVEDATA NOW_WEATHER_CONTROL
+
+;連続降水Counter
+#DIM SAVEDATA CONTINUOUS_RAINFALL
+
+;連続降雪Counter
+#DIM SAVEDATA CONTINUOUS_SNOWFALL
+
+;積雪量
+#DIM SAVEDATA SNOW_COVERAGE
+
+;雪崩発生フラグ
+;1=表層雪崩 2=全層雪崩
+#DIM SAVEDATA POSSIBLITY_AVALANCHE
+
+;天候システム上の時間帯管理
+#DIM SAVEDATA WEATHER_TIMEZOME
+
+;------------------------------------
+;気温関係
+;長野市の気温を参照,摂氏温度を10倍
+;------------------------------------
+
+#DIM CONST 気温_春_1T_0時 = 14
+#DIM CONST 気温_春_1T_1時 = 10
+#DIM CONST 気温_春_1T_2時 = 7
+#DIM CONST 気温_春_1T_3時 = 4
+#DIM CONST 気温_春_1T_4時 = 2
+#DIM CONST 気温_春_1T_5時 = 0
+#DIM CONST 気温_春_1T_6時 = -2
+#DIM CONST 気温_春_1T_7時 = 0
+#DIM CONST 気温_春_1T_8時 = 11
+#DIM CONST 気温_春_1T_9時 = 25
+#DIM CONST 気温_春_1T_10時 = 40
+#DIM CONST 気温_春_1T_11時 = 53
+#DIM CONST 気温_春_1T_12時 = 65
+#DIM CONST 気温_春_1T_13時 = 73
+#DIM CONST 気温_春_1T_14時 = 75
+#DIM CONST 気温_春_1T_15時 = 74
+#DIM CONST 気温_春_1T_16時 = 67
+#DIM CONST 気温_春_1T_17時 = 56
+#DIM CONST 気温_春_1T_18時 = 44
+#DIM CONST 気温_春_1T_19時 = 36
+#DIM CONST 気温_春_1T_20時 = 30
+#DIM CONST 気温_春_1T_21時 = 25
+#DIM CONST 気温_春_1T_22時 = 21
+#DIM CONST 気温_春_1T_23時 = 18
+
+#DIM CONST 気温_春_2T_0時 = 35
+#DIM CONST 気温_春_2T_1時 = 30
+#DIM CONST 気温_春_2T_2時 = 26
+#DIM CONST 気温_春_2T_3時 = 24
+#DIM CONST 気温_春_2T_4時 = 21
+#DIM CONST 気温_春_2T_5時 = 18
+#DIM CONST 気温_春_2T_6時 = 17
+#DIM CONST 気温_春_2T_7時 = 23
+#DIM CONST 気温_春_2T_8時 = 36
+#DIM CONST 気温_春_2T_9時 = 50
+#DIM CONST 気温_春_2T_10時 = 66
+#DIM CONST 気温_春_2T_11時 = 80
+#DIM CONST 気温_春_2T_12時 = 92
+#DIM CONST 気温_春_2T_13時 = 100
+#DIM CONST 気温_春_2T_14時 = 103
+#DIM CONST 気温_春_2T_15時 = 100
+#DIM CONST 気温_春_2T_16時 = 93
+#DIM CONST 気温_春_2T_17時 = 82
+#DIM CONST 気温_春_2T_18時 = 69
+#DIM CONST 気温_春_2T_19時 = 61
+#DIM CONST 気温_春_2T_20時 = 54
+#DIM CONST 気温_春_2T_21時 = 48
+#DIM CONST 気温_春_2T_22時 = 44
+#DIM CONST 気温_春_2T_23時 = 39
+
+#DIM CONST 気温_春_3T_0時 = 66
+#DIM CONST 気温_春_3T_1時 = 60
+#DIM CONST 気温_春_3T_2時 = 56
+#DIM CONST 気温_春_3T_3時 = 52
+#DIM CONST 気温_春_3T_4時 = 49
+#DIM CONST 気温_春_3T_5時 = 46
+#DIM CONST 気温_春_3T_6時 = 46
+#DIM CONST 気温_春_3T_7時 = 56
+#DIM CONST 気温_春_3T_8時 = 71
+#DIM CONST 気温_春_3T_9時 = 88
+#DIM CONST 気温_春_3T_10時 = 105
+#DIM CONST 気温_春_3T_11時 = 121
+#DIM CONST 気温_春_3T_12時 = 132
+#DIM CONST 気温_春_3T_13時 = 139
+#DIM CONST 気温_春_3T_14時 = 141
+#DIM CONST 気温_春_3T_15時 = 137
+#DIM CONST 気温_春_3T_16時 = 129
+#DIM CONST 気温_春_3T_17時 = 118
+#DIM CONST 気温_春_3T_18時 = 105
+#DIM CONST 気温_春_3T_19時 = 95
+#DIM CONST 気温_春_3T_20時 = 88
+#DIM CONST 気温_春_3T_21時 = 81
+#DIM CONST 気温_春_3T_22時 = 76
+#DIM CONST 気温_春_3T_23時 = 71
+
+#DIM CONST 気温_春_4T_0時 = 99
+#DIM CONST 気温_春_4T_1時 = 93
+#DIM CONST 気温_春_4T_2時 = 89
+#DIM CONST 気温_春_4T_3時 = 85
+#DIM CONST 気温_春_4T_4時 = 81
+#DIM CONST 気温_春_4T_5時 = 78
+#DIM CONST 気温_春_4T_6時 = 81
+#DIM CONST 気温_春_4T_7時 = 93
+#DIM CONST 気温_春_4T_8時 = 109
+#DIM CONST 気温_春_4T_9時 = 126
+#DIM CONST 気温_春_4T_10時 = 143
+#DIM CONST 気温_春_4T_11時 = 158
+#DIM CONST 気温_春_4T_12時 = 169
+#DIM CONST 気温_春_4T_13時 = 175
+#DIM CONST 気温_春_4T_14時 = 177
+#DIM CONST 気温_春_4T_15時 = 173
+#DIM CONST 気温_春_4T_16時 = 164
+#DIM CONST 気温_春_4T_17時 = 153
+#DIM CONST 気温_春_4T_18時 = 140
+#DIM CONST 気温_春_4T_19時 = 129
+#DIM CONST 気温_春_4T_20時 = 121
+#DIM CONST 気温_春_4T_21時 = 114
+#DIM CONST 気温_春_4T_22時 = 108
+#DIM CONST 気温_春_4T_23時 = 104
+
+#DIM CONST 気温_春_5T_0時 = 126
+#DIM CONST 気温_春_5T_1時 = 121
+#DIM CONST 気温_春_5T_2時 = 116
+#DIM CONST 気温_春_5T_3時 = 112
+#DIM CONST 気温_春_5T_4時 = 109
+#DIM CONST 気温_春_5T_5時 = 106
+#DIM CONST 気温_春_5T_6時 = 111
+#DIM CONST 気温_春_5T_7時 = 123
+#DIM CONST 気温_春_5T_8時 = 138
+#DIM CONST 気温_春_5T_9時 = 156
+#DIM CONST 気温_春_5T_10時 = 173
+#DIM CONST 気温_春_5T_11時 = 188
+#DIM CONST 気温_春_5T_12時 = 199
+#DIM CONST 気温_春_5T_13時 = 206
+#DIM CONST 気温_春_5T_14時 = 207
+#DIM CONST 気温_春_5T_15時 = 203
+#DIM CONST 気温_春_5T_16時 = 194
+#DIM CONST 気温_春_5T_17時 = 183
+#DIM CONST 気温_春_5T_18時 = 170
+#DIM CONST 気温_春_5T_19時 = 158
+#DIM CONST 気温_春_5T_20時 = 149
+#DIM CONST 気温_春_5T_21時 = 141
+#DIM CONST 気温_春_5T_22時 = 136
+#DIM CONST 気温_春_5T_23時 = 131
+
+#DIM CONST 気温_春_6T_0時 = 150
+#DIM CONST 気温_春_6T_1時 = 144
+#DIM CONST 気温_春_6T_2時 = 140
+#DIM CONST 気温_春_6T_3時 = 135
+#DIM CONST 気温_春_6T_4時 = 132
+#DIM CONST 気温_春_6T_5時 = 130
+#DIM CONST 気温_春_6T_6時 = 136
+#DIM CONST 気温_春_6T_7時 = 147
+#DIM CONST 気温_春_6T_8時 = 162
+#DIM CONST 気温_春_6T_9時 = 179
+#DIM CONST 気温_春_6T_10時 = 194
+#DIM CONST 気温_春_6T_11時 = 209
+#DIM CONST 気温_春_6T_12時 = 219
+#DIM CONST 気温_春_6T_13時 = 225
+#DIM CONST 気温_春_6T_14時 = 225
+#DIM CONST 気温_春_6T_15時 = 221
+#DIM CONST 気温_春_6T_16時 = 213
+#DIM CONST 気温_春_6T_17時 = 203
+#DIM CONST 気温_春_6T_18時 = 191
+#DIM CONST 気温_春_6T_19時 = 180
+#DIM CONST 気温_春_6T_20時 = 172
+#DIM CONST 気温_春_6T_21時 = 164
+#DIM CONST 気温_春_6T_22時 = 159
+#DIM CONST 気温_春_6T_23時 = 154
+
+#DIM CONST 気温_夏_1T_0時 = 172
+#DIM CONST 気温_夏_1T_1時 = 167
+#DIM CONST 気温_夏_1T_2時 = 164
+#DIM CONST 気温_夏_1T_3時 = 160
+#DIM CONST 気温_夏_1T_4時 = 157
+#DIM CONST 気温_夏_1T_5時 = 156
+#DIM CONST 気温_夏_1T_6時 = 161
+#DIM CONST 気温_夏_1T_7時 = 171
+#DIM CONST 気温_夏_1T_8時 = 185
+#DIM CONST 気温_夏_1T_9時 = 200
+#DIM CONST 気温_夏_1T_10時 = 214
+#DIM CONST 気温_夏_1T_11時 = 226
+#DIM CONST 気温_夏_1T_12時 = 236
+#DIM CONST 気温_夏_1T_13時 = 241
+#DIM CONST 気温_夏_1T_14時 = 241
+#DIM CONST 気温_夏_1T_15時 = 236
+#DIM CONST 気温_夏_1T_16時 = 228
+#DIM CONST 気温_夏_1T_17時 = 219
+#DIM CONST 気温_夏_1T_18時 = 208
+#DIM CONST 気温_夏_1T_19時 = 198
+#DIM CONST 気温_夏_1T_20時 = 191
+#DIM CONST 気温_夏_1T_21時 = 184
+#DIM CONST 気温_夏_1T_22時 = 179
+#DIM CONST 気温_夏_1T_23時 = 176
+
+#DIM CONST 気温_夏_2T_0時 = 194
+#DIM CONST 気温_夏_2T_1時 = 190
+#DIM CONST 気温_夏_2T_2時 = 187
+#DIM CONST 気温_夏_2T_3時 = 185
+#DIM CONST 気温_夏_2T_4時 = 182
+#DIM CONST 気温_夏_2T_5時 = 181
+#DIM CONST 気温_夏_2T_6時 = 185
+#DIM CONST 気温_夏_2T_7時 = 193
+#DIM CONST 気温_夏_2T_8時 = 205
+#DIM CONST 気温_夏_2T_9時 = 217
+#DIM CONST 気温_夏_2T_10時 = 230
+#DIM CONST 気温_夏_2T_11時 = 240
+#DIM CONST 気温_夏_2T_12時 = 249
+#DIM CONST 気温_夏_2T_13時 = 253
+#DIM CONST 気温_夏_2T_14時 = 253
+#DIM CONST 気温_夏_2T_15時 = 249
+#DIM CONST 気温_夏_2T_16時 = 242
+#DIM CONST 気温_夏_2T_17時 = 234
+#DIM CONST 気温_夏_2T_18時 = 225
+#DIM CONST 気温_夏_2T_19時 = 217
+#DIM CONST 気温_夏_2T_20時 = 210
+#DIM CONST 気温_夏_2T_21時 = 205
+#DIM CONST 気温_夏_2T_22時 = 200
+#DIM CONST 気温_夏_2T_23時 = 197
+
+#DIM CONST 気温_夏_3T_0時 = 214
+#DIM CONST 気温_夏_3T_1時 = 210
+#DIM CONST 気温_夏_3T_2時 = 208
+#DIM CONST 気温_夏_3T_3時 = 206
+#DIM CONST 気温_夏_3T_4時 = 204
+#DIM CONST 気温_夏_3T_5時 = 203
+#DIM CONST 気温_夏_3T_6時 = 206
+#DIM CONST 気温_夏_3T_7時 = 213
+#DIM CONST 気温_夏_3T_8時 = 224
+#DIM CONST 気温_夏_3T_9時 = 236
+#DIM CONST 気温_夏_3T_10時 = 248
+#DIM CONST 気温_夏_3T_11時 = 259
+#DIM CONST 気温_夏_3T_12時 = 267
+#DIM CONST 気温_夏_3T_13時 = 272
+#DIM CONST 気温_夏_3T_14時 = 272
+#DIM CONST 気温_夏_3T_15時 = 269
+#DIM CONST 気温_夏_3T_16時 = 262
+#DIM CONST 気温_夏_3T_17時 = 253
+#DIM CONST 気温_夏_3T_18時 = 244
+#DIM CONST 気温_夏_3T_19時 = 236
+#DIM CONST 気温_夏_3T_20時 = 229
+#DIM CONST 気温_夏_3T_21時 = 224
+#DIM CONST 気温_夏_3T_22時 = 220
+#DIM CONST 気温_夏_3T_23時 = 216
+
+#DIM CONST 気温_夏_4T_0時 = 231
+#DIM CONST 気温_夏_4T_1時 = 227
+#DIM CONST 気温_夏_4T_2時 = 224
+#DIM CONST 気温_夏_4T_3時 = 222
+#DIM CONST 気温_夏_4T_4時 = 220
+#DIM CONST 気温_夏_4T_5時 = 217
+#DIM CONST 気温_夏_4T_6時 = 221
+#DIM CONST 気温_夏_4T_7時 = 229
+#DIM CONST 気温_夏_4T_8時 = 241
+#DIM CONST 気温_夏_4T_9時 = 254
+#DIM CONST 気温_夏_4T_10時 = 267
+#DIM CONST 気温_夏_4T_11時 = 279
+#DIM CONST 気温_夏_4T_12時 = 288
+#DIM CONST 気温_夏_4T_13時 = 294
+#DIM CONST 気温_夏_4T_14時 = 295
+#DIM CONST 気温_夏_4T_15時 = 291
+#DIM CONST 気温_夏_4T_16時 = 282
+#DIM CONST 気温_夏_4T_17時 = 273
+#DIM CONST 気温_夏_4T_18時 = 263
+#DIM CONST 気温_夏_4T_19時 = 254
+#DIM CONST 気温_夏_4T_20時 = 247
+#DIM CONST 気温_夏_4T_21時 = 241
+#DIM CONST 気温_夏_4T_22時 = 236
+#DIM CONST 気温_夏_4T_23時 = 233
+
+#DIM CONST 気温_夏_5T_0時 = 238
+#DIM CONST 気温_夏_5T_1時 = 235
+#DIM CONST 気温_夏_5T_2時 = 233
+#DIM CONST 気温_夏_5T_3時 = 230
+#DIM CONST 気温_夏_5T_4時 = 227
+#DIM CONST 気温_夏_5T_5時 = 225
+#DIM CONST 気温_夏_5T_6時 = 228
+#DIM CONST 気温_夏_5T_7時 = 237
+#DIM CONST 気温_夏_5T_8時 = 249
+#DIM CONST 気温_夏_5T_9時 = 263
+#DIM CONST 気温_夏_5T_10時 = 277
+#DIM CONST 気温_夏_5T_11時 = 289
+#DIM CONST 気温_夏_5T_12時 = 298
+#DIM CONST 気温_夏_5T_13時 = 304
+#DIM CONST 気温_夏_5T_14時 = 305
+#DIM CONST 気温_夏_5T_15時 = 300
+#DIM CONST 気温_夏_5T_16時 = 291
+#DIM CONST 気温_夏_5T_17時 = 281
+#DIM CONST 気温_夏_5T_18時 = 269
+#DIM CONST 気温_夏_5T_19時 = 260
+#DIM CONST 気温_夏_5T_20時 = 253
+#DIM CONST 気温_夏_5T_21時 = 248
+#DIM CONST 気温_夏_5T_22時 = 244
+#DIM CONST 気温_夏_5T_23時 = 241
+
+#DIM CONST 気温_夏_6T_0時 = 228
+#DIM CONST 気温_夏_6T_1時 = 226
+#DIM CONST 気温_夏_6T_2時 = 223
+#DIM CONST 気温_夏_6T_3時 = 221
+#DIM CONST 気温_夏_6T_4時 = 218
+#DIM CONST 気温_夏_6T_5時 = 216
+#DIM CONST 気温_夏_6T_6時 = 217
+#DIM CONST 気温_夏_6T_7時 = 226
+#DIM CONST 気温_夏_6T_8時 = 237
+#DIM CONST 気温_夏_6T_9時 = 251
+#DIM CONST 気温_夏_6T_10時 = 265
+#DIM CONST 気温_夏_6T_11時 = 275
+#DIM CONST 気温_夏_6T_12時 = 284
+#DIM CONST 気温_夏_6T_13時 = 290
+#DIM CONST 気温_夏_6T_14時 = 291
+#DIM CONST 気温_夏_6T_15時 = 286
+#DIM CONST 気温_夏_6T_16時 = 277
+#DIM CONST 気温_夏_6T_17時 = 266
+#DIM CONST 気温_夏_6T_18時 = 265
+#DIM CONST 気温_夏_6T_19時 = 247
+#DIM CONST 気温_夏_6T_20時 = 242
+#DIM CONST 気温_夏_6T_21時 = 237
+#DIM CONST 気温_夏_6T_22時 = 233
+#DIM CONST 気温_夏_6T_23時 = 230
+
+#DIM CONST 気温_秋_1T_0時 = 208
+#DIM CONST 気温_秋_1T_1時 = 207
+#DIM CONST 気温_秋_1T_2時 = 205
+#DIM CONST 気温_秋_1T_3時 = 202
+#DIM CONST 気温_秋_1T_4時 = 200
+#DIM CONST 気温_秋_1T_5時 = 197
+#DIM CONST 気温_秋_1T_6時 = 197
+#DIM CONST 気温_秋_1T_7時 = 204
+#DIM CONST 気温_秋_1T_8時 = 216
+#DIM CONST 気温_秋_1T_9時 = 230
+#DIM CONST 気温_秋_1T_10時 = 242
+#DIM CONST 気温_秋_1T_11時 = 253
+#DIM CONST 気温_秋_1T_12時 = 261
+#DIM CONST 気温_秋_1T_13時 = 266
+#DIM CONST 気温_秋_1T_14時 = 266
+#DIM CONST 気温_秋_1T_15時 = 263
+#DIM CONST 気温_秋_1T_16時 = 254
+#DIM CONST 気温_秋_1T_17時 = 243
+#DIM CONST 気温_秋_1T_18時 = 233
+#DIM CONST 気温_秋_1T_19時 = 226
+#DIM CONST 気温_秋_1T_20時 = 221
+#DIM CONST 気温_秋_1T_21時 = 217
+#DIM CONST 気温_秋_1T_22時 = 213
+#DIM CONST 気温_秋_1T_23時 = 211
+
+#DIM CONST 気温_秋_2T_0時 = 176
+#DIM CONST 気温_秋_2T_1時 = 175
+#DIM CONST 気温_秋_2T_2時 = 172
+#DIM CONST 気温_秋_2T_3時 = 170
+#DIM CONST 気温_秋_2T_4時 = 167
+#DIM CONST 気温_秋_2T_5時 = 165
+#DIM CONST 気温_秋_2T_6時 = 164
+#DIM CONST 気温_秋_2T_7時 = 170
+#DIM CONST 気温_秋_2T_8時 = 181
+#DIM CONST 気温_秋_2T_9時 = 194
+#DIM CONST 気温_秋_2T_10時 = 207
+#DIM CONST 気温_秋_2T_11時 = 217
+#DIM CONST 気温_秋_2T_12時 = 225
+#DIM CONST 気温_秋_2T_13時 = 230
+#DIM CONST 気温_秋_2T_14時 = 231
+#DIM CONST 気温_秋_2T_15時 = 227
+#DIM CONST 気温_秋_2T_16時 = 220
+#DIM CONST 気温_秋_2T_17時 = 209
+#DIM CONST 気温_秋_2T_18時 = 200
+#DIM CONST 気温_秋_2T_19時 = 194
+#DIM CONST 気温_秋_2T_20時 = 189
+#DIM CONST 気温_秋_2T_21時 = 185
+#DIM CONST 気温_秋_2T_22時 = 181
+#DIM CONST 気温_秋_2T_23時 = 178
+
+#DIM CONST 気温_秋_3T_0時 = 145
+#DIM CONST 気温_秋_3T_1時 = 145
+#DIM CONST 気温_秋_3T_2時 = 142
+#DIM CONST 気温_秋_3T_3時 = 139
+#DIM CONST 気温_秋_3T_4時 = 136
+#DIM CONST 気温_秋_3T_5時 = 134
+#DIM CONST 気温_秋_3T_6時 = 132
+#DIM CONST 気温_秋_3T_7時 = 138
+#DIM CONST 気温_秋_3T_8時 = 149
+#DIM CONST 気温_秋_3T_9時 = 163
+#DIM CONST 気温_秋_3T_10時 = 176
+#DIM CONST 気温_秋_3T_11時 = 188
+#DIM CONST 気温_秋_3T_12時 = 197
+#DIM CONST 気温_秋_3T_13時 = 202
+#DIM CONST 気温_秋_3T_14時 = 203
+#DIM CONST 気温_秋_3T_15時 = 198
+#DIM CONST 気温_秋_3T_16時 = 189
+#DIM CONST 気温_秋_3T_17時 = 178
+#DIM CONST 気温_秋_3T_18時 = 170
+#DIM CONST 気温_秋_3T_19時 = 164
+#DIM CONST 気温_秋_3T_20時 = 158
+#DIM CONST 気温_秋_3T_21時 = 154
+#DIM CONST 気温_秋_3T_22時 = 151
+#DIM CONST 気温_秋_3T_23時 = 148
+
+#DIM CONST 気温_秋_4T_0時 = 109
+#DIM CONST 気温_秋_4T_1時 = 108
+#DIM CONST 気温_秋_4T_2時 = 105
+#DIM CONST 気温_秋_4T_3時 = 102
+#DIM CONST 気温_秋_4T_4時 = 99
+#DIM CONST 気温_秋_4T_5時 = 97
+#DIM CONST 気温_秋_4T_6時 = 95
+#DIM CONST 気温_秋_4T_7時 = 99
+#DIM CONST 気温_秋_4T_8時 = 110
+#DIM CONST 気温_秋_4T_9時 = 124
+#DIM CONST 気温_秋_4T_10時 = 139
+#DIM CONST 気温_秋_4T_11時 = 152
+#DIM CONST 気温_秋_4T_12時 = 162
+#DIM CONST 気温_秋_4T_13時 = 169
+#DIM CONST 気温_秋_4T_14時 = 171
+#DIM CONST 気温_秋_4T_15時 = 167
+#DIM CONST 気温_秋_4T_16時 = 157
+#DIM CONST 気温_秋_4T_17時 = 144
+#DIM CONST 気温_秋_4T_18時 = 136
+#DIM CONST 気温_秋_4T_19時 = 129
+#DIM CONST 気温_秋_4T_20時 = 123
+#DIM CONST 気温_秋_4T_21時 = 120
+#DIM CONST 気温_秋_4T_22時 = 116
+#DIM CONST 気温_秋_4T_23時 = 112
+
+#DIM CONST 気温_秋_5T_0時 = 76
+#DIM CONST 気温_秋_5T_1時 = 75
+#DIM CONST 気温_秋_5T_2時 = 71
+#DIM CONST 気温_秋_5T_3時 = 68
+#DIM CONST 気温_秋_5T_4時 = 66
+#DIM CONST 気温_秋_5T_5時 = 63
+#DIM CONST 気温_秋_5T_6時 = 61
+#DIM CONST 気温_秋_5T_7時 = 63
+#DIM CONST 気温_秋_5T_8時 = 74
+#DIM CONST 気温_秋_5T_9時 = 88
+#DIM CONST 気温_秋_5T_10時 = 103
+#DIM CONST 気温_秋_5T_11時 = 117
+#DIM CONST 気温_秋_5T_12時 = 128
+#DIM CONST 気温_秋_5T_13時 = 136
+#DIM CONST 気温_秋_5T_14時 = 139
+#DIM CONST 気温_秋_5T_15時 = 136
+#DIM CONST 気温_秋_5T_16時 = 126
+#DIM CONST 気温_秋_5T_17時 = 113
+#DIM CONST 気温_秋_5T_18時 = 105
+#DIM CONST 気温_秋_5T_19時 = 97
+#DIM CONST 気温_秋_5T_20時 = 92
+#DIM CONST 気温_秋_5T_21時 = 88
+#DIM CONST 気温_秋_5T_22時 = 84
+#DIM CONST 気温_秋_5T_23時 = 80
+
+#DIM CONST 気温_秋_6T_0時 = 49
+#DIM CONST 気温_秋_6T_1時 = 47
+#DIM CONST 気温_秋_6T_2時 = 44
+#DIM CONST 気温_秋_6T_3時 = 41
+#DIM CONST 気温_秋_6T_4時 = 39
+#DIM CONST 気温_秋_6T_5時 = 37
+#DIM CONST 気温_秋_6T_6時 = 35
+#DIM CONST 気温_秋_6T_7時 = 35
+#DIM CONST 気温_秋_6T_8時 = 43
+#DIM CONST 気温_秋_6T_9時 = 57
+#DIM CONST 気温_秋_6T_10時 = 71
+#DIM CONST 気温_秋_6T_11時 = 85
+#DIM CONST 気温_秋_6T_12時 = 95
+#DIM CONST 気温_秋_6T_13時 = 103
+#DIM CONST 気温_秋_6T_14時 = 106
+#DIM CONST 気温_秋_6T_15時 = 104
+#DIM CONST 気温_秋_6T_16時 = 95
+#DIM CONST 気温_秋_6T_17時 = 83
+#DIM CONST 気温_秋_6T_18時 = 76
+#DIM CONST 気温_秋_6T_19時 = 69
+#DIM CONST 気温_秋_6T_20時 = 64
+#DIM CONST 気温_秋_6T_21時 = 60
+#DIM CONST 気温_秋_6T_22時 = 56
+#DIM CONST 気温_秋_6T_23時 = 52
+
+#DIM CONST 気温_冬_1T_0時 = 23
+#DIM CONST 気温_冬_1T_1時 = 21
+#DIM CONST 気温_冬_1T_2時 = 19
+#DIM CONST 気温_冬_1T_3時 = 16
+#DIM CONST 気温_冬_1T_4時 = 15
+#DIM CONST 気温_冬_1T_5時 = 13
+#DIM CONST 気温_冬_1T_6時 = 11
+#DIM CONST 気温_冬_1T_7時 = 10
+#DIM CONST 気温_冬_1T_8時 = 17
+#DIM CONST 気温_冬_1T_9時 = 28
+#DIM CONST 気温_冬_1T_10時 = 41
+#DIM CONST 気温_冬_1T_11時 = 54
+#DIM CONST 気温_冬_1T_12時 = 63
+#DIM CONST 気温_冬_1T_13時 = 71
+#DIM CONST 気温_冬_1T_14時 = 74
+#DIM CONST 気温_冬_1T_15時 = 71
+#DIM CONST 気温_冬_1T_16時 = 63
+#DIM CONST 気温_冬_1T_17時 = 53
+#DIM CONST 気温_冬_1T_18時 = 46
+#DIM CONST 気温_冬_1T_19時 = 40
+#DIM CONST 気温_冬_1T_20時 = 36
+#DIM CONST 気温_冬_1T_21時 = 32
+#DIM CONST 気温_冬_1T_22時 = 29
+#DIM CONST 気温_冬_1T_23時 = 25
+
+#DIM CONST 気温_冬_2T_0時 = 0
+#DIM CONST 気温_冬_2T_1時 = -2
+#DIM CONST 気温_冬_2T_2時 = -4
+#DIM CONST 気温_冬_2T_3時 = -6
+#DIM CONST 気温_冬_2T_4時 = -8
+#DIM CONST 気温_冬_2T_5時 = -11
+#DIM CONST 気温_冬_2T_6時 = -12
+#DIM CONST 気温_冬_2T_7時 = -13
+#DIM CONST 気温_冬_2T_8時 = -8
+#DIM CONST 気温_冬_2T_9時 = 2
+#DIM CONST 気温_冬_2T_10時 = 14
+#DIM CONST 気温_冬_2T_11時 = 25
+#DIM CONST 気温_冬_2T_12時 = 34
+#DIM CONST 気温_冬_2T_13時 = 42
+#DIM CONST 気温_冬_2T_14時 = 45
+#DIM CONST 気温_冬_2T_15時 = 44
+#DIM CONST 気温_冬_2T_16時 = 38
+#DIM CONST 気温_冬_2T_17時 = 27
+#DIM CONST 気温_冬_2T_18時 = 21
+#DIM CONST 気温_冬_2T_19時 = 16
+#DIM CONST 気温_冬_2T_20時 = 12
+#DIM CONST 気温_冬_2T_21時 = 9
+#DIM CONST 気温_冬_2T_22時 = 6
+#DIM CONST 気温_冬_2T_23時 = 2
+
+#DIM CONST 気温_冬_3T_0時 = -13
+#DIM CONST 気温_冬_3T_1時 = -15
+#DIM CONST 気温_冬_3T_2時 = -17
+#DIM CONST 気温_冬_3T_3時 = -19
+#DIM CONST 気温_冬_3T_4時 = -21
+#DIM CONST 気温_冬_3T_5時 = -23
+#DIM CONST 気温_冬_3T_6時 = -24
+#DIM CONST 気温_冬_3T_7時 = -26
+#DIM CONST 気温_冬_3T_8時 = -22
+#DIM CONST 気温_冬_3T_9時 = -12
+#DIM CONST 気温_冬_3T_10時 = 0
+#DIM CONST 気温_冬_3T_11時 = 10
+#DIM CONST 気温_冬_3T_12時 = 19
+#DIM CONST 気温_冬_3T_13時 = 26
+#DIM CONST 気温_冬_3T_14時 = 30
+#DIM CONST 気温_冬_3T_15時 = 29
+#DIM CONST 気温_冬_3T_16時 = 24
+#DIM CONST 気温_冬_3T_17時 = 14
+#DIM CONST 気温_冬_3T_18時 = 8
+#DIM CONST 気温_冬_3T_19時 = 3
+#DIM CONST 気温_冬_3T_20時 = -1
+#DIM CONST 気温_冬_3T_21時 = -4
+#DIM CONST 気温_冬_3T_22時 = -7
+#DIM CONST 気温_冬_3T_23時 = -10
+
+#DIM CONST 気温_冬_4T_0時 = -17
+#DIM CONST 気温_冬_4T_1時 = -20
+#DIM CONST 気温_冬_4T_2時 = -22
+#DIM CONST 気温_冬_4T_3時 = -24
+#DIM CONST 気温_冬_4T_4時 = -27
+#DIM CONST 気温_冬_4T_5時 = -29
+#DIM CONST 気温_冬_4T_6時 = -31
+#DIM CONST 気温_冬_4T_7時 = -31
+#DIM CONST 気温_冬_4T_8時 = -26
+#DIM CONST 気温_冬_4T_9時 = -16
+#DIM CONST 気温_冬_4T_10時 = -4
+#DIM CONST 気温_冬_4T_11時 = 7
+#DIM CONST 気温_冬_4T_12時 = 16
+#DIM CONST 気温_冬_4T_13時 = 23
+#DIM CONST 気温_冬_4T_14時 = 27
+#DIM CONST 気温_冬_4T_15時 = 26
+#DIM CONST 気温_冬_4T_16時 = 21
+#DIM CONST 気温_冬_4T_17時 = 12
+#DIM CONST 気温_冬_4T_18時 = 5
+#DIM CONST 気温_冬_4T_19時 = 0
+#DIM CONST 気温_冬_4T_20時 = -5
+#DIM CONST 気温_冬_4T_21時 = -8
+#DIM CONST 気温_冬_4T_22時 = -11
+#DIM CONST 気温_冬_4T_23時 = -14
+
+#DIM CONST 気温_冬_5T_0時 = -15
+#DIM CONST 気温_冬_5T_1時 = -18
+#DIM CONST 気温_冬_5T_2時 = -21
+#DIM CONST 気温_冬_5T_3時 = -23
+#DIM CONST 気温_冬_5T_4時 = -26
+#DIM CONST 気温_冬_5T_5時 = -28
+#DIM CONST 気温_冬_5T_6時 = -30
+#DIM CONST 気温_冬_5T_7時 = -31
+#DIM CONST 気温_冬_5T_8時 = -24
+#DIM CONST 気温_冬_5T_9時 = -12
+#DIM CONST 気温_冬_5T_10時 = 0
+#DIM CONST 気温_冬_5T_11時 = 12
+#DIM CONST 気温_冬_5T_12時 = 22
+#DIM CONST 気温_冬_5T_13時 = 30
+#DIM CONST 気温_冬_5T_14時 = 33
+#DIM CONST 気温_冬_5T_15時 = 32
+#DIM CONST 気温_冬_5T_16時 = 27
+#DIM CONST 気温_冬_5T_17時 = 18
+#DIM CONST 気温_冬_5T_18時 = 9
+#DIM CONST 気温_冬_5T_19時 = 4
+#DIM CONST 気温_冬_5T_20時 = -1
+#DIM CONST 気温_冬_5T_21時 = -5
+#DIM CONST 気温_冬_5T_22時 = -9
+#DIM CONST 気温_冬_5T_23時 = -12
+
+#DIM CONST 気温_冬_6T_0時 = -2
+#DIM CONST 気温_冬_6T_1時 = -6
+#DIM CONST 気温_冬_6T_2時 = -9
+#DIM CONST 気温_冬_6T_3時 = -11
+#DIM CONST 気温_冬_6T_4時 = -14
+#DIM CONST 気温_冬_6T_5時 = -16
+#DIM CONST 気温_冬_6T_6時 = -18
+#DIM CONST 気温_冬_6T_7時 = -17
+#DIM CONST 気温_冬_6T_8時 = -8
+#DIM CONST 気温_冬_6T_9時 = 5
+#DIM CONST 気温_冬_6T_10時 = 18
+#DIM CONST 気温_冬_6T_11時 = 31
+#DIM CONST 気温_冬_6T_12時 = 41
+#DIM CONST 気温_冬_6T_13時 = 49
+#DIM CONST 気温_冬_6T_14時 = 53
+#DIM CONST 気温_冬_6T_15時 = 51
+#DIM CONST 気温_冬_6T_16時 = 46
+#DIM CONST 気温_冬_6T_17時 = 35
+#DIM CONST 気温_冬_6T_18時 = 25
+#DIM CONST 気温_冬_6T_19時 = 18
+#DIM CONST 気温_冬_6T_20時 = 13
+#DIM CONST 気温_冬_6T_21時 = 9
+#DIM CONST 気温_冬_6T_22時 = 5
+#DIM CONST 気温_冬_6T_23時 = 1
+
+;------------------------------------
+;色（気象関係）
+;------------------------------------
+
+#DIM CONST C_気象_注意報 = 0xf2e700
+#DIM CONST C_気象_警報 = 0xff2800
+#DIM CONST C_気象_土砂災害警戒情報 = 0xaa00aa
+#DIM CONST C_気象_特別警報 = 0x0c000c
+
+#DIM CONST C_気温_酷寒 = 0x002080
+#DIM CONST C_気温_冬 = 0x0041ff
+#DIM CONST C_気温_寒 = 0x0096ff
+#DIM CONST C_気温_冷 = 0xb9ebff
+#DIM CONST C_気温_涼 = 0xfffff0
+#DIM CONST C_気温_温 = 0xffff96
+#DIM CONST C_気温_暖 = 0xfaf500
+#DIM CONST C_気温_夏 = 0xfa9900
+#DIM CONST C_気温_真夏 = 0xff2800
+#DIM CONST C_気温_猛暑 = 0xb40068
+
+;------------------------------------
+;天气重修
+;------------------------------------
+;时段 TIME:2
+#DIM CONST 时段_早朝_4_6 = 1
+#DIM CONST 时段_正午前_6_12 = 2
+#DIM CONST 时段_昼_12_15 = 3
+#DIM CONST 时段_昼下がり_15_18 = 4
+#DIM CONST 时段_夕_18_20 = 5
+#DIM CONST 时段_夜_20_23 = 6
+#DIM CONST 时段_深夜_23_4 = 7
+
+;普通天气 TIME:5
+;晴れ/晴天/薄曇/曇/雨/大雨/霧雨/霧/雪/吹雪/細雪/霧雪/みぞれ/あられ/豪雨/ひょう
+#DIM CONST 天气_少云 = 0
+#DIM CONST 天气_晴 = 1
+#DIM CONST 天气_多云 = 2
+#DIM CONST 天气_阴 = 3
+#DIM CONST 天气_雨 = 4
+#DIM CONST 天气_大雨 = 5
+#DIM CONST 天气_雾雨 = 6
+#DIM CONST 天气_雾 = 7
+#DIM CONST 天气_雪 = 8
+#DIM CONST 天气_大雪 = 9
+#DIM CONST 天气_细雪 = 10
+#DIM CONST 天气_雾雪 = 11
+#DIM CONST 天气_雨夹雪 = 12
+#DIM CONST 天气_冰霰 = 13
+#DIM CONST 天气_暴雨 = 14
+#DIM CONST 天气_冰雹 = 15
+
+;异常天气 FLAG:異常気象
+#DIM CONST 天气_Ｃ敏感 = 1
+#DIM CONST 天气_Ｖ敏感 = 2
+#DIM CONST 天气_Ａ敏感 = 3
+#DIM CONST 天气_Ｂ敏感 = 4
+#DIM CONST 天气_Ｍ敏感 = 5
+#DIM CONST 天气_裙子 = 6
+#DIM CONST 天气_胖次 = 7
+#DIM CONST 天气_桃色之风 = 8
+#DIM CONST 天气_台风 = 9
+#DIM CONST 天气_暴风雪 = 10
+
+;彩虹 TIME:7
+#DIM CONST 天气_无虹 = 0
+#DIM CONST 天气_彩虹 = 1
+#DIM CONST 天气_钻石尘 = 2
+#DIM CONST 天气_流星 = 3
+#DIM CONST 天气_流星群 = 4
+
+;风力 WIND_VELOCITY
+#DIM CONST 天气_无风 = 0
+#DIM CONST 天气_强风 = 1
+#DIM CONST 天气_暴风 = 2
+#DIM CONST 天气_飓风 = 3
+
+;季节 DAY:2
+#DIM CONST 季节_春 = 1
+#DIM CONST 季节_夏 = 2
+#DIM CONST 季节_秋 = 3
+#DIM CONST 季节_冬 = 4
+
+;幻想乡天气系统 GENSOKYO_WEATHER_SYSTEM
+#DIM CONST 天系_通用 = 0
+#DIM CONST 天系_三途 = 1
+#DIM CONST 天系_彼岸 = 2
+#DIM CONST 天系_冥界 = 3
+#DIM CONST 天系_地狱 = 4
+#DIM CONST 天系_旧狱 = 5
+#DIM CONST 天系_天界 = 6
+#DIM CONST 天系_梦境 = 7
+#DIM CONST 天系_月都 = 8
+#DIM CONST 天系_魔界 = 9

@@ -1,0 +1,302 @@
+;-------------------------------------------------
+;被後背位
+;性交系指令、レベル1
+;-------------------------------------------------
+@COM131_DISPLAY
+#FUNCTIONS
+#LOCALSIZE 1
+#LOCALSSIZE 1
+SIF IS_STANDING_SEX(131)
+	RETURNF "背面立位される"
+
+@COM131
+;-------------------------------------------------
+;COM別FLAGの設定
+;-------------------------------------------------
+;行為者
+TCVAR:116 = TARGET
+;奉仕快楽フラグ
+TCVAR:108 = 1
+
+CALL DECLARE_EJACULATION(PLAYER, 射精場合_Ｖ責め, 0, TARGET, CHARA_NONE, TARGET, CHARA_NONE, 1000 + (200 * MIN(ABL:PLAYER:Ｖ感覚,5)))
+TCVAR:童貞喪失 = 1
+;強度
+
+CALL DECLARE_EJACULATION(TARGET, 0, 射精箇所_膣内, PLAYER, CHARA_NONE, PLAYER, CHARA_NONE, 2000)
+;強度
+
+DOWNBASE:PLAYER:体力 += 40
+DOWNBASE:PLAYER:気力 += 60
+
+;-------------------------------------------------
+;ソース追加処理
+;-------------------------------------------------
+IF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	BASE:MASTER:TSP -= 100
+	SOURCE:PLAYER:快Ｖ = 450
+	SOURCE:快Ｃ = 400
+ELSE
+	;消費体力、気力
+	DOWNBASE:体力 += 40
+	DOWNBASE:気力 += 120
+	SOURCE:PLAYER:快Ｖ = 450
+
+	SOURCE:快Ｃ = 400
+	SOURCE:性行動 = 500
+	SOURCE:屈従 = 1000
+	SOURCE:逸脱 = 500
+	SOURCE:反感 = 500
+
+	;上のほうで計算した汚れデータ
+	SOURCE:不潔 = Y*10 + 60
+
+	;-------------------------------------------------
+	;特殊ソース処理
+	;-------------------------------------------------
+	;圧抑、抵抗持ちには、抑鬱ソース追加
+	SIF TALENT:自己愛 < 0 || TALENT:抵抗
+		SOURCE:鬱屈 += 700
+
+	[SKIPSTART]
+	;調教者が処女（一回のみ）
+	IF TALENT:PLAYER:処女 && TALENT:処女 == -1 && !GETBIT(CFLAG:3,10)
+		TIMES SOURCE:逸脱 , 20.00
+		TIMES SOURCE:屈従 , 3.00
+		PRINTFORML ＜%CALLNAME:PLAYER%失去了処女＞
+		;異常経験追加
+		IF TALENT:PLAYER:処女 == 1
+			EXP:異常経験 += 1
+			SETBIT CFLAG:3,10
+		ENDIF
+		TALENT:PLAYER:処女 = 0
+	ENDIF
+	[SKIPEND]
+ENDIF
+;-------------------------------------------------
+;汚れの処理
+;-------------------------------------------------
+IF HAS_PENIS(TARGET)
+	;奴隷のＰ⇔調教者の膣内的污垢が移動
+	STAIN:2 |= STAIN:PLAYER:3
+	STAIN:2 |= STAIN:PLAYER:6
+	STAIN:PLAYER:3 |= STAIN:2
+	STAIN:PLAYER:6 |= STAIN:2
+
+ENDIF
+
+;-------------------------------------------------
+;経験の処理
+;-------------------------------------------------
+EXP:PLAYER:Ｖ性交経験 ++
+EXP:挿入経験 ++
+
+;同性愛　レズなら戻り値1ゲイなら戻り値2
+IF HETEROSEX(TARGET,PLAYER)
+	EXP:(50 + HETEROSEX(TARGET,PLAYER)) += 4
+	EXP:PLAYER:(50 + HETEROSEX(TARGET,PLAYER)) += 4
+ENDIF
+IF IS_STANDING_SEX(SELECTCOM) ;addition custom code
+	TFLAG:193 = 1
+	STR:0 = 被背面立位
+ELSE
+	STR:0 = 被后背位
+ENDIF
+
+
+RETURN 1
+
+@CAN_COM131(ARG)
+
+IF ARG == 1
+	CALL ChkBeforeInsert(MASTER)
+	IF RESULT == -1
+		TFLAG:挿入不可 = 1
+	ENDIF
+ENDIF
+SIF TFLAG:挿入不可
+	RETURN 0
+
+SKIPDISP ARG
+IF IS_STANDING_SEX(SELECTCOM) ;addition custom code
+	PRINTL 被背面立位
+ELSE
+	PRINTL 被后背位
+ENDIF
+;-------------------------------------------------
+;実行判定処理
+;-------------------------------------------------
+A = 0
+S = 0
+
+;全部の命令に共通の要素を考慮
+;(従順が高いと命令に従いやすいなど)
+CALL COM_ORDER
+
+
+;ABL:欲望
+IF ABL:欲望
+	SIF S
+		PRINT  + 
+	A += ABL:欲望 * 2
+	PRINT 欲望
+	PRINTV 'LV,ABL:欲望,'(,ABL:欲望 * 2,')
+	S = 1
+ENDIF
+
+IF MARK:快楽刻印
+	SIF S
+		PRINT  + 
+	A += MARK:快楽刻印 * 2
+	PRINT 快乐刻印
+	PRINTV 'LV,MARK:快楽刻印,'(,MARK:快楽刻印 * 2,')
+	S = 1
+ENDIF
+
+;接受快感
+IF TALENT:快感応答 > 0
+	SIF S
+		PRINT  + 
+	A += 2
+	PRINT 接受快感
+	PRINTV '(,2,')
+	S = 1
+ENDIF
+;否定快感（淫乱、娼婦で無効）
+IF TALENT:快感応答 < 0 && !TALENT:淫乱
+	PRINT  - 
+	A -= 2
+	PRINT 否定快感
+	PRINTV '(,2,')
+	S = 1
+ENDIF
+;淫乱
+IF TALENT:淫乱 && ASSIPLAY == 0
+	SIF S
+		PRINT  + 
+	A += 5
+	PRINT 淫乱
+	PRINTV '(,5,')
+	S = 5
+ENDIF
+;娼婦
+IF TALENT:淫乱 > 1 && ASSIPLAY == 0
+	SIF S
+		PRINT  + 
+	A += 5
+	PRINT 娼妇
+	PRINTV '(,5,')
+	S = 5
+ENDIF
+
+;調教者が処女
+IF TALENT:PLAYER:処女 && TALENT:PLAYER:処女 == -1
+	PRINT  - 
+	A -= 15
+	PRINTFORM %NAME:PLAYER%是处女
+	PRINTV '(,15,')
+	S = 1
+ENDIF
+
+;調教者が贞操重视
+IF TALENT:PLAYER:貞操 > 0
+	PRINT  - 
+	A -= 10
+	PRINTFORM %NAME:PLAYER%有贞操重视
+	PRINTV '(,10,')
+	S = 1
+ENDIF
+
+;調教者が不在乎貞操
+IF TALENT:PLAYER:貞操 < 0
+	PRINT  + 
+	A += 5
+	PRINTFORM %NAME:PLAYER%贞操淡漠
+	PRINTV '(,5,')
+	S = 1
+ENDIF
+
+;調教者のABL:技巧
+IF ABL:PLAYER:技巧
+	SIF S
+		PRINT  + 
+	A += ABL:PLAYER:技巧 * 4
+	PRINTFORM %NAME:PLAYER%的技巧
+	PRINTV 'LV,ABL:PLAYER:技巧,'(,ABL:PLAYER:技巧 * 4,')
+	S = 1
+ENDIF
+
+;合計を表示(15以上で実行)
+PRINT  = 
+PRINTV A
+
+V = 15
+SIF A < V
+	PRINT  < 
+SIF A == V
+	PRINT  = 
+SIF A > V
+	PRINT  > 
+PRINT 实行值
+PRINTV V
+
+WAIT
+SKIPDISP 0
+;実行できない
+SIF A < V
+	RETURN 0
+RETURN 1
+
+
+
+;-------------------------------------------------
+;実行判定
+;-------------------------------------------------
+@COM_ABLE131
+#LOCALSIZE 1
+#LOCALSSIZE 1
+SIF !TFLAG:100
+	RETURN 0
+SIF GLOBAL_COMABLE(131)
+	RETURN RESULT
+;調教者が男人だとダメ
+SIF !(TALENT:PLAYER:2 & 1)
+	RETURN 0
+;対象が男人、半人半妖、扶她、もしくは穿戴式假陰茎がないとダメ
+SIF !(HAS_PENIS(TARGET)) && ITEM:PBAND == 0
+	RETURN 0
+;対象が男人、半人半妖、扶她の場合はある程度勃起てないとダメ
+SIF (HAS_PENIS(TARGET)) && BASE:勃起 < 1000
+	RETURN 0
+;下半身着衣（調教者）
+SIF TEQUIP:PLAYER:0 & 4
+	RETURN 0
+;調教者に一定のＶ経験が必要
+;SIF EXP:PLAYER:1 < EXPLV:3
+;	RETURN 0
+;体格差がある場合は主人が禁断的知識持ちじゃないとダメ
+;★禁断的知識を持つ必要があるのはPLAYERか？PLAYERか？
+SIF (HAS_PENIS(TARGET)) && ABS(TALENT:体型 - TALENT:PLAYER:体型) > 2 && !TALENT:PLAYER:禁断的知識
+	RETURN 0
+;飛機杯使用中はダメ
+SIF TEQUIP:12
+	RETURN 0
+;浴室PLAY中は塑料地墊が無いとダメ
+IF TEQUIP:31
+	SIF ITEM:20 == 0 && NOITEM == 0
+		RETURN 0
+ENDIF
+;睡眠姦中
+;SIF CFLAG:恶作剧 > 1
+;	RETURN 0
+;停止中は不可
+SIF (FLAG:70 == 1 && CFLAG:TARGET:344 == 0)
+	RETURN 0
+RETURN 1
+
+
+@COM131_TOUCH(ARG)
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+CALL TOUCH_SET(SET_FROM_P,SET_V,ARG,1)
+TEQUIP:MASTER:体位 = 2
