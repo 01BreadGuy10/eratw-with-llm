@@ -51,6 +51,12 @@ CALLSHARP LLM_IS_READY(LLM_TMP)
 SIF LLM_TMP != "1"
 	RETURN 0
 
+; ★★ **诶嘿嘿 / 睡姦 / 醉姦 ⇒ 自由对话按钮禁用**（2026-10-07 用户要求）——
+;   用户原话：「进入逆推状态的时候 自由对话按钮无法选择 只有自由互动按钮」
+;   ⚠️ 三种一起禁：被推倒时该走互动；睡着了/醉倒了更谈不上「自由对话」
+;      （她没意识，日常对话那套完全不适用）✓
+SIF CFLAG:TARGET:诶嘿嘿 || CFLAG:TARGET:睡眠 || TCVAR:TARGET:烂醉
+	RETURN 0
 RETURN 1
 
 
@@ -61,7 +67,7 @@ RETURN 1
 #LOCALSIZE 4
 #LOCALSSIZE 2
 
-CALL LLM_CHAT_MENU
+	CALL LLM_CHAT_MENU(0)
 RETURN -1
 
 
@@ -134,23 +140,12 @@ RETURN 0
 @ADD_CUSTOM_COM31
 #LOCALSIZE 4
 #LOCALSSIZE 2
-
-; ★ 引擎还没接上 —— 先给个占位，确认按钮能出现在正确的地方 ✓
-; ★★ **接通「自由互动」引擎**（2026-09-20）——
-;   ⚠️ 用**文件级模式变量**而不是改 `@LLM_CHAT_LOOP` 的签名：
-;      那个签名被 `@LLM_BUILD_SYSTEM_PROMPT` 牵连，动它要改一串调用点 ⚠️
-;   ⚠️ 历史**共用**（用户决定：醉酒/睡姦话少，诶嘿嘿是相爱才做的，
-;      需要对方的性格和两人的关系 ⇒ 共用才有这些上下文）✓
-LLM_MODE = 1
-; ★ 退出互动时把半醒/觉醒加成复位（下一场重新算）✓
-;   ⚠️ 用 CALL 一个可能不存在的函数 —— Emuera 不报错、不执行 ✓
-CALL LLM_INT_RESET
-CALL LLM_CHAT_LOOP(TARGET)
-; ★ 对话结束后复位半醒/觉醒加成（2026-09-20 审计补）——
-;   ⚠️ Emuera 里 CALL 不存在的函数不报错 ⇒ 删掉模块也不影响 ✓
-CALL LLM_INT_RESET
+; ★★ **自由互动也走菜单**（2026-10-08 用户要求）——
+;   用户原话：「自由互动没有那些东西」（看不到 [5] 自检里的诊断）
+;   ⇒ 照自由对话的做法，传模式 1 进 @LLM_CHAT_MENU ✓
+;   ⚠️ 原来的互动逻辑已搬到 @LLM_CHAT_MENU 的 CASE 4 ✓
+CALL LLM_CHAT_MENU(1)
 RETURN -1
-
 
 @ADD_CUSTOM_COM_PRINT31
 #LOCALSIZE 1
@@ -188,7 +183,8 @@ RETURN
 ; ────────────────────────────────────────────────────────────────────────────
 ;  四、菜单本体
 ; ────────────────────────────────────────────────────────────────────────────
-@LLM_CHAT_MENU
+@LLM_CHAT_MENU(LLM_MENU_MODE)
+#DIM  LLM_MENU_MODE  ; ★ 0 = 自由对话 / 1 = 自由互动（2026-10-08）
 #LOCALSIZE 8
 #LOCALSSIZE 10
 #DIMS LLM_TMP
@@ -202,6 +198,7 @@ RETURN
 #DIMS LLM_APINAME   ; 当前接口名
 #DIM  LLM_API_CNT   ; 可用接口条目数
 #DIM  LLM_API_ALL   ; 接口条目总数（含不完整的）
+#DIMS LLM_RET      ; ★ 互动分支用（清历史，2026-10-08）
 ; 说明：persona 相关变量（LLM_KOJO*）的**文件级声明在 LLM_CONVERSATION.ERB**，
 ;       名称必须与那边保持一致。
 
@@ -353,7 +350,7 @@ WHILE 1
 	IF LLM_READY
 		; 有可用接口 + 本角色被允许 → 才给"开始对话"
 		IF LLM_API_CNT > 0
-			CALL LLM_BTN_EX(@"[4] ▶ 开始自由对话", 4)
+			CALL LLM_BTN_EX(LLM_MENU_MODE == 1 ? @"[4] ▶ 开始自由互动（是色色）" # @"[4] ▶ 开始自由对话", 4)
 			PRINTL
 		ENDIF
 		CALL LLM_BTN_EX(@"[1] 接口列表 / 重载 apis.txt", 1)
@@ -445,6 +442,27 @@ WHILE 1
 			ENDIF
 			; ★★ **自由对话 ⇒ 模式回到 0**（2026-09-20）——
 			;   ⚠️ `LLM_MODE` 是文件级变量，同一局里会残留 ⇒ 必须显式清 ✓
+			; ★★ **模式分流**（2026-10-08）——
+			IF LLM_MENU_MODE == 1
+		LLM_MODE = 1
+		; ★ 退出互动时把半醒/觉醒加成复位（下一场重新算）✓
+		;   ⚠️ 用 CALL 一个可能不存在的函数 —— Emuera 不报错、不执行 ✓
+		; ★★ **互动结束：生成总结 + 提取偏好 + 清互动历史**（2026-10-08 用户要求）——
+		;   · 总结 ⇒ 存进 `LLM_INT_PREF`（她以后会记得这次）✓
+		;   · ⚠️ 但**只在真的做了什么时**才值得总结 ⇒ 用 `CFLAG:诶嘿嘿` 判 ✓
+		SIF CFLAG:(TARGET):诶嘿嘿
+			CALL LLM_INT_SUMMARY(TARGET)
+		; ⚠️ 清掉**互动那套**历史（索引 = TARGET + 10000）——
+		;   用户要求「退出后清理」⇒ 下次进互动从干净状态开始 ✓
+		LLM_RET = ""
+		CALLSHARP LLM_HISTORY_CLEAR(TARGET + 10000, LLM_RET)
+		CALL LLM_INT_RESET
+		CALL LLM_CHAT_LOOP(TARGET)
+		; ★ 对话结束后复位半醒/觉醒加成（2026-09-20 审计补）——
+		;   ⚠️ Emuera 里 CALL 不存在的函数不报错 ⇒ 删掉模块也不影响 ✓
+		CALL LLM_INT_RESET
+		RETURN -1
+			ELSE
 			LLM_MODE = 0
 			CALL LLM_CHAT_LOOP(TARGET)
 			; 她拒绝交谈时 @LLM_CHAT_LOOP 返回 1：
@@ -457,6 +475,8 @@ WHILE 1
 			; ★ 对话结束后复位半醒/觉醒加成（2026-09-20 审计补）——
 			;   ⚠️ Emuera 里 CALL 不存在的函数不报错 ⇒ 删掉模块也不影响 ✓
 			CALL LLM_INT_RESET
+			ENDIF
+
 		CASE 9
 			BREAK
 		CASEELSE

@@ -97,9 +97,19 @@ SIF LOCAL < 0
 	RETURN
 LOCAL:1 = LOCAL + STRLENS(LLM_TAG)
 REF_OUT = %SUBSTRING(REF_TEXT, LOCAL:1)%
+	; ★★ **遇到下一个 ### 也截断**（2026-10-08）——
+	;   ⚠️ 实测模型会把 `###DELTA### ... ###BODY###B+4;5` 写在**同一行** ⚠️
+	;   ⇒ 只按换行截断的话，会把后面的东西一起吞进来 ✓
 LOCAL = STRFIND(REF_OUT, "\n")
-SIF LOCAL >= 0
+IF LOCAL >= 0
 	REF_OUT = %SUBSTRING(REF_OUT, 0, LOCAL)%
+ENDIF
+	REF_OUT = %SUBSTRING(REF_OUT, 0, LOCAL)%
+	LOCAL = STRFIND(REF_OUT, "###")
+	IF LOCAL >= 0
+		REF_OUT = %SUBSTRING(REF_OUT, 0, LOCAL)%
+	ENDIF
+		REF_OUT = %SUBSTRING(REF_OUT, 0, LOCAL)%
 REF_OUT '= TRIM_STRING(REF_OUT)
 RETURN
 
@@ -130,6 +140,8 @@ SIF STRFIND(LLM_NUM, "+") == 0
 	LLM_NUM = %SUBSTRING(LLM_NUM, 1)%
 RETURN TOINT(LLM_NUM)
 @LLM_INT_APPLY_BODY(LLM_CID, LLM_TAG)
+#DIM  LLM_STEP     ; ★ 快感系数：20=穿衣/全裸 13=内衣（2026-10-08）
+#DIM  LLM_BASE     ; ★ 快感基数：500=穿衣 / 1000=全裸（2026-10-08）
 #DIM  LLM_CID
 #DIMS LLM_TAG
 #LOCALSIZE 8
@@ -147,27 +159,92 @@ ELSE
 	LLM_BP = %SUBSTRING(LLM_TAG, 0, LOCAL)%
 	LLM_AK = %SUBSTRING(LLM_TAG, LOCAL + 1)%
 ENDIF
+	LLM_DBG_BP = %LLM_BP%
+	; ★★ **快感值分档**（2026-10-08 用户要求）——
+	;   用户原话：「穿衣服状态下涨 500-800，全裸状态下接触部位涨 1000-1300」
+	;   ⚠️ 官方判"脱光"：`上半身着衣状況 == 0 && 下半身着衣状況 == 0`
+	;      （`Chara_data_9_夢美.ERB:582`）✓
+	;   ⚠️ 换算（LLM_V 是 0~15）：穿衣 `500 + V*20`／全裸 `1000 + V*20` ✓
+	; ★★ **快感值三档**（2026-10-08 用户要求）——
+	;   · 穿外衣   ⇒ 500~800
+	;   · 穿内衣   ⇒ 800~1000   ← ★ 新增
+	;   · 全裸     ⇒ 1000~1300
+	;   ⚠️ 官方判据（`Chara_data_9_夢美.ERB:582` / `Add_CUSTOM_COM12`）：
+	;     · 外衣：`上半身着衣状況 == 0 && 下半身着衣状況 == 0` ⇒ 外衣脱了
+	;     · 内衣：`EQUIP:上半身内衣１/２` 或 `EQUIP:下半身内衣１/２` 非零 ⇒ 还穿着
+	; ⚠️ 系数：穿衣/全裸 20（0~15 ⇒ 0~300）；内衣 13（⇒ 0~195，上限压在 1000 内）✓
+	LLM_STEP = 20
+	LLM_BASE = 500
+	IF TEQUIP:(LLM_CID):上半身着衣状況 == 0 && TEQUIP:(LLM_CID):下半身着衣状況 == 0
+		; ★ 外衣脱了 ⇒ 至少是内衣档
+		LLM_BASE = 800
+		; ⚠️ 内衣档系数小一点，上限压在 1000 内 ✓
+		LLM_STEP = 13
+		; ★ 连内衣都没有 ⇒ 全裸
+		IF !(EQUIP:(LLM_CID):上半身内衣１ || EQUIP:(LLM_CID):上半身内衣２) && !(EQUIP:(LLM_CID):下半身内衣１ || EQUIP:(LLM_CID):下半身内衣２)
+			LLM_BASE = 1000
+		ENDIF
+	ENDIF
 ; ★ 五个部位逐个处理（ERB 不能动态取 BASE 编号 ⇒ 只能展开）✓
+	; ★★★ **变量修正**（2026-10-08，用户提示）——
+	;   ⚠️ 原来用 `BASE:X絶頂余韻`（**绝顶余韵**：高潮后消退的值）⇒ 用错了 ⚠️
+	;   ✅ 正确变量是 `PALAM:快X`（**实时快感值**，见 `CSV\Palam.csv`）——
+	;      0,快Ｃ 1,快Ｖ 2,快Ａ 3,快Ｂ 4,快Ｍ ✓
+	;   ⚠️ 官方高潮判定：`EX:X絶頂*10000 + PALAM:快X + PALAM:欲情 >= 10000`
+	;      （`_TR Lib.ERB:532`）⇒ 所以 `PALAMLV:4 = 10000` 就是"到高潮" ✓
+	;   ⚠️ 换算：LLM 给 0~15 ⇒ `* 100` ⇒ 0~1500（约 15% 进度）✓
+	; ★★ **部位熟练度也跟着涨**（2026-10-08 用户要求）——
+	;   用户原话：「能让互动时的各种动作增加对应部位的经验和快感积累吗」
+	;   ⚠️ 映射（CSV\Abl.csv：50,指 51,舌 52,胸 53,腰 54,膣 55,肛門 56,足）：
+	;     B(胸) ⇒ 胸 ／ V(阴道) ⇒ 膣 ／ C(阴蒂) ⇒ 膣（归入）／ A(肛门) ⇒ 肛門 ／ M(口) ⇒ 舌 ✓
+	;   ⚠️ 换算 `快感 / 5`（15 ⇒ +3），至少 1 ⇒ 涨得慢但不至于没有 ✓
 CALL LLM_INT_GETVAL(LLM_BP, "B")
 LLM_V = RESULT
-SIF LLM_V != 0
-	BASE:(LLM_CID):Ｂ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｂ絶頂余韻 + LLM_V, 0, 600)
+IF LLM_V != 0
+	; ★★ **官方路线：加到 CUP（本轮快感）**（2026-10-08 用户指出）——
+	CUP:(LLM_CID):快Ｂ += LLM_BASE + LLM_V * LLM_STEP
+ENDIF
 CALL LLM_INT_GETVAL(LLM_BP, "V")
 LLM_V = RESULT
-SIF LLM_V != 0
-	BASE:(LLM_CID):Ｖ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｖ絶頂余韻 + LLM_V, 0, 600)
+IF LLM_V != 0
+	; ★★ **官方路线：加到 CUP（本轮快感）**（2026-10-08 用户指出）——
+	CUP:(LLM_CID):快Ｖ += LLM_BASE + LLM_V * LLM_STEP
+ENDIF
 CALL LLM_INT_GETVAL(LLM_BP, "C")
 LLM_V = RESULT
-SIF LLM_V != 0
-	BASE:(LLM_CID):Ｃ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｃ絶頂余韻 + LLM_V, 0, 600)
+IF LLM_V != 0
+	; ★★ **官方路线：加到 CUP（本轮快感）**（2026-10-08 用户指出）——
+	CUP:(LLM_CID):快Ｃ += LLM_BASE + LLM_V * LLM_STEP
+	LLM_DBG_V = LLM_V
+ENDIF
 CALL LLM_INT_GETVAL(LLM_BP, "A")
 LLM_V = RESULT
-SIF LLM_V != 0
-	BASE:(LLM_CID):Ａ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ａ絶頂余韻 + LLM_V, 0, 600)
+IF LLM_V != 0
+	; ★★ **官方路线：加到 CUP（本轮快感）**（2026-10-08 用户指出）——
+	CUP:(LLM_CID):快Ａ += LLM_BASE + LLM_V * LLM_STEP
+ENDIF
 CALL LLM_INT_GETVAL(LLM_BP, "M")
 LLM_V = RESULT
-SIF LLM_V != 0
-	BASE:(LLM_CID):Ｍ絶頂余韻 = LIMIT(BASE:(LLM_CID):Ｍ絶頂余韻 + LLM_V, 0, 600)
+IF LLM_V != 0
+	; ★★ **官方路线：加到 CUP（本轮快感）**（2026-10-08 用户指出）——
+	CUP:(LLM_CID):快Ｍ += LLM_BASE + LLM_V * LLM_STEP
+ENDIF
+	CALL LLM_INT_GETVAL(LLM_BP, "B")
+	SIF RESULT > 0
+		ABL:(LLM_CID):胸 = MIN(ABL:(LLM_CID):胸 + MAX(RESULT / 5, 1), 20)
+	CALL LLM_INT_GETVAL(LLM_BP, "V")
+	SIF RESULT > 0
+		ABL:(LLM_CID):膣 = MIN(ABL:(LLM_CID):膣 + MAX(RESULT / 5, 1), 20)
+	CALL LLM_INT_GETVAL(LLM_BP, "C")
+	SIF RESULT > 0
+		ABL:(LLM_CID):膣 = MIN(ABL:(LLM_CID):膣 + MAX(RESULT / 5, 1), 20)
+	CALL LLM_INT_GETVAL(LLM_BP, "A")
+	SIF RESULT > 0
+		ABL:(LLM_CID):肛門 = MIN(ABL:(LLM_CID):肛門 + MAX(RESULT / 5, 1), 20)
+	CALL LLM_INT_GETVAL(LLM_BP, "M")
+	SIF RESULT > 0
+		ABL:(LLM_CID):舌 = MIN(ABL:(LLM_CID):舌 + MAX(RESULT / 5, 1), 20)
+
 ; ★ 觉醒值（半醒后每回合更容易醒 ⇒ 加 LLM_AWAKE_BOOST）✓
 ; ⚠️⚠️ **必须也去掉前导 `+`**（2026-09-27 用 `tool/body_parse_test.py` 验出来的真 bug）——
 ;   部位那边（`@LLM_INT_GETVAL`）早就做了这个兼容，但**觉醒增量这边漏了**：
@@ -182,6 +259,28 @@ SIF LLM_V < 0
 	LLM_V = 0
 LLM_V += LLM_AWAKE_BOOST
 LLM_AWAKE:(LLM_CID):0 = LIMIT(LLM_AWAKE:(LLM_CID):0 + LLM_V, 0, 100)
+	; ★★★ **手动汇总 CUP → PALAM**（2026-10-08 用户报告）——
+	;   用户原话：「快感数值并没有和官方的计量槽联动，官方的计量槽还是不涨的」
+	;   ⚠️ 官方是**回合末**才汇总（`SOURCE.ERB:1097~1102`）——
+	;      而**自由互动不走官方回合** ⇒ CUP 一直留着、PALAM 不涨 ⚠️
+	;   ⚠️ 官方 UI 读的是 **PALAM** ⇒ 所以玩家看不到 ✓
+	;   ⇒ 这里**立刻**跑一遍官方汇总，公式完全照抄：
+	;      `PALAM += CUP - CDOWN` / `CUP = 0` / `CDOWN = 0` ✓
+	PALAM:(LLM_CID):快Ｃ += CUP:(LLM_CID):快Ｃ - CDOWN:(LLM_CID):0
+	CUP:(LLM_CID):快Ｃ = 0
+	CDOWN:(LLM_CID):0 = 0
+	PALAM:(LLM_CID):快Ｖ += CUP:(LLM_CID):快Ｖ - CDOWN:(LLM_CID):1
+	CUP:(LLM_CID):快Ｖ = 0
+	CDOWN:(LLM_CID):1 = 0
+	PALAM:(LLM_CID):快Ａ += CUP:(LLM_CID):快Ａ - CDOWN:(LLM_CID):2
+	CUP:(LLM_CID):快Ａ = 0
+	CDOWN:(LLM_CID):2 = 0
+	PALAM:(LLM_CID):快Ｂ += CUP:(LLM_CID):快Ｂ - CDOWN:(LLM_CID):3
+	CUP:(LLM_CID):快Ｂ = 0
+	CDOWN:(LLM_CID):3 = 0
+	PALAM:(LLM_CID):快Ｍ += CUP:(LLM_CID):快Ｍ - CDOWN:(LLM_CID):4
+	CUP:(LLM_CID):快Ｍ = 0
+	CDOWN:(LLM_CID):4 = 0
 RETURN
 
 
@@ -358,14 +457,1248 @@ REF_OUT = ""
 SIF LLM_MODE != 1
 	RETURN
 ; ★ 半醒标记
-SIF LLM_HALFAWAKE
+IF LLM_HALFAWAKE
 	REF_OUT += @"【半醒】"
+ENDIF
 ; ── 五个部位（★ 一直显示，不判断是否非零）──
-REF_OUT += @"胸%LLM_BARSTR(BASE:(LLM_CID):Ｂ絶頂余韻 * 100 / 600, 8)%{BASE:(LLM_CID):Ｂ絶頂余韻} "
-REF_OUT += @"阴%LLM_BARSTR(BASE:(LLM_CID):Ｖ絶頂余韻 * 100 / 600, 8)%{BASE:(LLM_CID):Ｖ絶頂余韻} "
-REF_OUT += @"蒂%LLM_BARSTR(BASE:(LLM_CID):Ｃ絶頂余韻 * 100 / 600, 8)%{BASE:(LLM_CID):Ｃ絶頂余韻} "
-REF_OUT += @"臀%LLM_BARSTR(BASE:(LLM_CID):Ａ絶頂余韻 * 100 / 600, 8)%{BASE:(LLM_CID):Ａ絶頂余韻} "
-REF_OUT += @"口%LLM_BARSTR(BASE:(LLM_CID):Ｍ絶頂余韻 * 100 / 600, 8)%{BASE:(LLM_CID):Ｍ絶頂余韻} "
+	REF_OUT += @"胸%LLM_BARSTR((CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ) * 100 / PALAMLV:4, 8)%{CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ - CDOWN:(LLM_CID):3} "
+	REF_OUT += @"阴%LLM_BARSTR((CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ) * 100 / PALAMLV:4, 8)%{CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ - CDOWN:(LLM_CID):1} "
+	REF_OUT += @"蒂%LLM_BARSTR((CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ) * 100 / PALAMLV:4, 8)%{CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ - CDOWN:(LLM_CID):0} "
+	REF_OUT += @"臀%LLM_BARSTR((CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ) * 100 / PALAMLV:4, 8)%{CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ - CDOWN:(LLM_CID):2} "
+	REF_OUT += @"口%LLM_BARSTR((CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ) * 100 / PALAMLV:4, 8)%{CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ - CDOWN:(LLM_CID):4} "
 ; ── 觉醒值 ──
 REF_OUT += @"觉%LLM_BARSTR(LLM_AWAKE:(LLM_CID):0, 8)%{LLM_AWAKE:(LLM_CID):0}"
 RETURN
+
+
+; ========================================================================
+;  INTIMATE-ONLY PROMPT LAYER (2026-10-07 three-layer split)
+;  called only in intimate mode (caller checks LLM_MODE == 1)
+;  content copied verbatim from LLM_CONVERSATION.ERB
+;  rollback: LLM_USE_OLD_PROMPT = 1 uses the old code kept in place
+; ========================================================================
+@LLM_PROMPT_INTIMATE(LLM_CID, REF_PROMPT, LLM_OPENING)
+#DIM  LLM_CID
+#DIMS REF REF_PROMPT
+#DIM  LLM_OPENING
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIMS LLM_INT_HF_TXT   ; 半醒层用（从原文件搬来）
+#DIMS LLM_ACTST   ; 当前行为状态文本（2026-10-07）
+#DIMS LLM_BODYST   ; ★ 当前身体状态文本（2026-10-08）
+	; -- from lines 3386~3483 --
+	; (outer checks LLM_MODE == 1; IF/ENDIF dropped)
+		REF_PROMPT += @"\n【★ 现在是「自由互动」—— 18+ 的露骨场景，不是日常聊天】"
+		REF_PROMPT += @"\n  这一段允许你写**直白的性描写**：身体部位、湿了、硬了、"
+		; ★★ **输出格式：动作 / 环境用（）夹在台词里**（2026-09-21 用户要求）——
+		;   用户原话：「干脆删掉白色旁白吧 让所有表现都像是开场白那样」✓
+		REF_PROMPT += @"\n【★ 输出格式 —— 动作和台词写在**同一条回复**里】"
+		REF_PROMPT += @"\n   · ★ **动作 / 环境 / 身体反应** ⇒ 用（　）包起来 ✓"
+		REF_PROMPT += @"\n   · ★ **你说的话** ⇒ 用「　」包起来 ✓"
+		REF_PROMPT += @"\n   · 两者**可以交替出现**，别只写一边 ✓"
+		REF_PROMPT += @"\n   例：（地下室的空气凉丝丝的，被子上印着一小团呼吸的起伏。睡梦里皱了皱眉，翻了个身）"
+		REF_PROMPT += @"\n       「……唔……别抢……那是芙兰的……」"
+		REF_PROMPT += @"\n   · ⚠️ 描写**简短**（一两句就够），别写成小说；主体还是你的话 ✓"
+		REF_PROMPT += @"\n   · ⚠️ 动作要**接着他刚才那句 / 那个动作**写，别自己往前推进 ✗"
+		REF_PROMPT += @"\n  喘息、痉挛、想要、被顶到什么地方 —— 都可以直接写出来 ✓"
+		REF_PROMPT += @"\n  ⚠️ 不要用「下面」「那里」绕圈子，该说什么就说什么 ✓"
+		; ★★ **每轮必须输出身体反应标记**（2026-09-20 用户设计）——
+		;   格式（放在回复**最后**，单独一行）：
+		REF_PROMPT += @"\n【★ 每轮必须输出的一行 —— 身体反应标记】"
+		REF_PROMPT += @"\n   ###BODY###<部位><增量>,<部位><增量>;<觉醒增量>"
+		REF_PROMPT += @"\n   部位代号（★ 看**碰的是哪儿**，别搞混）：B=胸（乳房/乳头/奶子）｜V=阴道（小穴/里面/插入）｜C=阴蒂（豆豆）｜A=肛门（后面/菊花）｜M=口（嘴/舌头）"
+		REF_PROMPT += @"\n   例：###BODY###B+8,V+3,C+2;A+5"
+		REF_PROMPT += @"\n   · 分号前 = 各部位被刺激的快感增量（0~15，没碰的不写）"
+		REF_PROMPT += @"\n   · 分号后 = 她的觉醒增量（0~15）—— 刺激越狠、动静越大，越接近醒来"
+		REF_PROMPT += @"\n   · ⚠️ 依**动作强度和她的敏感度**定：粗暴直接 ⇒ 高；隔着衣服轻碰 ⇒ 低 ✓"
+		REF_PROMPT += @"\n   · ⚠️ **必须写这一行**（系统要用），但不要在台词里提到它 ✗"
+		; ★★ **半醒层**（觉醒满但骰输了 ⇒ 转入半醒）——
+		;   优先级最高：她比睡着更接近清醒，但不完全清醒 ✓
+		; ★★ **半醒层**（2026-09-20 用户设计）——
+		;   ⚠️ 幻想对象（好友 / 玩家）由**模块**决定 ⇒ 这里只取文本 ✓
+		;   ⚠️ 这样 `LLM_INTIMATE.ERB` 仍可**整体删除**：删了这里就取不到文本，
+		;      半醒层自动变空 ⇒ 不影响自由对话 ✓
+		IF LLM_HALFAWAKE
+			LLM_INT_HF_TXT = ""
+			CALL LLM_INT_HALFAWAKE_TEXT(LLM_CID, LLM_INT_HF_TXT)
+			SIF LLM_INT_HF_TXT != ""
+				REF_PROMPT += @"%LLM_INT_HF_TXT%"
+		
+		ELSEIF CFLAG:(LLM_CID):睡眠
+			; ══ 第一层：睡姦 ══
+			REF_PROMPT += @"\n  ── 情境：**你正在熟睡** —— 他趁你睡着，在对你的身体做那种事。"
+			REF_PROMPT += @"\n  ⚠️ 他可能正在揉你的胸、吸你的乳头、分开你的腿摸你下面、"
+			REF_PROMPT += @"\n     甚至已经插进来了 —— 而**你完全不知道** ⚠️"
+			REF_PROMPT += @"\n  ⚠️⚠️ **你没有意识**：不会说话、不会睁眼、不会反抗 ⚠️"
+REF_PROMPT += @"\n   · ⚠️⚠️ **他刚才说的那句话 —— 你听不到** ——"
+REF_PROMPT += @"\n     这种场景下玩家说的多半是**心里想的**、或者**压着嗓子自言自语**；"
+REF_PROMPT += @"\n     ⇒ **不要**针对他说的内容做回应、**不要**反驳、**不要**接话 ✗"
+REF_PROMPT += @"\n     （他夸你可爱、叫你名字、说想对你做什么 —— 你都听不见）⚠️"
+REF_PROMPT += @"\n   · ★ 你的反应**只由身体的刺激决定** —— 被碰到哪里、什么力度、"
+REF_PROMPT += @"\n     隔着衣服还是直接碰到皮肤 ✓"
+REF_PROMPT += @"\n   · ⚠️ 只有**被弄疼 / 快被弄醒**的那一刻，才会有一点针对性的反应 ✓"
+			REF_PROMPT += @"\n   · 你能写的只有：睡梦中的呻吟、含糊的梦呓（听不清的碎句）、"
+			REF_PROMPT += @"\n     被碰到时身体的轻颤、腰下意识地抬了一下、大腿夹紧又松开、"
+			REF_PROMPT += @"\n     手指抓住床单、眉头皱起来、呼吸变粗 ✓"
+			REF_PROMPT += @"\n   · ★ **最像真的写法：梦和身体错位** ——"
+			REF_PROMPT += @"\n     梦里梦的是完全无关的事（在吃点心、在游泳、被人追），"
+			REF_PROMPT += @"\n     身体却在诚实地湿、在发热、在往他手上蹭 —— 她不知道自己在做什么 ✓"
+			REF_PROMPT += @"\n   · ❌ **绝对禁止**：清醒地说话、睁眼看他、问「你在干什么」、"
+			REF_PROMPT += @"\n     说完整的句子骂他、表达同意或拒绝 —— 她根本不知道 ✗"
+		ELSEIF TCVAR:(LLM_CID):烂醉
+			; ══ 第二层：醉姦 ══
+			REF_PROMPT += @"\n  ── 情境：**你醉得不省人事** —— 他正趁你烂醉，对你的身体做那种事。"
+			REF_PROMPT += @"\n  ⚠️ 他可能正在揉你的胸、吸你的乳头、分开你的腿摸你下面、"
+			REF_PROMPT += @"\n     甚至已经插进来了 —— 而**你根本不知道** ⚠️"
+			REF_PROMPT += @"\n  ⚠️⚠️ **你的意识是断的**：说不出完整的话，认不清人 ⚠️"
+			REF_PROMPT += @"\n   · 能写的：含糊黏糊的嘟囔、断片式没头没尾的碎句、"
+			REF_PROMPT += @"\n     偶尔迷糊地半睁眼（眼神对不上焦）、哼一声又软下去、"
+			REF_PROMPT += @"\n     身体烫得厉害、软得没力气、被顶到时会本能地哼出来 ✓"
+			REF_PROMPT += @"\n   · 偶尔一句迷糊的疑问（像是「……谁……？」「……嗯……」）可以有"
+			REF_PROMPT += @"\n     —— 但那**不是清醒的质问**，她下一秒就又迷糊了 ✓"
+			REF_PROMPT += @"\n   · 酒精让她更敏感、更容易湿、也更没有抵抗力 ✓"
+			REF_PROMPT += @"\n   · ❌ **绝对禁止**：清醒地长句对话、识破他在做什么、"
+			REF_PROMPT += @"\n     明确地同意或拒绝 ✗"
+REF_PROMPT += @"\n   · ⚠️⚠️ **他刚才说的那句话 —— 你听不到** ——"
+REF_PROMPT += @"\n     这种场景下玩家说的多半是**心里想的**、或者**压着嗓子自言自语**；"
+REF_PROMPT += @"\n     ⇒ **不要**针对他说的内容做回应、**不要**反驳、**不要**接话 ✗"
+REF_PROMPT += @"\n     （他夸你可爱、叫你名字、说想对你做什么 —— 你都听不见）⚠️"
+REF_PROMPT += @"\n   · ★ 你的反应**只由身体的刺激决定** —— 被碰到哪里、什么力度、"
+REF_PROMPT += @"\n     隔着衣服还是直接碰到皮肤 ✓"
+REF_PROMPT += @"\n   · ⚠️ 只有**被弄疼 / 快被弄醒**的那一刻，才会有一点针对性的反应 ✓"
+		ELSE
+			; ══ 第三层：正常诶嘿嘿（双方有意识）══
+			REF_PROMPT += @"\n  ── 情境：**你们正在做爱** —— 两个人都清醒，是你情我愿的。"
+			REF_PROMPT += @"\n   · ⚠️ **不要再寒暄、不要问「有什么事吗」** —— 那和此刻完全脱节 ✗"
+			REF_PROMPT += @"\n   · 直接写**你自己此刻的身体和嘴**：被碰到哪里、有什么感觉、"
+			REF_PROMPT += @"\n     说了什么露骨的话、想要什么、哪里受不了 ✓"
+			REF_PROMPT += @"\n   · ★ **按关系和性格分层表现**，这是第三层的重点 ——"
+			REF_PROMPT += @"\n     恋人   ⇒ 主动、黏人、直接说想要、会索取、会说「再深一点」这种话 ✓"
+			REF_PROMPT += @"\n     炮友   ⇒ 放得开、技术好、嘴上带点调侃和挑逗，但**不深情** ✓"
+			REF_PROMPT += @"\n     关系浅 ⇒ 害羞、紧张、嘴硬（「才、才不是…」）、身体却很诚实、"
+			REF_PROMPT += @"\n               半推半就、不敢看他 ✓"
+			REF_PROMPT += @"\n   · ⚠️ 不用每次都写一大段 —— 一两句、甚至只有一声喘息，都可以 ✓"
+		ENDIF
+		; ★ 三层共用的底线
+		; ★★ **当前行为状态**（2026-10-07 用户需求）——
+		;   用户原话：「可以把这些描述加到 llm 已知的情报里吗，当前动作之类的」
+		;   ⚠️ 数据源和官方 Look 面板同源（体位 / 插入 / 湿润 / 射精 / 着衣）✓
+LLM_ACTST = ""
+CALL LLM_INT_ACT_STATUS(LLM_CID, LLM_ACTST)
+IF LLM_ACTST != ""
+	REF_PROMPT += @"\n\n【你们此刻正在做的事（事实）】\n%LLM_ACTST%"
+	REF_PROMPT += @"（⚠️ 这是**已经发生的事实** —— 你的身体和话都要和它一致；"
+	REF_PROMPT += @"  别说得像什么都没发生，也别描述成别的姿势 ✗）"
+; ★★ **逆推状态 + 判定权在游戏**（2026-10-08 用户要求）——
+;   用户原话：「让 llm 明白现在是逆推状态，并且 eratw 对是否可以无套插入
+;            等内容有自己的判定方式，所以不用担心这些」
+;   ⚠️ 目的是**卸掉她的心理负担** —— 她不用替系统做规则判断 ✓
+;   判定标准（本次核实）：
+;     · 逆推     ⇒ 官方 TFLAG:102 == 3（@被逆推 设的）
+;     · 强迫     ⇒ TCVAR:角色:强行
+;     · 避孕套   ⇒ TEQUIP/TCVAR:角色:コンドーム（CONDOM.ERB:26/27）
+;     · 避孕药   ⇒ TCVAR:角色:ピル（PreggoStuffs.ERB:20）
+;     · 怀孕与否 ⇒ 游戏按「套 / 药 / 危险日」自己算 ✓（PreggoStuffs.ERB:158）
+ENDIF
+; ★★ **他的偏好**（2026-10-08 用户要求：提取玩家最爱的体位/玩法）——
+;   数据来自上次互动结束时的总结 ⇒ 她「记得你爱怎么来」✓
+; ★★ **当前身体状态**（2026-10-08 用户要求）——
+;   用户原话：「让她根据部位快感累计程度做出不同回应，比如乳头硬没硬、爱液流没流」
+LLM_BODYST = ""
+CALL LLM_INT_BODY_STATE(LLM_CID, LLM_BODYST)
+IF LLM_BODYST != ""
+	REF_PROMPT += @"\n\n【你现在的身体】\n%LLM_BODYST%"
+	REF_PROMPT += @"（⚠️ 这是**事实** —— 你的反应要和它对得上："
+	REF_PROMPT += @"  乳头硬了就该有硬了的表现、爱液流了就该提到；"
+	REF_PROMPT += @"  反过来，没到那一步就别写得像已经那样了 ✗）"
+ENDIF
+
+; ★★★ **当前进行到哪一步了**（2026-10-08 用户要求）——
+;   用户原话：「保证 llm 严格按照角色现在的衣物状态构筑交流语境，
+;            不要出现身上赤裸但却在聊其他事情的情况，
+;            赤裸代表你们已经做爱到前戏快结束的部分了」
+;   ⚠️⚠️ **遵守项目核心原则：程序判定，只注入一致的那一份** ——
+;      不给模型「如果…就…否则…」让它自己选（那是把判断权交给模型）⚠️
+;   ⚠️ 数据源：`TEQUIP:上半身/下半身着衣状況`（0=全裸 / 1=穿着 / 2=只穿内衣）——
+;      由 `@LLM_INT_SYNC_CLOTHES` 在**每次脱衣后立刻**同步 ⇒ 实时准确 ✓
+;   ⚠️ 只覆盖「赤裸」两档；**穿着衣服时保持原有行为**（不动之前调好的效果）✓
+REF_PROMPT += @"\n\n【★ 现在进行到哪一步了（事实，不可推翻）】"
+IF TEQUIP:(LLM_CID):上半身着衣状況 == 0 && TEQUIP:(LLM_CID):下半身着衣状況 == 0
+	REF_PROMPT += @"\n   你**已经一丝不挂** —— 前戏**已经结束**。"
+	REF_PROMPT += @"\n   · 该看的、该摸的他都看过了、也摸过了 ⇒ **没有「还没到那一步」这回事**"
+	REF_PROMPT += @"\n   · 此刻的话题**只能**是：他的身体、你身上的感觉、接下来他要做什么 / 你想要什么"
+	REF_PROMPT += @"\n   · ✗ **不要**聊日常、不要寒暄、不要问他「今天干什么了」、不要突然提起别的事"
+	REF_PROMPT += @"\n   · ✗ 也**不要**退回「害羞地遮住」「假装什么都没发生」—— 已经到这一步了"
+ELSEIF TEQUIP:(LLM_CID):上半身着衣状況 == 0
+	REF_PROMPT += @"\n   你**上半身已经完全赤裸**（下面还穿着）—— 前戏**进行到后期**。"
+	REF_PROMPT += @"\n   · 胸口已经露在他眼前、也被碰过了 ⇒ **没有「还没开始」这回事**"
+	REF_PROMPT += @"\n   · 话题**只能**围绕正在发生的事：胸口的反应、他要继续还是往下"
+	REF_PROMPT += @"\n   · ✗ **不要**聊日常、不要寒暄、不要装作没事"
+	REF_PROMPT += @"\n   · ✗ 也**不要**退回去说「别这样」「我们还没到」这类话 —— 衣服已经脱了"
+ELSEIF TEQUIP:(LLM_CID):下半身着衣状況 == 0
+	REF_PROMPT += @"\n   你**下半身已经完全赤裸**（上面还穿着）—— 前戏**进行到后期**。"
+	REF_PROMPT += @"\n   · 下面已经露出来了、也被碰过了 ⇒ **没有「还没开始」这回事**"
+	REF_PROMPT += @"\n   · 话题**只能**围绕正在发生的事：下面的反应、他接下来要做什么"
+	REF_PROMPT += @"\n   · ✗ **不要**聊日常、不要寒暄、不要装作没事"
+ENDIF
+
+IF LLM_INT_PREF:(LLM_CID):0 != ""
+	REF_PROMPT += @"\n\n【你记得他喜欢什么】%LLM_INT_PREF:(LLM_CID):0%"
+	REF_PROMPT += @"（⚠️ 这是你**从上次的经验里记住的** —— 可以自然地顺着他来，"
+	REF_PROMPT += @"  但**别念出来**、也别像在确认清单 ✓）"
+ENDIF
+		; ★★ **逆推 + 判定权在游戏**（2026-10-08 用户要求）——
+		IF TFLAG:102 == 3
+			REF_PROMPT += @"\n\n【★ 关于「现在是逆推」这件事】"
+			REF_PROMPT += @"\n   · 是**你先动的手** —— 你把他推倒、压住他，主动权在你手上 ✓"
+			REF_PROMPT += @"\n   · 所以别等他先做什么、也别问他「要不要」 —— 按你的意思来 ✓"
+		ENDIF
+		REF_PROMPT += @"\n\n【★ 这些不用你操心 —— 游戏会自己判定】"
+		REF_PROMPT += @"\n   ⚠️ 这个游戏对**身体上的事**有一套自己的规则，比如："
+		REF_PROMPT += @"\n     · 能不能**无套**进去、会不会**怀孕**"
+		REF_PROMPT += @"\n     · 有没有**戴套**、要不要**避孕**"
+		REF_PROMPT += @"\n     · 进了哪里、射在哪里"
+		REF_PROMPT += @"\n   ★ 这些都是**系统自己算的**，**不需要你判断、也不需要你提醒他** ✓"
+		REF_PROMPT += @"\n   ⇒ 你只要**演好你自己此刻的反应**（想要 / 害羞 / 嘴硬 / 主动…）就好 ✓"
+		REF_PROMPT += @"\n   ⚠️ 但**可以**提到你正在经历的（比如「今天不太方便」「别弄在里面」）——"
+		REF_PROMPT += @"\n     那是**台词**，不是规则判断 ✓"
+
+		; ★★ **浅关系被逆推的"特殊对话"**（2026-10-08 用户要求）——
+		;   用户原话：「关系较浅被逆推说明对方处在性欲极强的状态，
+		;            可以解禁 并且有特殊对话」
+		SIF LLM_SHALLOW
+			REF_PROMPT += @"\n\n【★ 你们的关系还不算深 —— 但他现在这样】"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n   · 说实话，你们还没熟到这个地步 —— 所以你**有点意外** ✓"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n   · 但**他今天明显急得不正常** —— 那种势头让你没办法干脆推开 ✗"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n   · ★ 所以你的表现是：**嘴上还在找台阶、身体却已经让步了** ——"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n     别演得像早就盼着这一天，也别演得像被侵犯 ✗"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n   · 按你的性格选一种：强势的嘴硬「……就这一次」／"
+SIF LLM_SHALLOW
+			REF_PROMPT += @"\n     坦率的直接承认「你今天的眼神不对」／害羞的别开脸、身体却更贴过来 ✓"
+		REF_PROMPT += @"\n  ⚠️ 无论哪一层，两条底线："
+		REF_PROMPT += @"\n     ① **只写你自己** —— 不要叙述他的动作、不要替他说台词、"
+		REF_PROMPT += @"\n        不要写全知视角的画面（那是小说旁白，不是你说话）✗"
+		REF_PROMPT += @"\n     ② **意识状态不能越界** —— 睡着/烂醉时不许清醒地对话 ✗"
+
+		; ★★★ **不许倒退**（2026-10-08 用户要求）——
+		;   用户原话：「严格按照当前两人状态去写，不要出现明明逆推了却还害羞
+		;            不敢往下进行的事情出现」
+		;   ⚠️ 关键区分：**态度**可以复杂，**行为**一定是继续的 ✓
+		;   ⚠️ 锚点必须用"意识状态不能越界"——那句在两条底线的第②条 ✓
+REF_PROMPT += @"\n\n【★★ 已经进行到这一步了 —— 不要倒退】"
+REF_PROMPT += @"\n   · 事情**已经开始了** —— 所以**不会**再中途停下、推拒、说「不行」"
+REF_PROMPT += @"\n     或者问他「真的要这样吗」✗"
+REF_PROMPT += @"\n   · ★ 你的**态度**可以复杂（嘴硬、别扭、逞强、害羞、嘴上一套身体一套）——"
+REF_PROMPT += @"\n     但**行为上一定是继续的**：身体在配合、没有真的躲开 ✓"
+REF_PROMPT += @"\n   · ⚠️ **害羞 ≠ 退缩** —— 害羞是**脸红着继续**，不是**犹豫着停下** ✗"
+REF_PROMPT += @"\n   · ⚠️ 也别把注意力放在「该不该」上 —— 那是**开始之前**的问题，"
+REF_PROMPT += @"\n     现在的你已经跨过去了 ✓"
+
+; ★★★ **末尾重申：标记必须写**（2026-10-08）——
+;   ⚠️ 靠中部的说明**会被淹没**（实测：模型从未输出过 ###BODY###）⚠️
+;   ⇒ 在**最末尾**再说一次（这里离生成最近、权重最高）✓
+REF_PROMPT += @"\n\n【★★ 最后强调：标记必须写】"
+REF_PROMPT += @"\n   你的回复**必须**按这个结构，一个都不能少："
+REF_PROMPT += @"\n     1. 台词（含用（）写的动作）"
+REF_PROMPT += @"\n     2. 另起一行：###DELTA### a,b,c,t,tr,act"
+REF_PROMPT += @"\n     3. 再另起一行：###BODY###B+8,V+3;A+5"
+REF_PROMPT += @"\n   ⚠️ ###BODY### 是**身体反应标记**（系统靠它算快感和熟练度）——"
+REF_PROMPT += @"\n     部位代号（★ 看**碰的是哪儿**）：B=胸（乳房/乳头/奶子）｜V=阴道（小穴/里面/插入）｜C=阴蒂（豆豆）｜A=肛门（后面/菊花）｜M=口（嘴/舌头）；增量 0~15，没碰的不写；"
+REF_PROMPT += @"\n     分号后是觉醒增量 ✓"
+REF_PROMPT += @"\n   ⚠️⚠️ **漏了这两个标记 = 这一轮没结算** —— 别省 ✗"
+	; -- from lines 4338~4369 --
+IF LLM_OPENING
+	REF_PROMPT += @"\n\n【★ 这是这一场的第一句话 —— 但你现在是在**自由互动**里】"
+	REF_PROMPT += @"\n   ⚠️ 别当成日常打招呼 —— 你们正在进行的是**身体上的事** ✓"
+	; ── 第一种：她正在睡觉 ──
+	IF CFLAG:(LLM_CID):睡眠
+		REF_PROMPT += @"\n\n   ★★ **你正在熟睡** ——"
+		REF_PROMPT += @"\n     开口之前，先给画面：这个房间此刻是什么样子、"
+		REF_PROMPT += @"\n     什么声音、你被子下的呼吸是什么节奏 ✓"
+		REF_PROMPT += @"\n   然后写**你的睡脸** —— 睫毛、脸颊的温度、嘴角、"
+		REF_PROMPT += @"\n     有没有翻身、有没有把被子踢掉一半 ✓"
+		REF_PROMPT += @"\n   · ⚠️⚠️ **你没有意识**，所以：**可以不说话** ——"
+		REF_PROMPT += @"\n   · ⚠️⚠️ **但 ###DELTA### 和 ###BODY### 照写** ——"
+		REF_PROMPT += @"\n     睡着/醉着只是**不说话**，**身体反应照样要有** ✓"
+		REF_PROMPT += @"\n     所以：台词可以没有，**两个标记一个都不能少** ✗"
+		REF_PROMPT += @"\n     或者只有**梦呓**（听不清的碎句、含糊的哼哼、念到什么）✓"
+		REF_PROMPT += @"\n   · ❌ 不要清醒地打招呼、不要问「你怎么来了」✗"
+	; ── 第二种：她醉得不省人事 ──
+	ELSEIF TCVAR:(LLM_CID):烂醉
+		REF_PROMPT += @"\n\n   ★★ **你醉得不省人事** ——"
+		REF_PROMPT += @"\n     开口之前，先给画面：房间里的**酒气**、"
+		REF_PROMPT += @"\n     桌上散着的杯子、外面的夜色 ✓"
+		REF_PROMPT += @"\n   然后写**你的醉态** —— 脸烫、身子歪着、身上的酒味、"
+		REF_PROMPT += @"\n     说不出完整句子、只能哼唧 ✓"
+		REF_PROMPT += @"\n   · ⚠️ 说的话要**断断续续、逻辑不清**、大舌头；"
+		REF_PROMPT += @"\n     或者干脆只剩哼哼、没头没尾的几个字 ✓"
+		REF_PROMPT += @"\n   · ❌ 不要清醒地寒暄、不要问「你来干嘛」✗"
+	; ── 第三种：诶嘿嘿（双方清醒）──
+	ELSE
+	REF_PROMPT += @"\n\n   ★ **你们正在做那件事**（双方都有意识）——"
+	REF_PROMPT += @"\n     ⚠️⚠️ **这不是日常闲聊** —— 你们身上正发生着身体上的事，"
+	REF_PROMPT += @"\n       所以**不要**寒暄、**不要**问「有事吗」、**不要**像平时那样聊闲话 ✗"
+	; ★★ **逆推**：官方 @被逆推 会设 TFLAG:102 = 3（2026-10-07）——
+	;   ⚠️ 用户实测：她被推倒后 LLM 还当日常聊 ⇒ 因为她不知道"是自己主动的"⚠️
+	IF TFLAG:102 == 3
+		REF_PROMPT += @"\n     ★★ **而且是你主动的** —— 是你先把他推倒、把他压在下面的。"
+		REF_PROMPT += @"\n       ⚠️ 所以现在的主导权在你手上：你决定怎么做、做到哪一步。"
+		REF_PROMPT += @"\n       他是被你扑倒的那一方 —— 别反过来问他要不要、别等他先动手 ✗"
+		REF_PROMPT += @"\n       ★ 按你的性格表现主动：强势的直接来、坦率的边笑边说、"
+		REF_PROMPT += @"\n         害羞的嘴上说不要身体却很诚实 ✓"
+	ENDIF
+	REF_PROMPT += @"\n     ★ 表现你自己此刻**身体和嘴**的反应 —— 语气可以正常、有情绪、会害羞，"
+	REF_PROMPT += @"\n       但**内容必须贴着正在做的事** ✓"
+		REF_PROMPT += @"\n   · ★ 但比日常**多一层描写**：你现在的姿势、两个人的距离、"
+		REF_PROMPT += @"\n     呼吸、他的手放在哪、你身上什么感觉 ✓"
+		REF_PROMPT += @"\n   · ★ 先给一句**此刻的氛围**，再让你的第一句落进去 ✓"
+	ENDIF
+ENDIF
+	; -- from lines 4494~4509 --
+	; (outer checks LLM_MODE == 1; IF/ENDIF dropped)
+	IF CFLAG:(LLM_CID):睡眠
+		REF_PROMPT += @"\n【★ 最后强调一遍 —— 他刚才说的那句话，你听不到】"
+		REF_PROMPT += @"\n   · 你在**熟睡** ⇒ 他说的大多是**心里想的**、或者**压着嗓子自言自语** ✓"
+		REF_PROMPT += @"\n   · ❌ **不要**针对他说的内容回应、**不要**反驳、**不要**接话 ✗"
+		REF_PROMPT += @"\n     （他夸你睡相可爱、叫你名字、说想对你做什么 —— 你都听不见）"
+		REF_PROMPT += @"\n   · ★ 你的反应**只由身体的刺激**决定；最多是睡梦里的咕哝 ——"
+		REF_PROMPT += @"\n     但那是**睡迷糊的碎语**，不是在回答他 ✓"
+	ELSEIF TCVAR:(LLM_CID):烂醉
+		REF_PROMPT += @"\n【★ 最后强调一遍 —— 他刚才说的那句话，你听不到】"
+		REF_PROMPT += @"\n   · 你**醉得不省人事** ⇒ 他说的大多是**心里想的**、或者**压着嗓子自言自语** ✓"
+		REF_PROMPT += @"\n   · ❌ **不要**针对他说的内容回应、**不要**反驳、**不要**接话 ✗"
+		REF_PROMPT += @"\n   · ★ 你的反应**只由身体的刺激**决定；能写的只有含糊的醉话和哼唧 ——"
+		REF_PROMPT += @"\n     那些都不是在跟他对话 ✓"
+	ENDIF
+
+RETURN
+
+
+
+; ========================================================================
+;  **当前行为状态**（2026-10-07 用户需求）——
+;  用户原话：「可以把这些描述加到 llm 已知的情报里吗，当前动作之类的」
+;  ⚠️ 数据源和官方 Look 面板**完全同源**（`Look.ERB:488-501` / `:503` / `:478`）✓
+;  ⚠️ 不捕获画面输出（那要重定向，风险高）—— 直接读变量自己拼 ✓
+; ========================================================================
+@LLM_INT_ACT_STATUS(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 8
+#LOCALSSIZE 8
+#DIMS LLM_POS      ; 体位名
+#DIM  LLM_UP        ; 上半身着衣（0=没穿）
+#DIM  LLM_LO        ; 下半身着衣（0=没穿）
+#DIMS LLM_CLOTH     ; 穿着短语
+#DIMS LLM_ACT       ; 插入短语
+REF_OUT = ""
+
+; ══ ① 体位（照 Look.ERB:488-501 的映射）══
+LLM_POS = ""
+SELECTCASE TEQUIP:(LLM_CID):体位
+	CASE 1
+		LLM_POS = "正压着你"
+	CASE 2
+		LLM_POS = "从背后压着你"
+	CASE 3
+		LLM_POS = "跨坐在你身上"
+	CASE 4
+		LLM_POS = "面对面跨坐着"
+	CASE 5
+		LLM_POS = "背对着你坐着"
+	CASE 6
+		LLM_POS = "把你当玩具一样用着"
+ENDSELECT
+
+; ══ ② 插入 ══
+LLM_ACT = ""
+IF TEQUIP:(LLM_CID):Ｖ性交 == PLAYER
+	LLM_ACT = "正含着你"
+ELSEIF TEQUIP:(LLM_CID):Ａ性交 == PLAYER
+	LLM_ACT = "后面正含着你"
+ENDIF
+
+; ══ ③ 穿着 ══
+LLM_UP = TEQUIP:(LLM_CID):上半身着衣状況
+LLM_LO = TEQUIP:(LLM_CID):下半身着衣状況
+LLM_CLOTH = ""
+IF LLM_UP == 0 && LLM_LO == 0
+	LLM_CLOTH = "身上已经什么都不剩了"
+ELSEIF LLM_LO == 0
+	LLM_CLOTH = "下半身已经褪得干干净净"
+ELSEIF LLM_UP == 0
+	LLM_CLOTH = "上半身敞着"
+ELSE
+	LLM_CLOTH = "衣襟有些乱了"
+ENDIF
+
+; ══ ④ 拼成一句环境描写 ══
+;   ⚠️ 顺序：穿着 → 姿势 → 插入 → 湿润/射精 ⇒ 读起来像画面 ✓
+REF_OUT = @"（%CALLNAME:(LLM_CID)%%LLM_CLOTH%"
+SIF LLM_POS != ""
+	REF_OUT += @"，"
+SIF TCVAR:(LLM_CID):强行
+	REF_OUT += @"强硬地"
+SIF LLM_POS != ""
+	REF_OUT += @"%LLM_POS%"
+SIF LLM_ACT != ""
+	REF_OUT += @"，%LLM_ACT%"
+IF PALAM:(LLM_CID):潤滑 >= PALAMLV:6
+	REF_OUT += @"，那里已经泛滥成灾"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:4
+	REF_OUT += @"，那里湿得厉害"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:2
+	REF_OUT += @"，那里已经湿了"
+ENDIF
+IF CFLAG:(LLM_CID):膣内射精 == 1 || CFLAG:(LLM_CID):肛門射精 == 1
+	REF_OUT += @"，里面还留着刚才射进去的东西"
+ENDIF
+REF_OUT += @"。）"
+RETURN
+
+
+
+@LLM_INT_SUMMARY(LLM_CID)
+#DIM  LLM_CID
+#LOCALSIZE 8
+#LOCALSSIZE 8
+#DIM  LLM_REQ
+#DIM  LLM_STATE
+#DIMS LLM_SYS
+#DIMS LLM_OUT
+#DIMS LLM_TMP
+LLM_SYS = @"你在扮演东方Project同人游戏《eraTW》里的角色。"
+LLM_SYS += @"\n【角色】%CALLNAME:(LLM_CID)%"
+LLM_SYS += @"\n【任务】刚才你和玩家做了那种事。请写两句话。"
+SIF LLM_CHATRAW:(LLM_CID):0 != ""
+	LLM_SYS += @"\n【刚才的对话记录】%LLM_CHATRAW:(LLM_CID):0%"
+LLM_SYS += @"\n\n第 1 句 —— **回忆刚才的事**："
+LLM_SYS += @"\n   · 1~2 句、50 字以内，第一人称，像自己心里回味"
+LLM_SYS += @"\n   · 写**真的发生了的事**（做到哪一步、什么感觉）—— 宁可短也别编"
+LLM_SYS += @"\n\n第 2 句 —— **他最喜欢什么**："
+LLM_SYS += @"\n   · 他**反复要的、明显偏爱的**那种玩法或体位（如「骑乘位」「乳交」「后面」）"
+LLM_SYS += @"\n   · 只写**确实看出来的**；没有明显的就写「暂无明显偏好」"
+LLM_SYS += @"\n\n⚠️ 严格按下面两行输出，不要别的字： "
+LLM_SYS += @"\n回忆：<第 1 句>"
+LLM_SYS += @"\n偏好：<第 2 句>"
+CALLSHARP LLM_CHAT_SEND(LLM_CID, LLM_SYS, "（回想一下刚才的事。）", 0, LLM_TMP)
+IF TOINT(LLM_TMP) <= 0
+	RETURN
+ENDIF
+LLM_REQ = TOINT(LLM_TMP)
+CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+SIF LLM_STATE != 1
+	RETURN
+CALL LLM_SANITIZE_REPLY(LLM_OUT)
+; ⚠️ 整段存（格式已由 prompt 固定）—— 太短就当作失败，不覆盖旧值 ✓
+SIF STRLENS(LLM_OUT) >= 8
+	LLM_INT_PREF:(LLM_CID):0 = %LLM_OUT%
+RETURN
+
+
+
+
+
+
+
+
+
+
+; ========================================================================
+;  **当前身体状态**（2026-10-08 用户要求）——
+;  用户原话：「让 llm 根据某个部位的快感累计程度不同做出不同的回应，
+;            比如乳头变没变硬 爱液有没有流出」
+;  ⚠️ 数据源全走官方：
+;     · 乳头 ⇒ 调官方 `@NIPPLE_DESCRIPTION`（按 快Ｂ + 欲情 分档）✓
+;     · 爱液 ⇒ 官方 `PALAM:潤滑` 的 5 档（Look.ERB:167~176）✓
+;     · 各部位 ⇒ `CUP + PALAM`（官方高潮判定用的值）✓
+; ========================================================================
+@LLM_INT_BODY_STATE(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIMS LLM_TMP
+REF_OUT = ""
+
+	; ── ① 各部位快感（★ **四档**，2026-10-08 用户要求）──
+	;   ⚠️ 用户原话：「如果有一个部位快感积累较高，描写的内容和话语也应该有所变化，
+	;            比如胸较高就会说『胸那边好舒服』之类的」
+	;   ⚠️ 档位照官方 `PALAMLV`：4=10000(快到了) 3=3000(很敏感) 2=500(有感觉) 1=100(刚碰到) ✓
+	LLM_TMP = ""
+	; ⚠️ 只报**最强烈的一两个**部位 —— 全列出来她会念清单 ✓
+	IF CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ >= PALAMLV:4
+		LLM_TMP += @"**胸**（快到了、涨得发疼）"
+	ELSEIF CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ >= PALAMLV:3
+		LLM_TMP += @"**胸**（很敏感、一碰就抖）"
+	ELSEIF CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ >= PALAMLV:2
+		LLM_TMP += @"**胸**（有感觉了、想要更多）"
+	ELSEIF CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ >= PALAMLV:1
+		LLM_TMP += @"**胸**（刚被碰到、有点发热）"
+	ENDIF
+	SIF LLM_TMP != ""
+		LLM_TMP += @"；"
+	IF CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ >= PALAMLV:4
+		LLM_TMP += @"**下面**（快到了、一阵阵缩）"
+	ELSEIF CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ >= PALAMLV:3
+		LLM_TMP += @"**下面**（很敏感、里面在发烫）"
+	ELSEIF CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ >= PALAMLV:2
+		LLM_TMP += @"**下面**（有感觉了、开始湿）"
+	ELSEIF CUP:(LLM_CID):快Ｖ + PALAM:(LLM_CID):快Ｖ >= PALAMLV:1
+		LLM_TMP += @"**下面**（刚被碰到、有点热）"
+	ENDIF
+	SIF LLM_TMP != ""
+		LLM_TMP += @"；"
+	IF CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ >= PALAMLV:4
+		LLM_TMP += @"**豆豆**（快到了、碰都碰不得）"
+	ELSEIF CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ >= PALAMLV:3
+		LLM_TMP += @"**豆豆**（很敏感、一碰就腿软）"
+	ELSEIF CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ >= PALAMLV:2
+		LLM_TMP += @"**豆豆**（有感觉了）"
+	ELSEIF CUP:(LLM_CID):快Ｃ + PALAM:(LLM_CID):快Ｃ >= PALAMLV:1
+		LLM_TMP += @"**豆豆**（刚被碰到）"
+	ENDIF
+	SIF LLM_TMP != ""
+		LLM_TMP += @"；"
+	IF CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ >= PALAMLV:4
+		LLM_TMP += @"**后面**（快到了、又涨又麻）"
+	ELSEIF CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ >= PALAMLV:3
+		LLM_TMP += @"**后面**（很敏感、有种奇怪的感觉）"
+	ELSEIF CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ >= PALAMLV:2
+		LLM_TMP += @"**后面**（有感觉了）"
+	ELSEIF CUP:(LLM_CID):快Ａ + PALAM:(LLM_CID):快Ａ >= PALAMLV:1
+		LLM_TMP += @"**后面**（刚被碰到）"
+	ENDIF
+	SIF LLM_TMP != ""
+		LLM_TMP += @"；"
+	IF CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ >= PALAMLV:4
+		LLM_TMP += @"**嘴**（快到了、合不拢）"
+	ELSEIF CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ >= PALAMLV:3
+		LLM_TMP += @"**嘴**（很敏感、舌头都麻了）"
+	ELSEIF CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ >= PALAMLV:2
+		LLM_TMP += @"**嘴**（有感觉了）"
+	ELSEIF CUP:(LLM_CID):快Ｍ + PALAM:(LLM_CID):快Ｍ >= PALAMLV:1
+		LLM_TMP += @"**嘴**（刚被碰到）"
+	ENDIF
+		; ★★ **指导语分模式**（2026-10-08 用户要求）——
+		;   用户原话：「当然 睡姦和醉姦是另外的表达形式」
+		;   ⚠️ 清醒 ⇒ 可以说出来、可以主动；睡着/醉着 ⇒ 只有本能的身体反应 ✓
+		IF LLM_TMP != ""
+			IF CFLAG:(LLM_CID):睡眠 || TCVAR:(LLM_CID):烂醉
+				REF_OUT += @"\n  ★★ **但你现在没有意识** —— 所以："
+				REF_OUT += @"\n     · 这些反应是**本能的、不自主的** —— 你**不会说出来**、也**不会主动迎合**"
+				REF_OUT += @"\n     · 只能写：被碰到时的轻颤、呼吸变粗、腰不自觉地动、手指抓紧床单"
+				REF_OUT += @"\n     · 快感越高 ⇒ 抖得越厉害、哼声越明显、身体越往他那边蹭（无意识的）"
+				REF_OUT += @"\n     · ⚠️ 但**别报出部位名字**（「胸那边好舒服」这种是清醒时才说的）✗"
+			ELSE
+				REF_OUT += @"\n  ⇒ 可以**主动往他手上凑**、可以**说出那个部位**（「那边……好舒服」）、"
+				REF_OUT += @"     语气越来越散、句子越来越短 ✓"
+				REF_OUT += @"\n  ⇒ ⚠️ 反过来：快感低的部位**别演得像很爽** —— 只是有点热而已 ✗"
+			ENDIF
+		ENDIF
+
+; ── ② 乳头（调官方函数，它自己按档位给词）──
+SIF EXISTFUNCTION(@"NIPPLE_DESCRIPTION")
+	LLM_TMP = %NIPPLE_DESCRIPTION(LLM_CID, 1)%
+IF EXISTFUNCTION(@"NIPPLE_DESCRIPTION")
+	SIF LLM_TMP != ""
+		REF_OUT += @"你的乳头现在是**%LLM_TMP%**。\n"
+ENDIF
+	REF_OUT += @"你的乳头现在是**%LLM_TMP%**。\n"
+
+; ── ③ 爱液（官方 PALAM:潤滑 5 档）──
+LLM_TMP = ""
+IF PALAM:(LLM_CID):潤滑 >= PALAMLV:7
+	LLM_TMP = "已经泛滥成灾，稍微一动就有东西顺着腿往下淌"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:6
+	LLM_TMP = "湿得一塌糊涂，腿上都沾到了"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:4
+	LLM_TMP = "爱液已经沿着腿往下流了"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:2
+	LLM_TMP = "那里已经湿气满满的"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:1
+	LLM_TMP = "那里已经濡湿了"
+ENDIF
+SIF LLM_TMP != ""
+	REF_OUT += @"你下面%LLM_TMP%。\n"
+
+; ── ④ 欲情（官方通用情欲值）──
+SIF PALAM:(LLM_CID):欲情 >= PALAMLV:5
+	REF_OUT += @"⚠️ 你现在**情欲高涨**，脑子不太转得动。\n"
+SIF PALAM:(LLM_CID):欲情 >= PALAMLV:3 && PALAM:(LLM_CID):欲情 < PALAMLV:5
+	REF_OUT += @"你现在**有点动情**了。\n"
+RETURN
+
+
+
+
+; ========================================================================
+;  **关键词判断部位**（2026-10-08 用户决定）——
+;  用户原话：「这不是我们的，是我在进入自由互动前和美铃接吻了，
+;            只能说明我们的检测计量槽有用，但是我们自行写的增加部分没用」
+;  ⚠️ 真因：模型（deepseek-v4.1-Flash）**从不输出 ###BODY###**
+;     （项目注释早有记录：`LLM_CONVERSATION.ERB:4127`）
+;  ⇒ 所以在 ERB 侧用**玩家输入的关键词**直接判部位，不依赖模型 ✓
+;  ⚠️ 判据表（玩家输入里出现任意一个词就算碰了那里）：
+;     B 胸   ⇒ 胸 奶 乳 乳头 乳房 揉胸 摸胸 搓揉 捏
+;     V 阴道 ⇒ 下面 小穴 里面 插入 阴道 穴 花心 内壁 抽插
+;     C 阴蒂 ⇒ 豆豆 阴蒂 蒂 花核
+;     A 肛门 ⇒ 后面 屁股 菊花 肛门 后穴 臀
+;     M 口   ⇒ 嘴 舌 亲 吻 舔 吸 口
+;  ⚠️ 强度按**关键词命中数**给（1 个词 = 5，2 个以上 = 8）✓
+; ========================================================================
+@LLM_INT_GUESS_BODY(LLM_TEXT, REF_OUT)
+#DIMS LLM_TEXT
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIM LLM_HIT
+REF_OUT = ""
+; ★★ **入口标记**（2026-10-08 诊断）—— 只要函数被调用就写下 ✓
+LLM_GUESS_OUT = @"[入口]%LLM_TEXT%"
+IF STRLENS(LLM_TEXT) <= 0
+	RETURN
+ENDIF
+
+; ── 逐个部位查关键词 ──
+; ⚠️ ERB 没有 OR 短路，只能一个个 STRFIND 然后加 ✓
+LLM_HIT = 0
+SIF STRFIND(LLM_TEXT, "胸") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "奶") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "乳") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "揉") >= 0
+	LLM_HIT ++
+IF LLM_HIT > 0
+	IF LLM_HIT >= 2
+		REF_OUT += @"B+8,"
+	ELSE
+		REF_OUT += @"B+5,"
+	ENDIF
+ENDIF
+
+LLM_HIT = 0
+SIF STRFIND(LLM_TEXT, "下面") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "小穴") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "里面") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "插入") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "穴") >= 0
+	LLM_HIT ++
+IF LLM_HIT > 0
+	IF LLM_HIT >= 2
+		REF_OUT += @"V+8,"
+	ELSE
+		REF_OUT += @"V+5,"
+	ENDIF
+ENDIF
+
+LLM_HIT = 0
+SIF STRFIND(LLM_TEXT, "豆豆") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "阴蒂") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "蒂") >= 0
+	LLM_HIT ++
+IF LLM_HIT > 0
+	IF LLM_HIT >= 2
+		REF_OUT += @"C+8,"
+	ELSE
+		REF_OUT += @"C+5,"
+	ENDIF
+ENDIF
+
+LLM_HIT = 0
+SIF STRFIND(LLM_TEXT, "后面") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "屁股") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "菊花") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "肛门") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "臀") >= 0
+	LLM_HIT ++
+IF LLM_HIT > 0
+	IF LLM_HIT >= 2
+		REF_OUT += @"A+8,"
+	ELSE
+		REF_OUT += @"A+5,"
+	ENDIF
+ENDIF
+
+LLM_HIT = 0
+SIF STRFIND(LLM_TEXT, "舌") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "吻") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "舔") >= 0
+	LLM_HIT ++
+SIF STRFIND(LLM_TEXT, "口") >= 0
+	LLM_HIT ++
+IF LLM_HIT > 0
+	IF LLM_HIT >= 2
+		REF_OUT += @"M+8,"
+	ELSE
+		REF_OUT += @"M+5,"
+	ENDIF
+ENDIF
+
+; ── 去掉末尾多余的逗号 ──
+SIF STRLENS(REF_OUT) > 0 && SUBSTRING(REF_OUT, STRLENS(REF_OUT) - 1, 1) == ","
+	REF_OUT = %SUBSTRING(REF_OUT, 0, STRLENS(REF_OUT) - 1)%
+; ⚠️ 补上分号后的觉醒增量（没碰就不醒）
+SIF STRLENS(REF_OUT) > 0
+	REF_OUT += @";0"
+RETURN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; ========================================================================
+;  **关键词判断「要脱哪件」**（2026-10-08 用户要求）——
+;  用户原话：「我们的脱衣系统 应该接入自由互动里」
+;  ⚠️ 原来靠 `###DELTA###` 的 `act=7` 触发，但模型从不输出那个标记 ⚠️
+;  ⇒ 改成从**双方文本**里提取：出现「脱/褪/扒/扯掉」+ 服装名 ⇒ 就脱 ✓
+;  ⚠️ 只返回**服装名**（交给 `@LLM_STRIP_PART` 去匹配槽位 + 把关分级）✓
+; ========================================================================
+@LLM_INT_GUESS_STRIP(LLM_CID, LLM_TEXT, REF_OUT)
+#DIM  LLM_CID
+#DIM  LLM_DBG_SLOT   ; ★ 匹配到的槽号（诊断用）
+#DIMS LLM_TEXT
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIM  LLM_GOT
+#DIM  LLM_SLOT
+#DIMS LLM_CW
+#DIM  LLM_UP
+#DIM CONST LLM_TOP, 7 = 18, 17, 16, 10, 9, 13, 14    ; ★ 上身外衣（同 @LLM_STRIP_PART）
+#DIM CONST LLM_BOT, 5 = 15, 12, 11, 13, 14          ; ★ 下身外衣（★ 不含 19~21：那是装饰件）
+#DIM CONST LLM_INNER, 4 = 8, 7, 6, 5       ; ★ 内衣（胸罩×2 / 内裤×2）
+#DIM CONST LLM_ALL, 22 = 18, 2, 1, 22, 13, 14, 9, 10, 17, 16, 15, 12, 11, 3, 4, 19, 20, 21, 8, 7, 6, 5  ; ★ 全部可脱
+
+REF_OUT = ""
+IF STRLENS(LLM_TEXT) <= 0
+	RETURN
+ENDIF
+	; ⚠️ 必须有「脱」这个动作 —— 否则她随口提一句衣服就会脱 ✓
+	; ★★★ **先排除合成词**（2026-10-08 用户提出防误判）——
+	;   ⚠️ 「脱力 / 摆脱 / 脱落 / 超脱 / 脱线」不是脱衣服 ⚠️
+	SIF STRFIND(LLM_TEXT, "脱力") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "摆脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "脱落") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "超脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "脱线") >= 0
+		RETURN
+	; ★★★ **再排除否定句**（2026-10-08 用户提出防误判）——
+	;   ⚠️「别脱」「不要脱」「先别脱」⇒ 那是**拒绝** ⇒ 不该脱 ⚠️
+	SIF STRFIND(LLM_TEXT, "别脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "不要脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "不用脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "不能脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "不许脱") >= 0
+		RETURN
+	SIF STRFIND(LLM_TEXT, "先别") >= 0 && STRFIND(LLM_TEXT, "脱") >= 0
+		RETURN
+	; ★ **最后确认有「脱」这个动作** ✓
+	LLM_GOT = 0
+	SIF STRFIND(LLM_TEXT, "脱") >= 0
+		LLM_GOT = 1
+	SIF STRFIND(LLM_TEXT, "褪") >= 0
+		LLM_GOT = 1
+	SIF STRFIND(LLM_TEXT, "扒") >= 0
+		LLM_GOT = 1
+	SIF STRFIND(LLM_TEXT, "扯掉") >= 0
+		LLM_GOT = 1
+	SIF STRFIND(LLM_TEXT, "解开") >= 0
+		LLM_GOT = 1
+	SIF LLM_GOT == 0
+	RETURN
+
+; ★★★ **和她当前衣着匹配**（2026-10-08 用户要求）——
+;   用户原话：「关键词表能不能不是写死的 而是和角色当前的衣着匹配」
+;   ⇒ 遍历她身上**所有可脱的槽**，用官方 `@CLOTHNAME` 取名字，
+;      看哪个名字出现在文本里 ⇒ 就是那件 ✓
+SIF !EXISTFUNCTION(@"CLOTHNAME")
+	RETURN
+FOR LOCAL, 0, 22
+	; ⚠️ 槽号表：LLM_ALL（含鞋袜/配饰/外衣/全身装）✓
+	LLM_SLOT = LLM_ALL:LOCAL
+	SIF !EQUIP:(LLM_CID):LLM_SLOT
+		CONTINUE
+	LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+			; ⚠️ `CLOTHNAME` 有时返回 `@"xxx"`（带引号）⇒ 只在**确以 @ 开头**时才剥壳 ✓
+			SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	SIF STRLENS(LLM_CW) < 3
+		CONTINUE
+	; ★ 双向包含：文本里有衣服名，或衣服名里有文本片段 ✓
+	IF STRFIND(LLM_TEXT, LLM_CW) >= 0
+		REF_OUT = %LLM_CW%
+		; ★ 诊断：记录匹配到的槽号（2026-10-08）✓
+		LLM_DBG_SLOT = LLM_SLOT
+		RETURN
+	ENDIF
+	SIF STRFIND(LLM_TEXT, LLM_CW) >= 0
+		RETURN
+NEXT
+
+; ── ② 退一步：按**槽位名**匹配（她这件可能叫得很特别）──
+;   ⚠️ 用 LLM_TOP / LLM_BOT / LLM_INNER 的槽号 + 玩家的笼统说法 ✓
+IF STRFIND(LLM_TEXT, "上衣") >= 0 || STRFIND(LLM_TEXT, "外衣") >= 0 || STRFIND(LLM_TEXT, "衣服") >= 0
+	FOR LOCAL, 0, 7
+		LLM_SLOT = LLM_TOP:LOCAL
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			RETURN
+	NEXT
+ENDIF
+IF STRFIND(LLM_TEXT, "下衣") >= 0 || STRFIND(LLM_TEXT, "下身") >= 0 || STRFIND(LLM_TEXT, "裤子") >= 0
+	FOR LOCAL, 0, 5
+		LLM_SLOT = LLM_BOT:LOCAL
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			RETURN
+	NEXT
+ENDIF
+IF STRFIND(LLM_TEXT, "内衣") >= 0 || STRFIND(LLM_TEXT, "胸罩") >= 0 || STRFIND(LLM_TEXT, "内裤") >= 0
+	FOR LOCAL, 0, 4
+		LLM_SLOT = LLM_INNER:LOCAL
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			RETURN
+	NEXT
+ENDIF
+
+; ── ③ 再退一步：**没指定哪件 ⇒ 脱最外面那件**（按 LLM_TOP 的顺序）──
+FOR LOCAL, 0, 7
+	LLM_SLOT = LLM_TOP:LOCAL
+	SIF !EQUIP:(LLM_CID):LLM_SLOT
+		CONTINUE
+	REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+	RETURN
+NEXT
+FOR LOCAL, 0, 5
+	LLM_SLOT = LLM_BOT:LOCAL
+	SIF !EQUIP:(LLM_CID):LLM_SLOT
+		CONTINUE
+	REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+	RETURN
+NEXT
+; 全裸 ⇒ 空 ✓
+RETURN
+
+@LLM_INT_CLOTHES_TXT(LLM_CID, REF_OUT)
+#DIM  LLM_NAKED_UP  ; ★ 上身是否赤裸（2026-10-08）
+#DIM  LLM_NAKED_LO  ; ★ 下身是否赤裸（2026-10-08）
+#DIMS LLM_BD        ; ★ 体型描述（2026-10-08）
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIM  LLM_SLOT       ; 槽号中转（装饰件循环用）
+#DIMS LLM_TMP2       ; 分类名中转
+#DIM CONST LLM_DECO, 5 = 1, 22, 19, 20, 21    ; 饰品 / 腕部 / 其他１~３
+#DIMS LLM_CW
+#DIM  LLM_GOT
+REF_OUT = ""
+SIF !EXISTFUNCTION(@"CLOTHNAME")
+	RETURN
+
+; ── ① 上身（从外到内，命中就停）──
+LLM_CW = ""
+LLM_GOT = 0
+IF !LLM_GOT && EQUIP:(LLM_CID):18
+	LLM_CW = %CLOTHNAME(18, EQUIP:(LLM_CID):18, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):17
+	LLM_CW = %CLOTHNAME(17, EQUIP:(LLM_CID):17, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):16
+	LLM_CW = %CLOTHNAME(16, EQUIP:(LLM_CID):16, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):13
+	LLM_CW = %CLOTHNAME(13, EQUIP:(LLM_CID):13, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):14
+	LLM_CW = %CLOTHNAME(14, EQUIP:(LLM_CID):14, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):10
+	LLM_CW = %CLOTHNAME(10, EQUIP:(LLM_CID):10, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):9
+	LLM_CW = %CLOTHNAME(9, EQUIP:(LLM_CID):9, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+; ⚠️ 内衣只在**外衣全空**时才显示 ⇒ 所以到这里才是它 ✓
+IF !LLM_GOT && EQUIP:(LLM_CID):8
+	LLM_CW = %CLOTHNAME(8, EQUIP:(LLM_CID):8, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+IF !LLM_GOT && EQUIP:(LLM_CID):7
+	LLM_CW = %CLOTHNAME(7, EQUIP:(LLM_CID):7, LLM_CID)%
+	; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+	SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+	LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+	LLM_GOT = 1
+ENDIF
+	; ★★★ **穿着一行展示 + 空的不写**（2026-10-08 用户要求）——
+	;   用户原话：「把穿着描述另起一行展示，现在这样不好看」
+	;            「还有没有穿着的地方留空也不好看」
+	;            「（下面没穿）的提示是多余的 去掉」
+	;   ⇒ 三段拼成一行，用「 ／ 」分隔；头/脚没穿就整段不提 ✓
+
+	; ── ① 上身（从外到内，命中就停；空 ⇒ 赤裸）──
+	SIF STRLENS(LLM_CW) >= 3
+		REF_OUT += @"【穿着】上半身：%LLM_CW%"
+	IF STRLENS(LLM_CW) < 3
+		REF_OUT += @"【穿着】上半身：**赤裸**"
+		LLM_NAKED_UP = 1      ; ★ 上身赤裸 ⇒ 等一下才出胸/乳头描写
+		ENDIF
+
+	; ── ② 下身（同样从外到内）──
+	LLM_CW = ""
+	LLM_GOT = 0
+	IF !LLM_GOT && EQUIP:(LLM_CID):15
+		LLM_CW = %CLOTHNAME(15, EQUIP:(LLM_CID):15, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):12
+		LLM_CW = %CLOTHNAME(12, EQUIP:(LLM_CID):12, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):11
+		LLM_CW = %CLOTHNAME(11, EQUIP:(LLM_CID):11, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):13
+		LLM_CW = %CLOTHNAME(13, EQUIP:(LLM_CID):13, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):14
+		LLM_CW = %CLOTHNAME(14, EQUIP:(LLM_CID):14, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):6
+		LLM_CW = %CLOTHNAME(6, EQUIP:(LLM_CID):6, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	IF !LLM_GOT && EQUIP:(LLM_CID):5
+		LLM_CW = %CLOTHNAME(5, EQUIP:(LLM_CID):5, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		LLM_GOT = 1
+	ENDIF
+	SIF STRLENS(LLM_CW) >= 3
+		REF_OUT += @" ／ 下半身：%LLM_CW%"
+	IF STRLENS(LLM_CW) < 3
+		REF_OUT += @" ／ 下半身：**赤裸**"
+		LLM_NAKED_LO = 1
+	ENDIF
+
+	; ── ③ 头部 / 脚部（★ 没穿就不写，不留空）──
+	SIF EQUIP:(LLM_CID):2
+		REF_OUT += @" ／ 头：%CLOTHNAME(2, EQUIP:(LLM_CID):2, LLM_CID)%"
+	SIF EQUIP:(LLM_CID):3
+		REF_OUT += @" ／ 脚：%CLOTHNAME(3, EQUIP:(LLM_CID):3, LLM_CID)%"
+
+	; ── ④ ★★★ **装饰件 / 饰品 / 腕部 / 其他**（2026-10-08 用户要求）——
+	;   用户原话：「这些装饰物也应如同上下装和帽子一样能在自由互动界面里看到
+	;            不然玩家都不知道哪些东西可以脱」
+	;   ⚠️ 这些槽**不参与内衣分级**（见 `LLM_ALL` 的说明），但**仍然可脱** ⇒
+	;      不列出来的话，玩家根本不知道身上还有它们 ⚠️
+	;   ⚠️ 槽号：1 饰品 / 22 腕部装束 / 19~21 其他１~３
+	FOR LOCAL, 0, 5
+		LLM_SLOT = LLM_DECO:LOCAL
+		SIF !EQUIP:(LLM_CID):LLM_SLOT
+			CONTINUE
+		LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		; ⚠️ 只在**确以 @ 开头**时才剥壳 ✓
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		SIF STRLENS(LLM_CW) < 3
+			CONTINUE
+		; ★ 分类名（让玩家看清是哪个部位）
+		LLM_TMP2 = "其他"
+		SIF LLM_SLOT == 1
+			LLM_TMP2 = "饰品"
+		SIF LLM_SLOT == 22
+			LLM_TMP2 = "腕部"
+		REF_OUT += @" ／ %LLM_TMP2%：%LLM_CW%"
+	NEXT
+	REF_OUT += @"。"
+RETURN
+
+
+
+
+
+
+
+
+
+
+
+
+
+; ========================================================================
+
+
+
+
+
+
+
+; ========================================================================
+;  **上半身描写**（只在**上身赤裸**时用）（2026-10-08 用户要求）——
+;  用户原话：「只有赤裸之后才会出对应的描写 比如上身赤裸出现乳头等位置的描写」
+;  ========================================================================
+@LLM_INT_BODY_UP(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#DIM  LLM_BST
+REF_OUT = ""
+; ── ① 胸围（官方 TALENT）──
+SELECTCASE TALENT:(LLM_CID):胸围
+	CASE 2
+		REF_OUT += @"胸口那对**胀得沉甸甸的**，稍微一动就跟着晃"
+	CASE 1
+		REF_OUT += @"胸脯**饱满地挺着**，形状很好看"
+	CASE -1
+		REF_OUT += @"胸口**小巧而挺翘**"
+	CASE -2
+		REF_OUT += @"胸口**平坦得几乎没什么起伏**"
+	CASEELSE
+		REF_OUT += @"胸口是不大不小的形状"
+ENDSELECT
+; ── ② 乳头（按 快Ｂ 分四档）──
+LLM_BST = CUP:(LLM_CID):快Ｂ + PALAM:(LLM_CID):快Ｂ
+IF LLM_BST >= PALAMLV:4
+	REF_OUT += @"，乳尖**硬得发疼**，碰一下都受不了"
+ELSEIF LLM_BST >= PALAMLV:3
+	REF_OUT += @"，乳尖**硬挺挺地立着**"
+ELSEIF LLM_BST >= PALAMLV:2
+	REF_OUT += @"，乳头**微微发硬**"
+ELSEIF LLM_BST >= PALAMLV:1
+	REF_OUT += @"，乳尖**有点发烫**"
+ENDIF
+REF_OUT += @"。"
+RETURN
+
+
+; ========================================================================
+;  **下半身 + 全身描写**（只在**下身赤裸**时用）（2026-10-08 用户要求）——
+;  ========================================================================
+@LLM_INT_BODY_LO(LLM_CID, REF_OUT)
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+REF_OUT = ""
+; ── ① 下面（按 PALAM:潤滑，措辞照 Look.ERB:167~176）──
+IF PALAM:(LLM_CID):潤滑 >= PALAMLV:6
+	REF_OUT += @"下面**已经泛滥成灾**，稍微一动就有东西顺着腿往下淌"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:4
+	REF_OUT += @"下面**湿得厉害**，爱液已经沿着腿往下流了"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:2
+	REF_OUT += @"下面**湿气满满**"
+ELSEIF PALAM:(LLM_CID):潤滑 >= PALAMLV:1
+	REF_OUT += @"下面**已经濡湿了**"
+ELSEIF PALAM:(LLM_CID):欲情 >= PALAMLV:3
+	REF_OUT += @"下面**有点发烫**"
+ENDIF
+; ── ② 体型（官方 TALENT）──
+SIF REF_OUT != ""
+	REF_OUT += @"；"
+SELECTCASE TALENT:(LLM_CID):体型
+	CASE -5
+		REF_OUT += @"整个人**只有手掌那么大**，什么都显得巨大"
+	CASE -2
+		REF_OUT += @"身量**像小孩子一样小**，骨架也细"
+	CASE -1
+		REF_OUT += @"个子**比一般人娇小**一圈"
+	CASE 1
+		REF_OUT += @"个子**比一般人高挑**"
+	CASE 2
+		REF_OUT += @"身形**高大而结实**"
+	CASE 5
+		REF_OUT += @"是**巨人般的身量**"
+ENDSELECT
+; ── ③ 皮肤 / 呼吸（按 PALAM:欲情）──
+IF PALAM:(LLM_CID):欲情 >= PALAMLV:5
+	REF_OUT += @"；**全身泛着薄红**，呼吸又急又浅"
+ELSEIF PALAM:(LLM_CID):欲情 >= PALAMLV:3
+	REF_OUT += @"；脸颊发烫，呼吸有点乱"
+ENDIF
+REF_OUT += @"。"
+RETURN
+
+
+
+
+
+
+
+
+
+
+; ========================================================================
+;  **同步官方着装状态**（2026-10-08 用户要求）——
+;  用户原话：「感觉穿着还是要注入官方的着装判定里 不然 llm 不知道自己是裸着的」
+;  ⚠️ 官方读的是这些变量（`@CHECK_NUDE` 就看 `着衣状況`）：
+;     · `上半身着衣状況` = 0 全裸 / 1 穿着 / 2 只穿内衣
+;     · `上衣脱衣完毕`   = 1 表示上衣已脱光
+;     · `上半身裸露状態` = 1 表示裸露
+;  ⇒ 我们改完 `EQUIP` 之后**立刻**按它现算一遍 ✓
+; ========================================================================
+@LLM_INT_SYNC_CLOTHES(LLM_CID)
+#DIM  LLM_CID
+#LOCALSIZE 4
+#LOCALSSIZE 4
+#DIM  LLM_SLOT
+#DIM  LLM_FLAG
+#DIM CONST LLM_TOP, 7 = 18, 17, 16, 10, 9, 13, 14    ; ★ 上身外衣（同 @LLM_STRIP_PART）
+#DIM CONST LLM_BOT, 5 = 15, 12, 11, 13, 14          ; ★ 下身外衣（★ 不含 19~21：那是装饰件）
+#DIM CONST LLM_INNER, 4 = 8, 7, 6, 5       ; ★ 内衣（胸罩×2 / 内裤×2）
+
+; ── ① 上半身：有外衣吗？ ──
+LLM_FLAG = 0
+FOR LOCAL, 0, 7
+	LLM_SLOT = LLM_TOP:LOCAL
+	SIF EQUIP:(LLM_CID):LLM_SLOT
+		LLM_FLAG = 1
+NEXT
+IF LLM_FLAG
+	; 有外衣 ⇒ 正常穿着
+	TEQUIP:(LLM_CID):上半身着衣状況 = 1
+	TEQUIP:(LLM_CID):上衣脱衣完毕 = 0
+	TEQUIP:(LLM_CID):上半身裸露状態 = 0
+ELSE
+	; 外衣全空 ⇒ 看还有没有内衣
+	LLM_FLAG = 0
+	FOR LOCAL, 0, 4
+		LLM_SLOT = LLM_INNER:LOCAL
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			LLM_FLAG = 1
+	NEXT
+	IF LLM_FLAG
+		; 只剩内衣 ⇒ 官方值 2
+		TEQUIP:(LLM_CID):上半身着衣状況 = 2
+		TEQUIP:(LLM_CID):上衣脱衣完毕 = 1
+		TEQUIP:(LLM_CID):上半身裸露状態 = 1
+	ELSE
+		; 全脱光 ⇒ 0
+		TEQUIP:(LLM_CID):上半身着衣状況 = 0
+		TEQUIP:(LLM_CID):上衣脱衣完毕 = 1
+		TEQUIP:(LLM_CID):上半身裸露状態 = 1
+	ENDIF
+ENDIF
+
+; ── ② 下半身：同样处理 ──
+LLM_FLAG = 0
+FOR LOCAL, 0, 5
+	LLM_SLOT = LLM_BOT:LOCAL
+	SIF EQUIP:(LLM_CID):LLM_SLOT
+		LLM_FLAG = 1
+NEXT
+IF LLM_FLAG
+	TEQUIP:(LLM_CID):下半身着衣状況 = 1
+ELSE
+	LLM_FLAG = 0
+	SIF EQUIP:(LLM_CID):6 || EQUIP:(LLM_CID):5
+		LLM_FLAG = 1
+	IF LLM_FLAG
+		TEQUIP:(LLM_CID):下半身着衣状況 = 2
+	ELSE
+		TEQUIP:(LLM_CID):下半身着衣状況 = 0
+	ENDIF
+ENDIF
+RETURN
+
+
+
+
+
+
+
+
+

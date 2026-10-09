@@ -34,6 +34,9 @@
 ;  对话主循环
 ; ────────────────────────────────────────────────────────────────────────────
 @LLM_CHAT_LOOP(LLM_CID)
+#DIMS LLM_STRIP_LAST   ; ★ 最近脱掉的名字（给自检看，2026-10-08）
+#DIMS LLM_STRIP_WHAT   ; ★ 脱掉了什么（回填，2026-10-08）
+#DIMS LLM_STRIP_DONE   ; ★ 本轮实际脱掉的（给提示用，2026-10-08）
 #DIM  LLM_CID
 ; 数值局部现有 10 个（STATE/REQ/ROUND/D1~D4/ACC_FAVOR/ACC_MOOD/GOT_DELTA）
 ; 字符串局部现有 8 个（SYS/INPUT/OUT/TMP/APINAME/TOGETHER/TG_BEFORE/REASON）
@@ -86,6 +89,8 @@
 ; ⚠️ 2026-09-16 方案 B：身份改为 **ERB 直接判定**（见 `LLM_IDHIT` / `LLM_IDW`），
 ;    不再走 `###ADDR###` 解析 ⇒ 原来的 `LLM_ADDR_NEW` 已删除 ✓
 #DIM  LLM_TRY        ; ★ 请求重试计数（最多 3 次）
+#DIMS LLM_ACTST    ; ★ 互动开场的环境描写（2026-10-08）
+#DIMS LLM_CLOTHTXT   ; ★ 当前穿着文本（2026-10-08）
 ; 说明：跨对话的"不快"存在 TCVAR:(角色):336（见 LLM_KOJO.ERH 的说明），
 ;       所以**不再需要** LLM_ANGER_ACC 这个局部变量。
 ; 说明：等待/超时逻辑都在 @LLM_POLL 里，这里不再需要 LLM_WAIT
@@ -99,6 +104,14 @@
 ;     而 **Lv1 会让这个函数整个不被注册**：外面 CALL 它时不会有任何输出，
 ;     表现为"点开始对话后直接卡住/什么都不打印"。
 ;     ⇒ 任何注释都必须放在**全部 #DIM/#LOCALSIZE 之后**。
+
+; ★★ **会话历史索引**（2026-10-08 用户要求：两种模式完全隔离）——
+;   ⚠️ 插件历史按 charIndex 存，两种模式若共用 TARGET ⇒ 互动会继承对话上文 ⚠️
+;     实测症状：刚进自由互动，她却接着「刚才抱着胳膊打哈欠」往下说 ✓
+;   ⚠️ 互动的索引整体偏移 10000 ⇒ 两套历史各存各的 ✓
+LLM_HIST_ID = LLM_CID
+SIF LLM_MODE == 1
+	LLM_HIST_ID = LLM_CID + 10000
 
 TARGET = LLM_CID
 
@@ -281,7 +294,7 @@ CALL LLM_PERSONA_SNAPSHOT(TARGET)
 ;   ⚠️ 失败会静默跳过（`@LLM_PRESESSION` 内部处理）⇒ 不阻塞开场 ✓
 CALL LLM_PRESESSION(TARGET)
 CALL LLM_BUILD_SYSTEM_PROMPT(TARGET, LLM_SYS, LLM_TOGETHER, 1)
-CALLSHARP LLM_CHAT_SEND(TARGET, LLM_SYS, LLM_OPEN_MSG, 1, LLM_TMP)
+CALLSHARP LLM_CHAT_SEND(LLM_HIST_ID, LLM_SYS, LLM_OPEN_MSG, 1, LLM_TMP)
 IF TOINT(LLM_TMP) > 0
 	LLM_REQ = TOINT(LLM_TMP)
 	; ★★ **20 秒超时 ⇒ 自动重试，最多 3 次**（显示「少女重连中（X/3）」）——
@@ -298,12 +311,39 @@ IF TOINT(LLM_TMP) > 0
 			PRINTFORML 　.....少女重连中（{LLM_TRY}/3）……
 		ENDIF
 		CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+		; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+		;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+		;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+		IF LLM_STATE == 1
+			LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+			SIF STRLENS(LLM_OUT) > 600
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+				LLM_STATE = 9
+			; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+				LLM_STATE = 9
+		ENDIF
 		SIF LLM_STATE == 1
 			BREAK
 		SIF LLM_TRY >= 3
 			BREAK
 		CALLSHARP LLM_CHAT_CANCEL(LLM_REQ, LLM_TMP)
-		CALLSHARP LLM_CHAT_SEND(TARGET, LLM_SYS, LLM_OPEN_MSG, 1, LLM_TMP)
+		CALLSHARP LLM_CHAT_SEND(LLM_HIST_ID, LLM_SYS, LLM_OPEN_MSG, 1, LLM_TMP)
 		LLM_REQ = TOINT(LLM_TMP)
 		SIF LLM_REQ <= 0
 			BREAK
@@ -376,12 +416,34 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 		;    `###STRIP###` 会被这一刀切掉 ⇒ **模型写了也存不下** ⚠️
 				CALL LLM_PARSE_DELTA(LLM_OUT, LLM_D1, LLM_D2, LLM_D3, LLM_D4, LLM_D5, LLM_D6)
 		LLM_GOT_DELTA = RESULT
+		; ★ 计数（2026-10-08）✓
+		IF LLM_GOT_DELTA
+			LLM_DELTA_OK_CNT ++
+		ELSE
+			LLM_DELTA_NG_CNT ++
+		ENDIF
 		CALL LLM_SANITIZE_REPLY(LLM_OUT)
 		; ⚠️ 必须 IF/ENDIF：`SIF` 只绑紧随的一行
 		IF LLM_OUT != ""
+			; ★★ **互动开场：先打印系统描写**（2026-10-08 用户要求）——
+			;   用户原话：「开场白包含 一句系统确定的房事环境描写 + llm 在此描写下说的话」✓
+			;   ⚠️ 只在这一轮（开场白）打印 —— 之后每轮的描写由她自己说 ✓
+			IF LLM_MODE == 1
+				LLM_ACTST = ""
+				CALL LLM_INT_ACT_STATUS(TARGET, LLM_ACTST)
+				IF LLM_ACTST != ""
+					; ⚠️ 用灰色（和她的台词区分）—— 用完必须 RESETCOLOR ⚠️
+					SETCOLOR C_L_GRAY
+					PRINTFORML %LLM_ACTST%
+					RESETCOLOR
+				ENDIF
+			ENDIF
 			CALL LLM_SHOW_FIGURE(TARGET)
 			CALL LLM_PRINT_REPLY(TARGET, LLM_OUT)
 			; ★ 约会路上时，在台词之下补一行提示（2026-09-18 用户要求）✓
+			; ★ **绕路**（模型在 ###DETOUR### 里提出、且条件满足时执行）✓
+			SIF LLM_DETOUR_WANT == 1
+				CALL LLM_DO_DETOUR(TARGET)
 			CALL LLM_SHOW_DATEHINT
 			; 记下调用前的模式值 —— 用来判断这一轮是不是**刚建立**陪伴模式
 			LLM_TG_BEFORE = %LLM_TOGETHER%
@@ -408,19 +470,37 @@ ENDIF
 PRINTL
 
 WHILE 1
-	SIF LLM_ROUND >= 20
-		BREAK
+	; ★★★ **轮数上限已移除**（2026-10-08 用户要求）——
+	;   用户原话：「完全去掉轮数限制」
+	;   ⚠️ 原来这里是 `SIF LLM_ROUND >= 20 / BREAK` ⇒ 聊满 20 轮强制结束 ⚠️
+	;   ⇒ 现在**只能主动退出**（输入空行），或者她被叫走 / 到点 / 生气离开 ✓
+	;   ⚠️ 注意：插件侧历史仍只保留 30 条（`LlmClient.cs:31`）⇒
+	;      聊很久以后**最早的对话会被丢弃**，她会忘记开头说的 ✓
 
 	; ── 取玩家输入 ──
 	CLEARTEXTBOX
 	DRAWLINE
-	PRINTFORML 【自由对话】与 %CALLNAME:TARGET% 交谈
+	; ★ 标题按模式区分（2026-10-07）—— 原来固定写「自由对话」⇒ 互动时误导 ⚠️
+	IF LLM_MODE == 1
+		PRINTFORML 【自由互动】与 %CALLNAME:TARGET% ——
+	ELSE
+		PRINTFORML 【自由对话】与 %CALLNAME:TARGET% 交谈
+	ENDIF
 	PRINTFORML 　接口：%LLM_APINAME%
 	PRINTFORML 　persona：%LLM_PERSONA_SHOW%
 	PRINTFORML 　直接输入要说的话后回车；输入空内容即结束
 	DRAWLINE
 	INPUTS
 	LLM_INPUT = %RESULTS%
+	; ★★★ **每轮开头清零**（2026-10-08）——
+	;   ⚠️ 这三个都是跨轮变量；不清就会「上一轮脱过的，这一轮又脱一次」⚠️
+	; ⚠️⚠️ **注释一律写在赋值行的上面** —— 2026-10-08 用户报告：
+	;    「（美铃的""；本轮的脱掉了什么（提示用）被脱掉了。）」这种怪提示，
+	;    就是**赋值行尾注释的文字被当成字符串内容**了 ⚠️
+	;    ⇒ 血的教训：**字符串赋值行不要写行尾注释** ✓
+	LLM_STRIP_WANT = ""
+	LLM_STRIP_DONE = ""
+	LLM_STRIP_WHAT = ""
 	; ⚠️⚠️ **这里原本有一个 `IF LLM_PENDING_EXIT / RETURN 1` 块，已删除**（2026-09-16）——
 	;    它想实现"她道别后，玩家再按一次回车就退出"，但那**违反本项目的前提**：
 	;    **整个插件会话都在一个回合里**，主循环的 `INPUTS` 只是回合内的模拟 ⇒
@@ -576,7 +656,7 @@ ENDIF
 	CALL LLM_BUILD_SYSTEM_PROMPT(TARGET, LLM_SYS, LLM_TOGETHER, 0)
 
 	; ── 发起请求（立即返回 id）──
-	CALLSHARP LLM_CHAT_SEND(TARGET, LLM_SYS, LLM_INPUT, LLM_TMP)
+	CALLSHARP LLM_CHAT_SEND(LLM_HIST_ID, LLM_SYS, LLM_INPUT, LLM_TMP)
 	IF TOINT(LLM_TMP) <= 0
 		PRINTFORML 　[发起失败]
 		CALL LLM_SHOW_API_HINT
@@ -596,12 +676,39 @@ ENDIF
 			PRINTFORML 　.....少女重连中（{LLM_TRY}/3）……
 		ENDIF
 		CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+		; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+		;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+		;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+		IF LLM_STATE == 1
+			LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+			SIF STRLENS(LLM_OUT) > 600
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+				LLM_STATE = 9
+			; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+				LLM_STATE = 9
+			SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+				LLM_STATE = 9
+		ENDIF
 		SIF LLM_STATE == 1
 			BREAK
 		SIF LLM_TRY >= 3
 			BREAK
 		CALLSHARP LLM_CHAT_CANCEL(LLM_REQ, LLM_TMP)
-		CALLSHARP LLM_CHAT_SEND(TARGET, LLM_SYS, LLM_INPUT, LLM_TMP)
+		CALLSHARP LLM_CHAT_SEND(LLM_HIST_ID, LLM_SYS, LLM_INPUT, LLM_TMP)
 		LLM_REQ = TOINT(LLM_TMP)
 		SIF LLM_REQ <= 0
 			BREAK
@@ -617,7 +724,14 @@ ENDIF
 		CONTINUE
 	ENDIF
 
-	IF LLM_STATE != 1
+	; ★★ **三次都是思考链 ⇒ 放弃这次**（2026-10-08）——
+	;   ⚠️ 不能让思考链当台词显示给玩家 ⚠️
+	IF LLM_STATE == 9
+		PRINTFORML 　[提示] 模型连着输出了思考过程，这次跳过（请再输入一句）
+		CONTINUE
+	ENDIF
+
+	IF LLM_STATE != 1 && LLM_STATE != 9
 		PRINTFORML 　[出错] %LLM_OUT%
 		CALL LLM_SHOW_API_HINT
 		BREAK
@@ -675,6 +789,14 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 	IF LLM_NOTE_NEW != ""
 		LLM_STRIP_WANT = %LLM_NOTE_NEW%
 	ENDIF
+	; ★ **绕路**（约会路上，2026-10-07 用户需求）——
+	;   ⚠️ 必须在 `@LLM_PARSE_DELTA` 之前（同 `###STRIP###`）——
+	;      那一刀会把 `LLM_OUT` 截成 `###DELTA###` 之前的部分 ⚠️
+	;   ⚠️ 用 `STRFIND` 而不是 `@LLM_PARSE_NOTE` —— 后者抠的是
+	;      「标记**后面的内容**」，而 `###DETOUR###` 后面是空的 ⇒ 会失败 ✓
+	LLM_DETOUR_WANT = 0
+	SIF STRFIND(LLM_OUT, "###DETOUR###") >= 0
+		LLM_DETOUR_WANT = 1
 	; ⚠️⚠️ **`###ADDR###` / `###CALL###` / `###CALLHER###` 的解析已删除**
 	;    （2026-09-16 方案 B）—— 那三种事现在**统一写成 `###MEMO### [3]`**，
 	;    走上面那个**验证过能工作**的解析器；下面靠 `LLM_MEMO_NEW` 的回执覆盖 ✓
@@ -696,10 +818,73 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 		;      起全部截掉 ⇒ 标记不会被念出来 ✓
 		LLM_BODY_TAG = ""
 		CALL LLM_INT_PARSE_BODY(LLM_OUT, LLM_BODY_TAG)
+		; ★★ **模型没写标记 ⇒ 用关键词兜底**（2026-10-08 用户决定）——
+		;   ⚠️ deepseek-v4.1-Flash 从不输出 ###BODY###（项目注释早有记录）
+		;   ⇒ 用**玩家输入**的关键词直接在 ERB 侧判部位 ✓
+		; ★★ 诊断：记录 IF 前的两个值（2026-10-08）✓
+		LLM_GUESS_IN = @"MODE={LLM_MODE} TAG=[%LLM_BODY_TAG%] IN=%LLM_INPUT%"
+		IF LLM_MODE == 1 && STRLENS(LLM_BODY_TAG) < 4
+			; ★★ **用双方文本判部位**（2026-10-08 用户要求）——
+			;   用户原话：「快感值的判定应该用 llm 回复的话做依据，或者用双方只要有一个提及就做判定，
+			;            不然会出现玩家没说但是 llm 还在提摸胸之类的情况」
+			;   ⚠️ 原来只用 LLM_INPUT（玩家输入）⇒ 她自己接着写「摸胸」时判不出 ⚠️
+			;   ⇒ 现在把**玩家输入 + 她的回复**拼起来判 ✓
+			LLM_TMP = %LLM_INPUT%%LLM_OUT%
+			CALL LLM_INT_GUESS_BODY(LLM_TMP, LLM_BODY_TAG)
+		ENDIF
+			; ★ 诊断：记录推断用的输入与结果（2026-10-08）✓
+			LLM_GUESS_OUT = %LLM_BODY_TAG%
 		; ★ 存一份给 [6] 诊断（2026-09-21）—— 用来确认解析对不对 ✓
 		LLM_BODY_LAST = %LLM_BODY_TAG%
-		SIF LLM_BODY_TAG != ""
+		; ★ 计数（2026-10-08 诊断）：到底有没有成功过 ✓
+		IF STRLENS(LLM_BODY_TAG) >= 4
+			LLM_BODY_OK_CNT ++
+		ELSE
+			LLM_BODY_NG_CNT ++
+		ENDIF
+		IF STRLENS(LLM_BODY_TAG) >= 4
 			CALL LLM_INT_APPLY_BODY(TARGET, LLM_BODY_TAG)
+		ENDIF
+			; ★★ **脱衣：模型没写 act=7 时用关键词兜底**（2026-10-08 用户要求）——
+			;   用户原话：「我们的脱衣系统 应该接入自由互动里」
+			;   ⚠️ 模型（deepseek-v4.1-Flash）从不输出 ###DELTA### ⇒ `LLM_D6 == 7` 永不成立 ⚠️
+			;   ⇒ 从**双方文本**里找「脱 + 服装名」⇒ 写进 `LLM_STRIP_WANT`，
+			;      结算段（`@LLM_APPLY_DELTA` 的 `LLM_D6 == 7`）就会真的脱掉 ✓
+IF LLM_MODE == 1 && LLM_D6 != 7
+; ★★★ **脱衣来源：LLM 判断为主，关键词兜底**（2026-10-08 用户定）——
+;   用户原话：「我觉得还是由 llm 判断哪个部位被脱掉比较好，回复判定只做辅助」
+;   ⚠️ LLM 写了 `###STRIP###XXX` ⇒ 上面 `@LLM_PARSE_NOTE` 已经存进 `LLM_STRIP_WANT` ✓
+;   ⚠️ 没写才兜底；兜底**优先只看玩家输入**（她的话里会有「蝴蝶结」这类装饰词）⚠️
+IF STRLENS(LLM_STRIP_WANT) < 3
+	IF CFLAG:(TARGET):睡眠 || TCVAR:(TARGET):烂醉
+		; 她没意识 ⇒ 只看玩家输入
+		LLM_TMP = %LLM_INPUT%
+		CALL LLM_INT_GUESS_STRIP(TARGET, LLM_TMP, LLM_STRIP_WANT)
+	ELSE
+		LLM_TMP = %LLM_INPUT%
+		CALL LLM_INT_GUESS_STRIP(TARGET, LLM_TMP, LLM_STRIP_WANT)
+		IF STRLENS(LLM_STRIP_WANT) < 3
+			; 玩家没指定哪件 ⇒ 再把她的话也算上
+			LLM_TMP = %LLM_INPUT%%LLM_OUT%
+			CALL LLM_INT_GUESS_STRIP(TARGET, LLM_TMP, LLM_STRIP_WANT)
+		ENDIF
+	ENDIF
+ENDIF
+	; ── 真脱（`@LLM_STRIP_PART` 自带内衣分级把关）──
+	IF STRLENS(LLM_STRIP_WANT) >= 3
+		CALL LLM_STRIP_PART(TARGET, LLM_STRIP_WANT, LLM_STRIP_WHAT)
+		LLM_STRIP_DONE = %LLM_STRIP_WHAT%
+		; ★ 留一份给自检看（注释写在上面，不在赋值行尾）
+		LLM_STRIP_LAST = %LLM_STRIP_WHAT%
+	ENDIF
+	; ── 脱衣后立刻重算穿着（让玩家当场看到）──
+	IF STRLENS(LLM_STRIP_DONE) >= 3
+		LLM_CLOTHTXT = ""
+		CALL LLM_INT_CLOTHES_TXT(TARGET, LLM_CLOTHTXT)
+		SIF STRLENS(LLM_CLOTHTXT) >= 3
+			PRINTFORML 　%LLM_CLOTHTXT%
+	ENDIF
+ENDIF
 		CALL LLM_PARSE_DELTA(LLM_OUT, LLM_D1, LLM_D2, LLM_D3, LLM_D4, LLM_D5, LLM_D6)
 	LLM_GOT_DELTA = RESULT
 	CALL LLM_SANITIZE_REPLY(LLM_OUT)
@@ -707,6 +892,20 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 		CONTINUE
 	CALL LLM_SHOW_FIGURE(TARGET)
 	CALL LLM_PRINT_REPLY(TARGET, LLM_OUT)
+	; ★★ **脱衣提示**（2026-10-08 用户要求）——
+	;   用户原话：「脱衣没有提示，我完全不知道角色脱了什么 要加上一行额外的提示」
+	SIF STRLENS(LLM_STRIP_DONE) >= 3
+		SETCOLOR C_AQUA
+	SIF STRLENS(LLM_STRIP_DONE) >= 3
+		PRINTFORML 　（%CALLNAME:TARGET%的%LLM_STRIP_DONE%被脱掉了。）
+	SIF STRLENS(LLM_STRIP_DONE) >= 3
+		RESETCOLOR
+	; ⚠️ 想脱但没脱成（内衣分级挡住）⇒ 也提醒一声 ✓
+	SIF STRLENS(LLM_STRIP_WANT) >= 3 && STRLENS(LLM_STRIP_DONE) < 3
+		PRINTFORML 　（%CALLNAME:TARGET%没能脱下那件 —— 要么外面还穿着，要么她本来就没穿那件。）
+	; ⚠️ 用完清掉，免得下一轮重复提示 ✓
+	LLM_STRIP_DONE = ""
+	LLM_STRIP_WANT = ""
 	; ★★ **觉醒判定**（2026-09-20 用户设计）——
 	;   ⚠️ 放在**台词和旁白都出完之后** —— 她可能说完这句就醒了 ✓
 	;   ⚠️ 骰法与好感/信赖挂钩：**越喜欢玩家越不容易醒** ✓
@@ -723,6 +922,25 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 		ENDIF
 	ENDIF
 	; ★ 约会路上时，在台词之下补一行提示（2026-09-18 用户要求）✓
+	; ★ **绕路**（模型在 ###DETOUR### 里提出、且条件满足时执行）✓
+	SIF LLM_DETOUR_WANT == 1
+		CALL LLM_DO_DETOUR(TARGET)
+
+		; ★★ **约会路上：到了就自动收尾**（2026-10-07 用户需求）——
+		;   ⚠️ `LLM_DATE_LEFT() <= 0` 有两种含义（不在路上 / 已到）⇒
+		;      必须配合 `TFLAG:约会道中 > 0` 才能确定是"走完了" ✓
+		;   ⚠️ 用 `BREAK`（不是 `RETURN 1`）—— 和道别结束一样走收尾段 ✓
+		;   ⚠️ `LLM_BYE_ENDED = 1` ⇒ 收尾段返回 1 ⇒ 上层菜单退出、提示留在画面 ✓
+		IF TFLAG:约会道中 > 0 && LLM_DATE_LEFT() <= 0
+			PRINTFORML
+			SETCOLOR C_YELLOW
+			PRINTL ──────────────────────────────────
+			PRINTFORML 　【到地方了】
+			PRINTL ──────────────────────────────────
+			RESETCOLOR
+			LLM_BYE_ENDED = 1
+			BREAK
+		ENDIF
 	CALL LLM_SHOW_DATEHINT
 	; 记下调用前的模式值 —— 用来判断这一轮是不是**刚建立**陪伴模式
 	LLM_TG_BEFORE = %LLM_TOGETHER%
@@ -821,6 +1039,7 @@ CALL LLM_PARSE_NOTE(LLM_OUT, "###PROMISE###", LLM_NOTE_NEW)
 		LLM_TOGETHER = ""
 		BREAK
 	ENDIF
+
 
 	LLM_ROUND ++
 WEND
@@ -1082,17 +1301,19 @@ RETURN
 #LOCALSSIZE 4
 #DIMS LLM_CW
 #DIM  LLM_SLOT        ; ★ 正在处理的服装槽号
-#DIM  LLM_IS_INNER    ; ★ 她想脱的是不是内衣（决定要不要检查分级）
+#DIM  LLM_IS_BRA     ; ★ 想脱的是不是胸罩（2026-10-08）
+#DIM  LLM_IS_PANTY   ; ★ 想脱的是不是内裤（2026-10-08）
 ; ── 槽分组（槽号见 `CSV\Equip.csv`）──
-; ★ **上下装** —— 用户定："**上下装脱完才能脱内衣**"，所以分级**只看这一组** ✓
-#DIM CONST LLM_BODY, 11 = 13, 14, 9, 10, 17, 16, 15, 12, 11, 18, 19
+; ★ **上身外衣** —— 脱胸罩前必须全空（含全身装）✓
+#DIM CONST LLM_TOP, 7 = 18, 17, 16, 10, 9, 13, 14
+; ★ **下身外衣** —— 脱内裤前必须全空（含全身装）✓
+#DIM CONST LLM_BOT, 5 = 15, 12, 11, 13, 14
 ;   13 连衣裙 / 14 和服 / 9 体操服 / 10 紧身衣 / 17 上身衣服１ /
 ;   16 上身衣服２ / 15 裙子 / 12 下身衣服 / 11 裤子 / 18 外搭 / 19 其他１
-; ★ **内衣** —— 必须上面那组全空才能碰 ✓
 #DIM CONST LLM_INNER, 4 = 8, 7, 6, 5
 ;   8 胸罩(可敞) / 7 胸罩(不可敞) / 6 内裤(可挪) / 5 内裤(不可挪)
 ; ★ **全部可脱的槽**（匹配用）—— 含**鞋袜 / 配饰**（它们**不受分级限制**）✓
-#DIM CONST LLM_ALL, 17 = 18, 2, 1, 22, 13, 14, 9, 10, 17, 16, 15, 12, 11, 3, 4, 19, 20
+#DIM CONST LLM_ALL, 18 = 18, 2, 1, 22, 13, 14, 9, 10, 17, 16, 15, 12, 11, 3, 4, 19, 20, 21
 ;   18 外搭 / 2 帽子 / 1 饰品 / 22 腕部 / 13 连衣裙 / 14 和服 / 9 体操服 /
 ;   10 紧身衣 / 17 上身衣服１ / 16 上身衣服２ / 15 裙子 / 12 下身衣服 /
 ;   11 裤子 / 3 鞋 / 4 袜子 / 19~20 其他
@@ -1100,8 +1321,6 @@ RETURN
 ;  用户原话："**不要有自动脱衣，玩家通过输入决定要脱哪一件**"
 ;  ⇒ 所以这里**不再自己挑顺序** —— 只按 `LLM_WANT` 去匹配槽 ✓
 ;
-;  分级（用户定："上下装脱完才能脱内衣，鞋袜和配饰不在这个限制内"）：
-;    · **内衣**（胸罩 / 内裤）⇒ ★ **上下装还没脱完就拒绝** ✓
 ;    · **鞋袜 / 配饰** ⇒ **不受限制**，随时能脱 ✓
 ;  ⚠️ 分级在这里**兜底把关** —— prompt 里也说了，但**代码不能只靠模型自觉** ✓
 ;
@@ -1111,19 +1330,76 @@ SIF LLM_WANT == ""
 	RETURN
 SIF !EXISTFUNCTION(@"CLOTHNAME")
 	RETURN
-; ── ① 先判断她**想脱的到底是不是内衣** ⇒ 决定要不要检查分级 ──
-LLM_IS_INNER = 0
-SIF STRFIND(LLM_WANT, "胸罩") >= 0 || STRFIND(LLM_WANT, "内衣上") >= 0 || STRFIND(LLM_WANT, "上半身内衣") >= 0
-	LLM_IS_INNER = 1
-SIF STRFIND(LLM_WANT, "内裤") >= 0 || STRFIND(LLM_WANT, "内衣下") >= 0 || STRFIND(LLM_WANT, "下半身内衣") >= 0 || STRFIND(LLM_WANT, "胖次") >= 0
-	LLM_IS_INNER = 1
-; ── ② 内衣 ⇒ **上下装必须全脱完**（用户定的分级）✓ ──
-IF LLM_IS_INNER
-	FOR LOCAL, 0, 13
-		LLM_SLOT = LLM_BODY:LOCAL
+; ── ① 判断她想脱的是**胸罩**还是**内裤** ⇒ 决定查哪一侧 ──
+;   ⚠️ 用户定（2026-10-08）：「上衣和胸罩挂钩 下衣和内裤挂钩」✓
+LLM_IS_BRA = 0
+LLM_IS_PANTY = 0
+IF STRFIND(LLM_WANT, "胸罩") >= 0 || STRFIND(LLM_WANT, "内衣上") >= 0 || STRFIND(LLM_WANT, "文胸") >= 0
+	LLM_IS_BRA = 1
+ENDIF
+IF STRFIND(LLM_WANT, "内裤") >= 0 || STRFIND(LLM_WANT, "内衣下") >= 0 || STRFIND(LLM_WANT, "胖次") >= 0
+	LLM_IS_PANTY = 1
+ENDIF
+; ── ② 分级把关（★ **上下独立**，用户 2026-10-08 定）──
+;   用户原话：「上衣和胸罩挂钩 下衣和内裤挂钩怎么样」
+;   · 脱**胸罩** ⇒ 只查**上身**外衣是否全空 ✓
+;   · 脱**内裤** ⇒ 只查**下身**外衣是否全空 ✓
+;   · **鞋袜 / 配饰** ⇒ 不受限制 ✓
+; ★★★ **分级通过 ⇒ 直接脱她实际穿着的那件**（2026-10-08 修）——
+;   ⚠️ 用户报告：「明明外面没其他的东西 但显示还有其他东西穿着没法脱」
+;   ⚠️ 真因：玩家说「内裤」意图已经很明确，但下面第 ③ 段要**名字匹配** ——
+;      而她那条叫「灯笼裤」，名字里没有「内裤」两字 ⇒ 匹配失败 ⇒ 没脱成 ⚠️
+;      失败提示却写成「外面还穿着呢」⇒ 看起来像分级误判 ✗
+;   ⇒ 所以：**等级通过后直接按槽脱**（胸罩 = 8/7，内裤 = 6/5），不再要求名字对上 ✓
+;   ⚠️ 这符合既定设计「上衣和胸罩挂钩 下衣和内裤挂钩」✓
+IF LLM_IS_BRA
+	; ── ① 分级：上身外衣必须全空 ──
+	FOR LOCAL, 0, 7
+		LLM_SLOT = LLM_TOP:LOCAL
 		SIF EQUIP:(LLM_CID):LLM_SLOT
-			RETURN          ; ★ 上下装还在 ⇒ **拒绝**（回填空串，调用方会给她一句拒绝）
+			RETURN      ; ★ 上身外衣还在 ⇒ 拒绝脱胸罩
 	NEXT
+	; ── ② 通过 ⇒ 直接脱她实际穿的胸罩（槽 8 / 7）──
+	FOR LOCAL, 0, 4
+		LLM_SLOT = LLM_INNER:LOCAL
+		SIF LLM_SLOT != 8 && LLM_SLOT != 7
+			CONTINUE
+		SIF !EQUIP:(LLM_CID):LLM_SLOT
+			CONTINUE
+		; ⚠️ 名字要在**改 EQUIP 之前**取（它按 EQUIP 的值查名）✓
+		LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		EQUIP:(LLM_CID):LLM_SLOT = 0
+		CALL LLM_INT_SYNC_CLOTHES(LLM_CID)
+		REF_WHAT = %LLM_CW%
+		RETURN
+	NEXT
+ENDIF
+IF LLM_IS_PANTY
+	; ── ① 分级：下身外衣必须全空 ──
+	FOR LOCAL, 0, 5
+		LLM_SLOT = LLM_BOT:LOCAL
+		SIF EQUIP:(LLM_CID):LLM_SLOT
+			RETURN      ; ★ 下身外衣还在 ⇒ 拒绝脱内裤
+	NEXT
+	; ── ② 通过 ⇒ 直接脱她实际穿的内裤（槽 6 / 5）──
+	FOR LOCAL, 0, 4
+		LLM_SLOT = LLM_INNER:LOCAL
+		SIF LLM_SLOT != 6 && LLM_SLOT != 5
+			CONTINUE
+		SIF !EQUIP:(LLM_CID):LLM_SLOT
+			CONTINUE
+		LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
+			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
+		EQUIP:(LLM_CID):LLM_SLOT = 0
+		CALL LLM_INT_SYNC_CLOTHES(LLM_CID)
+		REF_WHAT = %LLM_CW%
+		RETURN
+	NEXT
+		; ⚠️ 6/5 没有 ⇒ **不要 RETURN** —— 内裤可能在 19/20 这类扩展槽，
+		;    交给下面 ③ 段的名字匹配兜底 ✓
 ENDIF
 ; ── ③ 按名字找槽：先试内衣，再试外衣/鞋袜/配饰 ──
 FOR LOCAL, 0, 4
@@ -1135,10 +1411,14 @@ FOR LOCAL, 0, 4
 	SIF STRFIND(LLM_CW, LLM_WANT) < 0 && STRFIND(LLM_WANT, LLM_CW) < 0
 		CONTINUE
 	EQUIP:(LLM_CID):LLM_SLOT = 0
-	REF_WHAT = @"%LLM_CW%"
+	; ★ **同步官方着装状态**（2026-10-08 用户要求）——
+	;   ⚠️ 官方读的是 `TEQUIP:着衣状況`（`@CHECK_NUDE` 也是），
+	;      我们改的是 `EQUIP` ⇒ 必须写回，否则官方以为她还穿着 ⚠️
+	CALL LLM_INT_SYNC_CLOTHES(LLM_CID)
+	REF_WHAT = %LLM_CW%
 	RETURN
 NEXT
-FOR LOCAL, 0, 17
+FOR LOCAL, 0, 18
 	LLM_SLOT = LLM_ALL:LOCAL
 	SIF !EQUIP:(LLM_CID):LLM_SLOT
 		CONTINUE
@@ -1146,7 +1426,11 @@ FOR LOCAL, 0, 17
 	SIF STRFIND(LLM_CW, LLM_WANT) < 0 && STRFIND(LLM_WANT, LLM_CW) < 0
 		CONTINUE
 	EQUIP:(LLM_CID):LLM_SLOT = 0
-	REF_WHAT = @"%LLM_CW%"
+	; ★ **同步官方着装状态**（2026-10-08 用户要求）——
+	;   ⚠️ 官方读的是 `TEQUIP:着衣状況`（`@CHECK_NUDE` 也是），
+	;      我们改的是 `EQUIP` ⇒ 必须写回，否则官方以为她还穿着 ⚠️
+	CALL LLM_INT_SYNC_CLOTHES(LLM_CID)
+	REF_WHAT = %LLM_CW%
 	RETURN
 NEXT
 ; 没匹配上（她没穿那件 / 名字对不上）⇒ 空串 ✓
@@ -1350,7 +1634,7 @@ CASE 1
 CASE 2, 5
 	LLM_BD = "**体格非常高大**，明显比一般人壮"
 ENDSELECT
-SIF LLM_BD != ""
+SIF STRLENS(LLM_BD) >= 3
 	REF_OUT += @"体型：%LLM_BD%。\n"
 ; ── ② 胸围（官方 `胸圍` 105）──
 LLM_BD = ""
@@ -1362,13 +1646,13 @@ CASE 1
 CASE 2
 	LLM_BD = "**身材非常丰满**"
 ENDSELECT
-SIF LLM_BD != ""
+SIF STRLENS(LLM_BD) >= 3
 	REF_OUT += @"身材：%LLM_BD%。\n"
 ; ── ③ 种族 / 追加种族（`TALENT_RACE` 是现成的名字表）──
 LLM_BD = ""
 SIF TALENT:(LLM_CID):種族 > 0 && TALENT:(LLM_CID):種族 < 20
 	LLM_BD = %TALENT_RACE:(TALENT:(LLM_CID):種族)%
-SIF LLM_BD != ""
+SIF STRLENS(LLM_BD) >= 3
 	REF_OUT += @"种族：%LLM_BD%。\n"
 SIF TALENT:(LLM_CID):追加種族 > 0
 	REF_OUT += @"（另有：%TALENT_RACE:(10 + TALENT:(LLM_CID):追加種族)%）\n"
@@ -1382,7 +1666,7 @@ SIF TALENT:(LLM_CID):回復速度 == 1
 	LLM_BD += "**恢复得快**、"
 SIF TALENT:(LLM_CID):回復速度 == -1
 	LLM_BD += "**恢复得慢**、"
-SIF LLM_BD != ""
+SIF STRLENS(LLM_BD) >= 3
 	REF_OUT += @"身体：%LLM_BD%（其余略）。\n"
 ; ── ⑤ 精神上的特质（挑**影响"她会不会越界 / 怎么表达"**的那些）——
 ;    ⚠️ 这几项直接关系到"她嘴上说什么 vs 实际会做什么"，值得单独给 ✓
@@ -1407,7 +1691,7 @@ SIF TALENT:(LLM_CID):小悪魔
 	LLM_BD += "**爱逗人**、"
 SIF TALENT:(LLM_CID):母性
 	LLM_BD += "**有母性**、"
-IF LLM_BD != ""
+IF STRLENS(LLM_BD) >= 3
 	REF_OUT += @"性情：%LLM_BD%（其余略）。\n"
 ENDIF
 	; ★★ **性癖 / 体质**（2026-09-20 用户要求「加强」）——
@@ -1434,11 +1718,11 @@ ENDIF
 		LLM_BD += "、对那种味道有特殊的癖好"
 	SIF TALENT:(LLM_CID):濃厚精液
 		LLM_BD += "、体液很浓"
-	SIF LLM_BD != ""
+	SIF STRLENS(LLM_BD) >= 3
 		REF_OUT += @"身体特征：%LLM_BD%。\n"
 	; ★ **手工补的身体特征**（翅膀/尾巴/角 —— 官方没有对应 TALENT）✓
 	CALL LLM_CHARA_FORM(LLM_CID, LLM_BD2)
-	SIF LLM_BD2 != ""
+	SIF STRLENS(LLM_BD2) >= 3
 		REF_OUT += @"外形：%LLM_BD2%。\n"
 RETURN
 
@@ -1458,25 +1742,8 @@ RETURN
 #LOCALSIZE 8
 #LOCALSSIZE 4
 #DIMS LLM_EX
-#DIMS LLM_EX2
 REF_OUT = ""
-; ── ① 各部位的熟练度（性技 ABL 50~56）──
-;    ⚠️ 只报"**已经练过的**"那些 —— 全是 0 就不注入（生疏到没什么可说）✓
-LLM_EX = ""
-CALL LLM_EXP_ADD(LLM_CID, 50, "用手指", LLM_EX)
-CALL LLM_EXP_ADD(LLM_CID, 51, "用舌头", LLM_EX)
-CALL LLM_EXP_ADD(LLM_CID, 52, "用胸", LLM_EX)
-CALL LLM_EXP_ADD(LLM_CID, 54, "下面", LLM_EX)
-CALL LLM_EXP_ADD(LLM_CID, 55, "后面", LLM_EX)
-SIF LLM_EX != ""
-	REF_OUT += @"熟练度：%LLM_EX%（其余部位还很生疏）。\n"
-; ── ② 初吻 ──
-;    ⚠️ `キス未経験` 是 TALENT **6**，不是 3 ✓
-SIF TALENT:(LLM_CID):キス未経験
-	REF_OUT += @"**还留着初吻** —— 你没和任何人接过吻。\n"
-; ── ③ 处女（三种取值，措辞不同）——
-;    ⚠️ `1=処女 / 2=再生処女 / -1=無自覚非処女` ——
-;       第三种最有戏：**她以为自己还是** ✓
+; ★ 基础层（每轮给）：处女状态
 IF TALENT:(LLM_CID):処女 == 1
 	REF_OUT += @"你**还是处女** —— 身体从没被任何人进入过。\n"
 ELSEIF TALENT:(LLM_CID):処女 == 2
@@ -1484,11 +1751,26 @@ ELSEIF TALENT:(LLM_CID):処女 == 2
 ELSEIF TALENT:(LLM_CID):処女 == -1
 	REF_OUT += @"⚠️ **你以为自己还是处女** —— 你不知道那件事已经发生过了。\n"
 ENDIF
+; ★ 按部位层：只有试过该行为才给
+LLM_EX = ""
+IF LLM_AGREE:(LLM_CID):3 >= 1
+	SIF TALENT:(LLM_CID):キス未経験
+		REF_OUT += @"**还留着初吻** —— 你没和任何人接过吻。\n"
+	CALL LLM_EXP_ADD(LLM_CID, 51, "用舌头", LLM_EX)
+ENDIF
+IF LLM_AGREE:(LLM_CID):4 >= 1
+	CALL LLM_EXP_ADD(LLM_CID, 52, "用胸", LLM_EX)
+ENDIF
+IF LLM_AGREE:(LLM_CID):5 >= 1
+	CALL LLM_EXP_ADD(LLM_CID, 55, "后面", LLM_EX)
+ENDIF
+IF LLM_AGREE:(LLM_CID):6 >= 1
+	CALL LLM_EXP_ADD(LLM_CID, 50, "用手指", LLM_EX)
+	CALL LLM_EXP_ADD(LLM_CID, 54, "下面", LLM_EX)
+ENDIF
+SIF LLM_EX != ""
+	REF_OUT += @"熟练度（只有你试过的）：%LLM_EX%（其余还很生疏）。\n"
 RETURN
-
-
-; ── 部位熟练度 → 一句话（`@LLM_CHARA_EXP` 用的小工具）──
-;  ⚠️ 分档照 `BODY_INFO.ERB`：0 笨拙 / 1~3 生疏 / 4~9 还行 / 10+ 熟练 ✓
 @LLM_EXP_ADD(LLM_CID, LLM_ABL, LLM_WHAT, REF_OUT)
 #DIM  LLM_CID
 #DIM  LLM_ABL
@@ -1732,26 +2014,35 @@ REF_OUT = ""
 ; ⚠️ 低于"想发泄"档就没必要提
 SIF CFLAG:(LLM_CID):积攒度 < 200
 	RETURN
-; ① 档位（用官方用词）
-LLM_TMP = "心里有些燥，但还没到忍不住的地步"
+; ① 档位（★ **必须写成"性欲"，不能写成"烦躁/走神"** —— 2026-10-08 用户报告）——
+;   ⚠️⚠️ 用户原话：「llm 对欲求不满值的理解有问题 它好像把这个值理解成心情不好
+;      其实是发情 想和眼前的人做爱」
+;   ⚠️ 旧措辞是「心里有些燥」「焦躁难忍」「时不时会走神」——
+;      这些词把「**性欲高涨**」写成了「**心情烦躁**」⇒ 模型当然演成不高兴 ✗
+;   ⇒ 现在每档都点明"身体想要 / 想和他做"✓
+LLM_TMP = "身体隐隐有点发烫，开始想那件事，但还压得住"
 SIF CFLAG:(LLM_CID):积攒度 >= 1000
-	LLM_TMP = "整个人饥渴难耐，几乎没法想别的事"
+	LLM_TMP = "饥渴到极点了 —— 满脑子都是被他抱住的画面，几乎没法想别的"
 SIF CFLAG:(LLM_CID):积攒度 >= 800
-	LLM_TMP = "焦躁难忍，一点小事就能撩动你"
+	LLM_TMP = "性欲烧得难受，稍微被碰一下就会腿软"
 SIF CFLAG:(LLM_CID):积攒度 >= 500
-	LLM_TMP = "欲求不满，时不时会走神"
-REF_OUT = @"你现在的状态：%LLM_TMP%（欲求 {CFLAG:(LLM_CID):积攒度 / 10}％）。"
+	LLM_TMP = "身体已经在发情了，忍不住想往他身上贴"
+REF_OUT = @"你现在的状态：**性欲** {CFLAG:(LLM_CID):积攒度 / 10}％ —— %LLM_TMP%。"
+REF_OUT += @"\n   ⚠️⚠️ 这就是游戏界面里的「**欲求：N％**」—— 它的意思是"
+REF_OUT += @"\n      **你有多想做爱、身体有多想要眼前这个人**。"
+REF_OUT += @"\n      ✗ **不是**心情不好、**不是**烦躁、**不是**生气、**不是**心不在焉 ⚠️"
+REF_OUT += @"\n      ⇒ 数值越高 = 你越**想要**、越难忍、越容易被他的一个动作点着 ✓"
 ; ② **表现强度** —— 按档位递增（用户要求："加强程度需要根据数值做平衡"）
 ;  ⚠️ 这一层是**为了不让四档演出同一个样子**：
 ;     200 档和 1000 档如果只有"状态描述"不同、"表现"一样，
 ;     那实际台词不会有区别。
-LLM_TMP = "只是偶尔心不在焉，几乎看不出来"
+LLM_TMP = "只是偶尔走神 —— 但走神的内容是那件事，几乎看不出来"
 SIF CFLAG:(LLM_CID):积攒度 >= 500
-	LLM_TMP = "会控制不住地多看他几眼，然后自己先移开"
+	LLM_TMP = "会控制不住地多看他几眼，视线会往下飘，然后自己先移开"
 SIF CFLAG:(LLM_CID):积攒度 >= 800
-	LLM_TMP = "明显坐不住，会主动把话题往那边带"
+	LLM_TMP = "明显坐不住，会主动把话题往那方面带"
 SIF CFLAG:(LLM_CID):积攒度 >= 1000
-	LLM_TMP = "几乎压不住，找机会就想凑上去"
+	LLM_TMP = "几乎压不住，找机会就想凑上去、想被他碰"
 ; ③ 表现方式 —— **按关系 + 按性格**（用户要求："表现方式肯定要看角色性格"）
 ;  ⚠️⚠️ 为什么要加性格这一层：
 ;     原来深关系分支对所有角色都说"眼神 / 靠近 / 留半句话" ——
@@ -1781,7 +2072,7 @@ IF LLM_REL_DEPTH(LLM_CID) >= 2
 		CASEELSE
 			; 坦率系 / 没标：老实说出来
 			REF_OUT += @"\n   你们关系够近，所以你**会表现出来**，方式是**坦率系**的 ——"
-			REF_OUT += @"\n   · 会老实承认自己有点心不在焉（「……刚才走神了」）"
+			REF_OUT += @"\n   · 会老实承认自己走神了（「……刚才走神了」）—— 但走神的内容是**那件事**"
 			REF_OUT += @"\n   · 会主动靠近、找个由头多待一会儿"
 			REF_OUT += @"\n   ⚠️ 但**别说得太露骨** —— 你还在等他先动。"
 	ENDSELECT
@@ -1789,7 +2080,7 @@ IF LLM_REL_DEPTH(LLM_CID) >= 2
 ELSE
 	; ── 浅：不表现（这一层和性格无关，关系没到就是没到）──
 	REF_OUT += @"\n   但你们还没到那一步，所以你**只会自己难受，不会表现出来** ——"
-	REF_OUT += @"\n   · 说话偶尔走神、反应慢半拍，或者莫名有点烦躁"
+	REF_OUT += @"\n   · 身体莫名有点发热、注意力容易飘到不该想的地方（说话会走神、反应慢半拍）"
 	REF_OUT += @"\n   · **绝不主动暗示、也绝不勾引** —— 那样不符合你们现在的关系。"
 	REF_OUT += @"\n   · 他要是问起，你会含糊过去（「没什么」「……有点热而已」）。"
 	REF_OUT += @"\n   强度：%LLM_TMP%。"
@@ -2451,6 +2742,7 @@ RETURN
 ;  数值对模型无意义，且容易被角色"报出来"。详见设计文档第 4 章。
 ; ────────────────────────────────────────────────────────────────────────────
 @LLM_BUILD_SYSTEM_PROMPT(LLM_CID, REF_PROMPT, LLM_TG, LLM_OPENING)
+#DIMS LLM_CLOTHP     ; ★ prompt 用的穿着文本（2026-10-08）
 #DIM  LLM_CID
 #DIMS LLM_TG         ; **陪伴模式**：空 = 没在陪；非空 = 正陪她做的这件事
 #DIM  LLM_OPENING    ; 1 = 这一轮是**开场白**（见末尾的"第一句话"要求）
@@ -3210,17 +3502,14 @@ ENDIF
 ;     那正是"站在 A 房间说 B 房间的事"的另一个来源。
 CALL LLM_PREV_SHOW(LLM_CID, LLM_PREV_TXT)
 IF LLM_PREV_TXT != ""
-	REF_PROMPT += @"\n【你们上一次交谈的片段】"
-	REF_PROMPT += @"\n%LLM_PREV_TXT%"
-	REF_PROMPT += @"\n（⚠️⚠️ 这是**上一次**聊天，目的是让你和他之间有个连贯印象："
-	REF_PROMPT += @"\n   · **里面的地点、天气、时间都已经过时** —— 别当成现在的情况。"
-	REF_PROMPT += @"\n   · ★ **括号里写了「上次是几点、距现在多久」** ——"
-	REF_PROMPT += @"\n     可以据此判断该说什么：刚聊过就接着聊，隔了很久就自然地问候 / 提一句"
-	REF_PROMPT += @"\n     「好久没见了」，别装作刚才还在说话 ✓"
-	REF_PROMPT += @"\n   · 但**话题、约定、心事并没有过时** —— 可以自然地接着聊"
-	REF_PROMPT += @"\n     （「你上次说的那个，后来怎么样了」）。这正是「熟人」该有的样子。"
-	REF_PROMPT += @"\n   · 万一和下面的【当前的事实】**冲突**，以【当前的事实】为准"
-	REF_PROMPT += @"\n     （冲突只可能出在「事实」上，比如地点 —— 话题不会有冲突）。)"
+REF_PROMPT += @"\n【你们上一次交谈的片段（**仅供了解背景**）】"
+REF_PROMPT += @"\n%LLM_PREV_TXT%"
+REF_PROMPT += @"\n⚠️ 这是**上一次**的事 —— 你**只需要知道**，不需要主动提起："
+REF_PROMPT += @"\n   · 里面的地点、天气、时间**全都过时了**，别当成现在的情况；"
+REF_PROMPT += @"\n   · ★ **这一场不提它才是正常的** —— 绝大多数轮次就当它不存在；"
+REF_PROMPT += @"\n   · ⚠️ **只有玩家主动提起时**，才自然接一句（「你上次说的那个，后来怎么样了」）；"
+REF_PROMPT += @"\n   · ⚠️ **不要**用「上次你…」开头 —— 那是把回忆当谈资，听起来很刻意；"
+REF_PROMPT += @"\n   · ⚠️ 万一和下面的【当前的事实】冲突，以【当前的事实】为准。"
 ENDIF
 REF_PROMPT += @"\n【与玩家的关系】%LLM_REL%"
 REF_PROMPT += @"\n【对亲密举动的接受程度】%LLM_ATT%"
@@ -3255,7 +3544,18 @@ SIF LLM_BODYST != ""
 ;      但**也会在意"别人看不看得见"** ⇒ 必须告诉她 ✓
 LLM_SCENE = ""
 IF IS_DATING_WITH_PLAYER(LLM_CID)
-	LLM_SCENE = "**你们正在约会**（在外面，周围可能有别人）"
+	; ★★ 被带出来 ⇒ **同行模式**（2026-10-07 用户要求）——
+	;   用户原话：「只要"带出去"为真，就让 llm 认为角色和主角是同行状态，
+	;              不会聊工作或其他类型的事情，只聊两个人要去做什么」
+	;   ⚠️ 用**身份陈述**（你现在是…）而不是禁令（别…）—— 身份强得多 ✓
+	LLM_SCENE = "**你和他是同行状态** —— 你是被他从原来的地方**带出来**的，"
+	LLM_SCENE += @"现在的你不是在上班、也不在自己的地盘上，而是**和他一起在外面**。"
+	LLM_SCENE += @"⚠️ 不要提工作（岗位、值班、守门、排班、同事、上司、店里的客人…），"
+	LLM_SCENE += @"也不聊那些和你俩此刻无关的事（杂事、日程、职责、别人的闲事…）✗"
+	LLM_SCENE += @"★ 你俩现在只关心一件事：**接下来去做什么、去哪儿** ——"
+	LLM_SCENE += @"想去哪、想做什么、路上看到什么、要不要顺路去某处、累了想歇一会儿 ✓"
+	LLM_SCENE += @"（他若主动问起你的工作，如实答一句就好，答完就回到你俩要做什么）"
+	LLM_SCENE += @"⚠️ 语气、口癖、性格照旧 —— 同行不是变成另一个人，只是把那些身份暂时收起来。"
 	; ★★ **跨对话的连续性**（2026-09-19）——
 	;   约会期间会换地图、分好几场对话，每场都是**独立的一场** ⚠️
 	;   ⇒ 告诉她这是第几段，并提示接着刚才的聊，别重新寒暄 ✓
@@ -3388,6 +3688,9 @@ IF LLM_SCENE != ""
 	;   ⚠️ 为什么要直白：含蓄措辞（"身体接触"）会让模型写成朦胧抒情，
 	;      而这游戏是 18+ ⇒ 该点名部位和动作，它才敢写 ✓
 	;   ⚠️ 优先级：睡眠 > 烂醉 > 清醒 ✓
+	; MOVED to @LLM_PROMPT_INTIMATE (2026-10-07 split) --
+	; old code kept; LLM_USE_OLD_PROMPT = 1 to rollback
+	IF LLM_USE_OLD_PROMPT
 	IF LLM_MODE == 1
 		REF_PROMPT += @"\n【★ 现在是「自由互动」—— 18+ 的露骨场景，不是日常聊天】"
 		REF_PROMPT += @"\n  这一段允许你写**直白的性描写**：身体部位、湿了、硬了、"
@@ -3407,7 +3710,7 @@ IF LLM_SCENE != ""
 		;   格式（放在回复**最后**，单独一行）：
 		REF_PROMPT += @"\n【★ 每轮必须输出的一行 —— 身体反应标记】"
 		REF_PROMPT += @"\n   ###BODY###<部位><增量>,<部位><增量>;<觉醒增量>"
-		REF_PROMPT += @"\n   部位代号：B=胸  V=阴道  C=阴蒂  A=肛门  M=口"
+		REF_PROMPT += @"\n   部位代号（★ 看**碰的是哪儿**，别搞混）：B=胸（乳房/乳头/奶子）｜V=阴道（小穴/里面/插入）｜C=阴蒂（豆豆）｜A=肛门（后面/菊花）｜M=口（嘴/舌头）"
 		REF_PROMPT += @"\n   例：###BODY###B+8,V+3,C+2;A+5"
 		REF_PROMPT += @"\n   · 分号前 = 各部位被刺激的快感增量（0~15，没碰的不写）"
 		REF_PROMPT += @"\n   · 分号后 = 她的觉醒增量（0~15）—— 刺激越狠、动静越大，越接近醒来"
@@ -3485,6 +3788,7 @@ REF_PROMPT += @"\n   · ⚠️ 只有**被弄疼 / 快被弄醒**的那一刻，
 		REF_PROMPT += @"\n     ① **只写你自己** —— 不要叙述他的动作、不要替他说台词、"
 		REF_PROMPT += @"\n        不要写全知视角的画面（那是小说旁白，不是你说话）✗"
 		REF_PROMPT += @"\n     ② **意识状态不能越界** —— 睡着/烂醉时不许清醒地对话 ✗"
+	ENDIF
 	ENDIF
 	REF_PROMPT += @"\n（⚠️ 约会时你**比平时放松、也更愿意亲近** —— 但那是**私下**的事，"
 	REF_PROMPT += @"\n  在外面你仍然会在意别人的眼光 ✓）"
@@ -3682,12 +3986,20 @@ ENDIF
 	;  ⚠️ 有了这一项，她的话才有实感（"你今天这件挺好看"/"别、别脱那件"）✓
 	;  ⚠️⚠️ 只能放在**这里**（`@LLM_BUILD_SYSTEM_PROMPT`）——
 	;     我第一次插到了 `@LLM_CHAT_LOOP` 的开场段，那里**没有 `REF_PROMPT`** ⚠️
-	CALL LLM_SHOW_CLOTHES(LLM_CID, LLM_NOTE_TXT)
-	IF LLM_NOTE_TXT != ""
+	; ★★★ **改用我们自己的穿着函数**（2026-10-08 用户报告：裹胸没注入）——
+	;   用户原话：「注入似乎有失败 裹胸看起来并没有注入进去」
+	;   ⚠️ 官方 `@LLM_SHOW_CLOTHES` 输出的是 `上身：X 下身：Y 胸罩：Z 内裤：W` ——
+	;      ① 含内衣（和玩家看到的「只显示最外层」不一致）⚠️
+	;      ② 不认 `""`（CLOTHNAME 返回的空引号）⇒ 可能输出垃圾 ⚠️
+	;   ⇒ 换成 `@LLM_INT_CLOTHES_TXT`（和界面完全同源）✓
+	LLM_CLOTHP = ""
+	CALL LLM_INT_CLOTHES_TXT(LLM_CID, LLM_CLOTHP)
+	LLM_NOTE_TXT = %LLM_CLOTHP%
+	IF STRLENS(LLM_NOTE_TXT) >= 3
 		REF_PROMPT += @"\n【你现在的穿着】%LLM_NOTE_TXT%"
 		REF_PROMPT += @"\n（⚠️ 这是**事实** —— 别说得和它对不上；"
 		REF_PROMPT += @"\n  也别主动罗列自己穿了什么，聊到 / 被碰到时才自然带出来。）"
-	ENDIF
+ENDIF
 	; ★★ **上一次见面距今**（用户要求加上）——
 	;  ⚠️ 按跨度分档，让措辞自然 ✓
 	IF LLM_GAP > 0
@@ -3784,8 +4096,6 @@ ENDIF
 ;  标记由 `@LLM_TRY_PUSH` 设置（`TCVAR:角色:338`）。
 ;  ⚠️ 这一段是**行为指导**，不是让她把欲望说出来 ——
 ;     分寸感全靠这里：**要给暗示，但要矜持**。写露骨了就毁了。
-;  ⚠️ 多行必须用 `IF … ENDIF`（`SIF` 只绑紧随的一行）
-	; （这一档的行动指令已合并到下面的【这一轮你打算怎么做】—— ACTION==6）
 ; ── ★★ 欲求不满度 —— 结合关系决定她怎么表现（用户要求）──
 ;  ⚠️ 只在**没有"憋着"**时注入：`TCVAR:338`（见上面的 `LLM_LUST`）说的是
 ;    "想要但**地方不对**"，已经是很强的表达；两条同时出现会说两遍"你很想要"。
@@ -3793,8 +4103,10 @@ ENDIF
 ;  事实层（下面）：**无论她这轮打算做什么**，她都该知道自己什么状态 —— 但只给数字，
 ;                  **不带任何行动指令**，所以不会和别的模块抢戏。
 ;  行动层（ACTION == 7）：只有"想撩"是本轮主基调时，才告诉她怎么表现。
-SIF CFLAG:(LLM_CID):积攒度 >= 200
-	REF_PROMPT += @"\n【你现在的身体状态】欲求 {CFLAG:(LLM_CID):积攒度 / 10}％。"
+IF CFLAG:(LLM_CID):积攒度 >= 200
+	REF_PROMPT += @"\n【你现在的身体状态】性欲（游戏里叫「欲求」）{CFLAG:(LLM_CID):积攒度 / 10}％ ——"
+	REF_PROMPT += @" 这是你**想做爱的程度**，不是心情不好 ⚠️（越高 = 越想要眼前这个人）"
+ENDIF
 	; （这一档的行动指令已合并到下面的【这一轮你打算怎么做】—— ACTION==7）
 ; 该角色的爱好 —— 只在有内容时注入；并说明它会带来额外的好感度
 IF LLM_LIKES != ""
@@ -3982,7 +4294,11 @@ LLM_TOUCH_NOTE = 0
 ;     而【你现在正在做的事】才是**当下事实** —— 两者冲突时以后者为准。
 ;     实测症状就是"活已经干完了，她还在说『我这班要守到十二点』"：
 ;     模型看到日程表式的信息，会优先信它。（工作名/时段都由官方变量给，通用）
-IF LLM_ROUTINE != ""
+; ★★ **自由互动：不注入工作 / 作息**（2026-10-08 用户报告）——
+;   用户原话：「为什么还有工作的事 两个人都已经在床上了」
+;   ⚠️ 那种场景里提工作完全不对 ⇒ 整个【你今天的安排】都不给 ✓
+;   ⚠️ 日期场景卡里已经有了，不缺 ✓
+IF LLM_ROUTINE != "" && LLM_MODE == 0
 	REF_PROMPT += @"\n【你今天的安排】%LLM_ROUTINE%"
 ENDIF
 ; 玩家参与不了时要说清楚 —— 否则她会邀请你做你根本做不到的事
@@ -4016,7 +4332,15 @@ REF_PROMPT += @"\n\n【回复格式】回复由1~3句台词、换行、以及固
 REF_PROMPT += @"\n###DELTA### a,b,c,t,tr,act（六个数字，必须输出；不要解释数字）"
 REF_PROMPT += @"\n a=好感(-3~3)，b=情绪(-40~40)，c=愤怒(-60~60)，tr=信赖（通常0，真实交心才给1~2）。"
 REF_PROMPT += @"\n act=本轮真正发生的接触：0无，1牵手，2拥抱，3接吻，4摸胸，5摸屁股，6摸下面，7脱衣；每轮最多一个。"
-REF_PROMPT += @"\n t=玩家输入性质：0普通，1亲昵/调情，2性骚扰/越界，3随口陪伴，4认真帮忙，5/6/7已同意接触。"
+REF_PROMPT += @"\n t=这一句的性质（分类标记，不是数值）："
+REF_PROMPT += @"\n   0=普通 ｜ 1=亲昵/调情（**只是嘴上**，没真的碰到）｜ 2=性骚扰/越界"
+REF_PROMPT += @"\n   3=随口陪伴 ｜ 4=认真帮忙"
+REF_PROMPT += @"\n   ★ **5 / 6 / 7 = 真的碰到了**（按程度）："
+REF_PROMPT += @"\n     5 = 握手 / 拍肩 / 摸头 / 碰一下手臂"
+REF_PROMPT += @"\n     6 = 牵手 / 靠肩 / 挽手臂 / 并肩贴着走 / 搂腰"
+REF_PROMPT += @"\n     7 = 拥抱 / 抱紧 / 接吻 / 隔着衣服的抚摸 / 头靠在他身上"
+REF_PROMPT += @"\n   ⚠️⚠️ 判据是「**她同意了**」，**不是**「露骨不露骨」——"
+REF_PROMPT += @"\n      **t=1 只是嘴上亲昵**；真的碰到了才是 5/6/7 ✓"
 REF_PROMPT += @"\n 问而未答仍t=1；答应后才填5/6/7；明确拒绝后仍继续=t=2；只提议不算接触。陪伴/帮忙需玩家明确提出且你答应。"
 REF_PROMPT += @"\n 数值只反映本句，不累积、不解释；普通闲聊：###DELTA### 0,0,0,0,0,0"
 REF_PROMPT += @"\n 示例：答应牵手→###DELTA### 1,20,0,6,0,1；只询问未回答→###DELTA### 0,0,0,1,0,0"
@@ -4103,24 +4427,12 @@ REF_PROMPT += @"\n⚠️ **只写你确实知道的内容** —— 不确定就�
 ;      她答应了、系统却可能因为关系浅把它扔掉，逻辑上不成立 ⚠️
 ;    ⇒ 代码侧已实现：命中这三类关键词的，**跳过存储骰**（见 `@LLM_MEMO_ADD`）✓
 ;    ⇒ prompt 侧也要说清楚，免得她以为"关系浅就别写了"而放弃记录 ✓
-REF_PROMPT += @"\n⚠️ **这三类一旦成立，系统就一定会记住** ——"
-REF_PROMPT += @"\n   因为它已经过了「你愿不愿意接受」这道判断（见下面【成立条件】）。"
-REF_PROMPT += @"\n   ⇒ 所以你**不用考虑关系深浅**：接受了就写，写了就一定留得住 ✓"
-REF_PROMPT += @"\n\n"
 REF_PROMPT += @"\n\n【你怎么叫他 / 他主动给你起名】"
-REF_PROMPT += @"\n\n   ⚠️ **这个叫法怎么用，比记住它更重要** —— 三条："
-REF_PROMPT += @"\n\n      ① **别每句都带上** —— 那样像在念稿子。"
-REF_PROMPT += @"\n\n         该带的时候带：叫他做事 / 搭话 / 招呼、强调语气、撒娇或嗔怪；"
-REF_PROMPT += @"\n\n         连着的两三句里**带一次就够**，其余直接说内容 ✓"
-REF_PROMPT += @"\n\n      ② **它也是你表达情绪的方式** ——"
-REF_PROMPT += @"\n\n         高兴 / 亲昵时叫得更顺口、更软；"
-REF_PROMPT += @"\n\n         不满 / 闹别扭 / 说正经事时，**可以故意换回**普通叫法"
-REF_PROMPT += @"\n\n         （叫名字、或者干脆「你」）—— 这本身就是「我在生气」的信号 ✓"
-REF_PROMPT += @"\n\n      ③ **怎么叫看你自己的性格和你们的关系**（见上面【说话方式】）："
-REF_PROMPT += @"\n\n         嘴硬 / 强势的 ⇒ 嘴上叫着、还要补一句嫌弃，别叫得太甜；"
-REF_PROMPT += @"\n\n         坦率 / 亲昵的 ⇒ 直接叫；认真 / 无口的 ⇒ 叫得少、但每次叫都算表态 ✓"
-REF_PROMPT += @"\n\n   ⚠️ 也别**把这个叫法当成什么身份来演** —— 它是称呼，不是关系改名 ✓"
-REF_PROMPT += @"\n\n"
+REF_PROMPT += @"\n   已成立的叫法**别每句都带** —— 搭话、招呼、强调、撒娇时带一次就够；"
+REF_PROMPT += @"\n   不满或说正经事时**可以换回**普通叫法（那本身就是「我在生气」的信号）。"
+REF_PROMPT += @"\n   ⚠️ 它是称呼，不是身份，别拿它当人设演；语气按你的性格（见【说话方式】）。"
+REF_PROMPT += @"\n   ⚠️ 这三类一旦成立，系统一定会记住 —— 因为它们都过了「你愿不愿意」这道判断。"
+REF_PROMPT += @"\n   ⚠️ 还没有固定叫法时，见下面 IF 里的说明。"
 REF_PROMPT += @"\n\n   ②b ★★ **你也可以主动给他起一个叫法**（你还没固定怎么叫他的时候）——"
 ; ── ★ 判据：**记忆里还没有"她怎么叫他"的条目** ⇒ 才允许她主动起一个 ──
 ;  ⚠️⚠️ **原来是调 `@LLM_CALLME_SHOW(...)` 当表达式用，但那个函数没标
@@ -4149,54 +4461,37 @@ IF LLM_MEMO_CNT:(LLM_CID):0 > 0
 	NEXT
 ENDIF
 IF LOCAL == 0
-	REF_PROMPT += @"\n\n      ⚠️ 你**现在还没有**对他的固定叫法 ——"
-	REF_PROMPT += @"\n\n      所以**这一场里最多提一次**（也可以整场都不提，那很正常）："
-	REF_PROMPT += @"\n\n         · 当你们聊得比较顺、你也确实想这么叫他的时候，"
-	REF_PROMPT += @"\n\n           可以**顺口提一句**（「……叫你○○行不行？」这种，按你的性格）"
-	REF_PROMPT += @"\n\n         · ⚠️ 一旦提了、他也没反对 ⇒ **直接就这么叫，并写一条记忆** ✓"
-	REF_PROMPT += @"\n\n           （不用等他正式答应 —— 他要是嫌难听，自己会说的）"
-	REF_PROMPT += @"\n\n         · ⚠️⚠️ **他只说「随便」「都行」这类敷衍、或者明显不接话 ⇒ 不要写**，"
-	REF_PROMPT += @"\n\n             也别追问第二次 —— 这一场就当没这回事，下次再说 ✓"
-	REF_PROMPT += @"\n\n      ⚠️ **叫什么要像你自己定的**，不是随便安一个："
-	REF_PROMPT += @"\n\n         · 强势 / 爱捉弄人的 ⇒ 可以带点调侃（但**不许难听或侮辱**）"
-	REF_PROMPT += @"\n\n         · 认真 / 怕生 / 无口的 ⇒ 客气一点，或者干脆只叫名字"
-	REF_PROMPT += @"\n\n         · **关系越深才可以越亲密**（恋人档才适合很亲昵的叫法）"
-	REF_PROMPT += @"\n\n      ⚠️ **关系还不够（思慕以下）就基本不要提** ——"
-	REF_PROMPT += @"\n\n         你还没熟到主动给人起外号的地步 ✓"
+	REF_PROMPT += @"\n   ⚠️ 你**现在还没有**对他的固定叫法 —— 可以整场都不提，那很正常。"
+	REF_PROMPT += @"\n      真要提就**最多一次**、按你的性格定（强势的可带调侃、无口的干脆只叫名字）；"
+	REF_PROMPT += @"\n      他没反对 ⇒ 写一条记忆；敷衍 / 不接话 ⇒ 不写，也别追问第二次 ✓"
 ENDIF
 REF_PROMPT += @"\n\n"
-REF_PROMPT += @"\n\n【「他对你的称呼」的成立条件】"
-	REF_PROMPT += @"\n\n   ⚠️⚠️ **先说最容易错的一件事：这些称呼是**他叫你**的 ——"
-	REF_PROMPT += @"\n      你**永远不能用它自称** ⚠️"
-	REF_PROMPT += @"\n      ❌ 错：「是%LLM_CHAR_NAME%姐的朋友来了」「%LLM_CHAR_NAME%姐这就去」—— 那是**用第三人称说自己**，人不会这么讲话"
-	REF_PROMPT += @"\n      ✅ 对：「是我朋友来了」「我这就去」—— **一律用「我」** ✓"
-	REF_PROMPT += @"\n      （同理：**也别用名字自称**。你自己的名字只有**别人**叫的时候才出现 ✓）"
-REF_PROMPT += @"\n\n① ⚠️ **先判断这个称呼有多重**（从轻到重）："
-REF_PROMPT += @"\n\n     · **轻**：「%LLM_CHAR_NAME%姐姐」「%LLM_CHAR_NAME%姐」——"
-REF_PROMPT += @"\n\n       名字 + 敬称，只是**客气一点**，算不上越界"
-REF_PROMPT += @"\n\n     · **中**：「姐姐」—— **去掉名字**，变成纯粹的亲属叫法"
-REF_PROMPT += @"\n\n     · **重**：「妈妈」「老婆」这类 —— 直接认了亲属 / 伴侣身份，**太超过了** ⚠️"
-REF_PROMPT += @"\n\n② ⚠️ **再看你们的关系（分界线是「思慕」）**："
-REF_PROMPT += @"\n\n     · **思慕以上**：轻 / 中 都可以**痛快答应**；重的那类要害羞、别扭、先嗔一句，"
-REF_PROMPT += @"\n\n       **不会一口答应**"
-REF_PROMPT += @"\n\n     · **思慕以下**：⚠️ **只有「轻」有机会**（看你的性格：坦率的可能就应了，"
-REF_PROMPT += @"\n\n       认真 / 怕生 / 嘴硬的会推辞）；**「中」和「重」一律拒绝**"
-REF_PROMPT += @"\n\n     ⚠️ **「默认也记」只适用于「轻」**（名字 + 敬称）——"
-REF_PROMPT += @"\n\n       「姐姐」「妈妈」这类**必须你明确应了**才记，"
-REF_PROMPT += @"\n\n       他没反对也没答应时 ⚠️ **别自作主张记下来**"
-REF_PROMPT += @"\n\n③ ⚠️⚠️ **什么时候算「成立」—— 三种都要记，别只记第一种**："
-REF_PROMPT += @"\n\n     · ①你**明确答应了** ⇒ 记 ✓"
-REF_PROMPT += @"\n\n     · ②**你没明确答应、但也没反对**，他接着就这么叫了 ⇒ **一样要记** ✓"
-REF_PROMPT += @"\n\n       —— 这是**最常见**的情况，别因为「我只是没拦着」就不记 ⚠️"
-REF_PROMPT += @"\n\n     · ③你**一开始推辞过、后来默认了** ⇒ 也要记 ✓"
-REF_PROMPT += @"\n\n     ⚠️ **只有「真的拒绝了、而且他也不再叫了」才不记**"
-REF_PROMPT += @"\n\n④ ⚠️ **关系变深了可以升级**（原来他叫你名字、后来改叫「姐姐」而你也应了）"
-REF_PROMPT += @"\n\n   ⇒ **再写一条新记忆**即可（新的那条会接管）✓"
-
+REF_PROMPT += @"\n\n【「他对你的称呼」】"
+REF_PROMPT += @"\n   ⚠️⚠️ 这些是他**叫你**的 —— **永远不能用它自称**，一律用「我」。"
+REF_PROMPT += @"\n      ❌「是%LLM_CHAR_NAME%姐的朋友来了」「%LLM_CHAR_NAME%姐这就去」"
+REF_PROMPT += @"\n      ✅「是我朋友来了」「我这就去」"
+REF_PROMPT += @"\n      （同理也别用名字自称 —— 你的名字只有**别人**叫的时候才出现）"
+REF_PROMPT += @"\n   ① 轻重：**轻** = 名字 + 敬称（%LLM_CHAR_NAME%姐）／"
+REF_PROMPT += @"\n           **中** = 「姐姐」这类去名亲属称呼／**重** = 「妈妈」「老婆」"
+REF_PROMPT += @"\n   ② 关系（分界是「思慕」）："
+REF_PROMPT += @"\n      · 思慕以上 ⇒ 轻 / 中 痛快答应；重的那类要害羞、先嗔一句，不会一口答应"
+REF_PROMPT += @"\n      · 思慕以下 ⇒ **只有「轻」有机会**（看性格）；中 / 重一律拒绝"
+REF_PROMPT += @"\n      ⚠️ 「默认也记」**只适用于「轻」** —— 中 / 重必须你明确应了才记"
+REF_PROMPT += @"\n   ③ 成立（**三种都要记**）：明确答应／没反对而他继续这么叫／先推辞后默认"
+REF_PROMPT += @"\n      ⚠️ 只有「真的拒绝、而且他也不再叫」才不记"
+REF_PROMPT += @"\n   ④ 写入：另起一行 ###MEMO### [3] ...，**顺手在台词里把那个叫法念出来**"
+REF_PROMPT += @"\n      （「……就叫你○○吧」）—— 这样他才知道你记下了 ✓"
+REF_PROMPT += @"\n   ⑤ 覆盖式：一次只留一个，**写新的顶掉旧的**（升级 / 换叫法都靠「再写一次」）"
+REF_PROMPT += @"\n      ⚠️ 槽里已经有值 ⇒ 说明你答应过了，他再这么叫就正常应下，别反悔 ✓"
 REF_PROMPT += @"\n④ ★ **玩家要脱你身上某件衣服**（「把裙子脱了」「上衣脱掉」）——"
 REF_PROMPT += @"\n   ⚠️⚠️ **这一条要等他「问」、你「答」—— 不是他单方面就能做**："
 REF_PROMPT += @"\n     · 你**答应了** ⇒ 在数值块之后再另起一行，写**那件的名字**："
 REF_PROMPT += @"\n       ###STRIP###裙子"
+; ★★★ **2026-10-08 用户定：LLM 判断为主，关键词只兜底**——
+;   用户原话：「我觉得还是由 llm 判断哪个部位被脱掉比较好，回复判定只做辅助」
+;   ⇒ 所以这行**必须写**（写了就按你报的那件脱；不写就走关键词猜测，可能猜错）✓
+REF_PROMPT += @"\n       ⚠️⚠️ **这一行必须写** —— 系统就是靠它知道你脱了哪件；"
+REF_PROMPT += @"\n          不写的话系统会去猜关键词，可能把你的**配饰 / 蝴蝶结**当成要脱的 ⚠️"
 REF_PROMPT += @"\n       ⚠️ 只能填**你身上确实穿着的那件**（看上面【你现在的穿着】）——"
 REF_PROMPT += @"\n          填一个你没穿的，系统匹配不到，等于白说 ✓"
 REF_PROMPT += @"\n     · 你**不答应** ⇒ **不要输出这一行**，并且说清楚为什么（按你的性格）"
@@ -4207,21 +4502,6 @@ REF_PROMPT += @"\n   ⚠️ 一次说一件 —— 别一次写好几行。"
 REF_PROMPT += @"\n   ⇒ **拒绝时要给个替代**（「……还是叫我%LLM_CHAR_NAME%吧」），"
 REF_PROMPT += @"\n     口气**严格按你的性格** —— 嘴硬的直接顶回去、冷淡的淡淡一句、"
 REF_PROMPT += @"\n     爱捉弄人的拿这个开个玩笑。⚠️ **别写成客服式拒绝。**"
-REF_PROMPT += @"\n   · 如果他已经这么叫了一阵、你也没反对 ⇒ **一定要记下来**（同上输出那一行）——"
-REF_PROMPT += @"\n     ⚠️ 这种情况**不需要你「答应」**，默认也是记住 ✓"
-REF_PROMPT += @"\n   · ⚠️ **他可以换一个**（「那叫你妈妈呢」）—— 同样按关系判断；"
-REF_PROMPT += @"\n     答应了就**改成新的**（旧的会被替换）"
-REF_PROMPT += @"\n     ★ **关系变深了也可以升级**：原来是「%LLM_CHAR_NAME%姐」（轻），"
-REF_PROMPT += @"\n       后来他改叫「姐姐」（中）、你也应了 ⇒ **同样输出那一行写新的** ✓"
-REF_PROMPT += @"\n     ⇒ 系统**只保留最新的一条**，所以升级 / 换叫法都靠「再写一次」✓"
-REF_PROMPT += @"\n   ⚠️ **一旦上面的槽里已经有值，就说明你已经答应过了** ——"
-REF_PROMPT += @"\n     他再这么叫的时候**正常应下就行，不要再反悔** ✓"
-REF_PROMPT += @"\n   ⚠️ 一次只能有一个称呼 —— 写了新的就顶掉旧的 ✓"
-REF_PROMPT += @"\n   ⚠️ **输出这一行的时候，顺手在台词里把那个叫法念出来**"
-REF_PROMPT += @"\n     （「……就叫你○○吧」这类）—— 这样他才知道**你记下了** ✓"
-REF_PROMPT += @"\n   ⚠️ 如果你已经有一个叫法（上面【你平时叫他】里有值），"
-REF_PROMPT += @"\n     那就**照那个叫**，不要再另起一个 ✓"
-REF_PROMPT += @"\n⚠️ 都是一句话、30 字以内、第三人称；**没有就不写**（绝大多数轮次都不写）。"
 REF_PROMPT += @"\n⚠️ 这两个是**覆盖式**的 —— 重新写会替换旧的，所以只在「确实变了」的时候写。"
 
 REF_PROMPT += @"\n\n【硬性要求】"
@@ -4313,6 +4593,16 @@ IF LLM_OPENING && LLM_MODE == 0
 	;  ⚠️ 原来这里写的是「**有内容时优先接上次**」⇒ 正好相反 ⚠️
 	;    而位置一变，接着上次的地点说就会**穿帮**（她上次在大厅、这次在门口）✓
 	REF_PROMPT += @"\n⚠️ 玩家刚走到你面前。开口之前 ——"
+	; place-changed check (2026-10-07) --
+	;   if she moved, do NOT continue the previous topic; talk about the new place
+	IF LLM_PREV_PLACE:(LLM_CID):0 != "" && LLM_PREV_PLACE:(LLM_CID):0 != GET_PLACENAME(CFLAG:(LLM_CID):現在位置, 0)
+		REF_PROMPT += @"\n**注意：你换地方了** —— 上次说话时你在「%LLM_PREV_PLACE:(LLM_CID):0%」，"
+		REF_PROMPT += @"\n   现在你在「%LLM_PLACE%」。**"
+		REF_PROMPT += @"\n   => 不要接着上次的地点或话题说（那会像你还没走）"
+		REF_PROMPT += @"\n   => 开口就落在这个新地方 —— 你在这儿要做什么、看到什么、"
+		REF_PROMPT += @"\n     或者刚到这儿的状态（正准备做什么 / 刚忙完什么）"
+		REF_PROMPT += @"\n   => 上次的约定仍然算数，但只在玩家提起时才接"
+	ENDIF
 	REF_PROMPT += @"\n⚠️⚠️ **先看你现在在哪、在做什么，再决定要不要提上次的事**："
 	REF_PROMPT += @"\n   ★ **第一优先：此刻的场景**（看【你现在正在做的事】【现在所在的地方】）"
 	REF_PROMPT += @"\n     · 一句和「现在」有关的话（你手头的事 / 这地方 / 此刻的天气）"
@@ -4340,6 +4630,9 @@ ENDIF
 ;      三种开场要分清楚」
 ;  ⚠️ 这三种的**共同点**：都要先给**画面**（环境 + 她的样子），
 ;     再让她开口（或者说不出话）✓
+; MOVED to @LLM_PROMPT_INTIMATE (2026-10-07 split) --
+; old code kept; LLM_USE_OLD_PROMPT = 1 to rollback
+IF LLM_USE_OLD_PROMPT
 IF LLM_OPENING && LLM_MODE == 1
 	REF_PROMPT += @"\n\n【★ 这是这一场的第一句话 —— 但你现在是在**自由互动**里】"
 	REF_PROMPT += @"\n   ⚠️ 别当成日常打招呼 —— 你们正在进行的是**身体上的事** ✓"
@@ -4371,6 +4664,7 @@ IF LLM_OPENING && LLM_MODE == 1
 		REF_PROMPT += @"\n     呼吸、他的手放在哪、你身上什么感觉 ✓"
 		REF_PROMPT += @"\n   · ★ 先给一句**此刻的氛围**，再让你的第一句落进去 ✓"
 	ENDIF
+ENDIF
 ENDIF
 
 ; ────────────────────────────────────────────────────────────────────────────
@@ -4496,6 +4790,9 @@ REF_PROMPT += @"\n  或者显得心不在焉；但不必每句都提，也别把
 ;  ⚠️ 真因：system prompt 长 19609 字符 ⇒ 前面（睡姦层）写的那段被压过 ⚠️
 ;  ⚠️ 项目自己的注释写着「越靠后越有影响力」⇒ 必须在**末尾**再说一次 ✓
 ; ════════════════════════════════════════════════════════════════════════
+; MOVED to @LLM_PROMPT_INTIMATE (2026-10-07 split) --
+; old code kept; LLM_USE_OLD_PROMPT = 1 to rollback
+IF LLM_USE_OLD_PROMPT
 IF LLM_MODE == 1
 	IF CFLAG:(LLM_CID):睡眠
 		REF_PROMPT += @"\n【★ 最后强调一遍 —— 他刚才说的那句话，你听不到】"
@@ -4511,6 +4808,7 @@ IF LLM_MODE == 1
 		REF_PROMPT += @"\n   · ★ 你的反应**只由身体的刺激**决定；能写的只有含糊的醉话和哼唧 ——"
 		REF_PROMPT += @"\n     那些都不是在跟他对话 ✓"
 	ENDIF
+ENDIF
 ENDIF
 ; ════════════════════════════════════════════════════════════════════════
 ; ★★ **最终场景卡**（prompt 最末，2026-09-21 prompt 优化）——
@@ -4546,10 +4844,22 @@ REF_PROMPT += @"\n   ★ 当前场景卡优先于历史中冲突的地点、时�
 REF_PROMPT += @"\n   ★ 这些是理解场景的事实，不是要逐条念出的清单；只自然体现最相关的一两项。"
 REF_PROMPT += @"\n   ★ 先从当前地点、当前意识/身体状态入手，再回应玩家刚才的输入。"
 REF_PROMPT += @"\n   ★ 不要自行推进玩家没有做出的下一步，不要替玩家说话，不要解释规则。"
+REF_PROMPT += @"\n   ★ **开口就是台词** —— 第一句直接写她此刻说出口的话（含用（）写的动作）："
+REF_PROMPT += @"\n     例：（她别开脸，手指绞着衣角）「……你、你干嘛。」"
+REF_PROMPT += @"\n     ★ 从**这个位置**开始写，前面的都不需要 ✓"
+REF_PROMPT += @"\n     不要写「让我想一想」「当前情况」「根据设定」「对于 DELTA」这类分析、"
+REF_PROMPT += @"\n     不要列点、不要自我判断、不要解释你为什么这么演 ✗"
+REF_PROMPT += @"\n     **直接就是她此刻说出口的话和动作** —— 第一句就要入戏 ✓"
 IF LLM_MODE == 1
 REF_PROMPT += @"\n   ★ 互动回复中：动作/环境/身体反应用（），角色说话用「」；两者放在同一条回复里。"
 ENDIF
 ; ════════════════════════════════════════════════════════════════════════
+; intimate-only prompt layer (2026-10-07 split) --
+;   new: CALL @LLM_PROMPT_INTIMATE (in LLM_INTIMATE.ERB)
+;   old: LLM_USE_OLD_PROMPT = 1 => uses the inline code above
+IF LLM_MODE == 1 && !LLM_USE_OLD_PROMPT
+	CALL LLM_PROMPT_INTIMATE(LLM_CID, REF_PROMPT, LLM_OPENING)
+ENDIF
 RETURN
 
 
@@ -4631,6 +4941,33 @@ CALLSHARP LLM_CHAT_SEND(LLM_CID, LLM_SYS, "（回想一下，然后准备开口�
 	ENDIF
 	LLM_REQ = TOINT(LLM_TMP)
 CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+IF LLM_STATE == 1
+	LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+	SIF STRLENS(LLM_OUT) > 600
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+		LLM_STATE = 9
+	; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+		LLM_STATE = 9
+ENDIF
 ; ⚠️ 失败就跳过，不阻塞开场
 SIF LLM_STATE != 1
 	RETURN
@@ -4694,6 +5031,33 @@ CALLSHARP LLM_CHAT_SEND(LLM_CID, LLM_SYS, "（这次约会到这里就结束了�
 	ENDIF
 	LLM_REQ = TOINT(LLM_TMP)
 CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+IF LLM_STATE == 1
+	LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+	SIF STRLENS(LLM_OUT) > 600
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+		LLM_STATE = 9
+	; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+		LLM_STATE = 9
+ENDIF
 ; ⚠️ 失败就不存（别存空的/半截的）
 SIF LLM_STATE != 1
 	RETURN
@@ -4727,6 +5091,15 @@ RETURN
 ;  ⚠️ 存储里只有 `<DAY 值>|<总结>` ⇒「距今」和「日期」都**实时算** ✓
 ;     （写死「7 天前」的话，过几天再看就错了 —— 用户明确指出的坑）
 ;  ⚠️ 最多给**最近 3 次**（再多会挤占 prompt，而且早年的她也记不清了）
+
+
+; ========================================================================
+;  **亲密互动总结 + 偏好提取**（2026-10-08 用户要求）——
+;  用户原话：「让自由互动也像约会总结一样保留一些记忆，
+;            同时提取玩家最爱的体位或者偏好，比如乳交等」
+;  ⚠️ 照 `@LLM_DATE_SUMMARY` 的模式（record=0 的一次性请求）✓
+;  ⚠️ 回复整段存进 `LLM_INT_PREF` —— 格式由 prompt 固定，50 字以内够用 ✓
+; ========================================================================
 @LLM_SHOW_DATELOG(LLM_CID, REF_OUT)
 #DIM  LLM_CID
 #DIMS REF REF_OUT
@@ -5002,6 +5375,11 @@ RETURN 1
 ; ────────────────────────────────────────────────────────────────────────────
 @LLM_APPLY_DELTA(LLM_CID, LLM_D1, LLM_D2, LLM_D3, LLM_D4, LLM_D5, LLM_D6, REF_ACC_FAVOR, REF_ACC_MOOD, LLM_GOT, REF_TOGETHER)
 
+#DIMS LLM_BD          ; ★ 体型/快感描写（2026-10-08）
+#DIMS LLM_BD2         ; ★ 下半身描写
+#DIM  LLM_NAKED_UP    ; ★ 上身是否赤裸
+#DIM  LLM_NAKED_LO    ; ★ 下身是否赤裸
+#DIMS LLM_CLOTHTXT   ; ★ 当前穿着文本（2026-10-08）
 #DIM  LLM_CID
 #DIM  LLM_D1
 #DIM  LLM_D2
@@ -5782,21 +6160,26 @@ ENDIF
 	;  ⚠️ 还有官方的**1 小时间隔**（记在 `TCVAR:303`），约会中豁免。
 	;     不检查的话，模型每轮都填 5 就能刷好感。
 	IF LLM_D4 >= 5
+	; ★★ **睡姦 / 醉姦：直接禁止接触判定**（2026-10-08 用户要求）——
+	;   用户原话：「醉姦和睡姦确实不该解禁可以改成直接禁止接触判定，
+	;            我准备用另一个接口来做那些内容」
+	;   ⇒ 睡着 / 烂醉 ⇒ **一律不结算**（那些内容走另一个接口）✓
+	;   ⇒ 其余限制（工作 / 气力 / 冷却）⇒ **自由互动时解禁** ✓
 		LLM_TOUCH_OK = 0
 		; ⚠️ **不结算时也要记下原因** —— 让**下一轮**的 prompt 能让她对此有反应。
 		;    用户要求："不结算时能不能让我们的 llm 也有反馈，说一直摸会不会有点奇怪之类的话，
 		;              当然这个肯定是要跟人设来的。"
 		;    ⇒ 这里只记**事实原因**，怎么说是她自己（由人设/关系决定）。
 		LLM_TOUCH_NOTE = 0
-		IF CFLAG:(LLM_CID):睡眠 || CFLAG:(LLM_CID):陪睡中
-			LLM_TOUCH_NOTE = 2          ; 她睡着 / 陪睡中
-		ELSEIF CFLAG:(LLM_CID):行動 == 5
+		IF CFLAG:(LLM_CID):陪睡中
+			LLM_TOUCH_NOTE = 2          ; 陪睡中（睡着已放开，2026-10-08）
+		ELSEIF LLM_MODE == 0 && CFLAG:(LLM_CID):行動 == 5
 			LLM_TOUCH_NOTE = 3          ; 她在工作
-		ELSEIF BASE:MASTER:気力 <= 0
+		ELSEIF LLM_MODE == 0 && BASE:MASTER:気力 <= 0
 			LLM_TOUCH_NOTE = 4          ; 他自己气力见底
 		ELSEIF FLAG:70
 			LLM_TOUCH_NOTE = 5          ; 停止中
-		ELSEIF TIME_PROGRESS(TCVAR:303) < 60 && !IS_DATING_WITH_PLAYER(LLM_CID) && ABL:(LLM_CID):親密 <= 5
+		ELSEIF LLM_MODE == 0 && TIME_PROGRESS(TCVAR:303) < 60 && !IS_DATING_WITH_PLAYER(LLM_CID) && ABL:(LLM_CID):親密 <= 5
 			LLM_TOUCH_NOTE = 1          ; ★ **1 小时内已经碰过了** ← 最常见的一种
 			;  ⚠️ **`親密 > 5`（即第 3 档起）不判冷却** —— 用户定：
 			;     "亲密大于 5 之后不再有一小时内第二次的限制，可以自由身体接触"
@@ -6107,8 +6490,9 @@ ENDIF
 					;  ⚠️ mod 不在 ⇒ 静默跳过，不报错 ✓
 					IF LLM_D6 == 7
 						CALL LLM_STRIP_PART(LLM_CID, LLM_STRIP_WANT, LLM_STRIP_WHAT)
-						IF LLM_STRIP_WHAT != ""
-							LLM_MSG += @"（%CALLNAME:(LLM_CID)%的%LLM_STRIP_WHAT%被脱掉了。）"
+						IF STRLENS(LLM_STRIP_WHAT) >= 3
+							; ⚠️ **已删除**（2026-10-08 用户报告：提示重复出现）——
+		;   改由主循环统一提示（`LLM_STRIP_DONE`），这里不再重复 ✓
 							LLM_STRIPPED = 1
 							; ⚠️ **换掉 act 的语义**：脱完之后，这一轮对"脱衣服"这件事
 							;    就不再是"刚做了一次"了 ⇒ 记合意时算**成功过一次** ✓
@@ -6188,35 +6572,70 @@ IF LLM_D4 == 2
 	LLM_SF = 0
 	LLM_SE = 0
 	LLM_SP = 0
-	IF ABL:(LLM_CID):親密 <= 3
-		; ── 第 1 档：翻脸 ──
-		LLM_SF = -5
-		LLM_SE = -40
-		LLM_D3 = 150
-		; 她在翻脸，不是在心动 → 清零
-		TCVAR:(LLM_CID):337 = 0
-	ELSEIF ABL:(LLM_CID):親密 <= 5
-		; ── 第 2 档：尴尬、嗔怪 ──
-		LLM_SF = -1
-		LLM_SE = -20
-		LLM_D3 = 40
-		TCVAR:(LLM_CID):337 = 0
-	ELSEIF ABL:(LLM_CID):親密 <= 10
-		; ── 第 3 档：害羞（**被接受**）──
-		; ⚠️ **不给信赖**（见上面的说明）
-		LLM_SF = 10
-		LLM_SE = 20
-		LLM_SP = 5
-		LLM_D3 = -30
-		LLM_SEXY = 1
+	; ★★★ **性骚扰解禁 —— 只在自由互动**（2026-10-08 用户要求）——
+	;   用户原话：「性骚扰之类的那些东西全部解禁，并且也会加好感/信赖」
+	;            「关系较浅被逆推说明对方处在性欲极强的状态，可以解禁」
+	;            「也改成正收益（不再罚）」
+	;   ⚠️⚠️ **自由对话完全不受影响** —— 下面 ELSE 里是**原来的逻辑** ✓
+	LLM_SHALLOW = 0
+	IF LLM_MODE == 1
+		; ── 互动：全部解禁（原第 1/2 档的负收益 → 正收益）──
+		IF ABL:(LLM_CID):親密 <= 3
+			LLM_SF = 3
+			LLM_SE = 10
+			LLM_D3 = -10
+			LLM_SHALLOW = 1
+			TCVAR:(LLM_CID):337 = 0
+		ELSEIF ABL:(LLM_CID):親密 <= 5
+			LLM_SF = 5
+			LLM_SE = 15
+			LLM_D3 = -15
+			LLM_SHALLOW = 1
+			TCVAR:(LLM_CID):337 = 0
+		ELSEIF ABL:(LLM_CID):親密 <= 10
+			LLM_SF = 10
+			LLM_SE = 20
+			LLM_SP = 5
+			LLM_D3 = -30
+			LLM_SEXY = 1
+		ELSE
+			LLM_SF = 20
+			LLM_SE = 40
+			LLM_SP = 8
+			LLM_D3 = -40
+			LLM_SEXY = 1
+		ENDIF
 	ELSE
-		; ── 第 4 档：恋慕达成 —— 害羞、甚至有点心动 ──
-		; ⚠️ **不给信赖**（同上）
-		LLM_SF = 20
-		LLM_SE = 40
-		LLM_SP = 8
-		LLM_D3 = -40
-		LLM_SEXY = 1
+		IF ABL:(LLM_CID):親密 <= 3
+			; ── 第 1 档：翻脸 ──
+			LLM_SF = -5
+			LLM_SE = -40
+			LLM_D3 = 150
+			; 她在翻脸，不是在心动 → 清零
+			TCVAR:(LLM_CID):337 = 0
+		ELSEIF ABL:(LLM_CID):親密 <= 5
+			; ── 第 2 档：尴尬、嗔怪 ──
+			LLM_SF = -1
+			LLM_SE = -20
+			LLM_D3 = 40
+			TCVAR:(LLM_CID):337 = 0
+		ELSEIF ABL:(LLM_CID):親密 <= 10
+			; ── 第 3 档：害羞（**被接受**）──
+			; ⚠️ **不给信赖**（见上面的说明）
+			LLM_SF = 10
+			LLM_SE = 20
+			LLM_SP = 5
+			LLM_D3 = -30
+			LLM_SEXY = 1
+		ELSE
+			; ── 第 4 档：恋慕达成 —— 害羞、甚至有点心动 ──
+			; ⚠️ **不给信赖**（同上）
+			LLM_SF = 20
+			LLM_SE = 40
+			LLM_SP = 8
+			LLM_D3 = -40
+			LLM_SEXY = 1
+	ENDIF
 	ENDIF
 	; ★★ **"会主动推倒你"仍然只认 `恋慕 / 爱欲 / 炮友`**（用户定）——
 	;     ⇒ 第 3/4 档也**不累加越界轮数**：她可以"不介意"，
@@ -6240,7 +6659,13 @@ IF LLM_D4 == 2
 	; 好感：**直加**（绕过台词 ±3/±10 上限）
 	SIF LLM_SF != 0
 		CFLAG:(LLM_CID):2 = LIMIT(CFLAG:(LLM_CID):2 + LLM_SF, 0, 1000000)
-	; ⚠️ **没有信赖** —— 性骚扰不推进"信任"（用户定）✓
+	; ★★ **信赖度 +0~5 随机**（2026-10-08 用户要求，★ 只在自由互动）——
+	;   用户原话：「信赖涨 0-5 随机数值，因为现在我们获取信赖的点太少了
+	;            很容易进炮友线」
+	SIF LLM_MODE == 1
+		LLM_TRST_ANY = RAND:6
+	SIF LLM_MODE == 1 && LLM_TRST_ANY > 0
+		LLM_D5 += LLM_TRST_ANY
 	; 情绪：叠加到模型给的值上（`+=`，别覆盖）
 	SIF LLM_SE != 0
 		LLM_D2 += LLM_SE
@@ -6251,6 +6676,14 @@ IF LLM_D4 == 2
 	BASE:(LLM_CID):理性 = MAX(BASE:(LLM_CID):理性 - MAXBASE:(LLM_CID):理性 * LLM_SP / 100, 0)
 	ENDIF
 	; ⚠️ `LLM_D1` 置 0 —— 好感已经直加了，再走台词通道就是**双重**
+	; ★★ **睡着 / 烂醉时：好感和信赖不涨**（2026-10-08 用户要求）——
+	;   用户原话：「睡姦我只是不想让它涨好感和信赖，身体应该做出反应」
+	;   ⚠️ 快感值（###BODY###）照常涨 ⇒ 身体有反应 ✓
+	;   ⚠️ 但**心**不该被睡梦中推进 ⇒ 好感/信赖清零 ✓
+	IF CFLAG:(LLM_CID):睡眠 || TCVAR:(LLM_CID):烂醉
+		LLM_D1 = 0
+		LLM_D5 = 0
+	ENDIF
 	LLM_D1 = 0
 
 
@@ -6570,17 +7003,40 @@ ELSE
 	PRINTFORML （本次回复未包含结算块 · 数值未变动）
 ENDIF
 ; 「陪伴 / 帮忙」的本次结算明细 —— 只在真的发生时才有内容
-IF LLM_GAIN != ""
-	; ★★ **互动模式：把高潮值 / 觉醒值计量表拼进提示行**（2026-09-21 用户要求）——
-	;   ⚠️ 用 IF LLM_MODE == 1 包住 ⇒ 自由对话不受影响 ✓
-	IF LLM_MODE == 1
-		LLM_INT_MTR = ""
-		CALL LLM_INT_METERS(LLM_CID, LLM_INT_MTR)
-		SIF LLM_INT_MTR != ""
-			LLM_GAIN += @"　%LLM_INT_MTR%"
-	ENDIF
-	PRINTFORML （%LLM_GAIN%）
-ENDIF
+			IF LLM_GAIN != ""
+				; ⚠️ 用 IF LLM_MODE == 1 包住 ⇒ 自由对话不受影响 ✓
+				IF LLM_MODE == 1
+					LLM_INT_MTR = ""
+					CALL LLM_INT_METERS(LLM_CID, LLM_INT_MTR)
+					; ★★ **每轮显示当前穿着**（2026-10-08 用户要求）——
+					;   用户原话：「当前穿着的衣物也应随着每轮对话显示，并且只显示最外层的」
+					LLM_CLOTHTXT = ""
+					CALL LLM_INT_CLOTHES_TXT(LLM_CID, LLM_CLOTHTXT)
+					IF STRLENS(LLM_CLOTHTXT) >= 3
+						PRINTFORML 　%LLM_CLOTHTXT%
+					ENDIF
+					; ★★ **体型 / 快感描写另起一行**（在穿着**后面**）——
+					;   用户原话：「快感的描写 放在衣物的后面 单写一行，
+					;            但只有赤裸之后才会出对应的描写」
+					LLM_BD = ""
+					LLM_BD2 = ""
+					SIF LLM_NAKED_UP
+						CALL LLM_INT_BODY_UP(TARGET, LLM_BD)
+					SIF LLM_NAKED_LO
+						CALL LLM_INT_BODY_LO(TARGET, LLM_BD2)
+					; ⚠️ 两段都有才加空格；只有一段就原样 ⇒ 避免出现 " " 这种垃圾 ✓
+					SIF STRLENS(LLM_BD) >= 3 && STRLENS(LLM_BD2) >= 3
+						LLM_BD += @" "
+					SIF STRLENS(LLM_BD2) >= 3
+						LLM_BD += @"%LLM_BD2%"
+					IF STRLENS(LLM_BD) >= 3
+						PRINTFORML 　（%LLM_BD%）
+					ENDIF
+					SIF LLM_INT_MTR != ""
+						LLM_GAIN += @"　%LLM_INT_MTR%"
+				ENDIF
+				PRINTFORML （%LLM_GAIN%）
+			ENDIF
 RETURN
 
 
@@ -6602,7 +7058,7 @@ RETURN
 ;     所以这里**不要**再绕过它强行显示，也不需要在外面重复判断。
 ;
 ;  挑选规则：跟随玩家自己的"角色绘的类型"设置
-;      `FLAG:立ち絵種類` 为真 = 颜绘，为假 = 立绘
+;      `FLAG:立絵種類` 为真 = 颜绘，为假 = 立绘
 ;      （语义见 SHOP関連\OPTION.ERB:929 的 `\@ FLAG:立絵種類 ? [颜绘] # [立绘] \@`）
 ;  若玩家选的是立绘、但该角色没有立绘资源，则退回颜绘（不会什么都不显示）。
 ;
@@ -6614,66 +7070,33 @@ RETURN
 ;  本函数**不依赖任何 .ERH 全局变量**（只用局部变量和游戏自己的状态量），
 ;  所以不会被"全局变量莫名失效"那类问题牵连。
 ; ────────────────────────────────────────────────────────────────────────────
+; ========================================================================
+;  **显示立绘**（2026-10-08 **回退到最简版**）——
+;   用户原话：「你要不把你那些新加的立绘相关的东西 都回退到正常的版本 不多加东西」
+;   ⚠️ 我在这里加过的**全部去掉了**：
+;      · 按状态选表情（`@LLM_PICK_FACE`）
+;      · 表情资源校验（`QOL_GET_BASE_RESOURCE`）
+;      · `FLAG:立絵種類` 分支判断
+;      · 立绘行号记录 / 清旧立绘 / 原地替换
+;      ⇒ 其中**任何一项**都可能让官方查不到资源、从而**回退到「服_通常」**——
+;        表现就是「**赤裸的角色被画成穿衣服的**」⚠️
+;   ⇒ 现在只调**官方自己的**「与 UI 界面显示一致」接口：
+;      `@PRINT_SINGLE_CHARA_IMAGE`（`QOL_IMAGE.ERB:284`）——
+;      它把 立绘种类 / 服装 / 表情 **全部留空**，交给官方自己判 ✓
+;   ⚠️ 外面 Look 界面能正确显示裸体 ⇒ 走同一条路径也一定能 ✓
+;   ⚠️ 布局：**立绘在台词上方**（调用方先 CALL 本函数、再 CALL LLM_PRINT_REPLY）✓
+;   ⚠️ 已知副作用：表情**不再跟随欲情变化**（官方默认给「通常」）——
+;      以后若要爱心眼，**必须先确认该表情在「裸」下有差分**，不能盲传 ⚠️
+; ========================================================================
 @LLM_SHOW_FIGURE(LLM_CID)
 #DIM LLM_CID
-#LOCALSIZE 1
-#DIM LLM_HAS_FIG
 
-SIF LLM_CID < 1 || LLM_CID >= CHARANUM
+; ⚠️ 函数不存在就什么都不画（不过它在魔改的 QOL_IMAGE.ERB 里，一定存在）✓
+SIF !EXISTFUNCTION(@"PRINT_SINGLE_CHARA_IMAGE")
 	RETURN
-
-; 玩家选择「颜绘」→ 直接用颜绘
-IF FLAG:立ち絵種類
-	CALL PRINT_FACE(LLM_CID)
-	RETURN
-ENDIF
-
-; 玩家选择「立绘」→ 有立绘资源就画立绘，没有则退回颜绘
-LLM_HAS_FIG = HAS_STANDING(LLM_CID)
-IF LLM_HAS_FIG
-	CALL PRINT_FIGURE(LLM_CID, "", "", "", "", "立絵")
-ELSE
-	CALL PRINT_FACE(LLM_CID)
-ENDIF
+CALL PRINT_SINGLE_CHARA_IMAGE(LLM_CID)
 RETURN
 
-
-; ────────────────────────────────────────────────────────────────────────────
-;  输出一条角色台词
-; ────────────────────────────────────────────────────────────────────────────
-; ────────────────────────────────────────────────────────────────────────────
-;  她愿不愿意进行自由对话？
-; ────────────────────────────────────────────────────────────────────────────
-;  返回值（调用方读 RESULT）：1 = 拒绝，0 = 愿意
-;  拒绝理由写进 REF_REASON，之后喂给模型，让拒绝的语气与处境对得上。
-;
-;  ⚠️ 所有判定都只用**已经验证过的写法**：
-;     · 具名下标带括号 `CFLAG:(CID):名`、`BASE:(CID):名` —— 本项目多处使用
-;     · **`MARK` 的下标不加括号**！本作既有写法是 `MARK:变量:元素`
-;       （FORTUNE.ERB 的 `MARK:target_id:反発刻印`、
-;         QoL_Com_Order.ERB 的 `MARK:mCID:不埒刻印`），
-;       全项目没有一处写 `MARK:(变量):元素` —— 这点曾经怀疑是踩坑点。
-;     · 多行条件一律 `IF … ENDIF`，绝不用 `SIF` 带多行（见避坑清单 5j）
-;
-;  参数：LLM_ANGER = 本场对话累积的"不快"（由 @LLM_CHAT_LOOP 维护并传入）
-;
-;  判定条件（阈值想调就改这里）—— 顺序即优先级，越靠前越强势：
-;    · CFLAG:睡眠            —— 睡着了被吵醒
-;    · CFLAG:ブチギレ         —— 暴怒（游戏里最强的愤怒态）
-;    · MARK:反発刻印 >= 3     —— 对齐官方（COMF300 会話.ERB:31）
-;                               ⚠️ 曾经写成"任意非 0"，误伤太大
-;    · BASE:憤怒 >= 500      —— 500 是游戏自己的"愤怒"阈值（QOL_IMAGE.ERB:1494）
-;    · LLM_ANGER >= 300      —— **这场对话里被惹毛了**：模型每轮给的愤怒增量累积
-;                               约 5 轮明显冒犯触发；想让她更耐烦就调大
-;    · 心情 == -1 且 情緒 < MAXBASE/10 且 好感 < REQUIRED_FAVOR_思慕
-;                            —— 真的没心情（三个条件必须同时满足）
-;                               ⚠️ 曾经只判 `情緒 < MAXBASE/3`，**几乎总成立**，
-;                                  把正常对话全挡住了。详见下面那段注释。
-;
-;  ⚠️ 注意：**官方自己的「会話」指令只有前三条里的刻印那条**，
-;     其余都是我们为自由对话加的。所以尺度宁可宽松 —— 少拒绝，
-;     也别让玩家觉得"每个角色都不理我"。
-; ────────────────────────────────────────────────────────────────────────────
 @LLM_REFUSE_REASON(LLM_CID, LLM_ANGER, REF_REASON)
 #DIM  LLM_CID
 #DIM  LLM_ANGER
@@ -6835,6 +7258,33 @@ ENDIF
 LLM_REQ = TOINT(LLM_TMP)
 PRINTFORML 　.....少女思考中……
 CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+IF LLM_STATE == 1
+	LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+	SIF STRLENS(LLM_OUT) > 600
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+		LLM_STATE = 9
+	; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+		LLM_STATE = 9
+ENDIF
 IF LLM_STATE == 1
 	CALL LLM_SANITIZE_REPLY(LLM_OUT)
 	SIF LLM_OUT != ""
@@ -7752,6 +8202,33 @@ ENDIF
 LLM_REQ = TOINT(LLM_TMP)
 PRINTFORML 　.....少女思考中……
 CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+IF LLM_STATE == 1
+	LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+	SIF STRLENS(LLM_OUT) > 600
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+		LLM_STATE = 9
+	; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+		LLM_STATE = 9
+ENDIF
 CLEARLINE 1
 IF LLM_STATE == 1
 	; ⚠️ 先解析再清洗：万一模型还是带了 ###DELTA### 块，这里把它**抠掉**，
@@ -7794,6 +8271,8 @@ IF REF_TEXT != ""
 	; ★ 睡着 / 醉倒时的话不进记录（2026-09-21 用户要求）✓
 	IF LLM_MODE == 0 && !CFLAG:(LLM_CID):睡眠 && !TCVAR:(LLM_CID):烂醉
 	LLM_PREV:(LLM_CID):0 = @"{DAY * 1440 + TIME}|%REF_TEXT%"
+	; also record the place at this moment (2026-10-07)
+	LLM_PREV_PLACE:(LLM_CID):0 = %GET_PLACENAME(CFLAG:(LLM_CID):現在位置, 0)%
 	ENDIF
 	; ★★ **两个攒记录块**（2026-09-20）——
 	;   ① `LLM_DATERAW`：**约会期间**的完整台词（总结约会用）
@@ -7876,6 +8355,71 @@ RESETCOLOR
 ;   用户原话：「让 llm 也知道这个时间可以吗，就像工作进度一样」✓
 ;  ⚠️ 数据是 `TFLAG:约会道中`，两种格式（`EVENTCOMEND2.ERB:62-72`）：
 ;      `> 1000` ⇒ 还没动身 ⇒ 剩余 = 值 - 1000；`1~1000` ⇒ 剩余 = 值 ✓
+
+
+; ════════════════════════════════════════════════════════════════════════
+;  ★★ **绕路**（约会路上，2026-10-07 用户需求）——
+;  ⚠️ 用户要求：「加入和原有系统一致的绕路判定」⇒ **直接调官方 `@COM605`** ✓
+;  ⚠️ 它内部会：掷骰（成功率 90 + GET_SUCCESS_RATE()/5）→ 恢复体力/气力
+;     → 加好感源（按従順/親密/好感分级）→ 记 30 分钟冷却 → TIME += 10
+;     → `TFLAG:约会道中 += 10`（相杀 ⇒ 剩余时间不变）✓
+;  ⚠️ 执行条件是官方 `@COM_ABLE605`（约会中 + 在路上 + 冷却够 + 不睡…）——
+;     我们**再判一次**（因为 `COM_ABLE` 是命令层的，对话里没人替我们判）✓
+; ════════════════════════════════════════════════════════════════════════
+@LLM_DO_DETOUR(LLM_CID)
+#DIM LLM_CID
+#LOCALSIZE 4
+
+; ── ① 条件检查（照官方 `@COM_ABLE605`）──
+;   ⚠️ 用 `EXISTFUNCTION` 保护 —— 万一某个函数不存在也不崩 ✓
+SIF !EXISTFUNCTION(@"COM605")
+	RETURN
+SIF !EXISTFUNCTION(@"CHK_DATENOW")
+	RETURN
+; 必须在约会中
+SIF !CHK_DATENOW(CFLAG:12)
+	RETURN
+; 必须在约会路上
+SIF TFLAG:约会道中 <= 0
+	RETURN
+; 30 分钟冷却（和官方用同一个标记 TCVAR:309）
+SIF TIME_PROGRESS(TCVAR:309) < 30
+	RETURN
+; 待客室里不能绕（官方同）
+SIF CFLAG:MASTER:現在位置 == OMANEKIBEYA()
+	RETURN
+; 睡着不行（官方同）
+SIF CFLAG:(LLM_CID):睡眠
+	RETURN
+
+; ── ② 执行官方绕路 ──
+;   ⚠️ `@COM605` 用的是全局 `TARGET` —— 对话里 `TARGET` 就是对象 ✓
+;   ⚠️ 它会 `RETURN 1`，我们不用它的返回值 ✓
+CALL COM605
+
+; ★★ **绕路补时间**（2026-10-07 用户要求）——
+;   ⚠️ 官方是"相杀"（TIME+10 且 约会道中+10 ⇒ 剩余不变）⚠️
+;   ⚠️ 用户要求：**把绕路花掉的那 10 分钟抵消掉，另外净增 20 分钟** ✓
+;   算：净变化 = (约会道中 10+20) - (TIME 10) = +20 ✓
+TFLAG:约会道中 += 20
+
+; ── ③ 给玩家一行反馈 ──
+PRINTFORML
+SETCOLOR C_AQUA
+IF TFLAG:193 == 1
+	PRINTFORML 　（你们绕了段路 —— 收获了意想不到的乐趣。）
+ELSEIF TFLAG:193 == -1
+	PRINTFORML 　（你们绕了段路 —— 好像没找到什么有意思的。）
+ELSE
+	PRINTFORML 　（你们绕了段路，边走边看。）
+ENDIF
+
+; ★ **冷却提示**（用户要求：最好还是显示）——
+;   ⚠️ 官方用 `TCVAR:309`（绝对值分钟）做 30 分钟冷却 ✓
+PRINTFORML 　（下次还能绕路：还要等 {MAX(30 - TIME_PROGRESS(TCVAR:309), 0)} 分钟）
+RESETCOLOR
+RETURN
+
 @LLM_DATE_INTO(REF_PROMPT)
 #DIMS REF REF_PROMPT
 #LOCALSIZE 2
@@ -7885,6 +8429,21 @@ SIF LLM_DLEFT <= 0
 	RETURN
 REF_PROMPT += @"\n【你正在去约会的路上】大约还有 {LLM_DLEFT} 分钟就到地方了。"
 REF_PROMPT += @"\n（⚠️ 你们**正在往那边走** —— 别催他，也别当成已经到了；边走边聊就好 ✓）"
+; ★★ **约会路上：可以提议「绕路」**（2026-10-07 用户需求）——
+;   ⚠️ 照 `###STRIP###` 的模式：你输出标记 ⇒ 程序执行官方绕路逻辑 ✓
+;   ⚠️ 何时输出：
+;       · **他提议**绕路（「要不要绕一下」「顺路去看看」）⇒ 你同意 ⇒ 输出 ✓
+;       · **你自己想提议**（聊到附近有意思的地方、或者想多待一会儿）⇒
+;         先说出口；**他答应之后**再输出（不要自己说了就写）✓
+;   ⚠️ 一次对话里**最多一次** —— 绕完就继续赶路 ✓
+REF_PROMPT += @"\n\n【★ 绕路（还在去约会的路上时）】"
+REF_PROMPT += @"\n   如果你们商量着**绕一下路**（顺路看看别处、多待一会儿），"
+REF_PROMPT += @"\n   在 ###DELTA### 之后再另起一行，写上："
+REF_PROMPT += @"\n      ###DETOUR###"
+REF_PROMPT += @"\n   ⚠️ 和 ###STRIP### 一样：**只有商量好了才写** ——"
+REF_PROMPT += @"\n      你单方面想绕、他还没答应 ⇒ **不要写**，先把话说出来 ✓"
+REF_PROMPT += @"\n   ⚠️ 绕路会**花掉十分钟**，但赶路的时间也会**相应多出十分钟**"
+REF_PROMPT += @"\n      （所以剩余时间看起来没怎么变）—— 这正是绕路的代价 ✓"
 RETURN
 
 @LLM_SHOW_API_HINT
@@ -7902,6 +8461,12 @@ RETURN
 ;  表现就是"点了没反应"。用 EXISTFUNCTION 直接问引擎，结论是确定的。
 ; ────────────────────────────────────────────────────────────────────────────
 @LLM_SELFTEST
+#DIMS LLM_CLOTHTXT    ; ★ 槽位诊断用（2026-10-08）
+#DIMS LLM_STRIP_LAST
+#DIM  LLM_DBG_SLOT
+#DIM  LLM_NAKED_UP
+#DIM  LLM_NAKED_LO
+#DIMS LLM_DBG_CW2
 #LOCALSIZE 4
 #LOCALSSIZE 4
 #DIMS LLM_TMP
@@ -7948,9 +8513,36 @@ PRINTFORML 　　CHARA_HOLIDAY(1) = {CHARA_HOLIDAY((TARGET), 1)}   ← 1=今天�
 PRINTFORML 　　BASE:工作量 = {BASE:(TARGET):工作量}
 PRINTFORML 　　工作開始 = {TCVAR:(TARGET):工作開始}   工作結束 = {TCVAR:(TARGET):工作結束}
 PRINTFORML 　　CFLAG:職場 = {CFLAG:(TARGET):職場}   CSTR:職場 = %CSTR:(TARGET):職場%
-PRINTFORML 　　行動(5=工作) = {CFLAG:(TARGET):行動}   AT_HOME = {AT_HOME((TARGET))}
+PRINTFORML 　　行動(5=工作) = {CFLAG:(TARGET):行動}   AT_HOME = {AT_HOME(TARGET)}
 PRINTFORML 　【自由互动诊断】
 PRINTFORML 　　最近一次 ###BODY### 解析 = 「%LLM_BODY_LAST%」   ← 空 = 模型没写
+PRINTFORML 　　关键词推断输入 = 「%LLM_GUESS_IN%」
+PRINTFORML 　　关键词推断结果 = 「%LLM_GUESS_OUT%」
+PRINTFORML 　　【立绘诊断】
+PRINTFORML 　　立绘模式 FLAG:立絵種類 = {FLAG:立絵種類}  （0=立绘 1=颜绘）
+PRINTFORML 　　上半身着衣状況 = {TEQUIP:(TARGET):上半身着衣状況}  下半身 = {TEQUIP:(TARGET):下半身着衣状況}
+PRINTFORML 　　上衣脱衣完毕 = {TEQUIP:(TARGET):上衣脱衣完毕}  上半身裸露状態 = {TEQUIP:(TARGET):上半身裸露状態}
+SIF EXISTFUNCTION(@"CHECK_NUDE")
+	PRINTFORML 　　CHECK_NUDE 返回 = {CHECK_NUDE(TARGET)}
+PRINTFORML 　　HAS_STANDING = {HAS_STANDING(TARGET)}
+LLM_DBG_CW2 = ""
+CALL LLM_INT_CLOTHES_TXT(TARGET, LLM_DBG_CW2)
+PRINTFORML 　　穿着文本 = 「%LLM_DBG_CW2%」
+PRINTFORML 　　NAKED_UP = {LLM_NAKED_UP}  NAKED_LO = {LLM_NAKED_LO}
+PRINTFORML 　　最近一次脱掉的（LLM_STRIP_LAST）= 「%LLM_STRIP_LAST%」
+PRINTFORML 　　　　长度 = {STRLENS(LLM_STRIP_LAST)} 字节   ← 远大于衣服名 = 值被污染 ⚠️
+PRINTFORML 　　【她身上的 EQUIP 槽】
+FOR LOCAL, 0, 23
+	LLM_CLOTHTXT = ""
+	SIF EQUIP:(TARGET):LOCAL
+		LLM_CLOTHTXT = %CLOTHNAME(LOCAL, EQUIP:(TARGET):LOCAL, TARGET)%
+	SIF STRLENS(LLM_CLOTHTXT) >= 3
+		PRINTFORML 　　　槽 {LOCAL} ⇒ %LLM_CLOTHTXT%
+NEXT
+PRINTFORML 　　最近一次脱衣匹配到槽号 = {LLM_DBG_SLOT}  名字 = 「%LLM_STRIP_LAST%」
+PRINTFORML 　　BODY 解析成功 {LLM_BODY_OK_CNT} 次 / 失败 {LLM_BODY_NG_CNT} 次   ← ★ 成功过吗
+PRINTFORML 　　最近一次拿到的部位串 = 「%LLM_DBG_BP%」  算出的值 = {LLM_DBG_V}   ← ★ 应用诊断
+PRINTFORML 　　DELTA 解析成功 {LLM_DELTA_OK_CNT} 次 / 失败 {LLM_DELTA_NG_CNT} 次
 PRINTFORML 　　LLM_MODE = {LLM_MODE}   ← 1 = 自由互动模式
 PRINTFORML 　　TARGET = {TARGET}  名字 = %CALLNAME:(TARGET)%
 PRINTFORML 　　CFLAG:睡眠 = {CFLAG:(TARGET):睡眠}   ← 1 = 睡着（睡姦层的判据）
@@ -7958,7 +8550,7 @@ PRINTFORML 　　TCVAR:烂醉 = {TCVAR:(TARGET):烂醉}   ← 醉姦层的判据
 PRINTFORML 　　CFLAG:诶嘿嘿 = {CFLAG:(TARGET):诶嘿嘿}   ← 第三层的判据
 PRINTFORML 　　LLM_HALFAWAKE = {LLM_HALFAWAKE}   AWAKE = {LLM_AWAKE:(TARGET):0}   BOOST = {LLM_AWAKE_BOOST}
 PRINTFORML 　　REL_LEVEL = {LLM_REL_LEVEL(TARGET)}   好感 = {CFLAG:(TARGET):好感度}  信赖 = {CFLAG:(TARGET):信赖度}
-PRINTFORML 　　絶頂余韻 B={BASE:(TARGET):Ｂ絶頂余韻} V={BASE:(TARGET):Ｖ絶頂余韻} C={BASE:(TARGET):Ｃ絶頂余韻} A={BASE:(TARGET):Ａ絶頂余韻} M={BASE:(TARGET):Ｍ絶頂余韻}
+	PRINTFORML 　　快感值（PALAM:快X，满 PALAMLV:4=10000）B={PALAM:(TARGET):快Ｂ} V={PALAM:(TARGET):快Ｖ} C={PALAM:(TARGET):快Ｃ} A={PALAM:(TARGET):快Ａ} M={PALAM:(TARGET):快Ｍ}
 
 	PRINTFORML 　上一场对话（LLM_PREV）… 【空】
 
@@ -8060,6 +8652,33 @@ IF EXISTFUNCTION(@"LLM_APPLY_DELTA")
 ELSE
 	PRINTFORML 　LLM_APPLY_DELTA … 缺失！
 ENDIF
+	
+	PRINTL 　── 自由互动模块 ──
+	IF EXISTFUNCTION(@"LLM_INT_PARSE_BODY")
+		PRINTFORML 　LLM_INT_PARSE_BODY … OK
+	ELSE
+		PRINTFORML 　LLM_INT_PARSE_BODY … 缺失！← ###BODY### 解析不了
+	ENDIF
+	IF EXISTFUNCTION(@"LLM_INT_GETVAL")
+		PRINTFORML 　LLM_INT_GETVAL … OK
+	ELSE
+		PRINTFORML 　LLM_INT_GETVAL … 缺失！← 部位增量永远算成 0
+	ENDIF
+	IF EXISTFUNCTION(@"LLM_INT_APPLY_BODY")
+		PRINTFORML 　LLM_INT_APPLY_BODY … OK
+	ELSE
+		PRINTFORML 　LLM_INT_APPLY_BODY … 缺失！← 计量表永远不动
+	ENDIF
+	IF EXISTFUNCTION(@"LLM_INT_METERS")
+		PRINTFORML 　LLM_INT_METERS … OK
+	ELSE
+		PRINTFORML 　LLM_INT_METERS … 缺失！← 计量表显示不出来
+	ENDIF
+	IF EXISTFUNCTION(@"LLM_INT_ACT_STATUS")
+		PRINTFORML 　LLM_INT_ACT_STATUS … OK
+	ELSE
+		PRINTFORML 　LLM_INT_ACT_STATUS … 缺失！
+	ENDIF
 
 PRINTL 　── 拒绝对话 ──
 IF EXISTFUNCTION(@"LLM_REFUSE_REASON")
@@ -8730,6 +9349,33 @@ SIF TOINT(LLM_TMP) <= 0
 	RETURN
 LLM_REQ = TOINT(LLM_TMP)
 CALL LLM_POLL(LLM_REQ, LLM_STATE, LLM_OUT)
+; ★★ **思考链检测（统一）**（2026-10-08 用户指出）——
+;   ⚠️ 实测：开场白漏了检测 ⇒ 大段分析被当台词显示 ⚠️
+;   ⚠️ `STRLENS` 按字节（中文 1 字 = 3）⇒ 1200 字节 ≈ 400 汉字 ✓
+IF LLM_STATE == 1
+	LLM_TMP = %SUBSTRING(LLM_OUT, 0, 50)%
+	SIF STRLENS(LLM_OUT) > 600
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "让我") == 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "The user") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "当前状态") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "分析") >= 0
+		LLM_STATE = 9
+	; ★ 2026-10-08 追加：这些也是思考链的标志（实测）✓
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "玩家") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_TMP, "应该") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "act=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "t=") >= 0
+		LLM_STATE = 9
+	SIF LLM_STATE == 1 && STRFIND(LLM_OUT, "「") < 0 && STRFIND(LLM_OUT, "（") < 0
+		LLM_STATE = 9
+ENDIF
 CLEARLINE 1
 SIF LLM_STATE != 1
 	RETURN
@@ -9043,3 +9689,154 @@ IF STRFIND(LLM_MEMO_DT, "他自报身份：") >= 0
 		RETURN 1
 ENDIF
 RETURN 0
+
+
+
+; ========================================================================
+;  **思考链检测**（2026-10-08 用户要求）——
+;  用户原话：「思考链还爆出来了」「检测到就丢弃 + 重试」
+;  ⚠️ 实测泄漏的样子（log）：
+;     · "让我仔细理解这个场景。当前状态：- 地点：..."
+;     · "The user is playing a character (likely Doremy...) ..."
+;  ⇒ 判据：**开头**出现这些特征词，或者**过长**（>800 字）⇒ 判为思考链 ✓
+; ========================================================================
+@LLM_IS_THINKING(REF_TEXT)
+#DIMS REF REF_TEXT
+#LOCALSIZE 2
+#LOCALSSIZE 2
+#DIMS LLM_HEAD
+SIF STRLENS(REF_TEXT) <= 0
+	RETURN 0
+	; ── ① 过长 ⇒ 思考链（2026-10-08 用户建议：超 500 字就打回重写）──
+	;   ⚠️ 正常台词只有 100~300 字；500 已经明显异常 ✓
+	;   ⚠️ 原来写 1200 ⇒ 实测那段思考链约 800~1000 字 ⇒ **漏过去了** ⚠️
+SIF STRLENS(REF_TEXT) > 500
+	RETURN 1
+; ── ② 开头特征词 ──
+LLM_HEAD = %SUBSTRING(REF_TEXT, 0, 60)%
+SIF STRFIND(LLM_HEAD, "让我") == 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "让我仔细") >= 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "当前状态") >= 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "The user") >= 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "分析") == 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "首先") == 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "我需要") == 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "根据设定") >= 0
+	RETURN 1
+SIF STRFIND(LLM_HEAD, "场景分析") >= 0
+	RETURN 1
+; ── ③ 没有台词标记 ⇒ 也可疑（正常回复一定有（）或「」）──
+SIF STRFIND(REF_TEXT, "「") < 0 && STRFIND(REF_TEXT, "（") < 0
+	RETURN 1
+RETURN 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

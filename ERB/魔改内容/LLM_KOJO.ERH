@@ -146,6 +146,9 @@
 ;     读它的是 `@LLM_APPLY_DELTA`（执行），两个函数的局部不共享 ⚠️
 ;  ⚠️ 不带 `SAVEDATA` —— 会话级，每轮重写 ✓
 #DIMS LLM_STRIP_WANT
+; ★ 本轮模型是否要求「绕路」（约会路上，2026-10-07）——
+;   ⚠️ 会话级、不进存档（和 LLM_STRIP_WANT 同类）✓
+#DIM LLM_DETOUR_WANT
 ; ★ 上次见面距今（分钟；0 = 第一次见面）—— 开场时算好，供 prompt 注入
 #DIM LLM_GAP
 ; ★★ "她这一轮已经道别了" 的**待退出标记**：
@@ -227,6 +230,28 @@
 ;      文件级 `#DIM` 不跨文件，放 .ERB 里桥接那边会报「没有声明」⚠️
 ;   ⚠️ **不存盘**：退出互动后由入口显式设回 0 ✓
 #DIM LLM_MODE
+; 关键词推断诊断（2026-10-08）
+#DIMS LLM_GUESS_IN
+#DIMS LLM_GUESS_OUT
+; ★ APPLY_BODY 诊断（2026-10-08）—— 记录拿到的部位串与算出的值
+#DIMS LLM_DBG_BP
+#DIM  LLM_DBG_V
+; ★ BODY / DELTA 解析成败计数（2026-10-08 诊断用）——
+#DIM LLM_BODY_OK_CNT
+#DIM LLM_BODY_NG_CNT
+#DIM LLM_DELTA_OK_CNT
+#DIM LLM_DELTA_NG_CNT
+; 本轮是否"关系尚浅却被逆推"（2026-10-08）—— 给她一段特殊对话 ✓
+;   ⚠️ 只在自由互动里用 ✓
+#DIM LLM_SHALLOW
+; ★★ **会话历史的索引**（2026-10-08 历史隔离）——
+;   · 自由对话 ⇒ `= 角色索引`
+;   · 自由互动 ⇒ `= 角色索引 + 10000`（两套历史互不污染）✓
+#DIM LLM_HIST_ID
+; prompt 3-layer split switch (2026-10-07) --
+;   0 (default) = intimate mode uses new @LLM_PROMPT_INTIMATE
+;   1           = intimate mode uses the old inline code (rollback)
+#DIM LLM_USE_OLD_PROMPT
 #DIMS LLM_BODY_LAST   ; ★ 最近一次解析到的 ###BODY### 内容（[6] 诊断用，不存盘）
 
 ; ── 上一场对话（以开场白为分界线的"补充记忆"）──;  设计：**每次开场白就是一条分界线** ——
@@ -386,6 +411,15 @@
 ;   ⚠️ **追加在最后** ⇒ 旧档读到 0 ✓
 #DIM CHARADATA SAVEDATA LLM_AWAKE, 1
 
+; last-talk location (2026-10-07 place-change detection) --
+;   if current place differs, opening line should not continue last topic
+;   MUST be appended after the last SAVEDATA
+#DIMS CHARADATA SAVEDATA LLM_PREV_PLACE, 1
+
+; ★★ 亲密偏好（2026-10-08 用户要求：提取玩家最爱的体位/玩法）——
+;   ⚠️ 形如「回忆：… / 偏好：骑乘位、乳交」；追加在最后一个 SAVEDATA 之后 ✓
+#DIMS CHARADATA SAVEDATA LLM_INT_PREF, 1
+
 ; ★ **是否处在「半醒」**（不存盘 —— 退出互动就恢复）✓
 #DIM LLM_HALFAWAKE
 ; ★ **半醒后每回合的觉醒加成**（越动越容易醒）✓
@@ -442,3 +476,4 @@
 ;    · 详见 `LLM待做清单.md` 的「亲密互动偏好记忆」一条。
 ; #DIMS CHARADATA SAVEDATA LLM_SEXPREF, 4      ; ← 实现时取消注释
 ; #DIM  CHARADATA SAVEDATA LLM_SEXPREF_CNT
+

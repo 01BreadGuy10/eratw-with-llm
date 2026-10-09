@@ -30,7 +30,11 @@ import sys
 
 # ⚠️ `.ERH` 里的声明是**全局变量** —— 各 .ERB 里直接就能用，
 #    所以检查"未声明左值"时必须把它们算进去，否则满屏误报。
-GLOBAL_ERH = ["ERB/魔改内容/LLM_KOJO.ERH"]
+GLOBAL_ERH = [
+    "ERB/魔改内容/LLM_KOJO.ERH",
+    # 原版/模块全局行号状态：@删除立绘履历 使用它们清理 HTML 立绘块
+    "ERB/魔改内容/qol/QOL_USERCOM.ERH",
+]
 
 GLOBALS = set()   # 由 main() 用 load_global_decls() 填
 
@@ -72,7 +76,10 @@ TARGETS = [
 ]
 
 # 合法的"引用型"裸引号（`REPLACE(x, @"…", "")` 这种）—— 白名单
-BARE_QUOTE_OK = re.compile(r"'\s*=\s*REPLACE\(")   # 用 search，不是 match
+# ⚠️ 2026-10-08：加上 **单字符字面量 `"@"`** ——
+#    官方自己也这么写（`STYLE_EFFECTS.ERB:73  SPLIT ARGS, "@", LOCALS`），
+#    而且 `STRFIND(x, "@") >= 0` 是我们判「CLOTHNAME 是否带 @" 壳」的写法 ⚠️
+BARE_QUOTE_OK = re.compile(r"""('\s*=\s*REPLACE\()|("@"\s*[,)])""")   # 用 search，不是 match
 
 
 def read(p):
@@ -748,6 +755,53 @@ def check_const_numeric(lines, path):
     return bad
 
 
+def check_const_array_decl(lines, path):
+    """★ 第 14 项：槽号常量数组（`LLM_TOP` 等）在**读取**时必须在当前函数里声明。
+
+    ⚠️ 为什么必须查（2026-10-08 **真事故**）：
+       我用脚本批量删一个 `#DIM CONST LLM_INNER, 4 = 8, 7, 6, 5` 声明时，
+       匹配写得太宽 ⇒ **把另外两个函数里的同名声明也删了** ⚠️
+       而这两个函数里还有 `LLM_SLOT = LLM_INNER:LOCAL` ⇒
+       **引擎会当成未声明变量**（数组读不到值）⇒ 脱衣功能直接坏掉。
+
+    ⚠️ 为什么原有检查没抓到：
+       `check_undeclared_lvalue` 只查**左值赋值**和 `CALL` 实参，
+       不查 `X = ARR:IDX` 这种**数组读取** ⇒ 漏过去了。
+
+    ⚠️ 只查我们自己的这几个槽号常量数组（避免动到引擎变量）✓
+    """
+    WATCH = ("LLM_TOP", "LLM_BOT", "LLM_INNER", "LLM_ALL", "LLM_DECO")
+    fof = func_map(lines)
+    decl = {}
+    for i, l in enumerate(lines):
+        m = re.match(r'#(DIM|DIMS)\s+(?:CONST\s+|REF\s+|DYNAMIC\s+)?([A-Za-z_][A-Za-z_0-9]*)',
+                     l.strip())
+        if m:
+            decl.setdefault(fof(i), set()).add(m.group(2))
+    bad = []
+    for i, l in enumerate(lines):
+        s = strip_comment(l)
+        if not s or s.strip().startswith("#"):
+            continue
+        fn = fof(i)
+        if fn is None:
+            continue
+        for name in WATCH:
+            # 形如 `X:LOCAL` 的读取（声明行已排除）
+            if not re.search(r'\b%s\s*:' % name, s):
+                continue
+            if name in decl.get(fn, set()):
+                continue
+            owners = [f for f, vs in decl.items() if name in vs]
+            bad.append(
+                "  ★ 【%s】L%d 用了 `%s:` 读取，但**在 %s 里没有声明**%s"
+                " ⇒ 引擎当成未声明变量、数组读不到值 ⇒ 该功能静默失效 ⚠️"
+                % (os.path.basename(path), i + 1, name, fn,
+                   ("（声明在 %s）" % owners[0]) if owners else "（全文件都没有）")
+            )
+    return bad
+
+
 def main():
     global GLOBALS
     GLOBALS = load_global_decls()
@@ -763,6 +817,7 @@ def main():
         problems += check_bare_quote(lines, path)
         problems += check_cross_function(lines, path)
         problems += check_undeclared_lvalue(lines, path)
+        problems += check_const_array_decl(lines, path)
         problems += check_charadata_rank(path)
         problems += check_call_signature(path)
         problems += check_sif_sif(path)
@@ -796,7 +851,8 @@ def main():
         # ⚠️ 这个数字必须跟**实际调用的 check_ 函数个数**一致
         #    （2026-09-27 核对：定义了 15 个、且全部都会被调用；
         #      这里原来硬编码 13 —— 09-18 新增两项后忘了改，显示与实际不符）
-        print("  ✅ 全部检查通过（15 项）")
+        #    （2026-10-08 新增 check_const_array_decl ⇒ 16 项）
+        print("  ✅ 全部检查通过（16 项）")
     else:
         print(f"  ❌ 共 {total} 个问题")
     sys.exit(1 if total else 0)
