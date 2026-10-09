@@ -476,4 +476,4 @@
 ;    · 详见 `LLM待做清单.md` 的「亲密互动偏好记忆」一条。
 ; #DIMS CHARADATA SAVEDATA LLM_SEXPREF, 4      ; ← 实现时取消注释
 ; #DIM  CHARADATA SAVEDATA LLM_SEXPREF_CNT
-
+#DIM LLM_MOOD_OLD

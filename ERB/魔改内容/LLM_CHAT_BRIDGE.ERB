@@ -57,6 +57,14 @@ SIF LLM_TMP != "1"
 ;      （她没意识，日常对话那套完全不适用）✓
 SIF CFLAG:TARGET:诶嘿嘿 || CFLAG:TARGET:睡眠 || TCVAR:TARGET:烂醉
 	RETURN 0
+
+; ★★ **时停 ⇒ 自由对话按钮也禁用**（2026-10-09 用户要求）——
+;   用户原话：「把时停状态下的自由对话按钮禁用 ，这个时候不应出现自由对话」
+;   ⚠️ 用 `@TIMESTOP()` **== 2**（被完全冻住、动不了）：场景是「被摆布」，
+;      日常聊天那套完全不适用 ⇒ 只留「自由互动」这条入口 ✓
+;   ⚠️ `== 1`（进了时停世界、有意识）**不禁** —— 那时她能动、对话是正常的 ✓
+SIF EXISTFUNCTION(@"TIMESTOP") && TIMESTOP(TARGET) == 2
+	RETURN 0
 RETURN 1
 
 
@@ -569,3 +577,4 @@ CALLSHARP LLM_DEBUG(0, LLM_TMP)
 SIF LLM_TMP == ""
 	PRINTFORML <插件未加载，无法打印>
 RETURN
+

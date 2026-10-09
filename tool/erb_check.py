@@ -78,6 +78,12 @@ class ErbLinter:
         self.rules = {
             'IF': 1, 'SELECTCASE': 1, 'FOR': 1, 'WHILE': 1, 'DO': 1, 'REPEAT': 1,
             'DATALIST': 1, 'TRYCALLLIST': 1, 'NOSKIP': 1,
+            # ★ 2026-10-09 补：Emuera 的异常捕获块
+            #   ⚠️ 原来有 `ENDCATCH` 却没有 `TRY` / `CATCH` ⇒
+            #      一遇到 `TRY ... CATCH ... ENDCATCH` 就误报
+            #      「Line N: Extra closing tag 'ENDCATCH'」⚠️
+            #   （官方 `CLOTHES.ERB` / `QOL_IMAGE.ERB` 都在用这个结构）
+            'TRY': 1, 'TRYCCALLFORM': 1, 'TRYCALLFORM': 1,
             
             # --- 修改点 1：将 CASE/CASEELSE 视为起始块 ---
             'CASE': 1, 'CASEELSE': 1,
@@ -87,6 +93,8 @@ class ErbLinter:
             
             # ELSE/ELSEIF 仍然是中间块
             'ELSE': 3, 'ELSEIF': 3, 'DATAFORM': 3,
+            # ★ 2026-10-09 补：CATCH 是 TRY 块的中间段（同 ELSE）✓
+            'CATCH': 3,
             
             'SIF': 4, 
 
@@ -102,6 +110,8 @@ class ErbLinter:
             'LOOP': ['DO'], 
             'REND': ['REPEAT'],
             'ENDLIST': ['DATALIST', 'TRYCALLLIST'],
+            # ★ 2026-10-09 补：TRY 异常捕获块的配对 ✓
+            'ENDCATCH': ['TRY', 'TRYCCALLFORM', 'TRYCALLFORM'],
             '[ENDIF]': ['[IF_DEBUG]', '[IF_NDEBUG]', '[IF']
         }
 

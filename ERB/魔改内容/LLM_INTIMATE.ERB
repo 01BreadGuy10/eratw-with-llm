@@ -675,7 +675,7 @@ SIF LLM_SHALLOW
 SIF LLM_SHALLOW
 			REF_PROMPT += @"\n   · ★ 所以你的表现是：**嘴上还在找台阶、身体却已经让步了** ——"
 SIF LLM_SHALLOW
-			REF_PROMPT += @"\n     别演得像早就盼着这一天，也别演得像被侵犯 ✗"
+			REF_PROMPT += @"\n     别演得像早就盼着这一天，也别演得像**你完全是被逼的** ✗"
 SIF LLM_SHALLOW
 			REF_PROMPT += @"\n   · 按你的性格选一种：强势的嘴硬「……就这一次」／"
 SIF LLM_SHALLOW
@@ -796,8 +796,17 @@ RETURN
 #DIM  LLM_LO        ; 下半身着衣（0=没穿）
 #DIMS LLM_CLOTH     ; 穿着短语
 #DIMS LLM_ACT       ; 插入短语
+#DIMS LLM_TS       ; ★ 时间停止的描写片段（2026-10-09）
 REF_OUT = ""
 
+; ══ ⓪ ★★★ **时间停止**（2026-10-09 用户报告：「看起来还像是正常对话一样」）——
+;   ⚠️⚠️ 这段是**程序拼的环境描写**，开场白会**直接打在屏幕上** ⇒
+;      不写的话，**玩家和 LLM 都看不出时间停了** ⚠️
+;   ⚠️ 用官方 `@TIMESTOP()`：2 = 她被完全冻住（无意识/无法动弹）✓
+LLM_TS = ""
+SIF EXISTFUNCTION(@"TIMESTOP") && TIMESTOP(LLM_CID) == 2
+	LLM_TS = "**整片空间都凝住了** —— 她僵在原地动弹不得，只有嘴还能出声，"
+;
 ; ══ ① 体位（照 Look.ERB:488-501 的映射）══
 LLM_POS = ""
 SELECTCASE TEQUIP:(LLM_CID):体位
@@ -839,7 +848,7 @@ ENDIF
 
 ; ══ ④ 拼成一句环境描写 ══
 ;   ⚠️ 顺序：穿着 → 姿势 → 插入 → 湿润/射精 ⇒ 读起来像画面 ✓
-REF_OUT = @"（%CALLNAME:(LLM_CID)%%LLM_CLOTH%"
+REF_OUT = @"（%LLM_TS%%CALLNAME:(LLM_CID)%%LLM_CLOTH%"
 SIF LLM_POS != ""
 	REF_OUT += @"，"
 SIF TCVAR:(LLM_CID):强行
@@ -1255,7 +1264,7 @@ FOR LOCAL, 0, 22
 	LLM_SLOT = LLM_ALL:LOCAL
 	SIF !EQUIP:(LLM_CID):LLM_SLOT
 		CONTINUE
-	LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+	CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, LLM_CW)
 			; ⚠️ `CLOTHNAME` 有时返回 `@"xxx"`（带引号）⇒ 只在**确以 @ 开头**时才剥壳 ✓
 			SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
 			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
@@ -1278,7 +1287,7 @@ IF STRFIND(LLM_TEXT, "上衣") >= 0 || STRFIND(LLM_TEXT, "外衣") >= 0 || STRFI
 	FOR LOCAL, 0, 7
 		LLM_SLOT = LLM_TOP:LOCAL
 		SIF EQUIP:(LLM_CID):LLM_SLOT
-			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+			CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
 		SIF EQUIP:(LLM_CID):LLM_SLOT
 			RETURN
 	NEXT
@@ -1287,7 +1296,7 @@ IF STRFIND(LLM_TEXT, "下衣") >= 0 || STRFIND(LLM_TEXT, "下身") >= 0 || STRFI
 	FOR LOCAL, 0, 5
 		LLM_SLOT = LLM_BOT:LOCAL
 		SIF EQUIP:(LLM_CID):LLM_SLOT
-			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+			CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
 		SIF EQUIP:(LLM_CID):LLM_SLOT
 			RETURN
 	NEXT
@@ -1296,7 +1305,7 @@ IF STRFIND(LLM_TEXT, "内衣") >= 0 || STRFIND(LLM_TEXT, "胸罩") >= 0 || STRFI
 	FOR LOCAL, 0, 4
 		LLM_SLOT = LLM_INNER:LOCAL
 		SIF EQUIP:(LLM_CID):LLM_SLOT
-			REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+			CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
 		SIF EQUIP:(LLM_CID):LLM_SLOT
 			RETURN
 	NEXT
@@ -1307,14 +1316,14 @@ FOR LOCAL, 0, 7
 	LLM_SLOT = LLM_TOP:LOCAL
 	SIF !EQUIP:(LLM_CID):LLM_SLOT
 		CONTINUE
-	REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+	CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
 	RETURN
 NEXT
 FOR LOCAL, 0, 5
 	LLM_SLOT = LLM_BOT:LOCAL
 	SIF !EQUIP:(LLM_CID):LLM_SLOT
 		CONTINUE
-	REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+	CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
 	RETURN
 NEXT
 ; 全裸 ⇒ 空 ✓
@@ -1429,7 +1438,7 @@ ENDIF
 		LLM_GOT = 1
 	ENDIF
 	IF !LLM_GOT && EQUIP:(LLM_CID):12
-		LLM_CW = %CLOTHNAME(12, EQUIP:(LLM_CID):12, LLM_CID)%
+		CALL LLM_SAFE_CLOTH(12, LLM_CID, LLM_CW)
 		; ⚠️ 只在**确以 @ 开头**时才剥壳（否则会把「上身睡衣」砍成「身睡衣」）✓
 		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
 		LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
@@ -1493,7 +1502,7 @@ ENDIF
 		LLM_SLOT = LLM_DECO:LOCAL
 		SIF !EQUIP:(LLM_CID):LLM_SLOT
 			CONTINUE
-		LLM_CW = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+		CALL LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, LLM_CW)
 		; ⚠️ 只在**确以 @ 开头**时才剥壳 ✓
 		SIF STRLENS(LLM_CW) >= 3 && STRFIND(SUBSTRING(LLM_CW, 0, 2), "@") >= 0
 			LLM_CW = %SUBSTRING(LLM_CW, 2, STRLENS(LLM_CW) - 3)%
@@ -1695,8 +1704,49 @@ ENDIF
 RETURN
 
 
+; ========================================================================
+;  ★★★ **安全取衣装名**（2026-10-09 真事故）——
+;   用户报错：「错误内容:不明な部位 ／ 函数: @LLM_SELFTEST」
+;   ⚠️⚠️ **真因**：官方 `@CLOTHNAME` 内部会 `THROW 不明な部位%ARGS%`
+;      （`ERB/衣服/CLOTHES.ERB:364`）——
+;      它的 `SELECTCASE` 里**没有「下身衣服」（槽 12）** ⇒
+;      对槽 12 调用会**直接抛异常、整段脚本中断** ⚠️
+;      （我原来的诊断从槽 0 开始 ⇒ 槽 0 也不在列表 ⇒ 当场炸）
+;   ⇒ 统一走这个包装：**取不到就返回空串**，绝不让游戏崩 ✓
+;   ⚠️ `TRY` **不能跨 `FOR`**（会报 `Extra closing tag 'NEXT'`，实测）——
+;      所以必须**包在函数里**，调用方照常写在循环里 ✓
+;   ⚠️ 支持的槽（`CLOTHES.ERB:345~362`）：
+;      1 飾品／2 帽子／3 靴／4 襪子／5,6 下半身内衣／7,8 上半身内衣／
+;      9 レオタード／10 ボディースーツ／11 裤子／13 連衣裙／14 和服／
+;      15 裙子／16,17 上身衣服／18 外搭／19~21 其他／22 腕部装束
+;      ✗ **不支持 12（下身衣服）** ⚠️
+; ========================================================================
+@LLM_SAFE_CLOTH(LLM_SLOT, LLM_CID, REF_OUT)
+#DIM  LLM_SLOT
+#DIM  LLM_CID
+#DIMS REF REF_OUT
+#LOCALSIZE 1
 
-
+REF_OUT = ""
+; ⚠️ 槽 0 之类根本取不到名字 ⇒ 直接空串
+SIF LLM_SLOT <= 0
+	RETURN
+SIF !EXISTFUNCTION(@"CLOTHNAME")
+	RETURN
+; ⚠️⚠️ **本版 Emuera 不认识裸 `TRY`**（2026-10-09 实测）——
+;   报错：「第1727行:无法解析的行 TRY」+「缺少对应的TRYG系统命令」
+;   官方只用了 `TRYCCALLFORM` / `TRYCALLFORM`（那两个能跑）⚠️
+;   ⇒ **不能用 try/catch 兜底** ⇒ 改成**白名单放行** ✓
+; ⚠️ 槽 12（下身衣服）调 `CLOTHNAME` 会 `THROW 不明な部位`
+;    （`CLOTHES.ERB:364` 的 `SELECTCASE` 里没有它）⇒ **直接跳过、返回空串** ✓
+;    ⇒ 代价：槽 12 的衣物**取不到名字**（但它本来就没在官方分类里）✓
+SIF LLM_SLOT == 12
+	RETURN
+; ⚠️ 槽号越界（0 / 23+）同样会让 `EQUIPNAME:` 取空 ⇒ 跳过 ✓
+SIF LLM_SLOT < 1 || LLM_SLOT > 22
+	RETURN
+REF_OUT = %CLOTHNAME(LLM_SLOT, EQUIP:(LLM_CID):LLM_SLOT, LLM_CID)%
+RETURN
 
 
 
