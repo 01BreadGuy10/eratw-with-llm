@@ -27,7 +27,6 @@ bin/
 *.user
 *.suo
 plugins/LLMBridge/config.txt
-plugins/LLMBridge.dll
 
 # ══════════════════════════════════════════════════════════════════════
 #  ★ 2026-10-08 追加（用户要求：本地东西不要被上传）
@@ -66,3 +65,26 @@ lazyloadingfiles.dat
 lazyloading.bin
 lazyloadingfiles.bin
 /debug/
+
+# ══════════════════════════════════════════════════════════════════════
+#  ★ 2026-11-10 修复「他人 clone 后无法游玩」（用户反馈）
+#  ⚠️⚠️ 原来 `*.config` 把三个**运行必需**的配置也挡掉了：
+#      · CSV/_fixed.config   → 含 `_Rename.csvを利用する:YES`
+#                              ⇒ 少了它**汉化名映射失效、全变日文** ⚠️
+#      · CSV/_default.config → 窗口/字体默认值
+#      · emuera.config       → 中文字体「黑体」等设置
+#  ⚠️ `plugins/LLMBridge.dll` 曾被单独忽略 ⇒ **插件本体不进仓库** ⇒
+#      别人 clone 后没有插件 ⇒ 「自由对话/自由互动」按钮永不出现 ⚠️
+#  ⇒ 用 `!` 例外把它们放回来 ✓
+# ══════════════════════════════════════════════════════════════════════
+
+# ── 游戏运行必需 ──
+!CSV/_default.config
+!CSV/_fixed.config
+!emuera.config
+
+# ── LLM 插件本体（编译产物，但玩家必须有）──
+!plugins/LLMBridge.dll
+
+# ── Emuera 的运行开关（`UseScopedVariableInstruction` 会影响变量作用域）──
+!setting.json
