@@ -52,9 +52,9 @@
 ; ────────────────────────────────────────────────────────────────────────────
 
 ; [* DeepSeek]（原写法 * 需去掉分号；当前为散装模式，插件也能识别）
-key   = sk-在这里填你的密钥（本地服务可留空）
-model = deepseek-flash
-url   = https://api.deepseek.com
+;key   = sk-在这里填你的密钥（本地服务可留空）
+;model = deepseek-flash
+;url   = https://api.deepseek.com
 
 ; [* CommandCode]
 ; key   = 在此粘贴 CommandCode Provider API key
